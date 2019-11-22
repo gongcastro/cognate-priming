@@ -17,10 +17,7 @@ library(stringr)      # for working with character strings
 library(purrr)        # for working with lists
 library(ggplot2)      # for visualising data
 library(googledrive)  # for downloading participant-level information
-library(gazepath)     # for analysing eye-tracker data
 library(eyetrackingR) # for processing eye-tracking data
-library(lmerTest)     # for performing Growth curve analysis
-library(car)          # for performing ANOVAs
 
 # load functions
 source("Code/osf_download_component.R")
@@ -105,13 +102,16 @@ data.raw <- map(.x = list.files('Data/Gaze data/Barcelona', full.names = TRUE, r
 data.processed <- data.raw %>%
   mutate(
     Trial = as.character(Trial),
+    # evaluate if gaze is in prime AOI
     gazeP = prime_coords(data = .,
                          x_gaze = meanX,
                          y_gaze = meanY),
+    # evaluate if gaze is in target AOI
     gazeT = target_coords(data = .,
                           x_gaze = meanX,
                           y_gaze = meanY,
                           target_location = locationTarget),
+    # evaluate if gaze is in distractor AOI
     gazeD = distractor_coords(data = .,
                           x_gaze = meanX,
                           y_gaze = meanY,
@@ -121,26 +121,13 @@ data.processed <- data.raw %>%
          meanX, meanY, meanValidity,
          list, locationTarget, stimulus,
          gazeP, gazeT, gazeD) %>%
-  left_join(., participants, by = c("ID", "list")) %>%
-  left_join(., trials, by = c("list", "Trial" = "trialID")) %>%
+  left_join(., participants, by = c("ID", "list")) %>% # add participant-level information
+  left_join(., trials, by = c("list", "Trial" = "trialID")) %>% # add trial-level information
   mutate(meanValidity = meanValidity < 1, # TRUE is non valid
-         distance1    = 650,
-         distance2    = 650)
-
-#### filter data  ############################################
-data.filtered <- data.processed %>%
-  filter(
-    valid,
-    !str_detect(prime, unfamiliarSpa),
-    !str_detect(prime, unfamiliarCat),
-    !str_detect(target, unfamiliarSpa),
-    !str_detect(target, unfamiliarCat),
-    !str_detect(distractor, unfamiliarSpa),
-    !str_detect(distractor, unfamiliarCat)
-    )
+         distance1 = 650, # distance of right eye from screen (for extracting fixations)
+         distance2 = 650) # distance of left eye from screen (for extracting fixations)
 
 #### export data ###############################################
 write.table(data.raw, file = here::here("Data", "00_raw.txt"), sep = "\t", row.names = FALSE)
 write.table(data.processed, file = here::here("Data", "01_processed.txt"), sep = "\t", row.names = FALSE)
-write.table(data.filtered, file = here::here("Data", "02_filtered.txt"), sep = "\t", row.names = FALSE)
 

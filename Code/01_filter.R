@@ -10,19 +10,25 @@ library(magrittr)     # for using pipes
 library(tibble)       # for tidy data presentation
 library(dplyr)        # for manipulating data
 library(tidyr)        # for rehsaping datasets
+library(stringr)      # for working with character strings
+library(forcats)      # for dealing with NAs
 library(eyetrackingR) # for processing eye-tracking data
 
 # set parameters
 sampling_rate <- 120
 
 #### import data #########################################################
-data <- read.table(here::here("Data", "02_filtered.txt"), sep = "\t", header = TRUE) %>%
-  as_tibble()
+data.processed <- read.table(here::here("Data", "01_processed.txt"),
+                             sep = "\t",
+                             header = TRUE,
+                             stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  mutate(Trial = as.numeric(Trial))
 
 #### filter data #########################################################
 
-# filter trials with less than 75% looking time to prime in prime phase
-exclude_prime <- data %>%
+# list of trials with <75% looking time to prime in prime phase
+exclude_prime <- data.processed %>%
   group_by(ID, Trial) %>%
   filter(phase == "prime", gazeP == 1) %>%
   summarise(n = n()) %>%
@@ -30,7 +36,7 @@ exclude_prime <- data %>%
   filter(valid == FALSE) %>%
   ungroup()
 
-exclude_prime_trials <- summarise(exclude_prime, n = n()) %$% n
+# list of participants with <50% valid trials regaring prime looking time
 exclude_prime_ID <- exclude_prime %>%
   group_by(ID) %>%
   summarise(n = n()) %>%
@@ -38,9 +44,26 @@ exclude_prime_ID <- exclude_prime %>%
   filter(include == FALSE) %>%
   ungroup()
 
-# filter data
-data.clean <- anti_join(data, exclude_prime, by = c("ID", "Trial")) %>%
+#### filter data  ############################################
+
+data.filtered <- data.processed %>%
+  # remove participants labelled as non-valid
+  filter(valid) %>%
+  # remove trials with <75% looking time to prime in prime phase
+  anti_join(., exclude_prime, by = c("ID", "Trial")) %>%
+  # remove participants with <50% valid trials regaring prime looking time
   anti_join(., exclude_prime_ID, by = "ID") %>%
+  # remove trials where participants were unfamiliar with any of the words
+  filter(
+    !str_detect(prime, unfamiliarCat),
+    !str_detect(prime, unfamiliarSpa),
+    !str_detect(target, unfamiliarCat),
+    !str_detect(target, unfamiliarSpa),
+    !str_detect(distractor, unfamiliarCat),
+    !str_detect(distractor, unfamiliarSpa)
+  ) %>%
+  # remove trial with <75% valid samples during target and distractor
+  # remove participants with <50% valid trials during
   filter(phase == "target_distractor", time >= 0, time <= 2000) %>%
   make_eyetrackingr_data(data               = .,
                          participant_column = "ID",
@@ -55,9 +78,9 @@ data.clean <- anti_join(data, exclude_prime, by = c("ID", "Trial")) %>%
                      participant_prop_thresh = 0.50)
 
 #### analyse trackloss ###################################################
-trackloss <- trackloss_analysis(data.clean)
+trackloss <- trackloss_analysis(data.filtered)
 
 #### export data #########################################################
-write.table(data.clean, "Data/02_filtered-gaze.txt", sep = "\t")
+write.table(data.filtered, file = here::here("Data", "02_filtered.txt"), sep = "\t", row.names = FALSE)
 write.table(trackloss, "Data/02_filtered-trackloss.txt", sep = "\t")
 

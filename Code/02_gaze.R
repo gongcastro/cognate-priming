@@ -12,8 +12,6 @@ library(dplyr)        # for manipulating data
 library(tidyr)        # for rehsaping datasets
 library(purrr)        # for working with lists
 library(eyetrackingR) # for processing eye-tracking data
-library(lmerTest)     # for Linear Mixed-Effects models
-library(broom.mixed)  # for tidy LMEM output
 library(ggplot2)      # for data visualisation
 library(patchwork)    # for arranging plots
 
@@ -23,7 +21,7 @@ screenX           <- 1920
 screenY           <- 1080
 
 #### import data #########################################################
-data <- read.table(here::here("Data", "02_filtered-gaze.txt"), sep = "\t", header = TRUE) %>%
+data <- read.table(here::here("Data", "02_filtered.txt"), sep = "\t", header = TRUE) %>%
   as_tibble() %>%
   mutate(trialType = factor(trialType, levels = c("unrelated", "noncognate", "cognate")),
          profile = case_when(spanish > 0.80 ~ "monolingual",
@@ -66,7 +64,7 @@ data %>%
   theme(
     panel.background = element_rect(fill = "transparent")
   ) +
-  ggsave(here::here("Figures", "03_gaze-reconstruction.png"), height = 7, width = 4)
+  ggsave(here::here("Figures", "03_gaze-reconstruction.png"), height = 4, width = 7)
 
 #### summary #############################################################
 summaryT <- describe_data(data,
@@ -202,63 +200,9 @@ ggplot(data.bins, aes(x = Time, y = Prop, colour = trialType, fill = trialType))
     legend.position = "top",
   ) +
   ggsave(here::here("Figures", "04_gaze-time.png"))
-  
-
-#### analyse data ########################################################
-model <- lmer(
-  ArcSin ~ 
-    (ot1+ot2)*trialType +
-    (ot1+ot2 | ID) +
-    (1+trialType | ID) +
-    (ot1+ot2 | Trial) +
-    (1+trialType | Trial),
-  data = data,
-  REML = TRUE,
-  control = lmerControl(optimizer = "optim")
-)
-
-#### visualise data ######################################################
-
-# raw data
-data %>%
-  drop_na(ArcSin) %>%
-  ggplot(., aes(x = Time, y = ArcSin, colour = trialType, fill = trialType)) +
-  stat_summary(fun.data = mean_se, geom = "ribbon", colour = NA, alpha = 0.5) +
-  stat_summary(fun.y = mean, geom = "line", size = 1) +
-  labs(title = "Looking time to the target",
-       x = "Time (ms)", y = "Proportion of fixations (ArcSin transformation)",
-       colour = "Trial type", fill = "Trial type") +
-  scale_fill_brewer(palette = "Dark2") +
-  scale_color_brewer(palette = "Dark2") +
-  theme(
-    panel.background = element_blank(),
-    panel.grid = element_line(colour = "grey", linetype = "dotted"),
-    legend.position = c(0.5, 0.1),
-    legend.direction = "horizontal"
-  ) +
-  ggsave("Figures/01_gaze_raw.png")
-
-# fitted model
-data %>%
-  drop_na(ArcSin) %>%
-  ggplot(., aes(x = Time, y = ArcSin, colour = trialType, fill = trialType)) +
-  stat_summary(aes(y = fitted(model)), fun.data = mean_se, geom = "ribbon", colour = NA, alpha = 0.5) +
-  stat_summary(aes(y = fitted(model)), fun.y = mean, geom = "line") +
-  stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.1) +
-  labs(title = "Looking time to the target",
-       x = "Time (ms)", y = "Proportion of fixations (ArcSin transformation)",
-       colour = "Trial type", fill = "Trial type") +
-  scale_fill_brewer(palette = "Dark2") +
-  scale_color_brewer(palette = "Dark2") +
-  theme(
-    panel.background = element_blank(),
-    panel.grid = element_line(colour = "grey", linetype = "dotted"),
-    legend.position = c(0.5, 0.1),
-    legend.direction = "horizontal") +
-  ggsave("Figures/02_gaze_model.png")
-
 
 #### export data ##################################################
-write.table(data, "Data/02_gaze.txt", sep = "\t")
-write.table(summary, "Data/01_summary.txt", sep = "\t")
+write.table(data, here("Data", "03_gaze-raw.txt"), sep = "\t")
+write.table(data.bins, here("Data", "03_gaze-timebins.txt"), sep = "\t")
+write.table(summary, here("Data", "03_summary.txt"), sep = "\t")
 
