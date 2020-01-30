@@ -20,17 +20,17 @@ distractor_coords <- function(
   
   {{ data }} %>%
     mutate(
-      d_xmin = case_when(({{ target_location }} == "left")  ~ r_coords[1],
-                         ({{ target_location }} == "right") ~ l_coords[1],
+      d_xmin = case_when(({{ target_location }} == "l")  ~ r_coords[1],
+                         ({{ target_location }} == "r") ~ l_coords[1],
                          TRUE                               ~ NA_real_),
-      d_xmax = case_when(({{ target_location }} == "left")  ~ r_coords[2],
-                         ({{ target_location }} == "right") ~ l_coords[2],
+      d_xmax = case_when(({{ target_location }} == "l")  ~ r_coords[2],
+                         ({{ target_location }} == "r") ~ l_coords[2],
                          TRUE                               ~ NA_real_),
-      d_ymin = case_when(({{ target_location }} == "left")  ~ r_coords[3],
-                         ({{ target_location }} == "right") ~ l_coords[3],
+      d_ymin = case_when(({{ target_location }} == "l")  ~ r_coords[3],
+                         ({{ target_location }} == "r") ~ l_coords[3],
                          TRUE                               ~ NA_real_),
-      d_ymax = case_when(({{ target_location }} == "left")  ~ r_coords[4],
-                         ({{ target_location }} == "right") ~ l_coords[4],
+      d_ymax = case_when(({{ target_location }} == "l")  ~ r_coords[4],
+                         ({{ target_location }} == "r") ~ l_coords[4],
                          TRUE                               ~ NA_real_),
       gazeD = (({{x_gaze}} >= d_xmin) & ({{x_gaze}} <= d_xmax) & ({{y_gaze}} >= d_ymin) & ({{y_gaze}} <= d_ymax))
     ) %>%

@@ -20,17 +20,17 @@ target_coords <- function(
   
  {{ data }} %>%
     mutate(
-      t_xmin = case_when(({{ target_location }} == "right") ~ r_coords[1],
-                         ({{ target_location }} == "left")  ~ l_coords[1],
+      t_xmin = case_when(({{ target_location }} == "r") ~ r_coords[1],
+                         ({{ target_location }} == "l")  ~ l_coords[1],
                          TRUE                               ~ NA_real_),
-      t_xmax = case_when(({{ target_location }} == "right") ~ r_coords[2],
-                         ({{ target_location }} == "left")  ~ l_coords[2],
+      t_xmax = case_when(({{ target_location }} == "r") ~ r_coords[2],
+                         ({{ target_location }} == "l")  ~ l_coords[2],
                          TRUE                               ~ NA_real_),
-      t_ymin = case_when(({{ target_location }} == "right") ~ r_coords[3],
-                         ({{ target_location }} == "left")  ~ l_coords[3],
+      t_ymin = case_when(({{ target_location }} == "r") ~ r_coords[3],
+                         ({{ target_location }} == "l")  ~ l_coords[3],
                          TRUE                               ~ NA_real_),
-      t_ymax = case_when(({{ target_location }} == "right") ~ r_coords[4],
-                         ({{ target_location }} == "left")  ~ l_coords[4],
+      t_ymax = case_when(({{ target_location }} == "r") ~ r_coords[4],
+                         ({{ target_location }} == "l")  ~ l_coords[4],
                          TRUE                               ~ NA_real_),
       gazeT = (({{x_gaze}} >= t_xmin) & ({{x_gaze}} <= t_xmax) & ({{y_gaze}} >= t_ymin) & ({{y_gaze}} <= t_ymax)),
     ) %>%

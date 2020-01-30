@@ -1,0 +1,78 @@
+# 01_process: Analyse gaze in Cognate Priming task
+# Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
+# Center for Brain and Cognition, Pompeu Fabra University
+
+#### set up data ###########################################################
+library(magrittr)     # for using pipes
+library(tibble)       # for tidy data presentation
+library(dplyr)        # for manipulating data
+library(tidyr)        # for rehsaping datasets
+library(data.table)   # for importing data
+library(readxl)       # for importing Excel files
+library(stringr)      # for working with character strings
+library(purrr)        # for working with lists
+library(here)         # for locating files
+
+# load functions
+source(here("R", "Functions", "prime_coords.R"))
+source(here("R", "Functions", "target_coords.R"))
+source(here("R", "Functions", "distractor_coords.R"))
+"%!in%" <- function(x, y) !(x %in% y)
+
+# set experimental parameters
+sampling_rate <- 120  # how many samples does the eye-tracker take per second?
+screenX       <- 1920 # width of the screen in pixels 
+screenY       <- 1080 # height of the screen in pixels
+
+#### import data #######################################
+
+# import participant-level data
+participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
+	filter(!Pilot) %>% # take info from participants (exclude pilot)
+	drop_na(Version) %>%
+	rename(ParticipantID = ID)
+
+# import gaze data
+data.raw <- fread(here("Data", "00_raw.txt"), sep = "\t", dec = ".")
+
+# import trial-level data
+trials <- list.files(here("Stimuli", "Lists"), full.names = TRUE) %>%
+	map(~read_xlsx(., col_names = c("TrialID", "Prime", "Target", "Distractor", "Audio", "TargetLocation", "TrialType"))) %>%
+	set_names(list.files(here("Stimuli", "Lists"))) %>%
+	bind_rows(.id = "List") %>%
+	mutate(List = str_remove_all(List, c("stimuli_|.xlsx"))) %>%
+	separate(List, c("List", "Version")) %>%
+	mutate(List = str_replace_all(List, "catalan", "catalan_")) %>%
+	mutate(List = str_replace_all(List, "spanish", "spanish_")) %>%
+	separate(List, c("Language", "List")) %>%
+	mutate(Language = str_to_sentence(Language),
+		   List     = as.numeric(List))
+	
+#### merge data #############################################################
+data.merged <- left_join(data.raw, participants, by = "ParticipantID") %>%
+	left_join(., trials, by = c("TrialID", "Language", "Version", "List")) %>%
+	as_tibble() %>%
+	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss, TargetLocation, TrialType, Language, List, Version, DateTest, DateBirth, Age, Sex, LangProfile, Valid)
+
+#### process data ###########################################################
+data <- data.merged %>%
+	mutate(
+		TrialID = as.character(TrialID),
+		# evaluate if gaze is in prime AOI
+		GazePrime = prime_coords(data = .,
+							 x_gaze = meanX,
+							 y_gaze = meanY),
+		# evaluate if gaze is in target AOI
+		GazeTarget = target_coords(data = .,
+							  x_gaze = meanX,
+							  y_gaze = meanY,
+							  target_location = TargetLocation),
+		# evaluate if gaze is in distractor AOI
+		GazeDistractor = distractor_coords(data = .,
+								  x_gaze = meanX,
+								  y_gaze = meanY,
+								  target_location = TargetLocation),
+	)
+
+#### export data ###############################################
+write.table(data, file = here("Data", "01_processed.txt"), sep = "\t", row.names = FALSE)

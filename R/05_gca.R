@@ -5,33 +5,38 @@
 #### set up ################################################
 
 # load packages
-library(here)    # for locating files
-library(tibble)  # for more informative data sets
-library(dplyr)   # for manipulating data
-library(tidyr)   # for reshaping datasets
-library(ggplot2) # for visualising data
-library(GGally)  # for plotting model coefficients
-library(lme4)    # for fitting mixed effect models
-library(lmerTest)
-library(optimx)
+library(tibble)     # for more informative data sets
+library(dplyr)      # for manipulating data
+library(tidyr)      # for reshaping datasets
+library(data.table) # for importing data
+library(ggplot2)    # for visualising data
+library(lme4)       # for fitting mixed effect models
+library(car)        # for KR-Anova
+library(optimx)     # for changing optimiser
+library(here)       # for locating files
 
 #### import data ###########################################
-
-data <- read.table(here("Data", "03_fixations.txt"),
-                   sep = "\t", header = TRUE, stringsAsFactors = FALSE) %>%
+data <- fread(here("Data", "04_fixations.txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE) %>%
   as_tibble()
 
+# 3rd-order polynomials of the time domain 
 t <- poly(unique(data$TimeBin), 4)
 data[,paste("ot", 1:4, sep="")] <- t[data$TimeBin, 1:4]
 
-
 #### fit model #############################################
-model <- lmer(
-  formula = ProbFix ~ (ot1+ot2+ot3)*trialType*A + (ot1+ot2+ot3|ID),
-  control = lmerControl(optimizer="bobyqa"),
-  REML = TRUE,
-  na.action = "na.exclude",
-  data = data
+model <- glmer(
+	ProbFix ~
+		(ot1+ot2+ot3) + TrialType*LangProfile  +
+		(ot1+ot2+ot3 | ParticipantID) +
+		(ot1+ot2+ot3 | TrialID) +
+		(TrialType | ParticipantID) +
+		(LangProfile | ParticipantID) +
+		(TrialType | TrialID) +
+		(LangProfile | TrialID),
+	control   = glmerControl(optimizer="bobyqa"),
+	na.action = "na.exclude",
+	data      = data,
+	family    = binomial(link = "logit")
 )
 
 summary(model)

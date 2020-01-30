@@ -35,7 +35,9 @@ screenY       <- 1080 # height of the screen in pixels
 #### import data #######################################
 
 # import participant-level data
-participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>% filter(!Pilot) # take info from participants (exclude pilot)
+participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
+	filter(!Pilot) %>% # take info from participants (exclude pilot)
+	drop_na(Version)
 
 # import eye-tracking data
 data <- list.files(here("Data", "Gaze data", "Barcelona"), full.names = TRUE, recursive = TRUE, ) %>%          # list files in the folder
@@ -50,7 +52,7 @@ data <- list.files(here("Data", "Gaze data", "Barcelona"), full.names = TRUE, re
 		TrialID       = as.character(Trial),
 		meanX         = rowMeans(cbind(lX, rX), na.rm = TRUE)*screenX,  # change relative coords to screen coords
 		meanY         = rowMeans(cbind(lY, rY), na.rm = TRUE)*screenY,  # change relative coords to screen coords
-		meanDistance  = rowMeans(cbind(lUserCoordZ, rUserCoordZ), na.rm = TRUE)/10, # change distance from screen to centimeters
+		meanDistance  = rowMeans(cbind(lUserCoordZ, rUserCoordZ), na.rm = TRUE)*10, # change distance from screen to centimeters
 		Trackloss     = !(rV | lV ) # is the sample not valid in both eyes?
 	) %>%
 	drop_na(ParticipantID) %>%
