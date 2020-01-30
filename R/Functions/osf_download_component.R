@@ -4,7 +4,7 @@ osf_download_component <- function(
   
   project,
   component,
-  local.path = getwd()
+  local.path
   
 ){
   
