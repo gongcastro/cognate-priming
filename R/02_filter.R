@@ -10,6 +10,7 @@ library(tibble)       # for tidy data presentation
 library(dplyr)        # for manipulating data
 library(tidyr)        # for rehsaping datasets
 library(data.table)   # for importing data
+library(readxl)       # for importing Excel files
 library(stringr)      # for working with character strings
 library(forcats)      # for dealing with NAs
 library(eyetrackingR) # for processing eye-tracking data
@@ -19,9 +20,37 @@ library(here)         # for locating files
 sampling_rate <- 120
 
 #### import data #########################################################
+
+# import processed gaze data
 data.processed <- fread(here("Data", "01_processed.txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE) %>%
   as_tibble() %>%
   mutate(TrialID = as.numeric(TrialID))
+
+# import participants
+participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
+	filter(!Pilot) %>% # take info from participants (exclude pilot)
+	drop_na(Version) %>%
+	rename(ParticipantID    = ID,
+		   ValidParticipant = Valid)
+
+# import trials
+trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>% select(-c(TargetLocation, ValidTrial, TrialType))
+
+# import vocabulary data
+vocab <- fread("~/projects/BiLexicon/Data/02_merged.txt") %>% select(ID, Item, Response, LanguageItem = Language, Dominance)
+
+trial.familiarity <- left_join(participants, trials, by = c("Language", "Version", "List", "Location")) %>%
+	pivot_longer(c("PrimeCDI", "TargetCDI", "DistractorCDI"), names_to = "Role", values_to = "Item") %>%
+	left_join(vocab, by = c("ParticipantID" = "ID", "Item", "Language" = "Dominance")) %>%
+	select(ParticipantID, TrialID, ValidParticipant, Language, LanguageItem, Role, Item, Response) %>%
+	pivot_wider(id_cols = c("ParticipantID", "TrialID", "Language", "ValidParticipant", "LanguageItem", "Item"),
+				names_from = c("Role", "LanguageItem"),
+				values_from = "Response") %>%
+	mutate(AllKnown = case_when(Language=="Spanish" ~ PrimeCDI_Spanish & PrimeCDI_Catalan & TargetCDI_Spanish & DistractorCDI_Spanish,
+								Language=="Catalan" ~ PrimeCDI_Catalan & PrimeCDI_Spanish & TargetCDI_Catalan & DistractorCDI_Catalan,
+								TRUE                ~ NA)) %>%
+	select(ParticipantID, TrialID, AllKnown)
+	
 
 #### filter data #########################################################
 
@@ -45,14 +74,19 @@ exclude_prime_ID <- exclude_prime %>%
 #### filter data  ############################################
 
 data.filtered <- data.processed %>%
+	left_join(trial.familiarity, by = c("ParticipantID", "TrialID")) %>%
 	# remove participants labelled as non-valid
-	filter(Valid) %>%
+	filter(ValidParticipant) %>%
+	# remove participants with very low vocabulary
+	# PENDING!!!
 	# remove trials with <75% looking time to prime in prime phase
 	anti_join(., exclude_prime, by = c("ParticipantID", "TrialID")) %>%
 	# remove participants with <50% valid trials regaring prime looking time
 	anti_join(., exclude_prime_ID, by = "ParticipantID") %>%
+	# remove non-valid trials
+	filter(ValidTrial) %>%
 	# remove trials where participants were unfamiliar with any of the words
-	# PENDING!!!!!
+	filter(AllKnown) %>%
 	# remove trial with <75% valid samples during target and distractor
 	# remove participants with <50% valid trials during
 	filter(Phase == "Target-Distractor", between(TimeStamp, 0, 2000)) %>%

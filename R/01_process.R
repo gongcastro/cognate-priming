@@ -30,29 +30,20 @@ screenY       <- 1080 # height of the screen in pixels
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
 	filter(!Pilot) %>% # take info from participants (exclude pilot)
 	drop_na(Version) %>%
-	rename(ParticipantID = ID)
+	rename(ParticipantID    = ID,
+		   ValidParticipant = Valid)
 
 # import gaze data
 data.raw <- fread(here("Data", "00_raw.txt"), sep = "\t", dec = ".")
 
 # import trial-level data
-trials <- list.files(here("Stimuli", "Lists"), full.names = TRUE) %>%
-	map(~read_xlsx(., col_names = c("TrialID", "Prime", "Target", "Distractor", "Audio", "TargetLocation", "TrialType"))) %>%
-	set_names(list.files(here("Stimuli", "Lists"))) %>%
-	bind_rows(.id = "List") %>%
-	mutate(List = str_remove_all(List, c("stimuli_|.xlsx"))) %>%
-	separate(List, c("List", "Version")) %>%
-	mutate(List = str_replace_all(List, "catalan", "catalan_")) %>%
-	mutate(List = str_replace_all(List, "spanish", "spanish_")) %>%
-	separate(List, c("Language", "List")) %>%
-	mutate(Language = str_to_sentence(Language),
-		   List     = as.numeric(List))
-	
+trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))
+
 #### merge data #############################################################
 data.merged <- left_join(data.raw, participants, by = "ParticipantID") %>%
 	left_join(., trials, by = c("TrialID", "Language", "Version", "List")) %>%
 	as_tibble() %>%
-	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss, TargetLocation, TrialType, Language, List, Version, DateTest, DateBirth, Age, Sex, LangProfile, Valid)
+	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss, TargetLocation, TrialType, Language, List, Version, DateTest, DateBirth, Age, Sex, LangProfile, ValidParticipant, ValidTrial)
 
 #### process data ###########################################################
 data <- data.merged %>%
