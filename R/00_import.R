@@ -65,5 +65,5 @@ data <- list.files(here("Data", "Gaze data", "Barcelona"), full.names = TRUE, re
 	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss)
 
 #### export data ###############################################
-write.table(data, file = here("Data", "00_raw.txt"), sep = "\t", row.names = FALSE)
+fwrite(data, file = here("Data", "00_raw.txt"), sep = "\t", row.names = FALSE)
 

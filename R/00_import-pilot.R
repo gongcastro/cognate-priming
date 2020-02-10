@@ -16,7 +16,6 @@ library(lubridate)    # for working with dates
 library(stringr)      # for working with character strings
 library(purrr)        # for working with lists
 library(ggplot2)      # for using cut_interval
-library(googledrive)  # for downloading participant-level information
 library(here)         # for locating files
  
 # load functions
@@ -71,4 +70,4 @@ data <- list.files(here("Data", "Gaze data", "Barcelona"), full.names = TRUE, re
 	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss)
 
 #### export data ###############################################
-write.table(data, file = here("Data", "00_raw-pilot.txt"), sep = "\t", row.names = FALSE)
+fwrite(data, file = here("Data", "00_raw-pilot.txt"), sep = "\t", row.names = FALSE)
