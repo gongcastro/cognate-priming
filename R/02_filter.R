@@ -48,7 +48,7 @@ trial.familiarity <- left_join(participants, trials, by = c("Language", "Version
 	mutate(AllKnown = case_when(Language=="Spanish" ~ PrimeCDI_Spanish & PrimeCDI_Catalan & TargetCDI_Spanish & DistractorCDI_Spanish,
 								Language=="Catalan" ~ PrimeCDI_Catalan & PrimeCDI_Spanish & TargetCDI_Catalan & DistractorCDI_Catalan,
 								TRUE                ~ NA)) %>%
-	select(ParticipantID, TrialID, AllKnown)
+	select(ParticipantID, TrialID, AllKnown, Pilot)
 	
 
 #### filter data #########################################################

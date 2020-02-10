@@ -44,7 +44,7 @@ trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))
 data.merged <- left_join(data.raw, participants, by = "ParticipantID") %>%
 	left_join(., trials, by = c("TrialID", "Language", "Version", "List")) %>%
 	as_tibble() %>%
-	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss, TargetLocation, TrialType, Language, List, Version, DateTest, DateBirth, Age, Sex, LangProfile, ValidParticipant, ValidTrial)
+	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss, TargetLocation, TrialType, Language, List, Version, DateTest, DateBirth, Age, Sex, LangProfile, ValidParticipant, ValidTrial, Pilot)
 
 #### process data ###########################################################
 data <- data.merged %>%
