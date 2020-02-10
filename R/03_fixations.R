@@ -1,4 +1,4 @@
-# 04_fixations: Analyse gaze in Cognate Priming task
+# 03_fixations: Analyse gaze in Cognate Priming task
 # Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
 # Center for Brain and Cognition, Pompeu Fabra University
 
@@ -114,83 +114,6 @@ fixations <- fixation.info %>%
          Time = TimeBin*time_bin_duration)
   
 #### visualise data ##########################################
-
-# Raw empirical logit gainst time
-fixations %>%
-	filter(AOI == "Target") %>%
-	ggplot(aes(x = Time, y = ProbFix, colour = TrialType, fill = TrialType)) +
-	facet_wrap(~LangProfile) +
-	stat_summary(fun.data = "mean_se", geom = "ribbon", colour = NA, alpha = 0.5, na.rm = TRUE) +
-	stat_summary(fun.y = "mean", geom = "line", na.rm = TRUE) +
-	labs(x = "Time (ms)", y = "Prob. Fixation",
-		 colour = "Trial type", fill = "Trial type",
-		 title = "Prob. of target fixation across Target-Distractor presentation",
-		 subtitle = "Empirical logit, Mean + SEM") +
-	scale_colour_brewer(palette = "Dark2") +
-	scale_fill_brewer(palette = "Dark2") +
-	scale_x_continuous(breaks = seq(0, 2000, 500)) +
-	scale_y_continuous(breaks = seq(0, 1, 0.25)) +
-	theme(
-		panel.background = element_rect(fill = "transparent"),
-		panel.grid = element_line(colour = "grey", linetype = "dotted"),
-		panel.border = element_rect(fill = "transparent", colour = "grey"),
-		legend.position = "top",
-		legend.direction = "horizontal",
-		text = element_text(size = 12),
-		axis.text = element_text(colour = "black")
-	) +
-	ggsave(here("Figures", "04_fixations-time.png"), width = 10)
-
-# reconstruct gaze
-fixation.info %>%
-	right_join(., data, by = c("ParticipantID", "TrialID")) %>% # merge fixation info with time data
-	rename(Time = TimeStamp) %>%
-	mutate(Fixation = (Time >= Start) & (Time <= End)) %>%
-	group_by(ParticipantID, TrialID, Time, TargetLocation, Start, End) %>%
-	summarise(Fixation = any(Fixation),
-			  FixNum   = first(FixNum),
-			  meanX    = first(meanX),
-			  meanY    = first(meanY)) %>%
-	filter(Fixation) %>%
-	mutate(
-		Section = case_when(between(End, 0, 100)    ~ "0-100 ms",
-							between(End, 100, 200)  ~ "100-200 ms",
-							between(End, 200, 300)  ~ "200-300 ms",
-							between(End, 300, 400)  ~ "300-400 ms",
-							between(End, 400, 500)  ~ "400-500 ms",
-							between(End, 500, 600)  ~ "500-600 ms",
-							between(End, 600, 700)  ~ "600-700 ms",
-							between(End, 700, 1000) ~ "700-1000 ms",
-							TRUE                    ~ ">1000 ms") %>%
-			factor(., levels=c("0-100 ms","100-200 ms",
-							   "200-300 ms","300-400 ms",
-							   "400-500 ms","500-600 ms",
-							   "600-700 ms", "700-1000 ms",
-							   ">1000 ms"))
-	) %>%
-	ggplot(aes(x = meanX, y = meanY)) +
-	facet_wrap(~Section) +
-	geom_rect(xmin = 280, xmax = 780, ymin = 290, ymax = 790,
-			  fill = "transparent", colour = "white") +
-	geom_rect(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790,
-			  fill = "transparent", colour = "white") +
-	stat_bin_2d(binwidth = 100, na.rm = TRUE) +
-	labs(x = "X coordinates (pixels", y = "Y coordinates", colour = "Fixation") +
-	scale_fill_viridis_c(option = "magma") +
-	labs(x = "X coordinates (pixels)", y = "Y coordinates (pixels)",
-		 fill = "Fixation samples") +
-	scale_x_continuous(limits = c(0, screenX)) +
-	scale_y_continuous(limits = c(0, screenY)) +
-	coord_fixed() +
-	theme(
-		axis.text = element_blank(),
-		axis.ticks = element_blank(),
-		panel.background = element_rect(fill = "#7F7F7F"),
-		panel.grid =  element_blank(),
-		panel.border = element_rect(colour = "black", fill = "transparent"),
-		legend.position = "top",
-	) +
-	ggsave(here("Figures", "04_fixations-screen.png"))
 
 # fixations-screen animation
 fixation.info %>%
