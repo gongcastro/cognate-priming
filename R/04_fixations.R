@@ -11,8 +11,10 @@ library(tibble)       # for tidy data presentation
 library(dplyr)        # for manipulating data
 library(purrr)        # for working with lists
 library(eyetrackingR) # for processing eye-tracking data
+library(data.table)   # for importing data
 library(gazepath)     # for identiying fixations
 library(ggplot2)      # for data visualisation
+library(gganimate)    # for animating plots
 library(here)         # for locating files
 
 # set parameters
@@ -27,8 +29,8 @@ source(here("R", "Functions", "target_coords.R"))     # for evaluating whether g
 source(here("R", "Functions", "distractor_coords.R")) # for evaluating whether gaze is in distractor
 
 #### import data ###########################################################
-data <- read.table(here("Data", "02_filtered.txt"), sep = "\t", header = TRUE) %>%
-	select(-c(Phase, GazePrime, Valid)) %>%
+data <- fread(here("Data", "02_filtered.txt"), sep = "\t", header = TRUE) %>%
+	select(-c(Phase, GazePrime)) %>%
 	make_eyetrackingr_data(data               = .,
 						   participant_column = "ParticipantID",
 						   trackloss_column   = "Trackloss",
@@ -190,9 +192,46 @@ fixation.info %>%
 	) +
 	ggsave(here("Figures", "04_fixations-screen.png"))
 
+# fixations-screen animation
+fixation.info %>%
+	right_join(., data, by = c("ParticipantID", "TrialID")) %>% # merge fixation info with time data
+	rename(Time = TimeStamp) %>%
+	mutate(Fixation = (Time >= Start) & (Time <= End)) %>%
+	group_by(ParticipantID, TrialID, Time, TargetLocation, Start, End) %>%
+	summarise(Fixation = any(Fixation),
+			  FixNum   = first(FixNum),
+			  meanX    = first(meanX),
+			  meanY    = first(meanY)) %>%
+	filter(Fixation) %>%
+	ggplot(aes(x = meanX, y = meanY)) +
+	geom_rect(xmin = 280, xmax = 780, ymin = 290, ymax = 790,
+			  fill = "transparent", colour = "white") +
+	geom_rect(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790,
+			  fill = "transparent", colour = "white") +
+	stat_bin_2d(binwidth = 100, na.rm = TRUE) +
+	labs(x = "X coordinates (pixels", y = "Y coordinates", colour = "Fixation",
+		 subtitle = "Time (ms): {frame_time}") +
+	scale_fill_viridis_c(option = "magma") +
+	labs(x = "X coordinates (pixels)", y = "Y coordinates (pixels)",
+		 fill = "Fixation samples") +
+	scale_x_continuous(limits = c(0, screenX)) +
+	scale_y_continuous(limits = c(0, screenY)) +
+	coord_fixed() +
+	theme(
+		text             = element_text(size = 12),
+		axis.ticks       = element_blank(),
+		axis.text        = element_blank(),
+		axis.title       = element_blank(),
+		panel.background = element_rect(fill = "#7F7F7F"),
+		panel.grid       =  element_blank(),
+		panel.border     = element_rect(colour = "black", fill = "transparent"),
+		legend.position  = "bottom"
+	) +
+	transition_time(time = as.integer(Time))
+
 #### export data ##############################################
-write.table(fixation.info, here("Data", "04_fixation-info.txt"), sep = "\t", dec = ".", row.names = FALSE)
-write.table(fixations, here("Data", "04_fixations.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(fixation.info, here("Data", "04_fixation-info.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(fixations, here("Data", "04_fixations.txt"), sep = "\t", dec = ".", row.names = FALSE)
 
 
 
