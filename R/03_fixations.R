@@ -81,7 +81,7 @@ fixations <- fixation.info %>%
 	right_join(., data, by = c("ParticipantID", "TrialID")) %>% # merge fixation info with time data
 	rename(Time = TimeStamp) %>%
 	mutate(Fixation = (Time >= Start) & (Time <= End)) %>%      # is time point within fixation boundaries?
-	group_by(ParticipantID, TrialID, Time, TrialType, List, TargetLocation, Language, LangProfile) %>%      # prepare to agreggate by time point
+	group_by(ParticipantID, TrialID, Time, TrialType, List, TargetLocation, Language, LangProfile, Pilot) %>%      # prepare to agreggate by time point
 	summarise(Fixation = any(Fixation),                        # is this time point within any of the fixation boundaries?
 			  meanX    = first(meanX),                         # preserve gaze location in X-axis
 			  meanY    = first(meanY)) %>%                     # preserve gaze location in Y-axis
@@ -95,7 +95,7 @@ fixations <- fixation.info %>%
 		TimeBin       = as.numeric(cut(Time, breaks = seq(0, 2000, by = time_bin_duration), labels = seq(1, 2000/time_bin_duration)))
   ) %>%
   # aggregate across trials
-  group_by(ParticipantID, TrialID, TrialType, TimeBin, Language, LangProfile) %>%
+  group_by(ParticipantID, TrialID, TrialType, TimeBin, Language, LangProfile, Pilot) %>%
   summarise(
     TotalSamples      = n(),               # number of samples in this time bin for this participant
     SamplesTarget     = sum(FixTarget),    # number of samples in ta
@@ -110,7 +110,7 @@ fixations <- fixation.info %>%
     names_to  = "AOI",
     values_to = "ProbFix"
   ) %>%
-  mutate(AOI = ifelse(AOI == "PFixTarget", "Target", "Distractor"),
+  mutate(AOI  = ifelse(AOI == "PFixTarget", "Target", "Distractor"),
          Time = TimeBin*time_bin_duration)
   
 #### visualise data ##########################################
