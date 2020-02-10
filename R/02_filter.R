@@ -28,7 +28,6 @@ data.processed <- fread(here("Data", "01_processed.txt"), sep = "\t", header = T
 
 # import participants
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
-	filter(!Pilot) %>% # take info from participants (exclude pilot)
 	drop_na(Version) %>%
 	rename(ParticipantID    = ID,
 		   ValidParticipant = Valid)
@@ -37,7 +36,7 @@ participants <- read_xlsx(here("Data", "Participant data", "data_participants.xl
 trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>% select(-c(TargetLocation, ValidTrial, TrialType))
 
 # import vocabulary data
-vocab <- fread("~/projects/BiLexicon/Data/02_merged.txt") %>% select(ID, Item, Response, LanguageItem = Language, Dominance)
+#vocab <- fread("~/projects/BiLexicon/Data/02_merged.txt") %>% select(ID, Item, Response, LanguageItem = Language, Dominance)
 
 trial.familiarity <- left_join(participants, trials, by = c("Language", "Version", "List", "Location")) %>%
 	pivot_longer(c("PrimeCDI", "TargetCDI", "DistractorCDI"), names_to = "Role", values_to = "Item") %>%
@@ -74,7 +73,7 @@ exclude_prime_ID <- exclude_prime %>%
 #### filter data  ############################################
 
 data.filtered <- data.processed %>%
-	left_join(trial.familiarity, by = c("ParticipantID", "TrialID")) %>%
+	#left_join(trial.familiarity, by = c("ParticipantID", "TrialID")) %>%
 	# remove participants labelled as non-valid
 	filter(ValidParticipant) %>%
 	# remove participants with very low vocabulary
@@ -86,7 +85,7 @@ data.filtered <- data.processed %>%
 	# remove non-valid trials
 	filter(ValidTrial) %>%
 	# remove trials where participants were unfamiliar with any of the words
-	filter(AllKnown) %>%
+	#filter(AllKnown) %>%
 	# remove trial with <75% valid samples during target and distractor
 	# remove participants with <50% valid trials during
 	filter(Phase == "Target-Distractor", between(TimeStamp, 0, 2000)) %>%
@@ -106,6 +105,6 @@ data.filtered <- data.processed %>%
 trackloss <- trackloss_analysis(data.filtered)
 
 #### export data #########################################################
-write.table(data.filtered, here("Data", "02_filtered.txt"), sep = "\t", row.names = FALSE)
-write.table(trackloss, here("Data", "02_filtered-trackloss.txt"), sep = "\t", row.names = FALSE)
+fwrite(data.filtered, here("Data", "02_filtered.txt"), sep = "\t", row.names = FALSE)
+fwrite(trackloss, here("Data", "02_filtered-trackloss.txt"), sep = "\t", row.names = FALSE)
 
