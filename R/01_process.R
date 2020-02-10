@@ -28,13 +28,14 @@ screenY       <- 1080 # height of the screen in pixels
 
 # import participant-level data
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
-	filter(!Pilot) %>% # take info from participants (exclude pilot)
 	drop_na(Version) %>%
 	rename(ParticipantID    = ID,
 		   ValidParticipant = Valid)
 
 # import gaze data
-data.raw <- fread(here("Data", "00_raw.txt"), sep = "\t", dec = ".")
+data.raw.exp   <- fread(here("Data", "00_raw.txt"), sep = "\t", dec = ".")       # import data from experiment
+data.raw.pilot <- fread(here("Data", "00_raw-pilot.txt"), sep = "\t", dec = ".") # import data from pilot
+data.raw <- rbind(data.raw.exp, data.raw.pilot)
 
 # import trial-level data
 trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))
@@ -66,4 +67,4 @@ data <- data.merged %>%
 	)
 
 #### export data ###############################################
-write.table(data, file = here("Data", "01_processed.txt"), sep = "\t", row.names = FALSE)
+fwrite(data, file = here("Data", "01_processed.txt"), sep = "\t", row.names = FALSE)
