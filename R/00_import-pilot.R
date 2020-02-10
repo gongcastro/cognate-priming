@@ -6,8 +6,6 @@
 
 # load packages
 library(osfr)         # for connecting to OSF
-library(magrittr)     # for using pipes
-library(tibble)       # for tidy data presentation
 library(dplyr)        # for manipulating data
 library(tidyr)        # for rehsaping datasets
 library(data.table)   # for importing data
@@ -15,7 +13,6 @@ library(readxl)       # for importing Excel files
 library(lubridate)    # for working with dates
 library(stringr)      # for working with character strings
 library(purrr)        # for working with lists
-library(ggplot2)      # for using cut_interval
 library(here)         # for locating files
  
 # load functions
