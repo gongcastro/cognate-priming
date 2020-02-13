@@ -1,0 +1,105 @@
+---
+title: "Report"
+output: pdf_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+# load packages
+library(papaja)
+library(knitr)
+library(data.table)
+library(dplyr)
+library(magrittr)
+library(readxl)
+library(tidyr)
+library(tibble)
+library(ggplot2)
+library(lubridate)
+library(patchwork)
+library(here)
+
+# load data
+data.sample <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx"))
+data.fixations <- fread(here("Data", "03_fixations.txt"))
+trackloss <- fread(here("Data", "02_filtered-trackloss.txt"))
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = TRUE,
+	warning = TRUE, 
+	cache.extra = knitr::rand_seed,
+	out.width = "\\textwidth"
+)
+options(knitr.kable.NA = '-')
+
+```
+
+
+# Procedure
+
+# Stimuli
+
+# Sample
+
+We tested `r data.sample %>% filter(!Pilot, DateTest<now()) %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` participants, of which `r data.sample %>% filter(!Pilot, DateTest<now(), !Valid) %>% pull(ID) %>% length() %>% printnum(digits = 0)` we excluded. The final sample included `r data.sample %>% filter(!Pilot, DateTest<now(), Valid, LangProfile=="Monolingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` monolinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan monolinguals, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish monolinguals) and `r data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` bilinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan-dominant, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish-dominant).
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+data.sample %>%
+	filter(!Pilot, Valid, DateTest<now()) %>%
+	select(ID, LangProfile, AgeGroup, Language, List, Sex) %>%
+	group_by(LangProfile, AgeGroup, Language, List) %>%
+	summarise(n = n()) %>%
+	pivot_wider(id_cols = c("LangProfile", "AgeGroup", "Language"), names_from = "List", values_from = "n") %>%
+	kable(digits = 0,
+		  col.names = c("***LP***", "**Age group**", "**Language**", "**List 1**", "**List 2**", "**List 3**"), 
+		  align = "c",
+		  caption = "Sample size by age group, testing language, and list. Only participants that made it in the final sample are included.")
+
+```
+
+# Results
+
+## Trackloss
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+trackloss %>%
+	group_by(ParticipantID) %>%
+	summarise(
+		TracklossForParticipant = first(TracklossForParticipant),
+		TracklossForParticipantSD = sd(TracklossForTrial, na.rm = TRUE)
+
+		) %>%
+	mutate(TracklossForParticipant = paste(printnum(TracklossForParticipant), "%"),
+		   TracklossForParticipantSD = printnum(TracklossForParticipantSD)) %>%
+	kable(digits = 3,
+		  row.names = FALSE,
+		  align = "c",
+		  col.names = c("**Participant ID**", "**Mean**", "***SD***"),
+		  caption = "Mean proportion of samples lost by trial.")
+
+```
+
+# Appendix
+
+## Participants
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+data.sample %>%
+	filter(!Pilot, DateTest<now()) %>%
+	select(ID, LangProfile, AgeGroup, Language, List, DateTest, Age, Sex, Valid) %>%
+	arrange(desc(Valid), LangProfile, AgeGroup, Language, List, DateTest) %>%
+	kable(digits = 2,
+		  row.names = FALSE,
+		  align = "c",
+		  col.names = c("**Participant ID**", "***LP***", "**Age group**", "**Lang.**", "**List**", "**Date**", "**Age**", "**Sex**", "**Valid?**"),
+		  caption = "Complete list of participants. *LP* = Language profile.")
+
+
+```
