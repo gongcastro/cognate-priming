@@ -112,9 +112,21 @@ fixations <- fixation.info %>%
   ) %>%
   mutate(AOI  = ifelse(AOI == "PFixTarget", "Target", "Distractor"),
          Time = TimeBin*time_bin_duration)
+
+#### register logs ##############################################
+logs <- fixations %>%
+	group_by(ParticipantID, TrialID, TrialType) %>%
+	summarise(
+		TimeStart         = min(Time, na.rm = TRUE),
+		TimeStop          = max(Time, na.rm = TRUE),
+		TimeBinStart      = min(TimeBin, na.rm = TRUE),
+		TimeBinStop       = max(TimeBin, na.rm = TRUE),
+		SamplesTarget     = mean(SamplesTarget, na.rm = TRUE),
+		SamplesDistractor = mean(SamplesDistractor, na.rm = TRUE),
+		ProbFix           = mean(ProbFix, na.rm = TRUE)
+	)
   
 #### visualise data ##########################################
-
 # fixations-screen animation
 fixation.info %>%
 	right_join(., data, by = c("ParticipantID", "TrialID")) %>% # merge fixation info with time data
@@ -153,8 +165,9 @@ fixation.info %>%
 	transition_time(time = as.integer(Time))
 
 #### export data ##############################################
-fwrite(fixation.info, here("Data", "04_fixation-info.txt"), sep = "\t", dec = ".", row.names = FALSE)
-fwrite(fixations, here("Data", "04_fixations.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(fixation.info, here("Data", "03_fixation-info.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(fixations, here("Data", "03_fixations.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(fixations, here("Data", "03_fixations-logs.txt"), sep = "\t", dec = ".", row.names = FALSE)
 
 
 

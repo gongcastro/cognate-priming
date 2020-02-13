@@ -28,7 +28,6 @@ data.processed <- fread(here("Data", "01_processed.txt"), sep = "\t", header = T
 
 # import participants
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
-	drop_na(Version) %>%
 	rename(ParticipantID    = ID,
 		   ValidParticipant = Valid)
 
@@ -104,7 +103,23 @@ data.filtered <- data.processed %>%
 #### analyse trackloss ###################################################
 trackloss <- trackloss_analysis(data.filtered)
 
+#### register logs ##############################################
+logs <- data %>%
+	group_by(ParticipantID, TrialID) %>%
+	summarise(
+		TimeStart = min(TimeStamp, na.rm = TRUE),
+		TimeStop  = max(TimeStamp, na.rm = TRUE),
+		MinX      = min(meanX, na.rm = TRUE),
+		MaxX      = min(meanX, na.rm = TRUE),
+		MinY      = max(meanY, na.rm = TRUE),
+		MaxY      = max(meanY, na.rm = TRUE),
+		MinDist   = min(meanDistance, na.rm = TRUE),
+		MaxDist   = max(meanDistance, na.rm = TRUE),
+	)
+
 #### export data #########################################################
 fwrite(data.filtered, here("Data", "02_filtered.txt"), sep = "\t", row.names = FALSE)
 fwrite(trackloss, here("Data", "02_filtered-trackloss.txt"), sep = "\t", row.names = FALSE)
+fwrite(exclude_prime, here("Data", "02_filtered-prime.txt"), sep = "\t", row.names = FALSE)
+fwrite(logs, here("Data", "02_filtered-logs.txt"), sep = "\t", row.names = FALSE)
 

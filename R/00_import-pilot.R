@@ -10,7 +10,6 @@ library(dplyr)        # for manipulating data
 library(tidyr)        # for rehsaping datasets
 library(data.table)   # for importing data
 library(readxl)       # for importing Excel files
-library(lubridate)    # for working with dates
 library(stringr)      # for working with character strings
 library(purrr)        # for working with lists
 library(here)         # for locating files
@@ -21,7 +20,7 @@ source(here("R", "Functions", "osf_download_folder.R"))
 
 # retrieve data from OSF (takes around a minute, you can download it manually)
 osf_auth("")
-osf_download_folder(project = "wekda", component = "Data", folder = "Gaze data", local.path = here("Data", "Gaze data"))
+osf_download_folder(PAT = "", project = "wekda", component = "Data", folder = "Gaze data", local.path = here("Data", "Gaze data"))
 
 # set experimental parameters
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?
@@ -32,8 +31,7 @@ screenY       <- 1080 # height of the screen in pixels
 
 # import participant-level data
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
-	filter(Pilot) %>% # take info from participants (exclude pilot)
-	drop_na(Version)
+	filter(Pilot, Valid) # take info from participants (exclude pilot)
 
 # import eye-tracking data
 data <- list.files(here("Data", "Gaze data", "Barcelona"), full.names = TRUE, recursive = TRUE) %>%            # list files in the folder
@@ -52,9 +50,8 @@ data <- list.files(here("Data", "Gaze data", "Barcelona"), full.names = TRUE, re
 		meanDistance  = 650, # change distance from screen to centimeters
 		Trackloss     = !(rV | lV ) # is the sample not valid in both eyes?
 	) %>%
-	drop_na(ParticipantID) %>%
 	group_by(ParticipantID, TrialID, Phase) %>%
-	mutate(TimeStamp = seq(from = 1000/sampling_rate, to = (1000/sampling_rate)*length(SystemTimeStamp), by = 1000/sampling_rate)) %>%
+	mutate(TimeStamp = seq(from = 0, to = (8*n())-8, by = 8)) %>%
 	ungroup() %>%
 	mutate(ParticipantID = paste0("cognatepriming", as.character(ParticipantID)),
 		   Phase = case_when(
