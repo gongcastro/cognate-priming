@@ -2,6 +2,7 @@
 
 osf_download_folder <- function(
 	
+	PAT,
 	project,
 	component,
 	folder,
@@ -14,7 +15,9 @@ osf_download_folder <- function(
 	require(osfr, quietly = TRUE, warn.conflicts = FALSE)
 	require(magrittr, quietly = TRUE, warn.conflicts = FALSE)
 	
-	# update local path
+	# personal access token
+	osf_auth({{ PAT }})
+	
 	# get node
 	folder <- osf_retrieve_node({{ project }}) %>%
 		osf_ls_nodes(pattern = {{ component }}) %>%
