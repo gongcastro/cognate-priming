@@ -5,107 +5,159 @@
 #### set up #############################################
 
 # load packages
-library(audio)     # for acoustic analysis
-library(tibble)    # for tidy data presentation
-library(magrittr)  # for using pipes ('%>%')
-library(dplyr)     # for manipulating data
-library(tidyr)     # for manipulating datasets
-library(purrr)     # for working with lists
-library(readxl)    # for importing Excel spreadsheets
-library(forcats)   # for working with categorical variables
-library(stringr)   # for working with character strings
-library(stringi)   # for working with character strings
-library(ggplot2)   # for visualising data
-library(ggalt)     # for plotting lollipops
-library(patchwork) # for arranging plots
+library(audio)      # for acoustic analysis
+library(data.table) # for importing data
+library(tibble)     # for tidy data presentation
+library(magrittr)   # for using pipes ('%>%')
+library(readxl)     # for importing Excel files
+library(dplyr)      # for manipulating data
+library(tidyr)      # for manipulating datasets
+library(purrr)      # for working with lists
+library(forcats)    # for working with categorical variables
+library(stringr)    # for working with character strings
+library(here)       # for locating files
+library(ggplot2)    # for visualising data
+library(ggalt)      # for plotting lollipops
+library(patchwork)  # for arranging plots
 
-# specify paths
-file.names <- list.files('/Volumes/GONZALOGC/BiPrime/stimuli/sounds/04_denoised')                      # locate .wav files
-file.paths <- list.files('/Volumes/GONZALOGC/BiPrime/stimuli/sounds/04_denoised', full.names = TRUE)   # build path for each file
-words      <- str_replace_all(file.names, '04_|.wav', '') # word id
+# load/create functions
+source(here("R", "Functions", "rebuild_time.R"))
+get_rate <- attr_getter("rate")
+"%!in%" <- function(x, y) !(x %in% y)
+
 
 #### get stimuli lists #######################################
-
 # make long version of stimuli lists
-trials.long <-
-  # import stimuli lists
-  as.list(c('/Volumes/GONZALOGC/biprime/stimuli/stimuli_stats_catalan.xlsx',
-            '/Volumes/GONZALOGC/biprime/stimuli/stimuli_stats_spanish.xlsx')) %>%
-  map(~read_xlsx(.)) %>%
-  map(~mutate(., trialID = as.factor(trialID))) %>%
-  set_names(c('catalan', 'spanish')) %T>%
-  assign('trials.wide', ., envir = .GlobalEnv) %>% # save intermediate wide version
-  bind_rows(., .id = 'language') %>%
-  gather(role, 'word', -c(language, trialID, trialType)) %>%
-  select(word, language, trialID, role, trialType)
+trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
+	filter(ValidTrial) %>%
+	select(TrialID, Location, Language, Version, List, TrialType, Audio, Target)
 
-trials.long$word <- stri_trans_general(trials.long$word, "latin-ascii")
+#### calculate durations #####################################
+durations <- tibble(
+	Filename = list.files(here("Stimuli", "Sounds"), recursive = TRUE)  %>% str_extract("/.*") %>% str_remove("/") , # locate .wav files
+	Path = list.files(here("Stimuli", "Sounds"), recursive = TRUE, full.names = TRUE), # locate .wav files
+	Word = Filename %>% str_remove(".wav") # word id
+) %>%
+	mutate(
+		Location = ifelse(str_detect(Path, "barcelona"), "Barcelona", "Oxford"),
+		Language = case_when(
+			str_detect(Path, "cat") ~ "Catalan",
+			str_detect(Path, "spa") ~ "Spanish",
+			TRUE                    ~ "English"
+		),
+		Duration = unlist(
+			map2(.x = map(map(file.paths, load.wave) %>% set_names(file.names), length), # get time domain of each audio from sample rate and number of measurements
+				 .y = map(map(file.paths, load.wave) %>% set_names(file.names), get_rate),
+				 .f = function(x = .x, y = .y) x*(1/y)*0.5
+			)  
+		)
+	) %>%
+	select(Word, Filename, Duration, Location, Language, Path)
 
-#### get durations ###########################################
-amplitude   <- map(file.paths, load.wave) %>% set_names(words) # extract amplitude from each audio
-n.amplitude <- map(amplitude, length)                          # number of measurements in each audio
-sample.rate <- amplitude[[1]]$rate                             # get the sample rate of each audio
-time <- map(n.amplitude, .f = function(x) (1:x/sample.rate))   # get time domain of each audio from sample rate and number of measurements
-
-duration <-
-  unlist(map(time, ~last(.))) %>%                              # get max time    
-  unlist() %>%                           
-  tibble(word = names(.), time = .) %>%
-  separate(word, c('word', 'language'), '_') %>%
-  mutate(
-    time = time*1000/2, # in stereo audios, both tracks are concatenated by default, so we need to split the value in half
-    overlap = time-700
-  ) %>% 
-  right_join(., trials.long, by = c('word', 'language')) %>%
-  filter(!grepl('-latin|2', word),
-         role == 'target')
+#### merge data #############################################
+data <- left_join(durations, trials, by = c("Location", "Language", "Word" = "Target", "Filename" = "Audio")) %>%
+	drop_na(Location) %>%
+	mutate(
+		Duration = Duration, # in stereo audios, both tracks are concatenated by default, so we need to split the value in half
+		Duration = ifelse(Location=="Oxford", Duration-5, Duration),
+		Overlap = Duration-0.7,
+		IsOverlapping = Overlap>0
+	) 
 
 #### summarise stats #########################################
-summary <-
-  duration %>%
-  group_by(language, trialType) %>%
+summary <- data %>%
+  group_by(Language, Location, Version, TrialType) %>%
   summarise(
-    mean_duration     = mean(time, na.rm = TRUE),
-    sd_duration       = sd(time, na.rm = TRUE),
-    min_duration      = min(time, na.rm = TRUE),
-    min_duration_word = word[which.min(time)],
-    max_duration      = max(time, na.rm = TRUE),
-    max_duration_word = word[which.max(time)],
-    mean_overlap      = mean(overlap, na.rm = TRUE),
-    min_overlap       = mean(overlap, na.rm = TRUE),
-    min_overlap_word  = word[which.max(overlap)],
-    max_overlap       = mean(overlap, na.rm = TRUE),
-    max_overlap_word  = word[which.max(overlap)]
+    m_duration        = mean(Duration, na.rm = TRUE),
+    sd_duration       = sd(Duration, na.rm = TRUE),
+    min_duration      = min(Duration, na.rm = TRUE),
+    min_duration_word = Word[which.min(Duration)],
+    max_duration      = max(Duration, na.rm = TRUE),
+    max_duration_word = Word[which.max(Duration)],
+    mean_overlap      = mean(Overlap, na.rm = TRUE),
+    min_overlap       = mean(Overlap, na.rm = TRUE),
+    min_overlap_word  = Word[which.max(Overlap)],
+    max_overlap       = mean(Overlap, na.rm = TRUE),
+    max_overlap_word  = Word[which.max(Overlap)]
   )
 
 #### visualise data ##########################################
-ggplot(duration, aes(trialType, time)) +
-  facet_wrap(~language) +
-  geom_hline(yintercept = 700, linetype = 'dotted') +
-  geom_point(size = 2, alpha = 0.5) +
-  stat_summary(fun.data = mean_se, geom = 'crossbar', colour = 'red', width = 0.5, size = 0.75) +
-  geom_text(aes(x = 2, y = 750, label = 'Target image onset (700 ms)')) +
-  labs(x = 'Condition', y = 'Duration (ms)',
-       title = 'Spoken word duration by condition and language',
-       subtitle = 'Red boxes indicate Mean and SEM') +
-  theme(
-    text = element_text(size = 12),
-    axis.text = element_text(colour = 'black')
-  ) +
-  ggplot(duration, aes(trialType, overlap)) +
-  facet_wrap(~language) +
-  geom_point(size = 2, alpha = 0.5) +
-  stat_summary(fun.data = mean_se, geom = 'crossbar', colour = 'red', width = 0.5, size = 0.75) +
-  labs(x = 'Condition', y = 'Overlap (ms)',
-       title = 'Spoken word overlap with taget image onset (at 700 ms) by condition and language',
-       subtitle = 'Red boxes indicate Mean and SEM') +
-  theme(
-    text = element_text(size = 12),
-    axis.text = element_text(colour = 'black')
-  ) +
-  plot_layout(nrow = 2) +
-  ggsave('figures/stimuli_sounds_duration.png')
-  
+
+# durations
+durations <- data %>%
+	drop_na() %>%
+	filter(Version %!in% c("i", "latin")) %>%
+	ggplot(aes(x = TrialType, y = Duration, colour = TrialType, fill = TrialType)) +
+	facet_grid(Location~Language, drop = TRUE) +
+	geom_violin(colour = NA) +
+	geom_boxplot(fill = "white", colour = "black", width = 0.1, outlier.size = 0.5) +
+	geom_point(alpha = 0.5, size = 0.5, colour = "grey") +
+	scale_colour_brewer(palette = "Dark2") +
+	scale_fill_brewer(palette = "Dark2") +
+	labs(x = "Trial type", y = "Duration (s)\n",
+		 colour = "Trial type", fill = "Trial type") +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black"),
+		axis.text.x = element_blank(),
+		legend.position = "top",
+		legend.direction = "vertical",
+		panel.grid = element_line(colour = "grey", linetype = "dotted"),
+		panel.grid.major.x = element_blank(),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey")
+	)
+
+# overlap distribution
+overlap_dist <- data %>%
+	drop_na() %>%
+	filter(Version %!in% c("i", "latin")) %>%
+	ggplot(aes(x = Overlap, colour = TrialType, fill = TrialType)) +
+	facet_grid(Location~Language) +
+	geom_density(alpha = 0.5) +
+	labs(x = "Overlap with Target-Distractor (s)", y = "Density\n") +
+	scale_colour_brewer(palette = "Dark2") +
+	scale_fill_brewer(palette = "Dark2") +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black"),
+		legend.position = "none",
+		panel.grid = element_line(colour = "grey", linetype = "dotted"),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey")
+	)
+# overlap
+overlap <-data %>%
+	drop_na() %>%
+	filter(Version %!in% c("i", "latin")) %>%
+	ggplot(aes(x = Word, y = Duration, colour = TrialType, fill = TrialType)) +
+	facet_grid(TrialType~Language) +
+	geom_lollipop(point.size = 0.5) +
+	geom_hline(yintercept = 0.7, linetype = "dashed") +
+	labs(x = "Word", y = "Overlap with Target-Distractor (s)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_colour_brewer(palette = "Dark2") +
+	scale_fill_brewer(palette = "Dark2") +
+	coord_flip() +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black"),
+		axis.text.y = element_blank(),
+		axis.title.y = element_blank(),
+		legend.position = "none",
+		panel.grid = element_blank(),
+		axis.ticks.y = element_blank(),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey")
+	) 
+
+durations + overlap_dist + overlap + guide_area() +
+	plot_layout(guides = "collect", widths = c(2, 2, 3, 1), ncol = 2, nrow = 2) +
+	plot_annotation(tag_levels = "A") +
+	ggsave(here("Figures", "Stimuli", "duration-overlap.png"), height = 8) 
+
+	
+	
 #### export data #############################################
-write.table(duration, 'data/stimuli_duration.txt', sep = '\t', row.names = FALSE, fileEncoding = 'macintosh')
-write.table(summary, 'data/stimuli_duration-summary.txt', sep = '\t', row.names = FALSE, fileEncoding = 'macintosh')
+fwrite(data, here("Data", "Stimuli", "stimuli_duration-raw.txt"), sep = '\t', row.names = FALSE)
+fwrite(summary, here("Data", "Stimuli", "stimuli_duration-aggregated.txt"), sep = '\t', row.names = FALSE)
