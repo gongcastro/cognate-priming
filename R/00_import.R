@@ -9,17 +9,13 @@ library(dplyr)        # for manipulating data
 library(tidyr)        # for rehsaping datasets
 library(data.table)   # for importing data
 library(readxl)       # for importing Excel files
-library(tibble)
+library(tibble)       # for more informative data frames
 library(stringr)      # for working with character strings
 library(purrr)        # for working with lists
 library(here)         # for locating files
 
 # load functions
-source(here("R", "Functions", "osf_download_folder.R"))
 "%!in%" <- function(x, y) !(x %in% y)
-
-# retrieve data from OSF (takes around a minute, you can download it manually as well)
-osf_download_folder(PAT = "", project = "wekda", component = "Data", folder = "Gaze data", local.path = here("Data", "Gaze data"))
 
 # set experimental parameters
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?

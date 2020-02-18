@@ -29,21 +29,28 @@ source(here("R", "Functions", "target_coords.R"))     # for evaluating whether g
 source(here("R", "Functions", "distractor_coords.R")) # for evaluating whether gaze is in distractor
 
 #### import data ###########################################################
-data <- fread(here("Data", "02_filtered.txt"), sep = "\t", header = TRUE) %>%
+data <- fread(here("Data", "02_filtered.txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE) %>%
 	select(-c(Phase, GazePrime)) %>%
-	make_eyetrackingr_data(data               = .,
-						   participant_column = "ParticipantID",
-						   trackloss_column   = "Trackloss",
-						   time_column        = "TimeStamp",
-						   trial_column       = "TrialID",
-						   aoi_columns        = c("GazeTarget", "GazeDistractor"),
-						   treat_non_aoi_looks_as_missing = FALSE) %>%
+	make_eyetrackingr_data(
+		data               = .,
+		participant_column = "ParticipantID",
+		trackloss_column   = "Trackloss",
+		time_column        = "TimeStamp",
+		trial_column       = "TrialID",
+		aoi_columns        = c("GazeTarget", "GazeDistractor"),
+		treat_non_aoi_looks_as_missing = FALSE
+	) %>%
 	# keep only time window of interest and re-center the time
-	subset_by_window(rezero = TRUE,
-					 remove = TRUE,
-					 window_start_time = 0,
-					 window_end_time = 2000) %>%
-	mutate(TrialID = as.character(TrialID)) %>%
+	subset_by_window(
+		rezero = TRUE,
+		remove = TRUE,
+		window_start_time = 0,
+		window_end_time = 2000
+	) %>%
+	mutate(
+		TrialID = as.character(TrialID),
+		ParticipantID = as.character(ParticipantID)
+	) %>%
 	as.data.frame()
 
 #### identify fixations ####################################################
@@ -73,8 +80,9 @@ fixation.info <- split(data, f = data$ParticipantID) %>% # separate each partici
 	as_tibble() %>%               # for more informative datasets
 	mutate_if(.predicate = is.factor, as.character) %>%
 	group_by(ParticipantID, TrialID) %>% # whatever we do next, do it spearately for each combination of these variables
-	mutate(FixNum = row_number()) %>% # index all fixations within each trial
+	mutate(FixNum = row_number()) %>% # index all fixations within each trial 
 	ungroup()
+
 
 # reconstruct fixations across time domain
 fixations <- fixation.info %>%
@@ -93,25 +101,22 @@ fixations <- fixation.info %>%
 		FixDistractor = distractor_coords(data = ., x_gaze = meanX, y_gaze = meanY, target_location = TargetLocation),
 		# generate time bins
 		TimeBin       = as.numeric(cut(Time, breaks = seq(0, 2000, by = time_bin_duration), labels = seq(1, 2000/time_bin_duration)))
-  ) %>%
-  # aggregate across trials
-  group_by(ParticipantID, TrialID, TrialType, TimeBin, Language, LangProfile, Pilot) %>%
-  summarise(
-    TotalSamples      = n(),               # number of samples in this time bin for this participant
-    SamplesTarget     = sum(FixTarget),    # number of samples in ta
-    SamplesDistractor = sum(FixDistractor)
-  ) %>%
-  mutate(
-    PFixTarget = SamplesTarget/TotalSamples,
-    PFixDistractor = SamplesDistractor/TotalSamples
-  ) %>%
-  pivot_longer( # make long format
-    cols      = c("PFixTarget", "PFixDistractor"),
-    names_to  = "AOI",
-    values_to = "ProbFix"
-  ) %>%
-  mutate(AOI  = ifelse(AOI == "PFixTarget", "Target", "Distractor"),
-         Time = TimeBin*time_bin_duration)
+	) %>%
+	# aggregate across trials
+	group_by(ParticipantID, TrialID, TrialType, TimeBin, Language, LangProfile, Pilot) %>%
+	summarise(
+		TotalSamples      = n(),               # number of samples in this time bin for this participant
+		SamplesTarget     = sum(FixTarget),    # number of samples in ta
+		SamplesDistractor = sum(FixDistractor)
+	) %>%
+	ungroup() %>%
+	mutate(
+		Time = TimeBin*time_bin_duration,
+		ElogitFix = log((SamplesTarget+0.5)/(SamplesDistractor+0.5)), # as in Barr (2008)
+		OddsFix = exp(ElogitFix),
+		ProbFix = OddsFix/(1+OddsFix),
+		Weights = (1/(SamplesTarget+0.5))+(1/(TotalSamples-SamplesTarget+0.5)) # as in Barr (2008)
+	) 
 
 #### register logs ##############################################
 logs <- fixations %>%
@@ -167,7 +172,7 @@ fixation.info %>%
 #### export data ##############################################
 fwrite(fixation.info, here("Data", "03_fixation-info.txt"), sep = "\t", dec = ".", row.names = FALSE)
 fwrite(fixations, here("Data", "03_fixations.txt"), sep = "\t", dec = ".", row.names = FALSE)
-fwrite(fixations, here("Data", "03_fixations-logs.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(logs, here("Data", "03_fixations-logs.txt"), sep = "\t", dec = ".", row.names = FALSE)
 
 
 
