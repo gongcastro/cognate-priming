@@ -10,10 +10,12 @@ library(dplyr)       # for manipulating data
 library(tidyr)       # for reshaping datasets
 library(data.table)  # for importing data
 library(ggplot2)     # for visualising data
+library(ggridges)    # for density plots
 library(stringr)     # for manipulating character strings
 library(lme4)        # for fitting frequentist mixed effect models
 library(ggeffects)   # for predicting means
-library(car)         # for KR-Anova
+library(car)         # for Wald test
+library(arm)         # for model simulations
 library(purrr)       # for extracting elements from lists
 library(forcats)     # for dealing with categorical variables
 library(papaja)      # for printing formatted numbers
@@ -24,32 +26,32 @@ library(here)        # for locating files
 #### import data ###########################################
 data <- fread(here("Data", "04_prepared.txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE) %>%
 	as_tibble() %>%
-	distinct(ParticipantID, TrialID, TimeBin, .keep_all = TRUE)
+	distinct(ParticipantID, TargetID, TimeBin, .keep_all = TRUE)
 
 #### fit model #############################################
+
+# maximal model with crossed-random effeto for participant and trial
 model <- lmer(
 	ElogitFix ~
 		(TimeBin1+TimeBin2+TimeBin3)*TrialType*LangProfile  +
+		FreqTarget +
 		(TimeBin1+TimeBin2+TimeBin3 | ParticipantID) +
 		(TimeBin1+TimeBin2+TimeBin3 | ParticipantID:TrialType) +
-		(TimeBin1+TimeBin2+TimeBin3 | TrialID) +
-		(TimeBin1+TimeBin2+TimeBin3 | TrialID:TrialType),
-	weights = Weights,
-	REML = TRUE,
+		(TimeBin1+TimeBin2+TimeBin3 | TargetID) +
+		(TimeBin1+TimeBin2+TimeBin3 | TargetID:TrialType),
+	weights = 1/Weights,
+	REML = FALSE,
+	na.action = na.exclude,
 	control = lmerControl(
 		optimizer = "bobyqa",
 		optCtrl = list(maxfun = 20000)
 	), 
 	data = data
 )
-
-# extract summary
-summary <- summary(model)
-
-# Cholesky decomposition
-isSingular(model)
-chf        <- getME(model,"Tlist")[[2]]  # Cholesky factor
-rowlengths <- sqrt(rowSums(chf*chf))   # unconditional correlation matrix
+summary <- summary(model)               # extract summary of model
+isSingular(model)                       # check if Cholesky factor is singular
+chf        <- getME(model,"Tlist")[[2]] # Cholesky factor
+rowlengths <- sqrt(rowSums(chf*chf))    # unconditional correlation matrix
 svd        <- svd(chf, nv = 0)$u        # singular value decomposition - Near-singular matrix
 pca        <- rePCA(model)
 
@@ -82,8 +84,19 @@ coefs <- summary(model) %$%
 	rename(SEM = `Std. Error`, t = `t value`) %>%
 	mutate(Term = str_remove_all(Term, "\\(|\\)"))
 
+# following Gelman & Hill (2007)
+sims <- sim(model, 1000) # simulate
+# estimation uncertainty of the fixed-effect coefficients
+sims.fixef <- sims@fixef %>%
+	as.data.frame() %>%
+	pivot_longer(everything(), names_to = "Term", values_to = "Value") %>%
+	mutate(Term = str_remove_all(Term, "\\(|\\)")) %>%
+	mutate_at(1, ~str_replace_all(., ":", " \U000D7 ")) 
+	
 
-#### confidence intervals
+sims.sigma <- sims@sigma # estimation uncertainty of the in the residual stantard deviation parameter
+
+#### confidence intervals ##################################
 confints <- confint.merMod( # calculate confidence intervals
 	model,  
 	method = "Wald",
@@ -116,13 +129,12 @@ results <- anova %>% # perform type III ANOVA (KF F-test)
 	right_join(., coefs, by = "Term") %>% # join outcome with coefficients
 	left_join(., confints, by = "Term") %>% # join outcome with confidence intervals
 	left_join(., multicollinearity, by = "Term") %>% # join outcome with multicollinearity checks
-	select(Term, Chisq, Df, Estimate, SEM, p, ci1, ci2, VIF) %>%
+	dplyr::select(Term, Chisq, Df, Estimate, SEM, p, ci1, ci2, VIF) %>%
 	mutate_at(1, ~str_replace_all(., ":", " \U000D7 ")) %>%
 	mutate(Term = str_remove_all(Term, "\\(|\\)"))
 
 #### extract effects #######################################
 effects <- data %>%
-	drop_na() %>%
 	mutate(
 		Fitted = fitted(model),
 		Residuals = residuals,
@@ -212,23 +224,22 @@ effects %>%
 	ggsave(here("Figures", "05_gca-residuals.png"))
 
 # predictions by Participant
-ggplot(effects, aes(
-	x = Time, y = FittedProb,
-	group = ParticipantID,
-	colour = Language,
-	fill = Language)
-) +
-	facet_grid(LangProfile~TrialType) +
-	stat_summary(aes(group = ParticipantID), fun.y = "mean", geom = "line", alpha = 0.25) +
-	stat_summary(aes(group = Language), fun.data = "mean_se", geom = "ribbon", colour = NA, alpha = 0.5) +
-	stat_summary(aes(group = Language), fun.y = "mean", geom = "line", size = 1) +
-	geom_hline(yintercept = 0.50) +
+ggplot(effects, aes(x = Time, y = ProbFix,
+					group = ParticipantID,
+					colour = TrialType,
+					fill = TrialType)) +
+	facet_grid(~LangProfile) +
+	stat_summary(aes(group = ParticipantID), fun.y = "mean", geom = "line", alpha = 0.50) +
+	stat_summary(aes(group = TrialType), fun.data = "mean_se", geom = "ribbon", colour = NA, alpha = 0.5) +
+	stat_summary(aes(group = TrialType), fun.y = "mean", geom = "line", size = 1) +
 	labs(x = "Time (ms)", y = "Probability of target fixation",
-		 fill = "Language", colour = "Language") +
+		 fill = "Trial type", colour = "Trial type") +
+	geom_hline(yintercept = 0.50) +
 	scale_colour_brewer(palette = "Dark2") +
 	scale_fill_brewer(palette = "Dark2") +
 	theme(
 		text = element_text(size = 20),
+		axis.text = element_text(colour = "black"),
 		panel.grid = element_line(linetype = "dotted", colour = "grey"),
 		panel.background = element_rect(fill = "transparent"),
 		panel.border = element_rect(fill = "transparent", colour = "grey"),
@@ -236,23 +247,28 @@ ggplot(effects, aes(
 	) +
 	ggsave(here("Figures", "05_gca-predictions-participant.png"))
 
+ggplot(data, aes(x = TimeBin, y = ElogitFix, colour = TrialType, fill = TrialType)) +
+	facet_wrap(~LangProfile) +
+	stat_summary(fun.data = "mean_se", geom = "pointrange")  +
+	stat_summary(aes(y = fitted(model)), fun.y = "mean", geom = "line", alpha = 0.5) 
+	
 # predictions by Trial
 ggplot(effects, aes(x = Time, y = FittedProb,
-					group = TrialID,
-					colour = Language,
-					fill = Language)) +
-	facet_grid(LangProfile~TrialType) +
-	stat_summary(aes(group = TrialID), fun.y = "mean", geom = "line", alpha = 0.25) +
-	stat_summary(aes(group = Language), fun.data = "mean_se", geom = "ribbon", colour = NA, alpha = 0.5) +
-	stat_summary(aes(group = Language), fun.y = "mean", geom = "line", size = 1) +
-	stat_summary(aes(group = Language), fun.y = "mean", geom = "line", size = 1) +
+					group = TargetID,
+					colour = TrialType,
+					fill = TrialType)) +
+	facet_grid(~LangProfile) +
+	stat_summary(aes(group = TargetID), fun.y = "mean", geom = "line", alpha = 0.25) +
+	stat_summary(aes(group = TrialType), fun.data = "mean_se", geom = "ribbon", colour = NA, alpha = 0.5) +
+	stat_summary(aes(group = TrialType), fun.y = "mean", geom = "line", size = 1) +
 	labs(x = "Time (ms)", y = "Probability of target fixation",
-		 fill = "Language", colour = "Language") +
+		 fill = "Trial type", colour = "Trial type") +
 	geom_hline(yintercept = 0.50) +
 	scale_colour_brewer(palette = "Dark2") +
 	scale_fill_brewer(palette = "Dark2") +
 	theme(
 		text = element_text(size = 20),
+		axis.text = element_text(colour = "black"),
 		panel.grid = element_line(linetype = "dotted", colour = "grey"),
 		panel.background = element_rect(fill = "transparent"),
 		panel.border = element_rect(fill = "transparent", colour = "grey"),
@@ -260,7 +276,30 @@ ggplot(effects, aes(x = Time, y = FittedProb,
 	) +
 	ggsave(here("Figures", "05_gca-predictions-trial.png"))
 	
-# coefficients
+# coefficients (dist)
+sims.fixef %>%
+	left_join(results, by = "Term") %>%
+	ggplot(aes(x = Value, y = fct_rev(fct_inorder(Term, ordered = TRUE)), fill = factor(stat(quantile)))) +
+	stat_density_ridges(geom = "density_ridges_gradient", rel_min_height = 0.01, panel_scaling = 1.5,
+						quantile_lines = TRUE, quantiles = c(0.025, 0.975),
+						calc_ecdf = TRUE, vline_size = 0) +
+	geom_vline(xintercept = 0, linetype = "dashed") +
+	scale_y_discrete(expand = expand_scale(mult = c(0, 0.15))) +
+	scale_fill_manual(values = c("black", "grey", "black")) +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black", size = 12),
+		axis.title.y = element_blank(),
+		panel.grid = element_line(linetype = "dotted", colour = "grey"),
+		panel.grid.major.y = element_blank(),
+		panel.grid.minor.y = element_blank(),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey"),
+		legend.position = "none"
+	) +
+	ggsave(here("Figures", "05_gca-coefficients-dist.png"))
+
+# coefficients (freq)
 results %>%
 	mutate(Term = factor(Term, ordered = TRUE)) %>%
 	ggplot(aes(x = fct_rev(fct_inorder(Term, ordered = TRUE)), y = Estimate)) +
@@ -282,3 +321,61 @@ results %>%
 		legend.position = "none"
 	) +
 	ggsave(here("Figures", "05_gca-coefficients.png"))
+
+# coefficient uncertainty
+sims.fixef %>%
+	filter(Term %in% c("TrialType", "LangProfile", "TrialType × LangProfile")) %>%
+	mutate(Simulation = rep(1:1000, 3)) %>%
+	pivot_wider(id_cols = "Simulation", names_from = "Term", values_from = "Value") %>%
+	ggplot(aes(x = TrialType, y = LangProfile, fill = stat(level))) +
+	stat_density_2d(geom = "polygon") +
+	labs(x = "Trial type", y = "Language Profile", fill = "Counts") +
+	scale_fill_viridis_c() +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black"),
+		panel.grid = element_line(linetype = "dotted", colour = "grey"),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey"),
+		legend.position = "right",
+		legend.direction = "horizontal",
+		legend.key.size = unit(1, "cm"),
+	) +
+	sims.fixef %>%
+	filter(Term %in% c("TrialType", "LangProfile", "TrialType × LangProfile")) %>%
+	mutate(Simulation = rep(1:1000, 3)) %>%
+	pivot_wider(id_cols = "Simulation", names_from = "Term", values_from = "Value") %>%
+	ggplot(aes(x = TrialType, y = `TrialType × LangProfile`, fill = stat(level))) +
+	stat_density_2d(geom = "polygon") +
+	labs(x = "Trial type", y = "TrialType × LangProfile", fill = "Counts") +
+	scale_fill_viridis_c() +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black"),
+		panel.grid = element_line(linetype = "dotted", colour = "grey"),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey"),
+		legend.position = "none"
+	) +
+	sims.fixef %>%
+	filter(Term %in% c("TrialType", "LangProfile", "TrialType × LangProfile")) %>%
+	mutate(Simulation = rep(1:1000, 3)) %>%
+	pivot_wider(id_cols = "Simulation", names_from = "Term", values_from = "Value") %>%
+	ggplot(aes(x = LangProfile, y = `TrialType × LangProfile`, fill = stat(level))) +
+	stat_density_2d(geom = "polygon") +
+	labs(x = "Language profile", y = "TrialType × LangProfile", fill = "Counts") +
+	scale_fill_viridis_c() +
+	theme(
+		text = element_text(size = 15),
+		axis.text = element_text(colour = "black"),
+		panel.grid = element_line(linetype = "dotted", colour = "grey"),
+		panel.background = element_rect(fill = "transparent"),
+		panel.border = element_rect(fill = "transparent", colour = "grey"),
+		legend.position = "none"
+	) +
+	guide_area() +
+	plot_layout(guides = "collect") +
+	plot_annotation(tag_levels = "A") +
+	ggsave(here("Figures", "05_gca-coefficients-uncertainty.png"))
+
+	

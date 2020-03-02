@@ -28,7 +28,10 @@ screenY       <- 1080 # height of the screen in pixels
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
 	filter(!Pilot) %>%
 	drop_na(Version) 
-
+# import trial-level data
+trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))  %>%
+	mutate(TrialID = as.character(TrialID))
+	
 # import eye-tracking data
 data <- paste0(here("Data", "Gaze data", "Barcelona/"), participants$Filename) %>% # locate files with gaze data
 	map(., ~fread(., sep = ",", dec = '.', header = TRUE, stringsAsFactors = FALSE, na.strings = c("NaN", "NA", "Na", "-", ""))) %>%  # import files in the folder
@@ -47,24 +50,43 @@ data <- paste0(here("Data", "Gaze data", "Barcelona/"), participants$Filename) %
 	as_tibble() %>%
 	rename(
 		ParticipantID = Participant,
-		TrialID = Trial
-		) %>%
+		TrialID = Trial,
+		lDistance = lUserCoordZ,
+		rDistance = rUserCoordZ
+	) %>%
 	mutate(
 		TrialID       = as.character(TrialID),
-		meanX         = rowMeans(cbind(lX, rX), na.rm = TRUE)*screenX,  # change relative coords to screen coords
-		meanY         = rowMeans(cbind(lY, rY), na.rm = TRUE)*screenY,  # change relative coords to screen coords
-		meanDistance  = rowMeans(cbind(lUserCoordZ, rUserCoordZ), na.rm = TRUE)/1000, # change distance from screen to centimeters
+		lX            = lX*screenX, # change relative coords to screen coords
+		rX            = rX*screenX, # change relative coords to screen coords
+		lY            = lY*screenY, # change relative coords to screen coords
+		rY            = rY*screenY, # change relative coords to screen coords
+		meanX         = rowMeans(cbind(lX, rX), na.rm = TRUE),  
+		meanY         = rowMeans(cbind(lY, rY), na.rm = TRUE),
+		lDistance     = lDistance/1000,
+		rDistance     = rDistance/1000,
+		meanDistance  = rowMeans(cbind(lDistance, rDistance), na.rm = TRUE), # change distance from screen to centimeters
 		Trackloss     = !(rV | lV) # is the sample not valid in both eyes?
 	) %>%
 	drop_na(ParticipantID) %>%
 	group_by(ParticipantID, TrialID, Phase) %>%
-	mutate(TimeStamp = seq(from = 0, to = (8*n())-8, by = 8)) %>%
+	mutate(TimeStamp = seq(
+		from = 0,
+		to = ((1000/sampling_rate)*n())-(1000/sampling_rate),
+		by = 1000/sampling_rate)
+	) %>%
 	ungroup() %>%
+	mutate(
+		meanX = ifelse(is.nan(meanX), NA, meanX),
+		meanY = ifelse(is.nan(meanY), NA, meanY),
+		meanDistance = ifelse(is.nan(meanDistance), NA, meanDistance)
+	) %>%
 	filter(ParticipantID %in% participants$ID,
 		   Phase %in% c("Prime", "Target-Distractor")) %>%
-	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss)
+	left_join(participants, by = c("ParticipantID" = "ID")) %>% 
+	left_join(trials, by = c("TrialID", "Language", "Location", "List", "Version")) %>%
+	select(ParticipantID, TrialID, Phase, TimeStamp, lX, rX, meanX, lY, rY, meanY, lDistance, rDistance, meanDistance, Trackloss)
 
-#### register logs ##############################################
+		#### register logs ##############################################
 logs <- data %>%
 	group_by(ParticipantID, TrialID) %>%
 	summarise(

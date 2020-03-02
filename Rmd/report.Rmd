@@ -20,10 +20,13 @@ library(patchwork)
 library(here)
 
 # load data
-data.sample <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx"))
-data.fixations <- fread(here("Data", "03_fixations.txt"))
-trackloss <- fread(here("Data", "02_filtered-trackloss.txt"))
-
+stimuli.duration  <- fread(here("Data", "Stimuli", "stimuli_duration-aggregated.txt"))
+data.sample       <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx"))
+data.fixations    <- fread(here("Data", "03_fixations.txt"))
+trackloss         <- fread(here("Data", "02_filtered-trackloss.txt"))
+results           <- fread(here("Data", "05_gca-results.txt"))
+predictions       <- fread(here("Data", "05_gca-predictions.txt"))
+multicollinearity <- fread(here("Data", "05_gca-multicollinearity.txt"))
 ```
 
 ```{r setup, include=FALSE}
@@ -32,7 +35,8 @@ knitr::opts_chunk$set(
 	message = TRUE,
 	warning = TRUE, 
 	cache.extra = knitr::rand_seed,
-	out.width = "\\textwidth"
+	out.width = "100%",
+	results = "asis"
 )
 options(knitr.kable.NA = '-')
 
@@ -42,6 +46,28 @@ options(knitr.kable.NA = '-')
 # Procedure
 
 # Stimuli
+
+## Duration
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+stimuli.duration %>%
+	select(Location, Language, Version, TrialType, m_duration, sd_duration, mean_overlap) %>%
+	kable(
+		digits = 2,
+		row.names = FALSE,
+		col.names = c("**Location**", "**Language**", "**Version**", "**Trial type**", "***M* duration (s)**", "***SD***", "***M* overlap (s)***"),
+		align = "c"
+	)
+	
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Audio duration. A) Distribution of audio durations by trial type, split by testing language and location. Boxplots indicate median duration, 25\\% and 75\\% percentiles, and maximum and minimum.  B) Distribution of overlap between audio and target-distractor presentation, split by testing language and location. C) Individual audio duration by word, split by trial type, testing language, and location. The dashed lines indicate the onset of target and distractor pictures presentation."}
+
+include_graphics(here("Figures", "Stimuli", "duration-overlap.png"))
+
+```
 
 # Sample
 
@@ -73,16 +99,93 @@ trackloss %>%
 	summarise(
 		TracklossForParticipant = first(TracklossForParticipant),
 		TracklossForParticipantSD = sd(TracklossForTrial, na.rm = TRUE)
-
 		) %>%
 	mutate(TracklossForParticipant = paste(printnum(TracklossForParticipant), "%"),
 		   TracklossForParticipantSD = printnum(TracklossForParticipantSD)) %>%
+	arrange(ParticipantID) %>%
 	kable(digits = 3,
 		  row.names = FALSE,
 		  align = "c",
 		  col.names = c("**Participant ID**", "**Mean**", "***SD***"),
 		  caption = "Mean proportion of samples lost by trial.")
 
+```
+
+## Growth Curve Analysis
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+results %>%
+	select(Term, Estimate, SEM, Chisq, Df, p, ci1, ci2) %>%
+	mutate(CI = paste0("[", printnum(ci1, digits=2), ",", printnum(ci2, digits=2), "]"),
+		   p = printp(p)) %>%
+	select(-c(ci1, ci2)) %>%
+	kable(
+		digits = 2,
+		row.names = FALSE,
+		col.names = c("**Term**", "**$\\beta$**", "***SEM***", "**$\\chi^2$**", "***Df***", "***p***", "**95\\%*CI***"),
+		align = "c",
+		caption = "Results of the Growth Curve Analysis, reporting the estimated coefficients of the fixed effects included in the model. *p*-values were extracted using Wald's $\\chi^2$ approximation."
+	)
+
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Coefficients of the fixed effects included in the Growth Curve Analysis. Black dots and whiskers represent the estimated coefficient and standard error of the mean, respectively. Grey boxes represent two-sided 95\\% confidence intervals, calculated using the Wald $\\chi^2$ approximation to degrees of freedom."}
+
+include_graphics(here("Figures", "05_gca-coefficients.png"))
+
+```
+
+## Predictions
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Predicted unfolding of target fixations across the time course of the trial for each participant, split by trial type, language profile, and testing language."}
+
+include_graphics(here("Figures", "05_gca-predictions-participant.png"))
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Predicted unfolding of target fixations across the time course of the trial for each trial, split by trial type, language profile, and testing language."}
+
+include_graphics(here("Figures", "05_gca-predictions-trial.png"))
+
+```
+
+
+## Variance-covariance parameters
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Variance-covariance matrix."}
+
+include_graphics(here("Figures", "05_gca-vcov.png"))
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Correlations between random effects split by fixed effect."}
+
+include_graphics(here("Figures", "05_gca-correlation.png"))
+
+```
+
+## Checking assumptions
+
+### Normality
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Distribution of the observed studentised residuals, compared with the theoretical normal distribution."}
+
+include_graphics(here("Figures", "05_gca-residuals.png"))
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Distribution of the observed studentised residuals, compared with the theoretical normal distribution."}
+
+results %>%
+	select(Term, VIF) %>%
+	kable(digits = 2,
+		  row.names = FALSE,
+		  col.names = c("***Term***", "***VIF***"),
+		  align = "c",
+		  caption = "Multicollinearity" 
+		  )
 ```
 
 # Appendix
@@ -94,7 +197,7 @@ trackloss %>%
 data.sample %>%
 	filter(!Pilot, DateTest<now()) %>%
 	select(ID, LangProfile, AgeGroup, Language, List, DateTest, Age, Sex, Valid) %>%
-	arrange(desc(Valid), LangProfile, AgeGroup, Language, List, DateTest) %>%
+	arrange(desc(Valid), LangProfile, AgeGroup, Language, List, ID) %>%
 	kable(digits = 2,
 		  row.names = FALSE,
 		  align = "c",

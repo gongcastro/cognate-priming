@@ -1,8 +1,8 @@
-# target_coords: Create cordinates of images base on location in screen
+# eval_target: Evaluate if sample is in target AOI
 # Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
 # Center for Brain and Cognition, Pompeu Fabra University
 
-target_coords <- function(
+eval_target <- function(
   
   data,
   x_gaze,

@@ -1,4 +1,4 @@
-# 01_process: Analyse gaze in Cognate Priming task
+# 01_process: process data 
 # Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
 # Center for Brain and Cognition, Pompeu Fabra University
 
@@ -14,9 +14,9 @@ library(purrr)        # for working with lists
 library(here)         # for locating files
 
 # load functions
-source(here("R", "Functions", "prime_coords.R"))
-source(here("R", "Functions", "target_coords.R"))
-source(here("R", "Functions", "distractor_coords.R"))
+source(here("R", "Functions", "eval_prime.R"))
+source(here("R", "Functions", "eval_target.R"))
+source(here("R", "Functions", "eval_distractor.R"))
 "%!in%" <- function(x, y) !(x %in% y)
 
 # set experimental parameters
@@ -45,23 +45,23 @@ trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))
 data.merged <- left_join(data.raw, participants, by = "ParticipantID") %>%
 	left_join(., trials, by = c("TrialID", "Language", "Version", "List")) %>%
 	as_tibble() %>%
-	select(ParticipantID, TrialID, Phase, TimeStamp, meanX, meanY, meanDistance, Trackloss, TargetLocation, TrialType, Language, List, Version, DateTest, DateBirth, Age, Sex, LangProfile, ValidParticipant, ValidTrial, Pilot)
+	select(ParticipantID, TrialID, Phase, TimeStamp, lX, rX, meanX, lY, rY, meanY, lDistance, rDistance, meanDistance, Trackloss, TargetLocation, TrialType)
 
 #### process data ###########################################################
 data <- data.merged %>%
 	mutate(
 		TrialID = as.character(TrialID),
 		# evaluate if gaze is in prime AOI
-		GazePrime = prime_coords(data = .,
+		GazePrime = eval_prime(data = .,
 							 x_gaze = meanX,
 							 y_gaze = meanY),
 		# evaluate if gaze is in target AOI
-		GazeTarget = target_coords(data = .,
+		GazeTarget = eval_target(data = .,
 							  x_gaze = meanX,
 							  y_gaze = meanY,
 							  target_location = TargetLocation),
 		# evaluate if gaze is in distractor AOI
-		GazeDistractor = distractor_coords(data = .,
+		GazeDistractor = eval_distractor(data = .,
 								  x_gaze = meanX,
 								  y_gaze = meanY,
 								  target_location = TargetLocation),

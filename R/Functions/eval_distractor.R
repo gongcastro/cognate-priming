@@ -1,8 +1,8 @@
-# distractor_coords: Create cordinates of images base on location in screen
+# eval_distractor: Evaluate if sample is in distractor AOI
 # Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
 # Center for Brain and Cognition, Pompeu Fabra University
 
-distractor_coords <- function(
+eval_distractor <- function(
   
   data,
   x_gaze,

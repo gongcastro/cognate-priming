@@ -25,10 +25,22 @@ screenY           <- 1080 # screen heigh in pixels
 resolution        <- 23   # screen size in inches
 
 # load functions
-source(here("R", "Functions", "target_coords.R"))     # for evaluating whether gaze is in target
-source(here("R", "Functions", "distractor_coords.R")) # for evaluating whether gaze is in distractor
+source(here("R", "Functions", "eval_target.R"))     # for evaluating whether gaze is in target
+source(here("R", "Functions", "eval_distractor.R")) # for evaluating whether gaze is in distractor
 
 #### import data ###########################################################
+# import participant-level data
+participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
+	rename(ParticipantID    = ID,
+		   ValidParticipant = Valid) %>%
+	filter(!Pilot)
+
+# import trial-leve data
+trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
+	select(-c(TargetLocation, TrialType)) %>%
+	mutate(TrialID = as.character(TrialID))
+
+# import filtered data
 data <- fread(here("Data", "02_filtered.txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE) %>%
 	select(-c(Phase, GazePrime)) %>%
 	make_eyetrackingr_data(
@@ -57,15 +69,18 @@ data <- fread(here("Data", "02_filtered.txt"), sep = "\t", header = TRUE, string
 fixation.info <- split(data, f = data$ParticipantID) %>% # separate each participant's dataset
 	map(., ~gazepath( # get fixations in each dataset
 		data       = .,
-		x1         = "meanX",         # gaze horizontal position
-		y1         = "meanY",         # gaze vertical position 
-		d1         = "meanDistance",  # variable containing distance from screen
+		x1         = "rX",            # left eye horizontal position
+		x2         = "rX",            # left eye horizontal position
+		y1         = "lY",            # left eye horizontal position
+		y2         = "rY",            # right eye vertical position
+		d1         = "lDistance",     # gaze vertical position 
+		d2         = "rDistance",     # variable containing distance from screen
 		trial      = "TrialID",       # trial index in dataset
 		height_mm  = 132.2917,        # AOI height in mm
 		width_mm   = 132.2917,        # AOI width in mm
 		height_px  = 500,             # AOI height in px 
 		width_px   = 500,             # AOI width in px
-		samplerate = 120,             # eye-tracker sampling rate
+		samplerate = sampling_rate,   # eye-tracker sampling rate
 		method     = "gazepath",      # select algorithm
 		posthoc    = TRUE,            # merge consecutive fixations?
 		thres_dur  = 100,             # minimum fixation duration
@@ -83,10 +98,11 @@ fixation.info <- split(data, f = data$ParticipantID) %>% # separate each partici
 	mutate(FixNum = row_number()) %>% # index all fixations within each trial 
 	ungroup()
 
-
 # reconstruct fixations across time domain
 fixations <- fixation.info %>%
 	right_join(., data, by = c("ParticipantID", "TrialID")) %>% # merge fixation info with time data
+	left_join(., participants, by = "ParticipantID") %>%
+	left_join(., trials, by = c("Location", "Language", "Version", "List", "TrialID")) %>%
 	rename(Time = TimeStamp) %>%
 	mutate(Fixation = (Time >= Start) & (Time <= End)) %>%      # is time point within fixation boundaries?
 	group_by(ParticipantID, TrialID, Time, TrialType, List, TargetLocation, Language, LangProfile, Pilot) %>%      # prepare to agreggate by time point
@@ -97,25 +113,25 @@ fixations <- fixation.info %>%
 	mutate_if(.predicate = is.factor, as.character) %>%
 	mutate(
 		# evaluate if gaze is in target of distractor using a custom script (in pilot, target location was generated online)
-		FixTarget     = target_coords(data = ., x_gaze = meanX, y_gaze = meanY, target_location = TargetLocation),
-		FixDistractor = distractor_coords(data = ., x_gaze = meanX, y_gaze = meanY, target_location = TargetLocation),
+		FixTarget     = eval_target(data = ., x_gaze = meanX, y_gaze = meanY, target_location = TargetLocation),
+		FixDistractor = eval_distractor(data = ., x_gaze = meanX, y_gaze = meanY, target_location = TargetLocation),
 		# generate time bins
 		TimeBin       = as.numeric(cut(Time, breaks = seq(0, 2000, by = time_bin_duration), labels = seq(1, 2000/time_bin_duration)))
 	) %>%
 	# aggregate across trials
 	group_by(ParticipantID, TrialID, TrialType, TimeBin, Language, LangProfile, Pilot) %>%
 	summarise(
-		TotalSamples      = n(),               # number of samples in this time bin for this participant
-		SamplesTarget     = sum(FixTarget),    # number of samples in ta
-		SamplesDistractor = sum(FixDistractor)
+		TotalSamples      = n(),                             # number of samples in this time bin for this participant
+		SamplesTarget     = sum(FixTarget, na.rm = TRUE),    # number of samples in target
+		SamplesDistractor = sum(FixDistractor, na.rm = TRUE) # number of samples in target
 	) %>%
 	ungroup() %>%
 	mutate(
-		Time = TimeBin*time_bin_duration,
-		ElogitFix = log((SamplesTarget+0.5)/(SamplesDistractor+0.5)), # as in Barr (2008)
-		OddsFix = exp(ElogitFix),
-		ProbFix = OddsFix/(1+OddsFix),
-		Weights = (1/(SamplesTarget+0.5))+(1/(TotalSamples-SamplesTarget+0.5)) # as in Barr (2008)
+		Time      = TimeBin*time_bin_duration,
+		ElogitFix = log((SamplesTarget+0.5)/(TotalSamples-SamplesDistractor+0.5)), # as in Barr (2008)
+		OddsFix   = exp(ElogitFix),
+		ProbFix   = OddsFix/(1+OddsFix),
+		Weights   = 1/(SamplesTarget+0.5) + 1/(TotalSamples-SamplesTarget+0.5) # as in Barr (2008)
 	) 
 
 #### register logs ##############################################

@@ -1,8 +1,8 @@
-# prime_coords: Create cordinates of images base on location in screen
+# eval_prime: Evaluate if sample is in prime AOI
 # Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
 # Center for Brain and Cognition, Pompeu Fabra University
 
-prime_coords <- function(
+eval_prime <- function(
   
   data,
   x_gaze,

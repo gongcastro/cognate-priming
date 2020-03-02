@@ -46,8 +46,8 @@ durations <- tibble(
 			TRUE                    ~ "English"
 		),
 		Duration = unlist(
-			map2(.x = map(map(file.paths, load.wave) %>% set_names(file.names), length), # get time domain of each audio from sample rate and number of measurements
-				 .y = map(map(file.paths, load.wave) %>% set_names(file.names), get_rate),
+			map2(.x = map(map(Path, load.wave) %>% set_names(Filename), length), # get time domain of each audio from sample rate and number of measurements
+				 .y = map(map(Path, load.wave) %>% set_names(Filename), get_rate),
 				 .f = function(x = .x, y = .y) x*(1/y)*0.5
 			)  
 		)
