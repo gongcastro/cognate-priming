@@ -12,95 +12,66 @@ library(readxl)       # for importing Excel files
 library(tibble)       # for more informative data frames
 library(stringr)      # for working with character strings
 library(purrr)        # for working with lists
+library(janitor)      # for cleaning variable names
+library(ggplot2)
 library(here)         # for locating files
 
 # load functions
-"%!in%" <- function(x, y) !(x %in% y)
+source(here("R", "functions.R"))
 
 # set experimental parameters
-sampling_rate <- 120  # how many samples does the eye-tracker take per second?
-screenX       <- 1920 # width of the screen in pixels
-screenY       <- 1080 # height of the screen in pixels
+sampling_rate      <- 120  # how many samples does the eye-tracker take per second?
+screen_x           <- 1920 # width of the screen in pixels
+screen_y           <- 1080 # height of the screen in pixels
+relevant_variables <- c("participant", "trial", "phase", "system_time_stamp", "l_x", "l_y", "l_v", "r_x", "r_y", "r_v", "l_origin_user_coord_z", "r_origin_user_coord_z", "trial_num")
 
 #### import data #######################################
 
 # import participant-level data
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
-	filter(!Pilot) %>%
-	drop_na(Version) 
+	clean_names() %>%
+	filter(!pilot) %>%
+	drop_na(id) 
+
 # import trial-level data
-trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))  %>%
-	mutate(TrialID = as.character(TrialID))
-	
+trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
+	clean_names() %>%
+	mutate(trial_id = as.character(trial_id))
+
 # import eye-tracking data
-data <- paste0(here("Data", "Gaze data", "Barcelona/"), participants$Filename) %>% # locate files with gaze data
-	map(., ~fread(., sep = ",", dec = '.', header = TRUE, stringsAsFactors = FALSE, na.strings = c("NaN", "NA", "Na", "-", ""))) %>%  # import files in the folder
-	set_names(participants$ID) %>% # name each list element with its file name 
-	map(~select(., one_of("SystemTimeStamp", "lX", "lY", "lV", "rV", "rX", "rY", "lUserCoordZ", "rUserCoordZ", # select only relevant variables
-						  "Participant", "TrialNum", "Trial", "Phase"))) %>%
-	map(~mutate(., Participant = paste0("cognatepriming", Participant))) %>%
-	map(~mutate(., SystemTimeStamp = as.numeric(SystemTimeStamp))) %>%
-	map(~mutate(., lX = as.numeric(lX))) %>%
-	map(~mutate(., lY = as.numeric(lY))) %>%
-	map(~mutate(., rX = as.numeric(rX))) %>%
-	map(~mutate(., rY = as.numeric(rY))) %>%
-	map(~mutate(., lUserCoordZ = str_remove_all(lUserCoordZ, "\\.") %>% substr(start = 1, 6) %>% as.numeric(.))) %>%
-	map(~mutate(., rUserCoordZ = str_remove_all(lUserCoordZ, "\\.") %>% substr(start = 1, 6) %>% as.numeric(.))) %>%
+dat_raw <- paste0(here("Data", "Gaze data", "Barcelona/"), participants$filename) %>% # locate files with gaze data
+	map(., fread, sep = ",", dec = '.', header = TRUE, stringsAsFactors = FALSE, na.strings = c("NaN", "NA", "Na", "-", ""))  # import files in the folder
+
+#### process data #######################################
+dat <- dat_raw %>%
+	map(clean_names) %>%
+	map(select, one_of(relevant_variables)) %>%
+	map(mutate_at, vars(system_time_stamp, l_x, l_y, l_v, r_x, r_y, r_v, contains("origin")), as.numeric) %>%
 	bind_rows() %>%
 	as_tibble() %>%
-	rename(
-		ParticipantID = Participant,
-		TrialID = Trial,
-		lDistance = lUserCoordZ,
-		rDistance = rUserCoordZ
-	) %>%
-	mutate(
-		TrialID       = as.character(TrialID),
-		lX            = lX*screenX, # change relative coords to screen coords
-		rX            = rX*screenX, # change relative coords to screen coords
-		lY            = lY*screenY, # change relative coords to screen coords
-		rY            = rY*screenY, # change relative coords to screen coords
-		meanX         = rowMeans(cbind(lX, rX), na.rm = TRUE),  
-		meanY         = rowMeans(cbind(lY, rY), na.rm = TRUE),
-		lDistance     = lDistance/1000,
-		rDistance     = rDistance/1000,
-		meanDistance  = rowMeans(cbind(lDistance, rDistance), na.rm = TRUE), # change distance from screen to centimeters
-		Trackloss     = !(rV | lV) # is the sample not valid in both eyes?
-	) %>%
-	drop_na(ParticipantID) %>%
-	group_by(ParticipantID, TrialID, Phase) %>%
-	mutate(TimeStamp = seq(
-		from = 0,
-		to = ((1000/sampling_rate)*n())-(1000/sampling_rate),
-		by = 1000/sampling_rate)
-	) %>%
+	rename(participant_id = participant,
+		   timestamp = system_time_stamp,
+		   trial_id = trial,
+		   l_dist = l_origin_user_coord_z,
+		   r_dist = r_origin_user_coord_z) %>%
+	mutate(participant_id = paste0("cognatepriming", participant_id),
+		   trial_id = as.character(trial_id),
+		   l_x = l_x*screen_x,
+		   r_x = r_x*screen_x,
+		   l_y = l_y*screen_y,
+		   r_y = r_y*screen_y,
+		   l_dist = ifelse(l_dist < 0, NA_real_, l_dist),
+		   r_dist = ifelse(r_dist < 0, NA_real_, r_dist),
+		   trackloss = !(r_v | l_v)) %>%
+	group_by(participant_id, trial_id, phase) %>%
+	mutate(timestamp = seq(from = 0,
+						   to = ((1000/sampling_rate)*n())-(1000/sampling_rate),
+						   by = 1000/sampling_rate),
+		   timebin  = as.numeric(as.factor(cut_width(timestamp, width = 200, closed = "left")))) %>%
 	ungroup() %>%
-	mutate(
-		meanX = ifelse(is.nan(meanX), NA, meanX),
-		meanY = ifelse(is.nan(meanY), NA, meanY),
-		meanDistance = ifelse(is.nan(meanDistance), NA, meanDistance)
-	) %>%
-	filter(ParticipantID %in% participants$ID,
-		   Phase %in% c("Prime", "Target-Distractor")) %>%
-	left_join(participants, by = c("ParticipantID" = "ID")) %>% 
-	left_join(trials, by = c("TrialID", "Language", "Location", "List", "Version")) %>%
-	select(ParticipantID, TrialID, Phase, TimeStamp, lX, rX, meanX, lY, rY, meanY, lDistance, rDistance, meanDistance, Trackloss)
-
-		#### register logs ##############################################
-logs <- data %>%
-	group_by(ParticipantID, TrialID) %>%
-	summarise(
-		TimeStart = min(TimeStamp, na.rm = TRUE),
-		TimeStop  = max(TimeStamp, na.rm = TRUE),
-		MinX      = min(meanX, na.rm = TRUE),
-		MaxX      = min(meanX, na.rm = TRUE),
-		MinY      = max(meanY, na.rm = TRUE),
-		MaxY      = max(meanY, na.rm = TRUE),
-		MinDist   = min(meanDistance, na.rm = TRUE),
-		MaxDist   = max(meanDistance, na.rm = TRUE),
-	)
+	filter(phase %in% c("Prime", "Target-Distractor")) %>%
+	select(participant_id, trial_id, phase, timebin, timestamp, l_x, l_y, l_dist, r_x, r_y, r_dist, trackloss)
 
 #### export data ###############################################
-fwrite(data, file = here("Data", "00_raw.txt"), sep = "\t", row.names = FALSE)
-fwrite(logs, file = here("Data", "00_raw-logs.txt"), sep = "\t", row.names = FALSE)
+fwrite(dat, file = here("Data", "00_raw.csv"), sep = ",", row.names = FALSE)
 

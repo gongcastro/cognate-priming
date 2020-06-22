@@ -9,85 +9,83 @@ library(data.table) # for importing and exporting data
 library(dplyr)      # for manipulating data
 library(tidyr)      # for rehsaping datasets
 library(readxl)     # for importing Excel files
+library(scales)     # for centering variables
 library(tibble)     # for more informative data frames
+library(janitor)    # for cleaning variable names
 library(here)       # for locating files
+
+# set parameters
+time_bin_duration <- 100  # how long should time bins be in ms?
 
 #### import data #########################################
 # import fixation data
-fixations <- fread(here("Data", "03_fixations.txt"),
-				   sep = "\t", dec = ".", stringsAsFactors = FALSE) %>%
-	select(-c(Pilot, TotalSamples, SamplesTarget, SamplesDistractor, -OddsFix)) %>%
+fixations <- fread(here("Data", "03_fixations.csv"), sep = ",", dec = ".", stringsAsFactors = FALSE) %>%
 	as_tibble()
 
 # import participant data
 participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
-	rename(ParticipantID = ID) %>%
-	select(ParticipantID, LangProfile, Location, Language, List)
+	clean_names() %>%
+	rename(participant_id = id) %>%
+	select(participant_id, lang_profile, location, language, list)
 
 # import trial data
 trials <- fread(here("Data", "Stimuli", "02_stimuli-stats.txt")) %>%
+	clean_names() %>%
 	as_tibble() %>%
-	unite("TrialIDLabel", c("Prime", "Distractor"), sep = "_")  %>%
-	select(TrialID, TargetID = Target, Location, Language, List, FreqPrime, FreqTarget, LevenshteinPrime)
+	unite("trial_id_label", c("prime", "distractor"), sep = "_")  %>%
+	select(trial_id, target_id = target, location, language, list, freq_prime, freq_target, levenshtein_prime)
 
 
 #### merge data ##########################################
-data <- fixations %>%
-	left_join(., participants, by = c("ParticipantID", "LangProfile", "Language")) %>%
-	left_join(., trials, by = c("TrialID", "Language", "Location", "List")) %>%
-	drop_na(TimeBin) %>%
-	mutate(
-		TrialType = factor(
-			case_when(
-				TrialType == "Unrelated"   ~ 0,
-				TrialType == "Non-cognate" ~ 1,
-				TRUE                       ~ 2
-			)
-		),
-		Language = factor(ifelse(Language=="Spanish", -0.5, 0.5)),
-		LangProfile = factor(ifelse(LangProfile=="Monolingual", 0, 1))
-	)
-t <- poly((unique(data$TimeBin)), 3)
-data[,paste("TimeBin", 1:3, sep = "")] <- t[data$TimeBin, 1:3]
+dat <- fixations %>%
+	left_join(., participants) %>%
+	#left_join(., trials) %>%
+	drop_na(timebin)
 
-#### define time window if interest
-data <- data %>% filter(TimeBin > 2)
+#### aggregate across trials ###############################################
+dat_binned <- dat %>%
+	group_by(participant_id, trial_id, trial_type, timebin, language, lang_profile) %>%
+	summarise(total_samples = n(),
+			  samples_target = sum(fix_target, na.rm = TRUE),
+			  samples_distractor = sum(fix_distractor, na.rm = TRUE),
+			  .groups = "drop") %>%
+	ungroup() %>%
+	mutate(time = timebin*time_bin_duration) %>%
+	rowwise() %>%
+	mutate(total = total_samples,
+		   target = samples_target,
+		   distractor = samples_distractor,
+		   prop = target/total,
+		   weights = 1/(target+0.5) + 1/(total-target+0.5)) %>%
+	filter(timebin > 2)
 
-#### define contrasts ####################################
-contrasts(data$TrialType) <- contr.poly(3)
+dat_binned %>%
+	ggplot(aes(timebin, prop, colour = trial_type)) +
+	facet_wrap(~lang_profile) +
+	geom_smooth() +
+	ggsave(here("Figures", "test.png"))
+
+#### code predictors ####################################
+dat_coded <- dat_binned %>%
+	mutate(trial_type = factor(case_when(trial_type == "Unrelated"   ~ 0,
+										 trial_type == "Non-cognate" ~ 1,
+										 TRUE                       ~ 2)),
+		   language = ifelse(language=="Spanish", -0.50, 0.50),
+		   lang_profile = ifelse(lang_profile=="Monolingual", -0.50, 0.50))
+
+#### create orthogonal polynomials ######################
+t <- poly(sort(as.vector(unique(dat$timebin))), 3)
+polynomials <- data.frame(timebin = unique(dat$timebin),
+						  timebin1 = t[,1],
+						  timebin2 = t[,2],
+						  timebin3 = t[,3])
+dat_poly <- left_join(dat_coded, polynomials, by = "timebin")
 
 #### reorder variables ###################################
-data <- data %>%
-	select(ParticipantID, TargetID, starts_with("Time"),
-		   ElogitFix, ProbFix, Weights, TrialType, LangProfile, Language,
-		   FreqPrime, FreqTarget, LevenshteinPrime)
-
-#### register logs #######################################
-logs.participants <- data %>%
-	group_by(ParticipantID, TrialType, Language, LangProfile) %>%
-	summarise(
-		TimeBinN    = n(),
-		TimeBinMin  = min(TimeBin, na.rm = TRUE),
-		TimeBinMax  = max(TimeBin, na.rm = TRUE),
-		ProbFixMean = mean(ProbFix, na.rm = TRUE),
-		ProbFixSD   = sd(ProbFix, na.rm = TRUE),
-		ProbFixSEM  = sd(ProbFix, na.rm = TRUE)/sqrt(TimeBinN)
-	)
-
-logs.trials <- data %>%
-	group_by(TargetID, TrialType, Language, LangProfile) %>%
-	summarise(
-		TimeBinN    = n(),
-		TimeBinMin  = min(TimeBin, na.rm = TRUE),
-		ProbFixMean = median(ProbFix, na.rm = TRUE),
-		ProbFixMean = mean(ProbFix, na.rm = TRUE),
-		ProbFixSD   = sd(ProbFix, na.rm = TRUE),
-		ProbFixSEM  = sd(ProbFix, na.rm = TRUE)/sqrt(TimeBinN)
-	)
+dat_prepared <- dat_poly %>%
+	select(participant_id, trial_id, starts_with("time"), target, distractor, total, weights, trial_type, lang_profile, language)
 
 
 #### export data #########################################
-fwrite(data, here("Data", "04_prepared.txt"), sep = "\t", dec = ".", row.names = FALSE)
-fwrite(logs.participants, here("Data", "04_prepared-log-participants.txt"), sep = "\t", dec = ".", row.names = FALSE)
-fwrite(logs.trials, here("Data", "04_prepared-log-trials.txt"), sep = "\t", dec = ".", row.names = FALSE)
+fwrite(dat_prepared, here("Data", "04_prepared.csv"), sep = ",", dec = ".", row.names = FALSE)
 
