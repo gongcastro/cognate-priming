@@ -23,7 +23,7 @@ library(here)
 stimuli.duration  <- fread(here("Data", "Stimuli", "stimuli_duration-aggregated.txt"))
 data.sample       <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx"))
 data.fixations    <- fread(here("Data", "03_fixations.txt"))
-trackloss         <- fread(here("Data", "02_filtered-trackloss.txt"))
+attrition         <- fread(here("Data", "02_filtered-excluded-trials.txt"))
 results           <- fread(here("Data", "05_gca-results.txt"))
 predictions       <- fread(here("Data", "05_gca-predictions.txt"))
 multicollinearity <- fread(here("Data", "05_gca-multicollinearity.txt"))
@@ -81,8 +81,10 @@ data.sample %>%
 	group_by(LangProfile, AgeGroup, Language, List) %>%
 	summarise(n = n()) %>%
 	pivot_wider(id_cols = c("LangProfile", "AgeGroup", "Language"), names_from = "List", values_from = "n") %>%
+	mutate(Total = sum(`1`, `2`, `3`, na.rm = TRUE)) %>%
+
 	kable(digits = 0,
-		  col.names = c("***LP***", "**Age group**", "**Language**", "**List 1**", "**List 2**", "**List 3**"), 
+		  col.names = c("***LP***", "**Age group**", "**Language**", "**List 1**", "**List 2**", "**List 3**", "**Total**"), 
 		  align = "c",
 		  caption = "Sample size by age group, testing language, and list. Only participants that made it in the final sample are included.")
 
@@ -94,8 +96,8 @@ data.sample %>%
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-trackloss %>%
-	group_by(ParticipantID) %>%
+attrition %>%
+	left_join(data.sample, by = c("ParticipantID" = "ID")) %>%
 	summarise(
 		TracklossForParticipant = first(TracklossForParticipant),
 		TracklossForParticipantSD = sd(TracklossForTrial, na.rm = TRUE)

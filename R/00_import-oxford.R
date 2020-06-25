@@ -34,8 +34,7 @@ dat <- fread(here("Data", "Gaze data", "Oxford", "CognatePriming_17Mar2020.csv")
 		   l_v = gaze_left_validity, r_v = gaze_right_validity) %>%
 	mutate(target_location = ifelse(vis_target_stm_pos==2, "l", "r"),
 		   location = "Oxford") %>%
-	mutate_at(vars(prime, target, distractor), make_clean_names)
 	select(id, trial_num, time_bin, time_stamp, starts_with("l_"), starts_with("r_"), prime, target, distractor) %>%
-	left_join(., dat_trials, by = c("prime", "target", "distractor")) %>%
+	left_join(., dat_trials) 
 	relocate(id, trial_num, trial_id, time_bin, time_stamp, starts_with("l_"), starts_with("r_"))
 	
