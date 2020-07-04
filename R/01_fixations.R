@@ -18,8 +18,8 @@ library(here)         # for locating files
 time_bin_duration <- 100  # how long should time bins be in ms?
 sampling_rate     <- 120  # how many samples are takien per second?
 screen_x          <- 1920 # screen width in pixels
-screen_y          <- 1080 # screen heigh in pixels
-resolution        <- 23   # screen size in inches
+screen_y          <- 1080 # screen height in pixels
+screen_dpi        <- 23   # screen size in inches
 
 # load functions
 source(here("R", "functions.R")) 
@@ -64,7 +64,7 @@ fixations <- dat_gaze %>%
 	as_tibble() %>%               # for more informative datasets
 	mutate_if(.predicate = is.factor, as.character) %>%
 	group_by(participant_id, trial_id) %>% # whatever we do next, do it spearately for each combination of these variables
-	mutate(fixnum = row_number()) %>% # index all fixations within each trial 
+	mutate(fixnum = row_number) %>% # index all fixations within each trial 
 	ungroup() %>% 
 	mutate(phase = ifelse(start < 1500, "Prime", "Target-Distractor"),
 		   start = ifelse(phase=="Prime", start+3000, start+4000),

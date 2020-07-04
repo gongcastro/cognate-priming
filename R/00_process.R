@@ -1,6 +1,4 @@
 # 00_process: Prepare data for analysis ################
-# Gonzalo García-Castro, gonzalo.garciadecastro@upf.edu
-# Center for Brain and Cognition, Pompeu Fabra University
 
 #### set up ############################################
 
@@ -32,7 +30,7 @@ dat_participants <- read_xlsx(here("Data", "Participant data", "data_participant
 dat_trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
 	mutate(trial_id = as.character(trial_id)) %>% 
 	select(location, test_language, list, trial_id, target_location)
-dat_gaze_raw_bcn <- paste0(here("Data", "Gaze data", "Barcelona/"), dat_participants$filename[!is.na(dat_participants$filename)]) %>% 
+dat_gaze_raw_bcn <- paste0(here("Data", "Gaze data", "Barcelona"), .Platform$file.sep, dat_participants$filename[!is.na(dat_participants$filename)]) %>% 
 	map(., fread, sep = ",", dec = '.', header = TRUE, stringsAsFactors = FALSE, na.strings = c("NaN", "NA", "Na", "-", ""))
 dat_gaze_raw_oxf <- fread(here("Data", "Gaze data", "Oxford", "CognatePriming_17Mar2020.csv"), stringsAsFactors = FALSE, na.strings = "")
 
