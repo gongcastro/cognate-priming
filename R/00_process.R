@@ -4,6 +4,7 @@
 
 #### set up ############################################
 
+
 # load packages
 library(tidyverse)      
 library(data.table)   # for importing data
@@ -27,12 +28,12 @@ relevant_variables <- c("participant", "trial", "phase", "system_time_stamp", "l
 dat_participants <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx")) %>%
 	filter(!pilot) %>%
 	drop_na(participant_id) %>%
-	select(participant_id, location, test_language, list)
+	select(participant_id, id_db, location, test_language, list, filename)
 dat_trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
 	mutate(trial_id = as.character(trial_id)) %>% 
 	select(location, test_language, list, trial_id, target_location)
-dat_gaze_raw_bcn <- paste0(here("Data", "Gaze data", "Barcelona/"), dat_participants$filename) %>% # locate files with gaze data
-	map(., fread, sep = ",", dec = '.', header = TRUE, stringsAsFactors = FALSE, na.strings = c("NaN", "NA", "Na", "-", ""))  # import files in the folder
+dat_gaze_raw_bcn <- paste0(here("Data", "Gaze data", "Barcelona/"), dat_participants$filename[!is.na(dat_participants$filename)]) %>% 
+	map(., fread, sep = ",", dec = '.', header = TRUE, stringsAsFactors = FALSE, na.strings = c("NaN", "NA", "Na", "-", ""))
 dat_gaze_raw_oxf <- fread(here("Data", "Gaze data", "Oxford", "CognatePriming_17Mar2020.csv"), stringsAsFactors = FALSE, na.strings = "")
 
 #### process data #######################################
@@ -71,14 +72,14 @@ dat_gaze_bcn <- dat_gaze_raw_bcn %>%
 	ungroup() %>%
 	left_join(dat_participants) %>%
 	left_join(dat_trials) %>%
-	select(participant_id, trial_id, phase, timestamp, target_location, l_x, l_y, l_dist, r_x, r_y, r_dist, trackloss) %>% 
+	select(participant_id, id_db, trial_id, phase, timestamp, target_location, l_x, l_y, l_dist, r_x, r_y, r_dist, trackloss) %>% 
 	arrange(desc(participant_id), trial_id, timestamp, phase)
 
 # import data from Oxford
 dat_gaze_oxf <- dat_gaze_raw_oxf %>%
 	as_tibble() %>%
 	clean_names() %>%
-	rename(participant_id = id,
+	rename(id_db = id,
 		   trialnum = trial,
 		   timebin = timebin,
 		   timestamp = timestamp,
@@ -101,8 +102,8 @@ dat_gaze_oxf <- dat_gaze_raw_oxf %>%
 		   trackloss = !(r_v | l_v),
 		   target_location = ifelse(vis_target_stm_pos==2, "l", "r"),
 		   location = "Oxford") %>% 
-	mutate_at(vars(participant_id, trialnum), as.character) %>%
-	group_by(participant_id, trialnum) %>%
+	mutate_at(vars(id_db, trialnum), as.character) %>%
+	group_by(id_db, trialnum) %>%
 	mutate(timestamp = timestamp-min(timestamp, na.rm = TRUE),
 		   timebin  = as.numeric(as.factor(cut_width(timestamp, width = 200, closed = "left"))),
 		   phase = case_when(between(timestamp, 0, 3000) ~ "Getter",
@@ -111,11 +112,14 @@ dat_gaze_oxf <- dat_gaze_raw_oxf %>%
 		   				  between(timestamp, 4550, 5250) ~ "Audio",
 		   				  between(timestamp, 5250, 7250) ~ "Target-Distractor")) %>%
 	ungroup() %>%
-	select(-c(audio, target_location)) %>%
-	left_join(dat_trials) %>%
-	select(participant_id, trial_id, timebin, timestamp, l_x, l_y, l_dist, r_x, r_y, r_dist)
+	select(-audio) %>%
+	left_join(dat_participants) %>% 
+	left_join(., select(dat_trials, -target_location)) %>% 
+	select(participant_id, id_db, trial_id, phase, timestamp, target_location, l_x, l_y, l_dist, r_x, r_y, r_dist, trackloss)  
 
+#### merge data ################################################
+dat <- bind_rows(dat_gaze_bcn, dat_gaze_oxf)
 
 #### export data ###############################################
-fwrite(dat_gaze_bcn, file = here("Data", "00_processed.csv"), sep = ",", row.names = FALSE)
+fwrite(dat, file = here("Data", "00_processed.csv"), sep = ",", row.names = FALSE)
 

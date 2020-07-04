@@ -35,7 +35,7 @@ polynomials <- data.frame(timebin = unique(dat_raw$timebin),
 
 #### prepare data for GCA ###############################################
 dat <- dat_raw %>%
-	group_by(participant_id, trial_id, trial_type, timebin, lp, vocab_comp) %>%
+	group_by(participant_id, sex, test_language, trial_id, trial_type, timebin, lp, vocab_comp) %>%
 	summarise(total_samples = n(),
 			  samples_target = sum(fix_target, na.rm = TRUE),
 			  samples_distractor = sum(fix_distractor, na.rm = TRUE),
@@ -50,7 +50,7 @@ dat <- dat_raw %>%
 		   weights = 1/(target+0.5) + 1/(total-target+0.5)) %>%
 	filter(timebin > 2) %>% # filter data
 	left_join(polynomials) %>%
-	relocate(participant_id, trial_id, timebin, time, target, distractor, total, prop, weights, timebin1, timebin2, timebin3, trial_type)
+	relocate(participant_id, sex, trial_id, timebin, time, target, distractor, total, prop, weights, timebin1, timebin2, timebin3, trial_type)
 
 
 #### export data #########################################
