@@ -11,13 +11,14 @@ library(here)
 
 # set params
 
-#### import data ###############################################################
+#### import data ---------------------------------------------------------------
 by_trial <- fread(here("Results", "by_trial.csv")) %>% 
 	as_tibble() %>% 
 	rowwise() %>% 
 	mutate(proportion = target/n) %>% 
 	mutate_at(vars(lp, trial_type), as.factor) %>% 
-	filter((target+distractor) >= 0.75*n)
+	filter((target+distractor) >= 0.75*n) %>% 
+	ungroup()
 contrasts(by_trial$lp) <- c(-0.5, 0.5)
 contrasts(by_trial$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
 
@@ -31,7 +32,7 @@ by_time_bin <- fread(here("Results", "by_time_bin.csv")) %>%
 contrasts(by_time_bin$lp) <- c(-0.5, 0.5)
 contrasts(by_time_bin$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
 
-#### trial-wise ################################################################
+#### trial-wise ----------------------------------------------------------------
 trial0 <- glmer(cbind(target, n) ~ 1 + (1 | participant),
 				family = binomial("logit"),
 				control = glmerControl(optimizer = "bobyqa"),
@@ -57,29 +58,31 @@ ggplot(by_trial, aes(trial_type, p_distractor)) +
 	geom_point(shape = 1, stroke = 1, alpha = 0.5)
 
 
-#### time bin-wise #############################################################
+#### time bin-wise -------------------------------------------------------------
 time0 <- glmer(cbind(target, n) ~
 			   	(time_bin1+time_bin2+time_bin3)*trial_type +
 			   	(1 + time_bin1 | participant),
 			   data = by_time_bin,
 			   family = binomial("logit"))
 
-nd <- expand.grid(time_bin1 = seq(min(by_time_bin$time_bin1, na.rm = TRUE),
-								 max(by_time_bin$time_bin1, na.rm = TRUE),
-								 by = 0.001),
-				 time_bin2 = seq(min(by_time_bin$time_bin2, na.rm = TRUE),
-				 				max(by_time_bin$time_bin2, na.rm = TRUE),
-				 				by = 0.001),
-				 time_bin3 = seq(min(by_time_bin$time_bin3, na.rm = TRUE),
-				 				max(by_time_bin$time_bin3, na.rm = TRUE),
-				 				by = 0.001),
-				 participants = unique(by_time_bin$participant),
-				 trial_type = unique(by_time_bin$trial_type), re.form = NULL) 
+nd <- expand.grid(
+	time_bin1 = seq(min(by_time_bin$time_bin1, na.rm = TRUE),
+					max(by_time_bin$time_bin1, na.rm = TRUE),
+					by = 0.001),
+	time_bin2 = seq(min(by_time_bin$time_bin2, na.rm = TRUE),
+					max(by_time_bin$time_bin2, na.rm = TRUE),
+					by = 0.001),
+	time_bin3 = seq(min(by_time_bin$time_bin3, na.rm = TRUE),
+					max(by_time_bin$time_bin3, na.rm = TRUE),
+					by = 0.001),
+	participant = unique(by_time_bin$participant),
+	trial_type = unique(by_time_bin$trial_type)
+) %>% 
 	mutate(p = predict(time0, newdata = .))
-ggplot(nd, aes(time_bin1, target, colour = trial_type)) +
-	
-	#stat_summary(fun = "mean", geom = "point") +
-	stat_summary(aes(y = fitted(time0, newdata = nd)), fun = "mean", geom = "line") +
+
+ggplot(by_time_bin, aes(time_bin1, target/n, colour = trial_type)) +
+	stat_summary(fun.data = "mean_se", geom = "pointrange") +
+	#stat_summary(aes(y = fitted(time0, newdata = nd)), fun = "mean", geom = "line") +
 	labs(x = "Time bin (100 ms)", y = "P(Target)", colour = "Trial type") +
 	theme_minimal() +
 	theme(axis.title = element_text(face = "bold"),

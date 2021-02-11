@@ -3,82 +3,139 @@
 # evaluate if x is NOT an element of y
 "%!in%" <- function(x, y){!(x %in% y)}
 
-# evaluate if gaze is in distractor AOI
-eval_distractor <- function(
-	data,
-	x_gaze,
-	y_gaze,
-	target_location,
-	l_coords = c(280, 780, 290, 790),
-	r_coords = c(1140, 1640, 290, 790)
-){
-	data %>%
-		mutate(
-			d_xmin = case_when(target_location== "l" ~ r_coords[1],
-							   target_location=="r" ~ l_coords[1],
-							   TRUE ~ NA_real_),
-			d_xmax = case_when(target_location== "l" ~ r_coords[2],
-							   target_location=="r" ~ l_coords[2],
-							   TRUE ~ NA_real_),
-			d_ymin = case_when(target_location=="l" ~ r_coords[3],
-							   target_location=="r" ~ l_coords[3],
-							   TRUE ~ NA_real_),
-			d_ymax = case_when(target_location=="l" ~ r_coords[4],
-							   target_location=="r" ~ l_coords[4],
-							   TRUE ~ NA_real_),
-			gazeD = ((x_gaze>= d_xmin) & (x_gaze<=d_xmax) & (y_gaze>=d_ymin) & (y_gaze<=d_ymax))
-		) %>%
-		pull(gazeD)
-}
-
-# evaluate if gaze is in prime
-eval_prime <- function(
-	data,
-	x_gaze,
-	y_gaze,
-	p_coords = c(710, 1210, 290, 790)
-){
-	# load packages
-	require(rlang, quietly = TRUE, warn.conflicts = FALSE)
-	require(dplyr, quietly = TRUE, warn.conflicts = FALSE)
-	require(tidyr, quietly = TRUE, warn.conflicts = FALSE)
+# replace NaNs with NAs
+nan_to_na <- function(x) ifelse(is.nan(x), NA_real_, x)
 	
-	{{ data }} %>%
-		mutate(
-			p_xmin = p_coords[1],
-			p_xmax = p_coords[2],
-			p_ymin = p_coords[3],
-			p_ymax = p_coords[4],
-			gazeP = (({{x_gaze}} >= p_xmin) & ({{x_gaze}} <= p_xmax) & ({{y_gaze}} >= p_ymin) & ({{y_gaze}} <= p_ymax)),
-		) %>%
-		pull(gazeP)
-}
-
-eval_target <- function(
-	data,
-	x_gaze,
-	y_gaze,
-	target_location,
-	l_coords = c(280, 780, 290, 790),
-	r_coords = c(1140, 1640, 290, 790)){
+# get sample
+sample_get <- function(
+	google_email = NULL,
+	pilot = FALSE
+) {
 	
-	data %>%
-		mutate(
-			t_xmin = case_when(target_location=="r" ~ r_coords[1],
-							   target_location=="l" ~ l_coords[1],
-							   TRUE ~ NA_real_),
-			t_xmax = case_when(target_location=="r" ~ r_coords[2],
-							   target_location=="l" ~ l_coords[2],
-							   TRUE ~ NA_real_),
-			t_ymin = case_when(target_location=="r" ~ r_coords[3],
-							   target_location=="l" ~ l_coords[3],
-							   TRUE ~ NA_real_),
-			t_ymax = case_when(target_location=="r" ~ r_coords[4],
-							   target_location=="l" ~ l_coords[4],
-							   TRUE ~ NA_real_),
-			gazeT = (x_gaze>=t_xmin) & (x_gaze<=t_xmax) & (y_gaze>=t_ymin) & (y_gaze<=t_ymax),
+	# log into Google
+	gs4_auth(google_email)
+	
+	# retrieve participant info
+	d <- suppressMessages({
+		range_read(
+			ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6vNS2eEqE",
+			sheet = "Participants",
+			na = ""
 		) %>%
-		pull(gazeT)
+			drop_na(participant_id, date_test) %>%
+			{if (!pilot) filter(., !pilot)}
+	})
+	# return output
+	return(d)
 }
 
+# summarise sample
+sample_summary <- function(
+	sample = NULL,
+	...,
+	google_email = NULL
+) {
+	
+	# if not provided, generate sample
+	if (is.null(sample)) {
+		if (is.null(google_email)){
+			google_email <- readline(prompt = "Google email: ")
+			sample <- sample_get(google_email)
+		} else {
+			sample <- sample_get(google_email)
+		}
+	}
+	
+	# get all possible conditions
+	sample_conditions <- sample %>%
+		expand(...) %>%
+		arrange(...)
+	
+	# summarise sample size by condition
+	sample_distribution <- sample %>%
+		count(...) %>%
+		full_join(sample_conditions) %>%
+		replace_na(list(n = 0))
+	
+	# return outcome
+	return(sample_distribution)
+	
+}
+
+# replace column names
+rename_cols <- function(x){
+	str_replace_all(
+		x,
+		c(
+			"system_time_stamp" = "time",
+			"l_x" = "l_1",
+			"l_y" = "l_2",
+			"r_x" = "r_1",
+			"r_y" = "r_2",
+			"l_user_coord_z" = "l_origin_user_coord_3",
+			"r_user_coord_z" = "r_origin_user_coord_3"
+		)
+	)
+}
+
+# evaluate of gaze is in AOI
+gaze_in_aoi <- function(
+	x,
+	y,
+	coords = c(710, 1210, 290, 790)
+){
+	g <- (x >= coords[1] & x <= coords[2]) & (y >= coords[3] & y <= coords[4])
+	
+	return(g)
+}
+
+
+# summarise gaze by trial
+gaze_summarise_by_trial <- function(
+	sample = NULL,
+	processed = NULL,
+	google_email = NULL
+){
+	
+	# if not provided, generate sample and processed gaze data
+	if (is.null(processed)){
+		if (is.null(sample)) {
+			if (is.null(google_email)){
+				google_email <- readline(prompt = "Google email: ")
+				sample <- sample_get(google_email)
+			} else {
+				sample <- sample_get(google_email) %>%
+					select(participant_id, id_db, location, age_group, lp, test_language, list, version)
+			}
+		}
+		processed <- gaze_process(sample)
+	}
+	
+	# summarise data
+	gaze_summary_trial <- processed %>%
+		group_by(participant, age_group, trial, lp, trial_type) %>%
+		summarise(
+			target = sum(target, na.rm = TRUE),
+			distractor = sum(distractor, na.rm = TRUE),
+			n = n(),
+			.groups = "drop"
+		) %>%
+		rowwise() %>%
+		mutate(
+			p_target = prod(
+				target,
+				1/sum(target, distractor, na.rm = TRUE),
+				na.rm = TRUE
+			),
+			p_distractor = prod(
+				distractor,
+				1/sum(target, distractor, na.rm = TRUE),
+				na.rm = TRUE
+			)
+		) %>%
+		ungroup()
+	
+	# return outcome
+	return(gaze_summary_trial)
+}
 

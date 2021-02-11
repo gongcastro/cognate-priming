@@ -8,21 +8,24 @@ library(readxl)
 library(lubridate)
 library(here)
 
-# set params
-
 #### import data ---------------------------------------------------------------
 
 d <- read_xlsx(here("Data", "participants.xlsx")) %>% 
 	filter(location=="Barcelona",
 		   !pilot,
-		   valid_participant) %>% 
+		   valid_participant
+	) %>% 
 	mutate_at(vars(age_group, list), as.factor) %>%
 	group_by(age_group, test_language, lp, list, .drop = FALSE) %>% 
 	summarise(n = n(), .groups = "drop") %>% 
-	right_join(expand(., age_group, test_language, lp, list),
-			   by = c("age_group", "test_language", "lp", "list")) %>% 
-	mutate(n = ifelse(is.na(n), 0, n),
-		   age_group = paste0(age_group, " months")) %>% 
+	right_join(
+		expand(age_group, test_language, lp, list),
+		by = c("age_group", "test_language", "lp", "list")
+	) %>% 
+	mutate(
+		n = ifelse(is.na(n), 0, n),
+		age_group = paste0(age_group, " months")
+	) %>% 
 	arrange(age_group, test_language, lp, list)
 
 ggplot(d, aes(age_group, n, fill = list, label = n)) +

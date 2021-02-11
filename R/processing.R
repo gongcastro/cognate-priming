@@ -16,10 +16,12 @@ source(here("R", "utils.R"))
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?
 screen_x <- 1920 # width of the screen in pixels
 screen_y <- 1080 # height of the screen in pixels
-relevant_variables <- c("participant", "trial_num", "trial", "phase", "system_time_stamp",
-						"l_1", "l_2", "l_v", "r_1", "r_2", "r_v",
-						"l_user_coord_3", "l_origin_user_coord_3",
-						"r_user_coord_3", "r_origin_user_coord_3")
+relevant_variables <- c(
+	"participant", "trial_num", "trial", "phase", "process", "system_time_stamp",
+	"l_1", "l_2", "l_v", "r_1", "r_2", "r_v",
+	"l_user_coord_3", "l_origin_user_coord_3",
+	"r_user_coord_3", "r_origin_user_coord_3"
+)
 
 #### import data ---------------------------------------------------------------
 participants <- read_xlsx(here("Data", "participants.xlsx")) %>%
@@ -34,25 +36,32 @@ trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
 #### process gaze data ---------------------------------------------------------
 raw <- list.files("Data", ".csv", full.names = TRUE) %>% 
 	map(fread, na.string = "NaN") %>% 
+	map(~mutate_at(., vars(matches("SystemTimeStamp")), bit64::as.integer64)) %>% 
 	bind_rows() %>% 
 	clean_names() %>% 
 	select(any_of(relevant_variables)) %>% 
 	as_tibble() %>% 
 	filter(phase %in% "Target-Distractor") %>% 
 	rowwise() %>% 
-	mutate(x = ifelse(is.na(l_1), r_1, l_1),
-		   y = ifelse(is.na(l_2), r_2, l_2),
-		   d = ifelse(is.na(l_origin_user_coord_3 ), r_origin_user_coord_3 , l_origin_user_coord_3 )) %>% 
+	mutate(
+		x = ifelse(is.na(l_1), r_1, l_1),
+		y = ifelse(is.na(l_2), r_2, l_2),
+		d = ifelse(is.na(l_origin_user_coord_3 ), r_origin_user_coord_3 , l_origin_user_coord_3)
+		#timestamp = as.double(system_time_stamp)
+	) %>%
 	rename(timestamp = system_time_stamp) %>% 
 	group_by(participant, trial) %>% 
-	mutate(timestamp = as.double(timestamp),
-		   timestamp = as.double(timestamp-min(.$timestamp, na.rm = TRUE))/1000,
-		   time_bin = cut_interval(timestamp, length = 100, labels = FALSE)) %>% 
+	mutate(
+		timestamp = timestamp-min(.$timestamp, na.rm = TRUE),
+		time_bin = cut_interval(as.double(timestamp), length = 100, labels = FALSE)
+	) %>% 
 	ungroup() %>% 
-	mutate(participant = paste0("cognatepriming", participant),
-		   trial = as.character(trial),
-		   x = x*screen_x,
-		   y = y*screen_y) %>% 
+	mutate(
+		participant = paste0("cognatepriming", participant),
+		trial = as.character(trial),
+		x = x*screen_x,
+		y = y*screen_y
+	) %>% 
 	left_join(participants, by = c("participant" = "participant_id")) %>% 
 	left_join(trials, by = c("location", "test_language", "list", "version", "trial" = "trial_id")) %>% 
 	select(participant, age_group, trial, time_bin, timestamp, x, y, target_location, d, lp, trial_type) %>% 
