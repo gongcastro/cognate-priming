@@ -1,92 +1,122 @@
-#### analysis: Analyse data ####################################################
+#### analysis: Analyse data ----------------------------------------------------
 
-#### set up ####################################################################
+#### set up --------------------------------------------------------------------
 
 # load packages
 library(tidyverse)
-library(data.table)
-library(lme4)
-library(lmerTest)
+library(brms)
+library(tidybayes)
 library(here)
 
+# load functions
+source(here("R", "utils.R"))
+
 # set params
+options(mc.cores = 4, seed = 888)
 
 #### import data ---------------------------------------------------------------
-by_trial <- fread(here("Results", "by_trial.csv")) %>% 
-	as_tibble() %>% 
-	rowwise() %>% 
-	mutate(proportion = target/n) %>% 
+attrition <- readRDS(here("Results", "attrition.rds"))
+gaze_trial <- readRDS(here("Results", "gaze_trial.rds")) %>% 
+	filter(valid_trial, valid_participant) %>% 
+	mutate(proportion = fixations/n) %>% 
+	select(-matches("valid")) %>% 
 	mutate_at(vars(lp, trial_type), as.factor) %>% 
-	filter((target+distractor) >= 0.75*n) %>% 
-	ungroup()
-contrasts(by_trial$lp) <- c(-0.5, 0.5)
-contrasts(by_trial$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
+	mutate(vocab_size = scale(vocab_size)[,1])
 
-by_time_bin <- fread(here("Results", "by_time_bin.csv")) %>% 
-	as_tibble() %>% 
+contrasts(gaze_trial$lp) <- c(-0.5, 0.5)
+contrasts(gaze_trial$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
+
+gaze_time <- readRDS(here("Results", "gaze_time.rds")) %>% 
+	filter(valid_trial, valid_participant) %>% 
 	mutate(time_bin1 = poly(time_bin, 3, simple = TRUE)[,1],
 		   time_bin2 = poly(time_bin, 3, simple = TRUE)[,2],
 		   time_bin3 = poly(time_bin, 3, simple = TRUE)[,3]) %>%
 	mutate_at(vars(lp, trial_type), as.factor)
 
-contrasts(by_time_bin$lp) <- c(-0.5, 0.5)
-contrasts(by_time_bin$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
+contrasts(gaze_time$lp) <- c(-0.5, 0.5)
+contrasts(gaze_time$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
+contrasts(gaze_time$age_group) <- contr.poly(3, contrasts = TRUE)
+
 
 #### trial-wise ----------------------------------------------------------------
-trial0 <- glmer(cbind(target, n) ~ 1 + (1 | participant),
-				family = binomial("logit"),
-				control = glmerControl(optimizer = "bobyqa"),
-				data = by_trial)
-trial1 <- glmer(cbind(target, n) ~ 1 + age_group + (1 | participant),
-				family = binomial("logit"),
-				control = glmerControl(optimizer = "bobyqa"),
-				data = by_trial)
-trial1 <- glmer(cbind(target, n) ~ age_group*lp + (1 | participant),
-				family = binomial("logit"),
-				control = glmerControl(optimizer = "bobyqa"),
-				data = by_trial)
-trial2 <- glmer(cbind(target, n) ~ age_group*lp*trial_type + (1+trial_type| participant),
-				family = binomial("logit"),
-				control = glmerControl(optimizer = "bobyqa"),
-				data = by_trial)
+fit_trial <- brm(
+	fixations | trials(n) ~ trial_type*lp*age_group + vocab_size + (1 + trial_type | participant),
+	data = gaze_trial,
+	family = binomial("logit"),
+	prior = c(
+		prior(normal(0, 5), class = b),
+		prior(exponential(4), class = sd),
+		prior(lkj(4), class = cor)
+	),
+	seed = 888,
+	save_model = here("Stan", "fit_trials.stan"),
+	save_pars = save_pars("all"),
+	file = here("Results", "fit_trials.rds")
+)
 
-anova <- anova(trial0, trial1, trial2)
+# examine posterior
+post_trial <- gather_draws(fit_trial, `b_.*`, `sd_.*`, regex = TRUE)
 
-ggplot(by_trial, aes(trial_type, p_distractor)) +
-	facet_wrap(~lp) +
-	stat_summary(aes(y = predict(trial2), group = trial_type), fun = mean, geom = "line") +
-	geom_point(shape = 1, stroke = 1, alpha = 0.5)
+ggplot(post_trial, aes(.value)) +
+	facet_wrap(~.variable, scales = "free") +
+	geom_vline(xintercept = 0, linetype = "dashed") +
+	stat_halfeye(aes(fill = stat(cut_cdf_qi(
+		cdf, 
+		.width = c(.5, .8, .95),
+		labels = scales::percent_format()
+	)))) +
+	labs(x = "Value", y = "Variable", fill = "CrI") +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1)) +
+	theme_custom() +
+	theme(
+		axis.title = element_blank(),
+		axis.text = element_text(size = 10),
+		panel.grid.major.x = element_line(linetype = "dotted", colour = "grey")
+	)
 
+# examine posterior marginal means
+post_means <- expand_grid(
+	n = 1,
+	age_group = as.factor(c(21, 25, 30)),
+	lp = c("Monolingual", "Bilingual"),
+	trial_type = c("Cognate", "Non-cognate", "Unrelated"),
+	vocab_size = c(mean(gaze_trial$vocab_size, na.rm = TRUE))) %>% 
+	add_fitted_draws(fit_trial, n = 500, re_formula = NA)
+
+ggplot(post_means, aes(.value, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_vline(xintercept = 0.5, linetype = "dashed") +
+	stat_slab(alpha = 0.5) +
+	geom_jitter(data = gaze_trial %>%
+					group_by(participant, lp, trial_type, age_group) %>%
+					summarise(.value = mean(proportion), .groups = "drop"),
+				aes(y = 0.9), shape = 1, stroke = 1, alpha = 0.5, height = 0.05) +
+	geom_boxplot(aes(y = 0.7), width = 0.05, position = position_identity(), fill = "white", outlier.colour = NA) +
+	labs(x = "Age group (months)", y = "Pr(fixation)", colour = "Condition", fill = "Condition") +
+	scale_colour_brewer(palette = "Dark2") +
+	scale_fill_brewer(palette = "Dark2") +
+	scale_x_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme_custom() +
+	theme(
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
+		legend.title = element_blank(),
+		legend.position = "top"
+	) +
+	ggsave(here("Figures", "fit_trials.png"))
 
 #### time bin-wise -------------------------------------------------------------
-time0 <- glmer(cbind(target, n) ~
-			   	(time_bin1+time_bin2+time_bin3)*trial_type +
-			   	(1 + time_bin1 | participant),
-			   data = by_time_bin,
-			   family = binomial("logit"))
-
-nd <- expand.grid(
-	time_bin1 = seq(min(by_time_bin$time_bin1, na.rm = TRUE),
-					max(by_time_bin$time_bin1, na.rm = TRUE),
-					by = 0.001),
-	time_bin2 = seq(min(by_time_bin$time_bin2, na.rm = TRUE),
-					max(by_time_bin$time_bin2, na.rm = TRUE),
-					by = 0.001),
-	time_bin3 = seq(min(by_time_bin$time_bin3, na.rm = TRUE),
-					max(by_time_bin$time_bin3, na.rm = TRUE),
-					by = 0.001),
-	participant = unique(by_time_bin$participant),
-	trial_type = unique(by_time_bin$trial_type)
-) %>% 
-	mutate(p = predict(time0, newdata = .))
-
-ggplot(by_time_bin, aes(time_bin1, target/n, colour = trial_type)) +
-	stat_summary(fun.data = "mean_se", geom = "pointrange") +
-	#stat_summary(aes(y = fitted(time0, newdata = nd)), fun = "mean", geom = "line") +
-	labs(x = "Time bin (100 ms)", y = "P(Target)", colour = "Trial type") +
-	theme_minimal() +
-	theme(axis.title = element_text(face = "bold"),
-		  legend.title = element_blank(),
-		  strip.background = element_rect(fill = "grey", colour = NA),
-		  legend.position = "none")
-
+fit_time <- brm(
+	fixations | trials(n) ~ (time_bin1 + time_bin2 + time_bin3)*trial_type*lp*age_group + vocab_size + (1 + (time_bin1 + time_bin2 + time_bin3)*trial_type | participant),
+	data = gaze_time,
+	family = binomial("logit"),
+	prior = c(
+		prior(normal(0, 5), class = b),
+		prior(exponential(4), class = sd),
+		prior(lkj(4), class = cor)
+	),
+	seed = 888,
+	save_model = here("Stan", "fit_time.stan"),
+	save_pars = save_pars("all"),
+	file = here("Results", "fit_time.rds")
+)

@@ -3,7 +3,20 @@ title: "Report"
 output: pdf_document
 ---
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = TRUE,
+	warning = TRUE, 
+	cache.extra = knitr::rand_seed,
+	out.width = "100%",
+	results = "asis"
+)
+options(knitr.kable.NA = '-')
+
+```
+
+```{r prepare, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
 # load packages
 library(papaja)
@@ -20,26 +33,12 @@ library(patchwork)
 library(here)
 
 # load data
-stimuli.duration  <- fread(here("Data", "Stimuli", "stimuli_duration-aggregated.txt"))
-data.sample       <- read_xlsx(here("Data", "Participant data", "data_participants.xlsx"))
-data.fixations    <- fread(here("Data", "03_fixations.txt"))
-attrition         <- fread(here("Data", "02_filtered-excluded-trials.txt"))
-results           <- fread(here("Data", "05_gca-results.txt"))
-predictions       <- fread(here("Data", "05_gca-predictions.txt"))
-multicollinearity <- fread(here("Data", "05_gca-multicollinearity.txt"))
-```
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-	echo = FALSE,
-	message = TRUE,
-	warning = TRUE, 
-	cache.extra = knitr::rand_seed,
-	out.width = "100%",
-	results = "asis"
-)
-options(knitr.kable.NA = '-')
-
+stimuli <- readRDS(here("Results", "stimuli.rds"))
+participants <- readRDS(here("Results", "participants.rds"))
+gaze_trial <- readRDS(here("Results", "gaze_trial.rds"))
+gaze_time <- readRDS(here("Results", "gaze_time.rds"))
+attrition <- readRDS(here("Results", "attrition.rds"))
+fit <- readRDS(here("Results", "fit_trials.rds"))
 ```
 
 
@@ -49,29 +48,16 @@ options(knitr.kable.NA = '-')
 
 ## Duration
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+## Intensity
 
-stimuli.duration %>%
-	select(Location, Language, Version, TrialType, m_duration, sd_duration, mean_overlap) %>%
-	kable(
-		digits = 2,
-		row.names = FALSE,
-		col.names = c("**Location**", "**Language**", "**Version**", "**Trial type**", "***M* duration (s)**", "***SD***", "***M* overlap (s)***"),
-		align = "c"
-	)
-	
+## Pitch/F0
 
-```
+## Lexical frequency
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Audio duration. A) Distribution of audio durations by trial type, split by testing language and location. Boxplots indicate median duration, 25\\% and 75\\% percentiles, and maximum and minimum.  B) Distribution of overlap between audio and target-distractor presentation, split by testing language and location. C) Individual audio duration by word, split by trial type, testing language, and location. The dashed lines indicate the onset of target and distractor pictures presentation."}
-
-include_graphics(here("Figures", "Stimuli", "duration-overlap.png"))
-
-```
 
 # Sample
 
-We tested `r data.sample %>% filter(!Pilot, DateTest<now()) %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` participants, of which `r data.sample %>% filter(!Pilot, DateTest<now(), !Valid) %>% pull(ID) %>% length() %>% printnum(digits = 0)` we excluded. The final sample included `r data.sample %>% filter(!Pilot, DateTest<now(), Valid, LangProfile=="Monolingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` monolinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan monolinguals, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish monolinguals) and `r data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` bilinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan-dominant, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish-dominant).
+We tested `r distinct(participants, participant) %>% nrow()` participants, of which `r data.sample %>% filter(!Pilot, DateTest<now(), !Valid) %>% pull(ID) %>% length() %>% printnum(digits = 0)` were excluded. The final sample included `r data.sample %>% filter(!Pilot, DateTest<now(), Valid, LangProfile=="Monolingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` monolinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan monolinguals, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish monolinguals) and `r data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` bilinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan-dominant, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish-dominant).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
