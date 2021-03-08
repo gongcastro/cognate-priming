@@ -32,7 +32,10 @@ library(patchwork)
 library(here)
 
 # load functions
-source(here("R", "utils.R"))
+source(here("R", "utils-others.R"))
+source(here("R", "utils-vocabulary.R"))
+source(here("R", "utils-participants.R"))
+source(here("R", "utils-gaze.R"))
 
 # load data
 stimuli <- readRDS(here("Results", "stimuli.rds"))
@@ -41,6 +44,7 @@ gaze_trial <- readRDS(here("Results", "gaze_trial.rds"))
 gaze_time <- readRDS(here("Results", "gaze_time.rds"))
 attrition <- readRDS(here("Results", "attrition.rds"))
 fit <- readRDS(here("Results", "fit_trials.rds"))
+
 ```
 
 
@@ -49,9 +53,9 @@ fit <- readRDS(here("Results", "fit_trials.rds"))
 ```{r participants, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
 # plot participants
 participants %>% 
-	drop_na() %>% 
+	drop_na(valid_participant) %>% 
 	ggplot(aes(lp, fill = valid_participant)) +
-	facet_grid(~age_group) +
+	facet_grid(location~age_group, scales = "free") +
 	geom_bar() +
 	geom_hline(yintercept = 24, linetype = "dashed") +
 	labs(x = "Group", y = "N", fill = "Valid?") +
@@ -84,7 +88,7 @@ attrition %>%
 		  legend.title = element_blank(),
 		  legend.position = "top",
 		  text = element_text(size = 15)) +
-	ggsave(here("Figures", "missing.png"), height = 9)
+	ggsave(here("Figures", "missing.png"), height = 15)
 
 ```
 
@@ -116,10 +120,10 @@ participants %>%
 ```{r gaze_trial, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_trial %>% 
 	filter(valid_participant, valid_trial) %>% 
-	group_by(participant, lp, trial_type, age_group) %>% 
+	group_by(participant, lp, trial_type, age_group, location) %>% 
 	summarise(prop = mean(prop), .groups = "drop") %>% 
 	ggplot(aes(trial_type, prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~age_group) +
+	facet_grid(location~age_group) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
 	#stat_slab(position = position_nudge(x = 0.25)) +
@@ -130,6 +134,7 @@ gaze_trial %>%
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	theme_custom() +
 	theme(legend.position = "none",
+		  axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1),
 		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
 	ggsave(here("Figures", "gaze_trial.png"))
 
@@ -162,7 +167,7 @@ gaze_trial %>%
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_time %>% 
 	filter(valid_participant, valid_trial) %>% 
-	group_by(time_bin, trial_type, lp, age_group) %>% 
+	group_by(time_bin, trial_type, lp, age_group,location) %>% 
 	summarise(
 		prop = mean(prop, na.rm = TRUE),
 		n = n(),
@@ -178,7 +183,7 @@ gaze_time %>%
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
-	geom_line() +
+	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	geom_point(shape = 1, stroke = 1, size = 1) +
 	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
