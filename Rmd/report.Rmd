@@ -1,6 +1,8 @@
 ---
 title: "Report"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -10,7 +12,8 @@ knitr::opts_chunk$set(
 	warning = TRUE, 
 	cache.extra = knitr::rand_seed,
 	out.width = "100%",
-	results = "asis"
+	results = "asis",
+	dev.args = list(png = list(type = "cairo"))
 )
 options(knitr.kable.NA = '-')
 
@@ -21,16 +24,15 @@ options(knitr.kable.NA = '-')
 # load packages
 library(papaja)
 library(knitr)
-library(data.table)
-library(dplyr)
-library(magrittr)
+library(tidyverse)
 library(readxl)
-library(tidyr)
-library(tibble)
-library(ggplot2)
 library(lubridate)
+library(scales)
 library(patchwork)
 library(here)
+
+# load functions
+source(here("R", "utils.R"))
 
 # load data
 stimuli <- readRDS(here("Results", "stimuli.rds"))
@@ -42,155 +44,194 @@ fit <- readRDS(here("Results", "fit_trials.rds"))
 ```
 
 
-# Procedure
+# Participants
 
-# Stimuli
-
-## Duration
-
-## Intensity
-
-## Pitch/F0
-
-## Lexical frequency
-
-
-# Sample
-
-We tested `r distinct(participants, participant) %>% nrow()` participants, of which `r data.sample %>% filter(!Pilot, DateTest<now(), !Valid) %>% pull(ID) %>% length() %>% printnum(digits = 0)` were excluded. The final sample included `r data.sample %>% filter(!Pilot, DateTest<now(), Valid, LangProfile=="Monolingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` monolinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan monolinguals, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Monolingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish monolinguals) and `r data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` bilinguals (`r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Catalan") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Catalan-dominant, `r  data.sample %>% filter(!Pilot, DateTest < now(), Valid, LangProfile=="Bilingual", Language=="Spanish") %>% pull(ID) %>% unique() %>% length() %>% printnum(digits = 0)` Spanish-dominant).
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-data.sample %>%
-	filter(!Pilot, Valid, DateTest<now()) %>%
-	select(ID, LangProfile, AgeGroup, Language, List, Sex) %>%
-	group_by(LangProfile, AgeGroup, Language, List) %>%
-	summarise(n = n()) %>%
-	pivot_wider(id_cols = c("LangProfile", "AgeGroup", "Language"), names_from = "List", values_from = "n") %>%
-	mutate(Total = sum(`1`, `2`, `3`, na.rm = TRUE)) %>%
-
-	kable(digits = 0,
-		  col.names = c("***LP***", "**Age group**", "**Language**", "**List 1**", "**List 2**", "**List 3**", "**Total**"), 
-		  align = "c",
-		  caption = "Sample size by age group, testing language, and list. Only participants that made it in the final sample are included.")
-
+```{r participants, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+# plot participants
+participants %>% 
+	drop_na() %>% 
+	ggplot(aes(lp, fill = valid_participant)) +
+	facet_grid(~age_group) +
+	geom_bar() +
+	geom_hline(yintercept = 24, linetype = "dashed") +
+	labs(x = "Group", y = "N", fill = "Valid?") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_custom() +
+	theme(axis.title.x = element_blank()) +
+	ggsave(here("Figures", "sample.png"))
 ```
 
 # Results
 
-## Trackloss
+## Attrition rate
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=12}
 
-attrition %>%
-	left_join(data.sample, by = c("ParticipantID" = "ID")) %>%
+col <- ifelse(distinct(attrition, participant, valid_participant)$valid_participant, "#377EB8", "#E41A1C")
+
+attrition %>% 
+	mutate(valid_trial = ifelse(valid_trial, "Valid", "Invalid"),
+		   participant = paste0(participant, " (", missing_n, ", ", percent(missing_prop), ")")) %>% 
+	ggplot(aes(missing, participant, colour = valid_trial)) +
+	geom_point(alpha = 0.5) +
+	geom_vline(xintercept = 0.25, linetype = "dashed") +
+	labs(x = "Proportion of missing trials (out of 32)", y = "Participant") +
+	scale_color_brewer(palette = "Set1") +
+	theme_custom() +
+	theme(axis.text.y = element_text(colour = col, size = 8),
+		  axis.title.y = element_blank(),
+		  axis.text.x = element_text(colour = "black"),
+		  legend.title = element_blank(),
+		  legend.position = "top",
+		  text = element_text(size = 15)) +
+	ggsave(here("Figures", "missing.png"), height = 9)
+
+```
+
+## Vocabulary
+
+```{r vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+# vocabulary
+participants %>% 
+	mutate(age_group = as.factor(age_group)) %>% 
+	drop_na(lp) %>% 
+	ggplot(aes(as.factor(age_group), vocab_size, colour = lp, fill = lp)) +
+	geom_point(shape = 1, size = 3, stroke = 1, position = position_jitter(width = 0.1, seed = 888)) +
+	geom_boxplot(width = 0.1, colour = "black", outlier.colour = NA, position = position_dodge(width = 0.75)) +
+	labs(x = "Age group (months)", y = "Receptive vocabulary size (L1)", colour = "Group", fill = "Group") +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_custom() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "vocabulary.png"))
+
+```
+
+## Target fixations
+
+### Aggregated by trial
+
+```{r gaze_trial, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_trial %>% 
+	filter(valid_participant, valid_trial) %>% 
+	group_by(participant, lp, trial_type, age_group) %>% 
+	summarise(prop = mean(prop), .groups = "drop") %>% 
+	ggplot(aes(trial_type, prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
+	#stat_slab(position = position_nudge(x = 0.25)) +
+	geom_boxplot(width = 0.1, colour = "black", fill = "white", position = position_nudge(x = 0.2), outlier.colour = NA) +
+	geom_point(size = 2, shape = 1, stroke = 1) +
+	labs(x = "Condition", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
+	scale_colour_brewer(palette = "Set1") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme_custom() +
+	theme(legend.position = "none",
+		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "gaze_trial.png"))
+
+```
+
+```{r gaze_trial_vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_trial %>% 
+	filter(valid_participant, valid_trial) %>% 
+	group_by(participant, lp, trial_type, age_group, vocab_size) %>% 
+	summarise(prop = mean(prop), .groups = "drop") %>% 
+	ggplot(aes(vocab_size, prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
+	#stat_slab(position = position_nudge(x = 0.25)) +
+	geom_point(size = 2, shape = 1, stroke = 1) +
+	geom_smooth(se = FALSE, method = "lm") +
+	labs(x = "L1 vocabulary size", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
+	scale_colour_brewer(palette = "Set1") +
+	scale_x_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme_custom() +
+	theme(legend.position = "none",
+		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "gaze_trial_vocabulary.png"))
+```
+
+### Aggregated by time bin
+
+```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_time %>% 
+	filter(valid_participant, valid_trial) %>% 
+	group_by(time_bin, trial_type, lp, age_group) %>% 
 	summarise(
-		TracklossForParticipant = first(TracklossForParticipant),
-		TracklossForParticipantSD = sd(TracklossForTrial, na.rm = TRUE)
-		) %>%
-	mutate(TracklossForParticipant = paste(printnum(TracklossForParticipant), "%"),
-		   TracklossForParticipantSD = printnum(TracklossForParticipantSD)) %>%
-	arrange(ParticipantID) %>%
-	kable(digits = 3,
-		  row.names = FALSE,
-		  align = "c",
-		  col.names = c("**Participant ID**", "**Mean**", "***SD***"),
-		  caption = "Mean proportion of samples lost by trial.")
+		prop = mean(prop, na.rm = TRUE),
+		n = n(),
+		.groups = "drop"
+	) %>% 
+	ungroup() %>% 
+	mutate(
+		se = sqrt((prop*(1-prop))/(n+4)),
+		lower = prop-se,
+		upper = prop+se
+	) %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	geom_point(shape = 1, stroke = 1, size = 1) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_custom() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "gaze_time.png"))
 
 ```
 
-## Growth Curve Analysis
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-results %>%
-	select(Term, Estimate, SEM, Chisq, Df, p, ci1, ci2) %>%
-	mutate(CI = paste0("[", printnum(ci1, digits=2), ",", printnum(ci2, digits=2), "]"),
-		   p = printp(p)) %>%
-	select(-c(ci1, ci2)) %>%
-	kable(
-		digits = 2,
-		row.names = FALSE,
-		col.names = c("**Term**", "**$\\beta$**", "***SEM***", "**$\\chi^2$**", "***Df***", "***p***", "**95\\%*CI***"),
-		align = "c",
-		caption = "Results of the Growth Curve Analysis, reporting the estimated coefficients of the fixed effects included in the model. *p*-values were extracted using Wald's $\\chi^2$ approximation."
-	)
-
-```
-
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Coefficients of the fixed effects included in the Growth Curve Analysis. Black dots and whiskers represent the estimated coefficient and standard error of the mean, respectively. Grey boxes represent two-sided 95\\% confidence intervals, calculated using the Wald $\\chi^2$ approximation to degrees of freedom."}
-
-include_graphics(here("Figures", "05_gca-coefficients.png"))
-
-```
-
-## Predictions
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Predicted unfolding of target fixations across the time course of the trial for each participant, split by trial type, language profile, and testing language."}
-
-include_graphics(here("Figures", "05_gca-predictions-participant.png"))
-
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Predicted unfolding of target fixations across the time course of the trial for each trial, split by trial type, language profile, and testing language."}
-
-include_graphics(here("Figures", "05_gca-predictions-trial.png"))
-
-```
-
-
-## Variance-covariance parameters
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Variance-covariance matrix."}
-
-include_graphics(here("Figures", "05_gca-vcov.png"))
-
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Correlations between random effects split by fixed effect."}
-
-include_graphics(here("Figures", "05_gca-correlation.png"))
-
-```
-
-## Checking assumptions
-
-### Normality
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Distribution of the observed studentised residuals, compared with the theoretical normal distribution."}
-
-include_graphics(here("Figures", "05_gca-residuals.png"))
-
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Distribution of the observed studentised residuals, compared with the theoretical normal distribution."}
-
-results %>%
-	select(Term, VIF) %>%
-	kable(digits = 2,
-		  row.names = FALSE,
-		  col.names = c("***Term***", "***VIF***"),
-		  align = "c",
-		  caption = "Multicollinearity" 
-		  )
+```{r gaze_time_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8}
+gaze_time %>% 
+	filter(valid_participant, valid_trial) %>% 
+	group_by(participant, time_bin, trial_type, lp, age_group) %>% 
+	summarise(
+		prop = mean(prop, na.rm = TRUE),
+		n = n(),
+		.groups = "drop"
+	) %>% 
+	ungroup() %>% 
+	mutate(
+		se = sqrt((prop*(1-prop))/(n+4)),
+		lower = prop-se,
+		upper = prop+se
+	) %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_wrap(age_group~participant~lp) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	geom_point(shape = 1, stroke = 1, size = 0.5) +
+	geom_text(aes(x = 0, y = 1, label =
+				  	paste0(str_remove_all(participant, pattern = "[a-zA-Z]"),
+				  		   "/", age_group, "mo/", lp)),
+			  size = 2, colour = "black", hjust = 0) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_custom() +
+	theme(
+		axis.text = element_text(size = 7),
+		legend.title = element_blank(),
+		legend.position = "top",
+		strip.background = element_blank(),
+		strip.text.x = element_blank()
+	) +
+	ggsave(here("Figures", "gaze_time_participant.png"), height = 12, width = 12)
 ```
 
 # Appendix
 
-## Participants
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-data.sample %>%
-	filter(!Pilot, DateTest<now()) %>%
-	select(ID, LangProfile, AgeGroup, Language, List, DateTest, Age, Sex, Valid) %>%
-	arrange(desc(Valid), LangProfile, AgeGroup, Language, List, ID) %>%
-	kable(digits = 2,
-		  row.names = FALSE,
-		  align = "c",
-		  col.names = c("**Participant ID**", "***LP***", "**Age group**", "**Lang.**", "**List**", "**Date**", "**Age**", "**Sex**", "**Valid?**"),
-		  caption = "Complete list of participants. *LP* = Language profile.")
-
-
-```
