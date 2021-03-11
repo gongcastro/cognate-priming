@@ -4,49 +4,37 @@
 
 # load packages
 library(tidyverse)
-library(data.table)
-library(readxl)
-library(lubridate)
 library(multilex)
-library(googlesheets4)
-library(ggdist)
-library(janitor)
-library(scales)
+library(bilingualr)
 library(here)
-
-# load functions
-source(here("R", "utils.R"))
-source(here("R", "utils-gaze.R"))
 
 # set params
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?
-left_coords <- c(280, 780, 290, 790)
-right_coords <- c(1140, 1640, 290, 790)
+left_coords <- c(xmin = 280, xmax = 780, ymin = 290, ymax = 790)
+right_coords <- c(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790)
+email <- "gonzalo.garciadecastro@upf.edu"
 
-vocabulary <- import_vocabulary(location = c("bcn", "oxf")) %>% 
-	distinct(id_db, age_group, .keep_all = TRUE) %>% 
-	mutate(age_group = as.factor(age_group))
+vocabulary <- import_vocabulary(
+	location = c("barcelona", "oxford"),
+	path_oxford = here("Data", "vocabulary_oxford.xlsx"),
+	google_email = email
+) %>% 
+	distinct(id_db, age_group, .keep_all = TRUE) 
 
 # participants -----------------------------------------------------------------
-participants <- sample_get("gonzalo.garciadecastro@upf.edu") %>% 
+participants <- get_participants(google_email = email) %>% 
 	rename(valid_other = valid_participant) %>% 
-	filter(
-		(location=="BCN" & !is.na(filename)) | location=="OXF",
-		# valid_participant
-		# date_test > as_date("2020-02-14") # get participants with right timestamps
-	) %>%
-	rename(participant = participant_id) %>% 
-	mutate(age_group = as.factor(age_group)) %>% 
 	left_join(vocabulary) %>% 
+	filter(!pilot) %>% 
 	select(participant, id_db, location, age_group, test_language, list, version, lp, vocab_size, valid_other, test_language, list, version, filename)
 
 # trials -----------------------------------------------------------------------
-trials <- read_xlsx(here("Stimuli", "stimuli.xlsx")) %>%
+trials <- stimuli %>%
 	rename(trial = trial_id) %>% 
 	mutate(trial = as.numeric(trial)) %>% 
 	select(location, test_language, list, version, trial, trial_type, target_location,
 		   prime, target, distractor, matches("_cdi")) %>% 
-	filter(location=="BCN")
+	filter(location=="Barcelona")
 
 items_to_know <- trials %>% 
 	select(prime_cdi, target_cdi, distractor_cdi) %>% 
@@ -63,7 +51,7 @@ gaze <-	import_gaze(location = c("oxf", "bcn"), participants = participants) %>%
 		fix_distractor = (target_location=="r" & gaze_in_l_aoi) | (target_location=="l" & gaze_in_r_aoi),
 	) %>% 
 	mutate_at(vars(age_group, lp, trial_type), as.factor) %>% 
-	arrange(id_db, trial_num, time) %>%
+	arrange(id_db, trial_num, time) %>% 
 	select(-c(gaze_in_l_aoi, gaze_in_r_aoi)) %>% 
 	relocate(id_db, lp, age_group, trial_num, time_bin, time, fix_target, fix_distractor, x, y, d, v, target_location)
 

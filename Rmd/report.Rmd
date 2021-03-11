@@ -25,17 +25,11 @@ options(knitr.kable.NA = '-')
 library(papaja)
 library(knitr)
 library(tidyverse)
-library(readxl)
+library(bilingualr)
 library(lubridate)
 library(scales)
 library(patchwork)
 library(here)
-
-# load functions
-source(here("R", "utils-others.R"))
-source(here("R", "utils-vocabulary.R"))
-source(here("R", "utils-participants.R"))
-source(here("R", "utils-gaze.R"))
 
 # load data
 stimuli <- readRDS(here("Results", "stimuli.rds"))
@@ -60,7 +54,7 @@ participants %>%
 	geom_hline(yintercept = 24, linetype = "dashed") +
 	labs(x = "Group", y = "N", fill = "Valid?") +
 	scale_fill_brewer(palette = "Set1") +
-	theme_custom() +
+	theme_bilingual() +
 	theme(axis.title.x = element_blank()) +
 	ggsave(here("Figures", "sample.png"))
 ```
@@ -81,7 +75,7 @@ attrition %>%
 	geom_vline(xintercept = 0.25, linetype = "dashed") +
 	labs(x = "Proportion of missing trials (out of 32)", y = "Participant") +
 	scale_color_brewer(palette = "Set1") +
-	theme_custom() +
+	theme_bilingual() +
 	theme(axis.text.y = element_text(colour = col, size = 8),
 		  axis.title.y = element_blank(),
 		  axis.text.x = element_text(colour = "black"),
@@ -105,7 +99,7 @@ participants %>%
 	labs(x = "Age group (months)", y = "Receptive vocabulary size (L1)", colour = "Group", fill = "Group") +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
-	theme_custom() +
+	theme_bilingual() +
 	theme(legend.title = element_blank(),
 		  legend.position = "top",
 		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
@@ -132,7 +126,7 @@ gaze_trial %>%
 	labs(x = "Condition", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
 	scale_colour_brewer(palette = "Set1") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-	theme_custom() +
+	theme_bilingual() +
 	theme(legend.position = "none",
 		  axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1),
 		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
@@ -156,7 +150,7 @@ gaze_trial %>%
 	scale_colour_brewer(palette = "Set1") +
 	scale_x_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-	theme_custom() +
+	theme_bilingual() +
 	theme(legend.position = "none",
 		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
 	ggsave(here("Figures", "gaze_trial_vocabulary.png"))
@@ -190,7 +184,7 @@ gaze_time %>%
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
-	theme_custom() +
+	theme_bilingual() +
 	theme(legend.title = element_blank(),
 		  legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
@@ -227,7 +221,7 @@ gaze_time %>%
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
-	theme_custom() +
+	theme_bilingual() +
 	theme(
 		axis.text = element_text(size = 7),
 		legend.title = element_blank(),
