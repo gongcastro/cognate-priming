@@ -1,21 +1,21 @@
 % Basic Sample to use Tobii Eye Trackers with TobiiPro.SDK.Matlab_1.6.1.21
 % Code following Guide: http://developer.tobiipro.com/matlab/matlab-sdk-reference-guide.html
 %
-%
+%qq
 % 20190516 ... by xMayoral + sBlanch
-%
-% INITIALIZATION
-%  Global configuration: paths, vars...
-%  SETUP Tobii
+%qq
+% INITIALIZATIONq, vars...
+%  SETUP Tobiiqqq
+
 %   setup path
-%   look for eyetrackers
+%   look for eyetraqqckers
 %  SETUP PsychToolBox
 %   graphics
 %   audio
 % Possitioning subjent in front eyeTracker
 % Calibrate eyeTracker for subject eyes
 % START Study
-%  Show an image and get eye data
+%  Show an image and get eye dataq
 % FINALIZATION
 %
 % PRESS 'e' to exit at any moment
@@ -37,12 +37,16 @@ warning('off') %if you do not want to see warnings in command window
 
 
 ME = [];    % To keep track of possible failures
+fullGazeData = []; %SIL2020
+full_extra_cols = [];   
+
+
 try         % and enable a possible "clean" exit
     
     folder = strcat(pwd, filesep, 'Functions');
     addpath(genpath(folder));
     % Add access to all the Tobii SDK functions
-    folder = strcat(pwd, filesep, 'TobiiPro.SDK.Matlab_1.6.1.21');
+    folder = strcat(pwd, filesep, 'MATLAB', filesep, 'TobiiPro.SDK.Matlab_1.6.1.21');
     addpath(genpath(folder));
     
     % set paths GONZALO ------------------------------------------------------------
@@ -126,7 +130,7 @@ try         % and enable a possible "clean" exit
         break
     end %while
                 
-    audiosPath    = [audiosPath    'sounds_'   language '\'];
+    audiosPath    = [audiosPath    'sounds_'   language, '\'];
     imagesPath    = [allImagesPath 'images_'   language '\'];
     iPath         = [imagesPath 'images_'   language '\'];
     dateTest      = datestr(now, 'yyyy-mm-dd_HH-MM');
@@ -136,13 +140,13 @@ try         % and enable a possible "clean" exit
     logDataPath   = [RES_PATH 'data_log\'  , filename, '.txt']; % to save log data
     calibDataPath = [RES_PATH 'data_calib\', filename, '.jpg']; % to save calibration data
     
-    variableNames={'SystemTimeStamp', 'DeviceTimeStamp',...
-        'lX', 'lY', 'lV', 'lPupil', 'lPupilV',...
-        'lUserCoordX', 'lUserCoordY', 'lUserCoordZ',...
-        'lTrackboxCoordX', 'lTrackboxCoordY', 'lTrackboxCoordZ', 'lOriginV',...
-        'rX', 'rY', 'rV', 'rPupil', 'rPupilV', ...
-        'rUserCoordX', 'rUserCoordY', 'rUserCoordZ',...
-        'rTrackboxCoordX', 'rTrackboxCoordY', 'rTrackboxCoordZ', 'rOriginV',...
+    variableNames={'DeviceTimeStamp', 'SystemTimeStamp',...
+        'l', 'lPointUserCoord',...
+        'lV', 'lPupil', 'lPupilV',...
+        'lOriginUserCoord', 'lOriginTrackboxCoord','lOriginV',...
+        'r', 'rPointUserCoord',...
+        'rV', 'rPupil', 'rPupilV',...
+        'rOriginUserCoord', 'rOriginTrackboxCoord','rOriginV',...
         'Participant', 'TrialNum', 'Trial', 'TargetLocation', 'Phase'};
     
     % if files exist, add a number at the end of the filename until none of
@@ -303,8 +307,18 @@ try         % and enable a possible "clean" exit
     % AOIRectGetter                = [((SCREEN_WIDTH/2)-200) ((SCREEN_HEIGHT/220075) ((SCREEN_WIDTH/2)-200)+400 ((SCREEN_HEIGHT/2)-200)+400];
     
     %% empty the eyeTracker buffer
-    eyetracker.get_gaze_data();
-    fullGazeData = [];
+    eyetracker.get_gaze_data('flat');
+%     fullGazeData = []; %SIL2020
+%     full_extra_cols = [];
+    %CONSTANTS.extraCols_variableNames = {'phase', 'attGetter', 'centerImage', 'leftImage',
+    %extra_cols = CONSTANTS.extra_cols;   
+    CONSTANTS.extra_cols.participant = 'NA'; %SIL2020
+    CONSTANTS.extra_cols.TrialNum = 'NA';
+    CONSTANTS.extra_cols.Trial = 'NA';
+    CONSTANTS.extra_cols.TargetLocation = 'NA';
+    CONSTANTS.extra_cols.Phase = 'NA';
+    extra_cols = CONSTANTS.extra_cols;
+
     
     %% start main routine
     %%%%%%%%%%%%%%%%%%%%%%
@@ -332,7 +346,7 @@ try         % and enable a possible "clean" exit
         %% [INI] GETTERS
         disp(['[INI ' num2str(iTrial) '] GETTER']);       
        
-        mivideo   = [gettersPath 'Getter.mov'];
+        mivideo   = [gettersPath 'attention_getter.mov'];
         info      = mmfileinfo(mivideo);
         vid       = VideoReader(mivideo);
         duration  = vid.Duration;
@@ -388,6 +402,7 @@ try         % and enable a possible "clean" exit
         
         while 1        
         % for iGetter=1:n-1
+            
             imData       = imread([gettersPath folderName '\' 'Image' num2str(iGetter) '.jpg']);
             [iy, ix, id] = size(imData);
             iRect        = [0 0 ix iy];
@@ -396,10 +411,18 @@ try         % and enable a possible "clean" exit
             Screen('DrawTexture', monitorWindow, textureIndex, iRect, windowRectGetter/2);
             
             %Screen('AsyncFlipEnd', monitorWindow);
-            gazeData = eyetracker.get_gaze_data();
-            fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Getter'])];
+            gazeData = eyetracker.get_gaze_data('flat'); %SIL2020            
+            %fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Getter'])];
+            extra_cols = CONSTANTS.extra_cols;
+            extra_cols.participant=participant;
+            extra_cols.TrialNum=iTrial;
+            extra_cols.Trial=num2str(num(ii,1));
+            extra_cols.TargetLocation=words(ii,4);
+            extra_cols.Phase='Getter';      %SIL2020       
+            fullGazeData = [fullGazeData; struct2table(gazeData)]; %SIL2020            
+            full_extra_cols = [full_extra_cols; repmat(extra_cols, size(gazeData.device_time_stamp,1), 1)];%SIL2020     
             
-            [x, y]   = lastGazeData(gazeData); %x,y are from 0..1
+            [x, y]   = lastGazeData(gazeData); %x,y are from 0..1            
             x        = x*screenXpixels; % scale to screen size
             y        = y*screenYpixels;
             %Screen('DrawDots', windowPtr, xy [,size] [,color] [,center] [,dot_type][, lenient]);
@@ -508,7 +531,7 @@ try         % and enable a possible "clean" exit
             [xCenter-(ix/2) yCenter-(iy/2) xCenter+(ix/2) yCenter+(iy/2)]);
         
         % empty the eyeTracker buffer
-        eyetracker.get_gaze_data();
+        eyetracker.get_gaze_data('flat');
        
   
         %% [INI] PRIME IMAGE
@@ -524,12 +547,23 @@ try         % and enable a possible "clean" exit
         while toc(tIni)<=primeImageDuration
             
             %Screen('AsyncFlipEnd', monitorWindow);
-            gazeData      = eyetracker.get_gaze_data();
+            gazeData      = eyetracker.get_gaze_data('flat');
             %lookText     = strcat('LOOK_', char(words(ii, 1)));
-            lookTextPrime = char(words(ii, 1));
+            lookTextPrime = char(words(ii, 1));            
+            %extra_cols=[participant,iTrial,num2str(num(ii,1)),words(ii,4),'Prime'];
             
-            fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Prime'])];
-
+            extra_cols = CONSTANTS.extra_cols;
+            extra_cols.participant=participant;
+            extra_cols.TrialNum=iTrial;
+            extra_cols.Trial=num2str(num(ii,1));
+            extra_cols.TargetLocation=words(ii,4);
+            extra_cols.Phase='Prime';   
+            
+            
+            %fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Prime'])];
+            fullGazeData = [fullGazeData; struct2table(gazeData)]; %SIL2020            
+            full_extra_cols = [full_extra_cols; repmat(extra_cols, size(gazeData.device_time_stamp,1), 1)];%SIL2020   
+            
             [x, y] = lastGazeData(gazeData); %x,y are from 0..1
             x      = x*screenXpixels; % scale to screen size
             y      = y*screenYpixels;
@@ -578,11 +612,22 @@ try         % and enable a possible "clean" exit
         while toc(tIni)<=blankDuration            
             
             %Screen('AsyncFlipEnd', monitorWindow);
-            gazeData      = eyetracker.get_gaze_data();
+            gazeData      = eyetracker.get_gaze_data('flat');
             lookTextBlank = char(words(ii, 1));
-            %fullGazeData = [fullGazeData; parseGazeData(gazeData, [language, condition, iTrial, "BLANK", lookText])];
-            fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Blank'])];
-
+            %fullGazeData = [fullGazeData; parseGazeData(gazeData, [language, condition, iTrial, "BLANK", lookText])];            
+            %extra_cols=[participant,iTrial,num2str(num(ii,1)),words(ii,4),'Blank'];            
+            
+            extra_cols = CONSTANTS.extra_cols;
+            extra_cols.participant=participant;
+            extra_cols.TrialNum=iTrial;
+            extra_cols.Trial=num2str(num(ii,1));
+            extra_cols.TargetLocation=words(ii,4);
+            extra_cols.Phase='Blank';
+            
+            %fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Blank'])];
+            fullGazeData = [fullGazeData; struct2table(gazeData)]; %SIL2020
+            full_extra_cols = [full_extra_cols; repmat(extra_cols, size(gazeData.device_time_stamp,1), 1)];%SIL2020
+            
             [x, y] = lastGazeData(gazeData); %x,y are from 0..1
             x = x*screenXpixels; % scale to screen size
             y = y*screenYpixels;
@@ -624,8 +669,20 @@ try         % and enable a possible "clean" exit
         while toc(tIni)<=audioDuration
             
             %Screen('AsyncFlipEnd', monitorWindow);
-            gazeData = eyetracker.get_gaze_data();
-            fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Audio'])];
+            gazeData = eyetracker.get_gaze_data('flat');            
+            %extra_cols=[participant,iTrial,num2str(num(ii,1)),words(ii,4),'Audio'];
+            
+            extra_cols = CONSTANTS.extra_cols;
+            extra_cols.participant=participant;
+            extra_cols.TrialNum=iTrial;
+            extra_cols.Trial=num2str(num(ii,1));
+            extra_cols.TargetLocation=words(ii,4);
+            extra_cols.Phase='Audio';
+            
+            %fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Audio'])];
+            fullGazeData = [fullGazeData; struct2table(gazeData)]; %SIL2020
+            full_extra_cols = [full_extra_cols; repmat(extra_cols, size(gazeData.device_time_stamp,1), 1)];%SIL2020
+           
                        
             [x, y] = lastGazeData(gazeData); %x,y are from 0..1
             x      = x*screenXpixels; % scale to screen size
@@ -668,9 +725,20 @@ try         % and enable a possible "clean" exit
         while toc(tIni)<=totalDuration
             
             %Screen('AsyncFlipEnd', monitorWindow);
-            gazeData = eyetracker.get_gaze_data();
-            fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Target-Distractor'])];
-                        
+            gazeData = eyetracker.get_gaze_data('flat');
+            %extra_cols=[participant,iTrial,num2str(num(ii,1)),words(ii,4),'Target-Distractor'];            
+            
+            extra_cols = CONSTANTS.extra_cols;
+            extra_cols.participant=participant;
+            extra_cols.TrialNum=iTrial;
+            extra_cols.Trial=num2str(num(ii,1));
+            extra_cols.TargetLocation=words(ii,4);
+            extra_cols.Phase='Target-Distractor';
+            
+            %fullGazeData  = [fullGazeData; parseGazeData(gazeData, [participant,iTrial,num2str(num(ii,1)),words(ii,4),'Target-Distractor'])];
+            fullGazeData = [fullGazeData; struct2table(gazeData)]; %SIL2020
+            full_extra_cols = [full_extra_cols; repmat(extra_cols, size(gazeData.device_time_stamp,1), 1)];%SIL2020
+            
             [x, y] = lastGazeData(gazeData); %x,y are from 0..1
             x = x*screenXpixels; % scale to screen size
             y = y*screenYpixels;
@@ -733,9 +801,13 @@ try         % and enable a possible "clean" exit
     end % end of trial
     
     %% save data 
-    fullGazeData = cell2table(fullGazeData);
-    fullGazeData.Properties.VariableNames = variableNames;
-    writetable(fullGazeData, gazeDataPath);
+%     fullGazeData = cell2table(fullGazeData); 
+%     fullGazeData.Properties.VariableNames = variableNames;
+%     writetable(fullGazeData, gazeDataPath);
+    table = [fullGazeData struct2table(full_extra_cols)];
+    table.Properties.VariableNames = variableNames;
+    writetable(table,gazeDataPath);       
+    
     disp('[END] PRINT EYE-TRACKER DATA');
 
     eyetracker.stop_gaze_data();
@@ -787,11 +859,16 @@ catch ME
         disp(['[END] Routine was interrupted due to error at trial ' num2str(iTrial)]);
     else
         disp('[END] Routine was interrupted due to error before starting');
-    end 
-        
-    fullGazeData = cell2table(fullGazeData);
-    fullGazeData.Properties.VariableNames = variableNames;
-    writetable(fullGazeData, gazeDataPath);
+    end         
+    
+    %% save data
+    %     fullGazeData = cell2table(fullGazeData);
+    %     fullGazeData.Properties.VariableNames = variableNames;
+    %     writetable(fullGazeData, gazeDataPath);
+    table = [fullGazeData   struct2table(full_extra_cols)];
+    table.Properties.VariableNames = variableNames;
+    writetable(table  , gazeDataPath);
+    
     Screen('CloseAll');
     fprintf(logFileID,'END: %s\n', datestr(now, 'dd/mm/yyyy HH:MM:SS'));
     fclose('all');
