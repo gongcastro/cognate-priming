@@ -1,0 +1,17 @@
+Test date: 19/01/2021 12:26:02
+Attempt: 3
+Participant: 000
+ID: 
+Name: 
+Birthdate: 0000-00-00
+Sex: 
+Language: spa
+List: 2
+Version: euro
+POSITION: 19/01/2021 12:26:18
+GETTER nFlips 70 SECONDS     3.03	
+AUDIO nFlips 42 SECONDS     2.27	
+TrialNum: 4 TrialID: 108 TrialTargetLocation F Getter-FLIPS 3.029431e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515897e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.565981e+00	 Blank-SEC    42.00	 Audio-FLIPS 2.266018e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266898e+00	 TargetDistractor-SEC GETTER nFlips 69 SECONDS     3.05	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 20 TrialID: 108 TrialTargetLocation E Getter-FLIPS 3.049293e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516546e+00	 Prime-SEC     4.00	 Blank-FLIPS 1.583486e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.274692e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.275723e+00	 TargetDistractor-SEC Comments: qqqqqqqqqq
+END: 19/01/2021 12:27:28

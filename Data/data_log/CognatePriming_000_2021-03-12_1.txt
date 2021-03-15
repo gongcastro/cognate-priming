@@ -1,0 +1,12 @@
+Test date: 12/03/2021 13:03:01
+Attempt: 2
+Participant: 000
+ID: 
+Name: 
+Birthdate: 0000-00-00
+Sex: 
+Language: cat
+List: 1
+Version: ll
+POSITION: 12/03/2021 13:03:11
+Calibration time: 12/03/2021 13:03:15

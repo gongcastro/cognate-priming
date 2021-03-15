@@ -1,0 +1,12 @@
+Test date: 12/12/2020 09:40:23
+Attempt: 1
+Participant: 000
+ID: 
+Name: 
+Birthdate: 0000-00-00
+Sex: 
+Language: cat
+List: 1
+Version: ll
+GETTER nFlips 52 SECONDS     3.04	
+END: 12/12/2020 09:41:02

@@ -1,0 +1,76 @@
+Test date: 16/10/2020 12:05:00
+Attempt: 6
+Participant: 000
+ID: 
+Name: 
+Birthdate: 0000-00-00
+Sex: 
+Language: cat
+List: 3
+Version: ll
+GETTER nFlips 59 SECONDS     3.04	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 2 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.043314e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515653e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567667e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266340e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266205e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 3 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.018575e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516167e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566727e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266236e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266031e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 31 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.019929e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516054e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566764e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266294e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265970e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.26	
+TrialNum: 9 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.015721e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.514775e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.565610e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.264882e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.264971e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 25 TrialID: 108 TrialTargetLocation < Getter-FLIPS 3.056694e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516074e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567330e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266856e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266479e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 6 TrialID: 114 TrialTargetLocation < Getter-FLIPS 3.057882e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516035e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567314e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266843e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266487e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 13 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.013035e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515941e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567321e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266849e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.267301e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 24 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.021520e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.514704e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566899e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265492e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265413e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 32 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.010765e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515799e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566710e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.271106e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.270990e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 11 TrialID: 114 TrialTargetLocation < Getter-FLIPS 3.056756e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515716e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566612e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265719e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.270914e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 17 TrialID: 114 TrialTargetLocation < Getter-FLIPS 3.056610e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515634e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567694e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266351e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266197e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 28 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.011588e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515153e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566699e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265290e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265184e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 8 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.018146e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515636e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566263e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.271001e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.270898e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 22 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.013908e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515267e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567461e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266020e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265978e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 18 TrialID: 108 TrialTargetLocation < Getter-FLIPS 3.056444e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515751e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567864e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266577e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266423e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 40 SECONDS     2.27	
+TrialNum: 15 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.019465e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515716e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567965e+00	 Blank-SEC    40.00	 Audio-FLIPS 2.266606e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266522e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 27 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.015706e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515899e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567429e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265995e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265941e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 7 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.011208e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515870e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566787e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.271141e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.271028e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 14 TrialID: 108 TrialTargetLocation < Getter-FLIPS 3.056652e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515393e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567248e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265769e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265721e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 23 TrialID: 108 TrialTargetLocation < Getter-FLIPS 3.057737e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515976e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567498e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265998e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265836e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 19 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.009194e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515753e+00	 Prime-SEC     2.00	 Blank-FLIPS 1.567193e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266509e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.267196e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 39 SECONDS     2.27	
+TrialNum: 5 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.013778e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516229e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.583467e+00	 Blank-SEC    39.00	 Audio-FLIPS 2.266117e+00	 Audio-SEC   119.00	 TargetDistractor-FLIPS 4.266004e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 39 SECONDS     2.26	
+TrialNum: 29 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.009920e+00	 Getter-SEC    90.00	 Prime-FLIPS 1.514351e+00	 Prime-SEC     2.00	 Blank-FLIPS 1.565538e+00	 Blank-SEC    39.00	 Audio-FLIPS 2.264736e+00	 Audio-SEC   119.00	 TargetDistractor-FLIPS 4.264780e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 21 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.010150e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515462e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.565696e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265565e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.270555e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 27 SECONDS     2.27	
+TrialNum: 4 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.016739e+00	 Getter-SEC    90.00	 Prime-FLIPS 1.515413e+00	 Prime-SEC     2.00	 Blank-FLIPS 1.583242e+00	 Blank-SEC    27.00	 Audio-FLIPS 2.266130e+00	 Audio-SEC   116.00	 TargetDistractor-FLIPS 4.265799e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 27 SECONDS     2.28	
+TrialNum: 20 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.013598e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515749e+00	 Prime-SEC     2.00	 Blank-FLIPS 1.583885e+00	 Blank-SEC    27.00	 Audio-FLIPS 2.282092e+00	 Audio-SEC   114.00	 TargetDistractor-FLIPS 4.266396e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 37 SECONDS     2.29	
+TrialNum: 1 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.013649e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515813e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566649e+00	 Blank-SEC    37.00	 Audio-FLIPS 2.286520e+00	 Audio-SEC   117.00	 TargetDistractor-FLIPS 4.270943e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 27 SECONDS     2.26	
+TrialNum: 10 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.019936e+00	 Getter-SEC    61.00	 Prime-FLIPS 1.531406e+00	 Prime-SEC     1.00	 Blank-FLIPS 1.566596e+00	 Blank-SEC    27.00	 Audio-FLIPS 2.264834e+00	 Audio-SEC    80.00	 TargetDistractor-FLIPS 4.281147e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 20 SECONDS     2.27	
+TrialNum: 30 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.019840e+00	 Getter-SEC    87.00	 Prime-FLIPS 1.515779e+00	 Prime-SEC     2.00	 Blank-FLIPS 1.583971e+00	 Blank-SEC    20.00	 Audio-FLIPS 2.265579e+00	 Audio-SEC    80.00	 TargetDistractor-FLIPS 4.282025e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 20 SECONDS     2.27	
+TrialNum: 16 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.012236e+00	 Getter-SEC    49.00	 Prime-FLIPS 1.514920e+00	 Prime-SEC     2.00	 Blank-FLIPS 1.583464e+00	 Blank-SEC    20.00	 Audio-FLIPS 2.265083e+00	 Audio-SEC    61.00	 TargetDistractor-FLIPS 4.265094e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 21 SECONDS     2.28	
+TrialNum: 12 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.010650e+00	 Getter-SEC    46.00	 Prime-FLIPS 1.531537e+00	 Prime-SEC     1.00	 Blank-FLIPS 1.566785e+00	 Blank-SEC    21.00	 Audio-FLIPS 2.281603e+00	 Audio-SEC    60.00	 TargetDistractor-FLIPS 4.281693e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 21 SECONDS     2.27	
+TrialNum: 26 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.020400e+00	 Getter-SEC    46.00	 Prime-FLIPS 1.531610e+00	 Prime-SEC     1.00	 Blank-FLIPS 1.566836e+00	 Blank-SEC    21.00	 Audio-FLIPS 2.265039e+00	 Audio-SEC    60.00	 TargetDistractor-FLIPS 4.264920e+00	 TargetDistractor-SEC Comments: test
+END: 16/10/2020 12:09:33

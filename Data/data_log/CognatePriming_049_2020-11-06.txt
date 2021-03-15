@@ -1,0 +1,17 @@
+Test date: 06/11/2020 18:13:58
+Attempt: 1
+Participant: 049
+ID: 56762
+Name: Arlet
+Birthdate: 2019-01-21
+Sex: f
+Language: cat
+List: 3
+Version: ll
+POSITION: 06/11/2020 18:14:11
+Calibration time: 06/11/2020 18:15:16
+GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 31 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.010123e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515353e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566813e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265593e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265827e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 28 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.010549e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516037e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566788e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.271305e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.271255e+00	 TargetDistractor-SEC END: 06/11/2020 18:18:08

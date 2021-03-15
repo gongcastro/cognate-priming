@@ -1,0 +1,13 @@
+Test date: 13/03/2021 10:08:44
+Attempt: 3
+Participant: 000
+ID: 
+Name: 
+Birthdate: 0000-00-00
+Sex: 
+Language: spa
+List: 1
+Version: euro
+GETTER nFlips 53 SECONDS     3.04	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 27 TrialID: 114 TrialTargetLocation 5 Getter-FLIPS 3.037233e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.514966e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.565532e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265083e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265635e+00	 TargetDistractor-SEC END: 13/03/2021 10:09:28

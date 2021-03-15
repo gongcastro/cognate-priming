@@ -1,0 +1,16 @@
+Test date: 16/12/2020 10:01:18
+Attempt: 1
+Participant: 078
+ID: 57050
+Name: Rut
+Birthdate: 2019-03-26
+Sex: f
+Language: cat
+List: 3
+Version: ll
+POSITION: 16/12/2020 10:01:42
+Calibration time: 16/12/2020 10:02:43
+GETTER nFlips 53 SECONDS     3.04	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 1 TrialID: 114 TrialTargetLocation 5 Getter-FLIPS 3.041691e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515891e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567792e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266043e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.267383e+00	 TargetDistractor-SEC Comments: Stop, crying
+END: 16/12/2020 10:05:41

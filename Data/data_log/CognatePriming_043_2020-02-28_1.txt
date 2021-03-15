@@ -1,0 +1,15 @@
+Test date: 28/02/2020 17:46:44
+Attempt: 2
+Participant: 043
+ID: 54960
+Name: Laura
+Birthdate: 2017-12-14
+Sex: f
+Language: spa
+List: 2
+Version: euro
+POSITION: 28/02/2020 17:46:55
+Calibration time: 28/02/2020 17:47:35
+GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 28 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.015360e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515903e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566508e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266051e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266107e+00	 TargetDistractor-SEC END: 28/02/2020 17:48:46

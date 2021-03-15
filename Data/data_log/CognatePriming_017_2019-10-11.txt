@@ -1,0 +1,9 @@
+Test date: 11/10/2019 18:35:26
+Attempt: 1
+Participant: 017
+ID: 54160
+Name: Mia
+Birthdate: 2017-05-25
+Sex: f
+Language: cat
+List: 2

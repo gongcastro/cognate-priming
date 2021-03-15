@@ -1,0 +1,12 @@
+Test date: 06/11/2020 18:19:13
+Attempt: 2
+Participant: 049
+ID: 56762
+Name: Arlet
+Birthdate: 21/01/2019
+Sex: f
+Language: cat
+List: ll
+Version: 3
+POSITION: 06/11/2020 18:19:21
+Calibration time: 06/11/2020 18:20:08

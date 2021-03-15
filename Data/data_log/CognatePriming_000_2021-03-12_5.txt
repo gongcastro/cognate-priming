@@ -1,0 +1,20 @@
+Test date: 12/03/2021 13:25:54
+Attempt: 6
+Participant: 000
+ID: 
+Name: 
+Birthdate: 0000-00-00
+Sex: 
+Language: cat
+List: 1
+Version: ll
+GETTER nFlips 54 SECONDS     3.04	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 5 TrialID: 114 TrialTargetLocation 6 Getter-FLIPS 3.038334e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515181e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.565829e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265317e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.268538e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 7 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.013065e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516046e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566915e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266278e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.271343e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.02	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 19 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.019368e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515553e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.567126e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266323e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.266390e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.05	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 11 TrialID: 108 TrialTargetLocation < Getter-FLIPS 3.053733e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516190e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566935e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.271524e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.272031e+00	 TargetDistractor-SEC Comments: 
+END: 12/03/2021 13:26:36

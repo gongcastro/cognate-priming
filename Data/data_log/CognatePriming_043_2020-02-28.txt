@@ -1,0 +1,10 @@
+Test date: 28/02/2020 17:45:49
+Attempt: 1
+Participant: 043
+ID: 54960
+Name: Laura
+Birthdate: 2017-12-14
+Sex: f
+Language: cat
+List: 2
+Version: ll

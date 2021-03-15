@@ -1,0 +1,22 @@
+Test date: 13/03/2021 10:10:06
+Attempt: 1
+Participant: 106
+ID: 58347
+Name: Álvaro
+Birthdate: 2019-07-08
+Sex: m
+Language: spa
+List: 1
+Version: euro
+POSITION: 13/03/2021 10:10:13
+Calibration time: 13/03/2021 10:10:27
+GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 9 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.011996e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.516096e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566906e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.266394e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.267207e+00	 TargetDistractor-SEC GETTER nFlips 60 SECONDS     3.06	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 12 TrialID: 108 TrialTargetLocation < Getter-FLIPS 3.056773e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515981e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566671e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.271228e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.271344e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 24 TrialID: 108 TrialTargetLocation ; Getter-FLIPS 3.008879e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515182e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.565659e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265323e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265163e+00	 TargetDistractor-SEC GETTER nFlips 59 SECONDS     3.01	
+AUDIO nFlips 41 SECONDS     2.27	
+TrialNum: 25 TrialID: 114 TrialTargetLocation ; Getter-FLIPS 3.011128e+00	 Getter-SEC    91.00	 Prime-FLIPS 1.515697e+00	 Prime-SEC     3.00	 Blank-FLIPS 1.566216e+00	 Blank-SEC    41.00	 Audio-FLIPS 2.265938e+00	 Audio-SEC   120.00	 TargetDistractor-FLIPS 4.265742e+00	 TargetDistractor-SEC Comments: 
+END: 13/03/2021 10:12:47

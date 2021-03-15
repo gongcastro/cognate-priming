@@ -1,0 +1,10 @@
+Test date: 13/02/2021 11:46:42
+Attempt: 1
+Participant: 095
+ID: 57227
+Name: Èrika
+Birthdate: 2019-05-13
+Sex: f
+Language: cat
+List: 1
+Version: ll

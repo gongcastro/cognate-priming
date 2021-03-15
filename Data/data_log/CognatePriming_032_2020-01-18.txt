@@ -1,0 +1,10 @@
+Test date: 18/01/2020 11:28:29
+Attempt: 1
+Participant: 032
+ID: 55537
+Name: Jaume
+Birthdate: 2017-10-05
+Sex: m
+Language: cat
+List: 2
+Version: ll
