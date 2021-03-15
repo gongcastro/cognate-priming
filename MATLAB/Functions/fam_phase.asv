@@ -1,0 +1,169 @@
+function [full_gaze_data, variableNames] = fam_phase(eyetracker, window, monitorWindow, pAudioHandle, condition)
+%familiarization
+%   familiarization process of Generalization2 study
+global STIM_PATH;
+global RES_PATH;
+global FAM_STIM_DURATION;
+global STEEP_SOUND_LEVEL_UP;
+global STEEP_SOUND_LEVEL_DOWN;
+global LIMIT_ROTATION;
+global STEEP_ROTATION;
+global TEXT_COLOR;
+global BACKGROUND_COLOR;
+global EYE_DOT_COLOR;
+global SCREEN_MONITOR_PROPORTION;
+global DRAW_CUES;   %for DEBUG allow to dray AOI rectangle ans gazePoint
+global Y_KEY;
+global N_KEY;
+global E_KEY;
+
+variableNames={'SystemTimeStamp','meanX','meanY','meanValidity','lX','lY','lV','lPupil','lPupilV','rX','rY','rV','rPupil','rPupilV','process', 'extra'};
+[screenXpixels, screenYpixels] = Screen('WindowSize', window);
+
+IMAGE_INDEX = 1;
+SOUND_INDEX = 2;
+% stim_list(1,1) => {["blue_dino.png"]}
+stim_list1 = {"blue_dino.png"    "damedu.wav";...
+            "blue_dino.png"     "samesa.wav"; ...
+            "blue_dino.png"     "lapulo.wav"; ...
+            "blue_dino.png"     "sapusa.wav"; ...
+            "red_car.png"       "dudume.wav";...
+            "red_car.png"       "sasame.wav"; ...
+            "red_car.png"       "lolopu.wav"; ...
+            "red_car.png"       "sasapu.wav"; ...
+            "blue_dino.png"     "dumedu.wav";...
+            "red_car.png"       "dudume.wav"; ...
+            "blue_dino.png"     "samesa.wav"; ...
+            "red_car.png"       "sasame.wav"};
+
+stim_list2 = {"red_car.png" "dudemu.wav";...
+            "red_car.png"   "samesa.wav"; ...
+            "red_car.png"   "lopolo.wav"; ...
+            "red_car.png"   "sapusa.wav"; ...
+            "blue_dino.png" "dudume.wav";...
+            "blue_dino.png" "sasame.wav"; ...
+            "blue_dino.png" "lolopu.wav"; ...
+            "blue_dino.png" "sasapu.wav"; ...
+            "red_car.png"   "dudemu.wav";...
+            "blue_dino.png" "dudume.wav";...
+            "red_car.png"   "samesa.wav"; ...
+            "blue_dino.png" "sasame.wav"};
+        
+if condition==1
+    stim_list=stim_list1;
+else    
+    stim_list=stim_list2;
+end
+
+% load stim images
+% Import image and and convert it, stored in
+% MATLAB matrix, into a Psychtoolbox OpenGL texture using 'MakeTexture';
+for stimIndex = 1:size(stim_list,1)
+    imgfileName = strcat(STIM_PATH, stim_list(stimIndex, IMAGE_INDEX));
+    [img, ~, alpha] = imread(imgfileName, 'png');
+    % Crop image if it is larger then screen size. There's no image scaling
+    % in maketexture
+    [iy, ix, ~] = size(img);
+    img(:, :, 4) = alpha;
+    TEXTURES(stimIndex).name = image_file_list(stimIndex);
+    TEXTURES(stimIndex).texture = Screen('MakeTexture', window, img);
+    TEXTURES(stimIndex).iRect = [0 0 ix iy];
+end
+
+% load stim sound
+for stimIndex = 1:size(stim_list,1)
+    audioFileName = strcat(STIM_PATH, stim_list(stimIndex, SOUND_INDEX));
+    [waveData, ~] = audioread();
+    WAVEDATA(stimIndex).data = [waveData waveData]';
+end
+
+
+[centerX, centerY] = RectCenter(Screen('Rect', window));
+
+force_exit = false;
+%empty the eyeTracker buffer
+eyetracker.get_gaze_data();
+full_gaze_data = [];
+for stimIndex = 1:size(stim_list,1)
+    %w2 = (TEXTURES(textureIndex).iRect(3)-TEXTURES(textureIndex).iRect(1))/2;
+    %h2 = (TEXTURES(textureIndex).iRect(4)-TEXTURES(textureIndex).iRect(2))/2;
+    %AOI = [screen_center(1)-w2 screen_center(2)-h2 screen_center(1)+w2 screen_center(2)+h2];
+    PsychPortAudio('FillBuffer', pAudioHandle, WAVEDATA(stimIndex).data);
+    PsychPortAudio('Start', pAudioHandle, 0, 0, 1); % repeat sound "for ever"
+    volume = PsychPortAudio('Volume', pAudioHandle, 1.0);
+    AOI = CenterRectOnPoint(TEXTURES(stimIndex).iRect, centerX, centerY);
+    tIni = tic;
+    rotation = 0;
+    steep_rotation =- STEEP_ROTATION;
+    while toc(tIni)<FAM_STIM_DURATION && force_exit==false
+        Screen('AsyncFlipEnd', monitorWindow);
+        Screen('DrawTexture', window, TEXTURES(stimIndex).texture, TEXTURES(stimIndex).iRect, AOI, rotation);
+        Screen('DrawTexture', monitorWindow, TEXTURES(stimIndex).texture, TEXTURES(stimIndex).iRect, AOI/SCREEN_MONITOR_PROPORTION, rotation);
+        
+        gaze_data = eyetracker.get_gaze_data();
+        %full_gaze_data = parseGazeData(gaze_data);
+        full_gaze_data = [full_gaze_data; parseGazeData(gaze_data, ["familiarization", strcat(TEXTURES(stimIndex).name, ",", audioFileName)])];
+        if ~isempty(gaze_data)
+            [x, y] = lastGazeData(gaze_data);
+            x = x*screenXpixels;
+            y = y*screenYpixels;
+            if inrect([x y], AOI)
+                %animation
+                if DRAW_CUES
+                    Screen('FrameRect', window, [0 255 0], AOI, 5);
+                end
+                Screen('FrameRect', monitorWindow, [0 255 0], AOI/SCREEN_MONITOR_PROPORTION, 5);
+                if rotation>LIMIT_ROTATION || rotation<-LIMIT_ROTATION 
+                    steep_rotation=-steep_rotation; 
+                end
+                rotation=rotation+steep_rotation;
+                % audio volume UP
+                if volume<1.0
+                    if volume>0.8
+                        volume = 1;
+                    else
+                        volume = volume+STEEP_SOUND_LEVEL_UP;
+                    end
+                end
+            else
+                % audio volume DOWN
+                if volume>0
+                    if volume<0.2
+                        volume = 0;
+                    else
+                        volume = volume-STEEP_SOUND_LEVEL_DOWN;
+                    end
+                end
+            end
+            PsychPortAudio('Volume', pAudioHandle , volume);
+            if DRAW_CUES
+                Screen('DrawDots', window, [x y], 80, EYE_DOT_COLOR, [], 2);
+            end
+            Screen('DrawDots', monitorWindow, [x y]/SCREEN_MONITOR_PROPORTION, 80, EYE_DOT_COLOR, [], 2);
+            [ keyIsDown, ~, keyCode ] = KbCheck;
+            if E_KEY == find(keyCode, 1)
+                force_exit = true;
+            end
+        end
+        
+        Screen('AsyncFlipBegin', monitorWindow);
+        Screen('Flip', window);
+        if force_exit == true
+            break;
+        end
+        
+    end
+    while volume>0
+        volume = PsychPortAudio('Volume', pAudioHandle , volume-STEEP_SOUND_LEVEL_DOWN);
+        pause(0.01);
+    end
+end
+
+
+
+eyetracker.stop_gaze_data();
+PsychPortAudio('Stop', pAudioHandle);
+
+Screen('AsyncFlipEnd', monitorWindow);
+end
+
