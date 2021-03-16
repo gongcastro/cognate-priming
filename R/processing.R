@@ -43,7 +43,7 @@ items_to_know <- trials %>%
 	unique()
 
 # get gaze data
-gaze <-	import_gaze(location = c("oxf", "bcn"), participants = participants) %>% 
+gaze <-	import_gaze(location = c("oxford", "barcelona"), participants = participants) %>% 
 	mutate(
 		gaze_in_l_aoi = gaze_in_aoi(x, y, left_coords),
 		gaze_in_r_aoi = gaze_in_aoi(x, y, right_coords),
