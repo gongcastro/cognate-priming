@@ -43,18 +43,18 @@ full_extra_cols = [];
 
 try         % and enable a possible "clean" exit
     
-    folder = strcat(pwd, filesep, 'Functions');
+    folder = strcat(pwd, filesep, 'MATLAB', filesep, 'Functions');
     addpath(genpath(folder));
     % Add access to all the Tobii SDK functions
     folder = strcat(pwd, filesep, 'MATLAB', filesep, 'TobiiPro.SDK.Matlab_1.6.1.21');
     addpath(genpath(folder));
     
     % set paths GONZALO ------------------------------------------------------------
-    mainDirectory = 'C:\Users\cbclab\Documents\gGarciaCastro\CognatePriming';
+    mainDirectory = 'C:\Users\cbclab\Documents\gGarciaCastro\cognate-priming';
     cd(mainDirectory);
     
     %gettersImagePath = [mainDirectory '\getterImage.jpg']; % provisional
-    listsPath      = [mainDirectory '\Lists\'];
+    listsPath      = [mainDirectory '\Stimuli\Lists\'];
     gettersPath    = [mainDirectory '\Stimuli\Getters\'];
     allImagesPath  = [mainDirectory '\Stimuli\Images\'];
     audiosPath     = [mainDirectory '\Stimuli\Sounds\'];
@@ -292,7 +292,7 @@ try         % and enable a possible "clean" exit
     
     %% read trial variables
     % LIST
-    [num, words]     = xlsread([listsPath 'list_' language '\' version '\' 'list_' language list '-' version '.xlsx']); % read list
+    [num, words]     = xlsread([listsPath 'stimuli_' language list '-' version '.xlsx']); % read list
     nTrials          = size(words, 1);                                     % calculate number of trials
     arrayOrder       = 1:nTrials;                                          % vector with trial numbers
     arrayOrderRandom = Shuffle(arrayOrder);                                % randomise trial order
@@ -425,7 +425,7 @@ try         % and enable a possible "clean" exit
             [x, y]   = lastGazeData(gazeData); %x,y are from 0..1            
             x        = x*screenXpixels; % scale to screen size
             y        = y*screenYpixels;
-            %Screen('DrawDots', windowPtr, xy [,size] [,color] [,center] [,dot_type][, lenient]);
+            %Screen('DrawDots', windowPqqtr, xy [,size] [,color] [,center] [,dot_type][, lenient]);
             Screen('DrawDots', monitorWindow, [x y]/SCREEN_MONITOR_PROPORTION, 40, EYE_DOT_COLOR, [], 2);   
                         
             if DRAW_CUES                
