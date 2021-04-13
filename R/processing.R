@@ -14,6 +14,10 @@ left_coords <- c(xmin = 280, xmax = 780, ymin = 290, ymax = 790)
 right_coords <- c(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790)
 email <- "gonzalo.garciadecastro@upf.edu"
 
+
+# participants -----------------------------------------------------------------
+
+# get vocabulary data
 vocabulary <- import_vocabulary(
 	location = c("barcelona", "oxford"),
 	path_oxford = here("Data", "vocabulary_oxford.xlsx"),
@@ -21,7 +25,7 @@ vocabulary <- import_vocabulary(
 ) %>% 
 	distinct(id_db, age_group, .keep_all = TRUE) 
 
-# participants -----------------------------------------------------------------
+# get participant information
 participants <- get_participants(google_email = email) %>% 
 	rename(valid_other = valid_participant) %>% 
 	left_join(vocabulary) %>% 
@@ -43,7 +47,7 @@ items_to_know <- trials %>%
 	unique()
 
 # get gaze data
-gaze <-	import_gaze(location = c("oxford", "barcelona"), participants = participants) %>% 
+gaze <- import_gaze(location = c("oxford", "barcelona"), participants = participants) %>% 
 	mutate(
 		gaze_in_l_aoi = gaze_in_aoi(x, y, left_coords),
 		gaze_in_r_aoi = gaze_in_aoi(x, y, right_coords),
@@ -75,15 +79,15 @@ gaze_trial <- gaze %>%
 # missing data report ----------------------------------------------------------
 attrition <- gaze_trial %>% 
 	left_join(select(participants, participant, age_group, valid_other)) %>% 
-	mutate(
-		missing = fixations_missing/(fixations_n+fixations_missing),
-		valid_trial_samples = missing < 0.25,
-		valid_trial_both = (fixations_target > 0) & (fixations_distractor > 0),
-		#valid_trial_vocab = (prime_cdi %in% unlist(vocab_words)) & (target_cdi %in% unlist(vocab_words)),
-		valid_trial = valid_trial_samples & valid_trial_both
+	mutate(valid_trial = get_valid_trials(
+		x = ., 
+		col_target = "fixations_target",
+		col_distractor = "fixations_distractor",
+		col_missing = "fixations_missing"
+	) 
 	) %>% 
 	get_valid_participants() %>% 
-	select(participant, age_group, trial_num, trial_type, matches("valid"), missing)
+	select(participant, age_group, trial_num, trial_type, matches("valid"))
 
 attrition_summary <- attrition %>%
 	group_by(participant, age_group) %>%
