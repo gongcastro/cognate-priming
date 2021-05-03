@@ -30,8 +30,11 @@ participants <- get_participants(google_email = email) %>%
 	rename(valid_other = valid_participant) %>% 
 	left_join(vocabulary) %>% 
 	filter(!pilot) %>% 
-	mutate(date_test = as_date(date_test)) %>% 
-	select(participant, id_db, date_test, location, age_group, test_language, list, version, lp, vocab_size, valid_other, test_language, list, version, filename)
+	mutate(
+		date_test = as_date(date_test),
+		doe_2 = ifelse(test_language=="Spanish", doe_catalan, doe_spanish)
+		) %>% 
+	select(participant, id_db, date_test, location, age_group, age, test_language, list, version, lp, doe_2, vocab_size, valid_other, test_language, list, version, filename)
 
 # trials -----------------------------------------------------------------------
 trials <- bilingualr::trials %>%

@@ -3,6 +3,8 @@ title: "Report"
 output:
   html_document:
     df_print: paged
+    toc: true
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
@@ -44,24 +46,64 @@ attrition <- readRDS(here("Results", "attrition.rds"))
 
 # Participants
 
+## Sample sizes
+
 ```{r participants, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 participants %>% 
 	drop_na(valid_participant) %>% 
+	mutate(valid_participant = ifelse(valid_participant, "Valid", "Not valid")) %>% 
 	ggplot(aes(lp, fill = valid_participant)) +
 	facet_grid(location~age_group, scales = "free") +
 	geom_bar() +
 	geom_hline(yintercept = 24, linetype = "dashed") +
-	labs(x = "Group", y = "N", fill = "Valid?") +
+	labs(x = "Group", y = "Sample size", fill = "Valid?") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(
 		legend.position = "top",
+		legend.title = element_blank(),
 		axis.title.x = element_blank(),
+		axis.text.x = element_text(size = 10),
 		axis.title.y = element_text(angle = 90)
 	) +
 	ggsave(here("Figures", "sample.png"))
 ```
+
+## Language profiles
+
+Only valid participants.
+
+```{r lps, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+# plot participants
+participants %>% 
+	filter(valid_participant) %>% 
+	ggplot(aes(age, doe_2, colour = lp)) +
+	facet_grid(test_language~location) +
+	geom_line(aes(group = interaction(lp, participant)), alpha = 0.5) +
+	geom_point(size = 3, alpha = 0.5) +
+	geom_hline(yintercept = 0.2, linetype = "dashed") +
+	annotate(geom = "rect", alpha = 0.25, fill = "grey", colour = NA,
+			 xmin = 20, xmax = 22, ymin = -Inf, ymax = Inf) +
+	annotate(geom = "rect", alpha = 0.25, fill = "grey", colour = NA,
+			 xmin = 24, xmax = 26, ymin = -Inf, ymax = Inf) +
+	annotate(geom = "rect", alpha = 0.25, fill = "grey", colour = NA,
+			 xmin = 28, xmax = 32, ymin = -Inf, ymax = Inf) +
+	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Group") +
+	scale_colour_brewer(palette = "Set1") +
+	scale_y_continuous(labels = percent) +
+	theme_bilingual() +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		panel.grid.major.y = element_line(linetype = "dotted", colour = "grey"),
+		axis.text.x = element_text(size = 10),
+		axis.title.y = element_text(angle = 90),
+		axis.text.y = element_text(size = 10)
+	) +
+	ggsave(here("Figures", "lps.png"))
+```
+
 
 # Results
 
@@ -122,7 +164,7 @@ attrition %>%
 
 ## Vocabulary
 
-### vocabualry in the dominant language (L1)
+### Vocabulary in the dominant language (L1)
 
 This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
 
@@ -150,9 +192,12 @@ participants %>%
 
 ```
 
+
 ## Target fixations
 
-### Aggregated by trial
+### Target fixations: Age group and language profile {.tabset .tabset-pills}
+
+#### Cross-sectional
 
 For each participant and trial, the proportion of fixations to the target object were calculated from the total of fixations to the target, the distractor, and the rest of the screen. Then proportions for the same participant were aggregated within conditions, so that for each participant three data points were obtained: one in each trial type (cognate, non-cognate, and unrelated). Some participants were longitudinal. Scores form longitudinal participant  are indicated by gray lines linking data points from the same participant.
 
@@ -183,7 +228,11 @@ gaze_trial %>%
 
 ```
 
-## By age group
+
+#### Longitudinal
+
+Each trial was divided into 100 ms time bins. for each time bin, the proportion of  target fixations were calculated, from the total of fixations to the target, distractor and the rest of the screen for that same time bin. Proportions were then aggregated across trials for each time bin and participants, so that each participant contributed with 20 data points (one for each time bin) for each trial type (cognate, non-cognate, and unrelated). This figure shows the fitted line of a General Additive Model (GAM) generated using the `geom_smooth()` function from the `ggplot` R package, with default settings.
+
 
 ```{r gaze_trial_age, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_trial %>% 
@@ -212,36 +261,9 @@ gaze_trial %>%
 
 ```
 
-## Effect of vocabulary
+### {-}
 
-```{r gaze_trial_vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-gaze_trial %>% 
-	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
-	filter(valid_participant, valid_trial) %>% 
-	group_by(participant, lp, trial_type, age_group, vocab_size) %>% 
-	summarise(prop = mean(prop), .groups = "drop") %>% 
-	drop_na() %>% 
-	ggplot(aes(vocab_size, prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~age_group) +
-	geom_hline(yintercept = 0.5, linetype = "dashed") +
-	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
-	#stat_slab(position = position_nudge(x = 0.25)) +
-	geom_point(alpha = 0.5) +
-	geom_smooth(se = FALSE, method = "lm") +
-	labs(x = "L1 vocabulary size", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
-	scale_colour_brewer(palette = "Set1") +
-	scale_x_continuous(limits = c(0, 1), labels = scales::percent) +
-	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-	theme_bilingual() +
-	theme(panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		  legend.position = "top",
-		  axis.text.x = element_text(size = 10)) +
-	ggsave(here("Figures", "gaze_trial_vocabulary.png"))
-```
-
-### Aggregated by time bin
-
-
+### Target fixations: Time course analysis
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_time %>% 
@@ -279,8 +301,40 @@ gaze_time %>%
 
 ```
 
+
+### Target fixations: Vocabulary size
+
+```{r gaze_trial_vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_trial %>% 
+	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
+	filter(valid_participant, valid_trial) %>% 
+	group_by(participant, lp, trial_type, age_group, vocab_size) %>% 
+	summarise(prop = mean(prop), .groups = "drop") %>% 
+	drop_na() %>% 
+	ggplot(aes(vocab_size, prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
+	#stat_slab(position = position_nudge(x = 0.25)) +
+	geom_point(alpha = 0.5) +
+	geom_smooth(se = FALSE, method = "lm") +
+	labs(x = "L1 vocabulary size", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
+	scale_colour_brewer(palette = "Set1") +
+	scale_x_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme_bilingual() +
+	theme(panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
+		  legend.position = "top",
+		  axis.text.x = element_text(size = 10)) +
+	ggsave(here("Figures", "gaze_trial_vocabulary.png"))
+```
+
+
+### Target fixations: High vocabulary vs. low vocabulary {.tabset .tabset-pills}
+
+
 ```{r gaze_time_vocab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8}
-gaze_time %>% 
+gaze_time_vocab_d <- gaze_time %>% 
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
 	left_join(select(participants, participant, age_group, vocab_size)) %>% 
 	filter(valid_participant, valid_trial) %>% 
@@ -299,13 +353,25 @@ gaze_time %>%
 			vocab_size < median(.$vocab_size, na.rm = TRUE),
 			"Below the median",
 			"Above the median"
-		)
+		),
+		age_group = paste0(age_group, " months")
 	) %>% 
-	drop_na() %>% 
+	drop_na()
+
+```
+
+
+#### Age group: 21 months
+
+```{r gaze_time_vocab_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+gaze_time_vocab_d %>% 
+	filter(age_group == "21 months") %>% 
 	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_wrap(age_group~lp~vocab_cat) +
+	facet_grid(lp~vocab_cat) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
+	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
@@ -316,10 +382,63 @@ gaze_time %>%
 	theme_bilingual() +
 	theme(legend.title = element_blank(),
 		  legend.position = "top",
-		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
-	ggsave(here("Figures", "gaze_time_vocab.png"))
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 
 ```
+
+
+#### Age group: 25 months
+
+
+```{r gaze_time_vocab_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+gaze_time_vocab_d %>% 
+	filter(age_group == "25 months") %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~vocab_cat) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	#geom_point(alpha = 0.5) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
+
+```
+
+#### Age group: 30 months
+
+
+```{r gaze_time_vocab_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+gaze_time_vocab_d %>% 
+	filter(age_group == "30 months") %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~vocab_cat) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	#geom_point(alpha = 0.5) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
+
+```
+### {-}
 
 # Appendix
 
@@ -428,5 +547,5 @@ gaze_time %>%
 	ggsave(here("Figures", "gaze_time_participant.png"), height = 12, width = 12)
 ```
 
-# Appendix
+# References
 
