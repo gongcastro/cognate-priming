@@ -14,7 +14,6 @@ left_coords <- c(xmin = 280, xmax = 780, ymin = 290, ymax = 790)
 right_coords <- c(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790)
 email <- "gonzalo.garciadecastro@upf.edu"
 
-
 # participants -----------------------------------------------------------------
 
 # get vocabulary data

@@ -44,19 +44,46 @@ fit <- readRDS(here("Results", "fit_trials.rds"))
 
 # Participants
 
+We collected data from `r length(unique(participants$participant))` participants, of which `r length(unique(participants$participant[participants$valid_participant]))` met the inclusion criteria and were included in data analyses. `r length(unique(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
+
 ```{r participants, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+
 # plot participants
 participants %>% 
 	drop_na(valid_participant) %>% 
-	ggplot(aes(lp, fill = valid_participant)) +
+	mutate(lp = ifelse(lp=="Monolingual", "Mon.", "Bil.")) %>% 
+	ggplot(aes(lp, fill = valid_participant, colour = valid_participant)) +
 	facet_grid(location~age_group, scales = "free") +
-	geom_bar() +
+	geom_bar(colour = NA) +
 	geom_hline(yintercept = 24, linetype = "dashed") +
-	labs(x = "Group", y = "N", fill = "Valid?") +
+	labs(x = "Group", y = "N", fill = "Valid?", colour = "Valid?") +
+	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(axis.title.x = element_blank()) +
 	ggsave(here("Figures", "sample.png"))
+```
+
+We collected data from `r sum(duplicated(participant$participant)` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participant$participant[participants$location=="Oxford"])` were tested in Oxford, and `r `sum(duplicated(participants$participant[participants$location=="Barcelona"])` were tested in Barcelona.
+
+```{r participants_cohort, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+
+# plot participants
+participants %>% 
+	drop_na(valid_participant) %>% 
+	ggplot(aes(age_group, participant, fill = valid_participant, colour = valid_participant)) +
+	facet_grid(lp~location, scales = "free") +
+	geom_point(size = 3, shape = 4) +
+	geom_line(aes(group = participant)) +
+	labs(x = "Age (months)", y = "Language profile", fill = "Valid?", colour = "Valid?") +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(axis.title.y = element_blank(),
+		  axis.text.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "sample_cohort.png"))
 ```
 
 # Results
@@ -67,14 +94,15 @@ participants %>%
 
 col <- ifelse(distinct(attrition, participant, valid_participant)$valid_participant, "#377EB8", "#E41A1C")
 
-attrition %>% 
-	mutate(valid_trial = ifelse(valid_trial, "Valid", "Invalid"),
-		   participant = paste0(participant, " (", missing_n, ", ", percent(missing_prop), ")")) %>% 
-	ggplot(aes(missing, participant, colour = valid_trial)) +
-	geom_point(alpha = 0.5) +
+attrition_summary %>% 
+	mutate(valid_trial = ifelse(valid_participant, "Valid", "Invalid"),
+		   participant = paste0(participant, " (", percent(missing_prop), ")")) %>% 
+	ggplot(aes(missing_prop, participant, colour = valid_participant, fill = valid_participant)) +
+	geom_col() +
 	geom_vline(xintercept = 0.25, linetype = "dashed") +
 	labs(x = "Proportion of missing trials (out of 32)", y = "Participant") +
 	scale_color_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(axis.text.y = element_text(colour = col, size = 8),
 		  axis.title.y = element_blank(),
@@ -159,8 +187,15 @@ gaze_trial %>%
 ### Aggregated by time bin
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+lp_labels <- c("Monolingual", "Bilingual")
+names(lp_labels) <- lp_labels
+age_group_labels <- c("21 months", "25 months")
+names(age_group_labels) <- c("21", "25")
+
 gaze_time %>% 
-	filter(valid_participant, valid_trial) %>% 
+	filter(valid_participant, valid_trial, age_group %in% c(21, 25),
+		   location == "Barcelona") %>% 
 	group_by(time_bin, trial_type, lp, age_group,location) %>% 
 	summarise(
 		prop = mean(prop, na.rm = TRUE),
@@ -171,24 +206,26 @@ gaze_time %>%
 	mutate(
 		se = sqrt((prop*(1-prop))/(n+4)),
 		lower = prop-se,
-		upper = prop+se
+		upper = prop+se,
+		time_bin = time_bin*100
 	) %>% 
 	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~age_group) +
+	facet_grid(lp~age_group, labeller = labeller(lp = lp_labels, age_group = age_group_labels)) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	geom_point(shape = 1, stroke = 1, size = 1) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time (ms)", y = "Pr(Target fixation)", colour = "Condition", fill = "Condition") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(legend.title = element_blank(),
 		  legend.position = "top",
-		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
-	ggsave(here("Figures", "gaze_time.png"))
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"),
+		  panel.grid.minor = element_blank()) +
+	ggsave(here("Figures", "gaze_time.png"), height = 5, width = 7)
 
 ```
 
