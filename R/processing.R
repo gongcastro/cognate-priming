@@ -5,6 +5,7 @@
 # load packages
 library(tidyverse)
 library(multilex)
+library(lubridate)
 library(bilingualr)
 library(here)
 
@@ -12,10 +13,9 @@ library(here)
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?
 left_coords <- c(xmin = 280, xmax = 780, ymin = 290, ymax = 790)
 right_coords <- c(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790)
-email <- "gonzalo.garciadecastro@upf.edu"
+ml_connect("gonzalo.garciadecastro@upf.edu")
 
 # participants -----------------------------------------------------------------
-
 # get vocabulary data
 vocabulary <- import_vocabulary(
 	location = c("barcelona", "oxford"),
@@ -29,10 +29,14 @@ participants <- get_participants(google_email = email) %>%
 	rename(valid_other = valid_participant) %>% 
 	left_join(vocabulary) %>% 
 	filter(!pilot) %>% 
-	select(participant, id_db, location, age_group, test_language, list, version, lp, vocab_size, valid_other, test_language, list, version, filename)
+	mutate(
+		date_test = as_date(date_test),
+		doe_2 = ifelse(test_language=="Spanish", doe_catalan, doe_spanish)
+		) %>% 
+	select(participant, id_db, date_test, location, age_group, age, test_language, list, version, lp, doe_2, vocab_size, valid_other, test_language, list, version, filename)
 
 # trials -----------------------------------------------------------------------
-trials <- stimuli %>%
+trials <- bilingualr::trials %>%
 	rename(trial = trial_id) %>% 
 	mutate(trial = as.numeric(trial)) %>% 
 	select(location, test_language, list, version, trial, trial_type, target_location,
@@ -46,7 +50,10 @@ items_to_know <- trials %>%
 	unique()
 
 # get gaze data
-gaze <- import_gaze(location = c("oxford", "barcelona"), participants = participants) %>% 
+gaze <- import_gaze(
+	path = "Data", location = c("oxford", "barcelona"),
+	participants = participants
+) %>% 
 	mutate(
 		gaze_in_l_aoi = gaze_in_aoi(x, y, left_coords),
 		gaze_in_r_aoi = gaze_in_aoi(x, y, right_coords),
@@ -56,7 +63,7 @@ gaze <- import_gaze(location = c("oxford", "barcelona"), participants = particip
 	mutate_at(vars(age_group, lp, trial_type), as.factor) %>% 
 	arrange(id_db, trial_num, time) %>% 
 	select(-c(gaze_in_l_aoi, gaze_in_r_aoi)) %>% 
-	relocate(id_db, lp, age_group, trial_num, time_bin, time, fix_target, fix_distractor, x, y, d, v, target_location)
+	relocate(participant, id_db, lp, age_group, trial_num, time_bin, time, fix_target, fix_distractor, x, y, d, v, target_location)
 
 # summarise by trial -----------------------------------------------------------
 gaze_trial <- gaze %>%
@@ -67,6 +74,15 @@ gaze_trial <- gaze %>%
 		fixations_missing = sum(is.na(fix_target) | is.na(fix_distractor)),
 		.groups = "drop"
 	) %>% 
+	mutate(
+		missing_prop = get_missing_samples(
+			.,
+			col_target = "fixations_target",
+			col_distractor = "fixations_distractor",
+			col_missing = "fixations_missing"
+		)
+	) %>% 
+	as_tibble() %>% 
 	rowwise() %>% 
 	mutate(
 		fixations_n = fixations_target + fixations_distractor,
@@ -78,13 +94,7 @@ gaze_trial <- gaze %>%
 # missing data report ----------------------------------------------------------
 attrition <- gaze_trial %>% 
 	left_join(select(participants, participant, age_group, valid_other)) %>% 
-	mutate(valid_trial = get_valid_trials(
-		x = ., 
-		col_target = "fixations_target",
-		col_distractor = "fixations_distractor",
-		col_missing = "fixations_missing"
-	) 
-	) %>% 
+	mutate(valid_trial = missing_prop <= 0.25) %>% 
 	get_valid_participants() %>% 
 	select(participant, age_group, trial_num, trial_type, matches("valid"))
 

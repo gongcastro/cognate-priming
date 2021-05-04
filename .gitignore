@@ -3,9 +3,9 @@
 .RData
 .Ruserdata
 Dissemination/
-Media/
-Data/
-Documents/
-Figures/
-Results/
-Communications/
+Media/*
+Data/*
+Documents/*
+Figures/*
+Results/*
+Communications/*
