@@ -11,14 +11,19 @@ library(shiny)
 library(tidyverse)
 
 # import data ----
-gaze_time <- readRDS("Results/gaze_time.rds")
+gaze <- readRDS("../Results/gaze_raw.rds") %>% 
+    mutate(fix_any = case_when(
+        fix_target ~ "Target",
+        fix_distractor ~ "Distractor",
+        TRUE ~ "Other"
+    ))
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-
+    
     # Application title
     titlePanel("Cognate Priming gaze data"),
-
+    
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
@@ -26,23 +31,76 @@ ui <- fluidPage(
                 inputId = "participant",
                 label = "Participant",
                 choices = unique(gaze_time$participant)
+            ),
+            selectInput(
+                inputId = "age_group",
+                label = "Age",
+                choices = unique(gaze_time$age_group)
+            ),
+            selectInput(
+                inputId = "trial_num",
+                label = "Trial",
+                choices = unique(gaze_time$trial_num)
             )
         ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("gaze_plot")
+        
+        fluidRow(
+            mainPanel(
+                plotOutput("gaze_plot"),
+                plotOutput("gaze_time")
+            )
         )
     )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-
+    
     output$gaze_plot <- renderPlot({
-        gaze_time %>% 
-            filter(participant %in% input$participant) %>% 
-            ggplot(aes(time_bin))
+        gaze %>% 
+            filter(
+                participant %in% input$participant,
+                age_group %in% input$age_group,
+                trial_num %in% input$trial_num
+            ) %>% 
+            ggplot(aes(x, y, colour = time)) +
+            geom_point(aes(group = trial_num)) +
+            annotate(geom = "rect", xmin = 230, xmax = 730, ymin = 290, ymax = 790,
+                     fill = NA, colour = "black") +
+            annotate(geom = "rect", xmin = 1190, xmax = 1690, ymin = 290, ymax = 790,
+                     fill = NA, colour = "black") +
+            labs(x = "X-axis", y = "Y-axis", colour = "Time (ms)") +
+            scale_x_continuous(limits = c(0, 1920)) +
+            scale_y_continuous(limits = c(0, 1080)) +
+            coord_fixed() +
+            theme_bilingual() +
+            theme(
+                panel.border = element_rect(fill = NA, colour = "black", size = 1),
+                axis.text = element_blank(),
+                axis.ticks = element_blank(),
+                axis.title = element_blank()
+            )
+    })
+    
+    output$gaze_time <- renderPlot({
+        gaze %>% 
+            filter(
+                participant %in% input$participant,
+                age_group %in% input$age_group,
+                trial_num %in% input$trial_num
+            ) %>% 
+            pivot_longer(c(x, y), names_to = "coord", values_to = "value") %>% 
+            ggplot(aes(time, value, colour = fix_any)) +
+            facet_wrap(~coord, scales = "free", nrow = 2) +
+            geom_point(size = 2) +
+            labs(x = "Time (ms)", y = "Value", colour = "AOI") +
+            scale_color_brewer(palette = "Set1") +
+            scale_y_continuous(limits = c(0, 1920)) +
+            theme_bilingual() +
+            theme(
+                panel.grid = element_line(linetype = "dotted", colour = "grey"),
+                legend.position = "top"
+            )
     })
 }
 
