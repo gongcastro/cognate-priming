@@ -5,6 +5,7 @@ output:
     df_print: paged
     toc: true
     toc_depth: 2
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -30,6 +31,7 @@ library(tidyverse)
 library(bilingualr)
 library(lubridate)
 library(scales)
+library(DiagrammeR)
 library(janitor)
 library(gt)
 library(patchwork)
@@ -46,18 +48,7 @@ attrition <- readRDS(here("Results", "attrition.rds"))
 
 # Participants
 
-<<<<<<< HEAD
 We collected data from `r length(unique(participants$participant))` participants, of which `r length(unique(participants$participant[participants$valid_participant]))` met the inclusion criteria and were included in data analyses. `r length(unique(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
-
-```{r participants, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-
-# plot participants
-participants %>% 
-	drop_na(valid_participant) %>% 
-	mutate(lp = ifelse(lp=="Monolingual", "Mon.", "Bil.")) %>% 
-	ggplot(aes(lp, fill = valid_participant, colour = valid_participant)) +
-=======
-## Sample sizes
 
 ```{r participants, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
@@ -65,16 +56,11 @@ participants %>%
 	drop_na(valid_participant) %>% 
 	mutate(valid_participant = ifelse(valid_participant, "Valid", "Not valid")) %>% 
 	ggplot(aes(lp, fill = valid_participant)) +
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 	facet_grid(location~age_group, scales = "free") +
 	geom_bar(colour = NA) +
 	geom_hline(yintercept = 24, linetype = "dashed") +
-<<<<<<< HEAD
-	labs(x = "Group", y = "N", fill = "Valid?", colour = "Valid?") +
 	scale_colour_brewer(palette = "Set1") +
-=======
 	labs(x = "Group", y = "Sample size", fill = "Valid?") +
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(
@@ -87,8 +73,7 @@ participants %>%
 	ggsave(here("Figures", "sample.png"))
 ```
 
-<<<<<<< HEAD
-We collected data from `r sum(duplicated(participant$participant)` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participant$participant[participants$location=="Oxford"])` were tested in Oxford, and `r `sum(duplicated(participants$participant[participants$location=="Barcelona"])` were tested in Barcelona.
+We collected data from `r sum(duplicated(participants$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
 
 ```{r participants_cohort, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
 
@@ -110,7 +95,6 @@ participants %>%
 	ggsave(here("Figures", "sample_cohort.png"))
 ```
 
-=======
 ## Language profiles
 
 Only valid participants.
@@ -146,7 +130,70 @@ participants %>%
 ```
 
 
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
+# Methods
+
+## Preprocessing participant data
+
+## Preprocessing vocabulary data
+
+We collected vocabulary data from participants. In Oxford, participants were sent the online version of the Oxford Communicative Development Inventory [OCDI; @hamilton2000] two weeks before each appointment. In Barcelona, participants were sent the online vocabulary inventory [MultiLex](https://github.com/gongcastro/multilex) immediately after the appointment, and were given two weeks to fill it. In Oxford, families filled the vocabulary checklist in the testing language, and when the participant was monolingual, also in the second language. In Barcelona, all participants filled the Catalan and the Spanish versions of the vocabulary checklists. All checklists included the words involved in the trial lists. When filling the vocabulary checklist, families checked each word as being *understood*, *understood and produced* or *none*. Each response to either checklist was aggregated to produce several vocabulary measures:
+
+* **Total vocabulary**: total number of words the child knows, summing up both languages. For instance, a child who knows 210 words in Catalan and 100 words in Spanish would have a total vocabulary size of 210 words.
+* **L1 vocabulary**: number of words the child knows in the languages of higher exposure (i.e., testing language). For instance, for a child exposed to 75% Catalan who knows 210 words in Catalan and 100 words in Spanish, their L1 vocabulary size would be 210 words.
+* **Conceptual vocabulary**: number of lexicalised concepts, that is, the number of concepts for which the child knows a word in at least one of the languages. For example, a Catalan-Spanish bilingual that knows *taula* and *mesa* -- Catalan and Spanish translations of *table*-- would have a conceptual vocabulary size of 1.
+
+Vocabulary sizes of participants whose families failed to complete the vocabulary checklists were imputed, by assigning them the most likely vocabulary size from a distribution of vocabulary sizes of children of similar age ($\pm$1 month) and language profile (similar exposure to a second language, $\pm$10%) that completed the same vocabulary checklist previously.
+
+
+## Preprocessing gaze data {.tabset .tabset-pills}
+
+### Workflow
+
+```{r workflow_preprocessing, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle, fontname = 'Arial']        
+  rec1 [label = 'Merge Barcelona and Oxford data']
+  rec2 [label = 'Impute missing/invalid samples (pending)']
+  rec2 [label = 'Extract fixations (pending)']
+  rec3 [label = 'For each sample, evaluate if gaze is in target or distractor']
+  rec4 [label = 'Divide each trial into 100 ms time bins']
+  rec5 [label = 'Aggregate samples from the same time bin and calculate\nthe number of valid samples in target, distractor, or none']
+  rec6 [label = 'Exclude time bins 1-3 (pending)']
+  rec7 [label = 'Apply trial-level inclusion criteria']
+  rec8 [label = 'Apply participant-level inclusion criteria']
+
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6 -> rec7 -> rec8
+  }", 
+  height = 500)
+```
+
+### Trial-level inclusion criteria
+
+* $\geq$ 50% or more valid samples during prime phase (1,500 ms)
+* $\geq$ 50% or more valid samples during target-distractor phase (2,000 ms)
+* At least one sample in target and one sample in distractor
+* Participant understands prime word in both languages
+* Participant knows the target word in the test language
+* Participant knows the distractor word in the test language
+
+### Participant-level inclusion criteria
+
+* $\geq$ 4 trials in *Cognate* condition (50%, from a total of 8)
+* $\geq$ 4 trials in *Non-cognate* condition (50%, from a total of 8)
+* $\geq$ 8 trials in *Unrelated* condition (50%, from a total of 16)
+* $\geq$ 36 gestational weeks
+* $\geq$ 2,800g birth weight
+* No diagnosed developmental, hearing, or visual disorders
+* Not exposed to more than 10% to a 3rd language
+
+
+## {-}
+
+
 # Results
 
 ## Attrition rate
@@ -155,25 +202,6 @@ This table shows a summary of the total, total valid, and proportion of valid mo
 
 ```{r attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=12}
 
-<<<<<<< HEAD
-attrition_summary %>% 
-	mutate(valid_trial = ifelse(valid_participant, "Valid", "Invalid"),
-		   participant = paste0(participant, " (", percent(missing_prop), ")")) %>% 
-	ggplot(aes(missing_prop, participant, colour = valid_participant, fill = valid_participant)) +
-	geom_col() +
-	geom_vline(xintercept = 0.25, linetype = "dashed") +
-	labs(x = "Proportion of missing trials (out of 32)", y = "Participant") +
-	scale_color_brewer(palette = "Set1") +
-	scale_fill_brewer(palette = "Set1") +
-	theme_bilingual() +
-	theme(axis.text.y = element_text(colour = col, size = 8),
-		  axis.title.y = element_blank(),
-		  axis.text.x = element_text(colour = "black"),
-		  legend.title = element_blank(),
-		  legend.position = "top",
-		  text = element_text(size = 15)) +
-	ggsave(here("Figures", "missing.png"), height = 15)
-=======
 attrition %>%
 	left_join(select(participants, location, lp, participant, date_test)) %>% 
 	drop_na(trial_type) %>% 
@@ -220,7 +248,6 @@ attrition %>%
 	fmt_number(c("cognate", "non_cognate", "unrelated")) %>%
 	fmt_percent(c("prop_n")) %>% 
 	fmt_number(c("n", "sum_n"), decimals = 0)
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 
 ```
 
@@ -257,11 +284,14 @@ participants %>%
 
 ## Target fixations
 
+
 ### Target fixations: Age group and language profile {.tabset .tabset-pills}
+
 
 #### Cross-sectional
 
 For each participant and trial, the proportion of fixations to the target object were calculated from the total of fixations to the target, the distractor, and the rest of the screen. Then proportions for the same participant were aggregated within conditions, so that for each participant three data points were obtained: one in each trial type (cognate, non-cognate, and unrelated). Some participants were longitudinal. Scores form longitudinal participant  are indicated by gray lines linking data points from the same participant.
+
 
 ```{r gaze_trial, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_trial %>% 
@@ -293,6 +323,7 @@ gaze_trial %>%
 
 #### Longitudinal
 
+
 Each trial was divided into 100 ms time bins. for each time bin, the proportion of  target fixations were calculated, from the total of fixations to the target, distractor and the rest of the screen for that same time bin. Proportions were then aggregated across trials for each time bin and participants, so that each participant contributed with 20 data points (one for each time bin) for each trial type (cognate, non-cognate, and unrelated). This figure shows the fitted line of a General Additive Model (GAM) generated using the `geom_smooth()` function from the `ggplot` R package, with default settings.
 
 
@@ -323,7 +354,9 @@ gaze_trial %>%
 
 ```
 
+
 ### {-}
+
 
 ### Target fixations: Time course analysis
 
@@ -392,29 +425,16 @@ gaze_trial %>%
 ```
 
 
-<<<<<<< HEAD
-```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-lp_labels <- c("Monolingual", "Bilingual")
-names(lp_labels) <- lp_labels
-age_group_labels <- c("21 months", "25 months")
-names(age_group_labels) <- c("21", "25")
-
-gaze_time %>% 
-	filter(valid_participant, valid_trial, age_group %in% c(21, 25),
-		   location == "Barcelona") %>% 
-	group_by(time_bin, trial_type, lp, age_group,location) %>% 
-=======
 ### Target fixations: High vocabulary vs. low vocabulary {.tabset .tabset-pills}
 
 
 ```{r gaze_time_vocab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8}
+
 gaze_time_vocab_d <- gaze_time %>% 
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
 	left_join(select(participants, participant, age_group, vocab_size)) %>% 
 	filter(valid_participant, valid_trial) %>% 
 	group_by(time_bin, trial_type, lp, age_group,location, vocab_size) %>% 
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 	summarise(
 		prop = mean(prop, na.rm = TRUE),
 		n = n(),
@@ -425,16 +445,13 @@ gaze_time_vocab_d <- gaze_time %>%
 		se = sqrt((prop*(1-prop))/(n+4)),
 		lower = prop-se,
 		upper = prop+se,
-<<<<<<< HEAD
-		time_bin = time_bin*100
-=======
+		time_bin = time_bin*100,
 		vocab_cat = ifelse(
 			vocab_size < median(.$vocab_size, na.rm = TRUE),
 			"Below the median",
 			"Above the median"
 		),
 		age_group = paste0(age_group, " months")
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 	) %>% 
 	drop_na()
 
@@ -448,36 +465,24 @@ gaze_time_vocab_d <- gaze_time %>%
 gaze_time_vocab_d %>% 
 	filter(age_group == "21 months") %>% 
 	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-<<<<<<< HEAD
-	facet_grid(lp~age_group, labeller = labeller(lp = lp_labels, age_group = age_group_labels)) +
-=======
 	facet_grid(lp~vocab_cat) +
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
-<<<<<<< HEAD
-	geom_point(shape = 1, stroke = 1, size = 1) +
 	labs(x = "Time (ms)", y = "Pr(Target fixation)", colour = "Condition", fill = "Condition") +
-=======
 	#geom_point(alpha = 0.5) +
 	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(legend.title = element_blank(),
 		  legend.position = "top",
-<<<<<<< HEAD
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"),
 		  panel.grid.minor = element_blank()) +
 	ggsave(here("Figures", "gaze_time.png"), height = 5, width = 7)
-=======
-		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
->>>>>>> 4dd17d331bc163cb69b583725cc7efb451529267
 
 ```
 
@@ -533,6 +538,8 @@ gaze_time_vocab_d %>%
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 
 ```
+
+
 ### {-}
 
 # Appendix

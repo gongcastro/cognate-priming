@@ -13,7 +13,8 @@ library(here)
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?
 left_coords <- c(xmin = 280, xmax = 780, ymin = 290, ymax = 790)
 right_coords <- c(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790)
-ml_connect("gonzalo.garciadecastro@upf.edu")
+email <- "gonzalo.garciadecastro@upf.edu"
+ml_connect(email)
 
 # participants -----------------------------------------------------------------
 # get vocabulary data
@@ -109,7 +110,7 @@ attrition_summary <- attrition %>%
 
 # summarise by time bin --------------------------------------------------------
 gaze_time <- gaze %>% 
-	group_by(participant, location, age_group, lp, trial_type, time_bin) %>% 
+	group_by(participant, location, age_group, lp, trial_num, trial_type, time_bin) %>% 
 	summarise(
 		fixations_target = sum(fix_target, na.rm = TRUE),
 		fixations_distractor = sum(fix_distractor, na.rm = TRUE),
@@ -123,8 +124,8 @@ gaze_time <- gaze %>%
 		prop = fixations_target/n
 	) %>% 
 	ungroup() %>% 
-	arrange(participant, time_bin) %>% 
-	left_join(select(attrition, participant, valid_participant, valid_trial)) %>% 
+	arrange(participant, age_group, trial_num, time_bin) %>% 
+	left_join(select(attrition, trial_num, participant, valid_participant, valid_trial)) %>% 
 	left_join(select(participants, participant, age_group, vocab_size)) %>% 
 	filter(between(time_bin, 1, 20))
 
@@ -136,6 +137,8 @@ saveRDS(trials, here("Results", "trials.rds"))
 attrition %>% 
 	left_join(attrition_summary) %>% 
 	saveRDS(here("Results", "attrition.rds"))
+gaze %>% 
+	saveRDS("Results/gaze_raw.rds")
 gaze_trial %>% 
 	left_join(select(attrition, participant, trial_num, valid_participant, valid_trial)) %>%
 	saveRDS(here("Results", "gaze_trial.rds"))
