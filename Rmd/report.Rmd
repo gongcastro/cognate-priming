@@ -142,7 +142,7 @@ We collected vocabulary data from participants. In Oxford, participants were sen
 * **L1 vocabulary**: number of words the child knows in the languages of higher exposure (i.e., testing language). For instance, for a child exposed to 75% Catalan who knows 210 words in Catalan and 100 words in Spanish, their L1 vocabulary size would be 210 words.
 * **Conceptual vocabulary**: number of lexicalised concepts, that is, the number of concepts for which the child knows a word in at least one of the languages. For example, a Catalan-Spanish bilingual that knows *taula* and *mesa* -- Catalan and Spanish translations of *table*-- would have a conceptual vocabulary size of 1.
 
-Vocabulary sizes of participants whose families failed to complete the vocabulary checklists were imputed, by assigning them the most likely vocabulary size from a distribution of vocabulary sizes of children of similar age ($\pm$1 month) and language profile (similar exposure to a second language, $\pm$10%) that completed the same vocabulary checklist previously.
+Vocabulary sizes of participants whose families failed to complete the vocabulary checklists were imputed, by assigning them the most likely vocabulary size from a distribution of vocabulary sizes of children of similar age ($\pm$ 1 month) and language profile (similar exposure to a second language, $\pm$ 10%) that completed the same vocabulary checklist previously.
 
 
 ## Preprocessing gaze data {.tabset .tabset-pills}
@@ -513,6 +513,7 @@ gaze_time_vocab_d %>%
 
 ```
 
+
 #### Age group: 30 months
 
 
@@ -541,6 +542,103 @@ gaze_time_vocab_d %>%
 
 
 ### {-}
+
+
+### Target fixations: Oxford vs. Barcelona {.tabset .tabset-pills}
+
+#### Age group: 21 months
+
+```{r gaze_time_location_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+gaze_time_vocab_d %>% 
+	filter(age_group == "21 months") %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~location) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	#geom_point(alpha = 0.5) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
+
+```
+
+
+#### Age group: 25 months
+
+```{r gaze_time_location_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+gaze_time_vocab_d %>% 
+	filter(age_group == "25 months") %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~location) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	#geom_point(alpha = 0.5) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
+
+```
+
+#### Age group: 30 months
+
+```{r gaze_time_location_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+gaze_time_vocab_d %>% 
+	filter(age_group == "30 months") %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~location) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	#geom_point(alpha = 0.5) +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
+
+```
+
+#### {-}
+
+
+
+# Data analysis {.tabset .tab-pills}
+
+## Model
+
+$$
+\log(\frac{p}{n - q}) &=& (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
+(\beta_{1} + \beta_{1p} + \beta_{1i})\times Condition_{pi} + ... \\
+(\beta_{2} + \beta_{2i}) \times Group_{pi} + ... \\
+(\beta_{3} + \beta_{3i}) \times (Condition_{pi} \times Group_{pi}) + ... \\
+(\beta_{4} + \beta_{4p}) \times Vocabulary_{p} + \varepsilon_{pi}
+$$
+
+## {-}
 
 # Appendix
 
@@ -610,7 +708,6 @@ attrition %>%
 
 ```{r gaze_time_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8}
 gaze_time %>% 
-	filter(valid_participant, valid_trial) %>% 
 	group_by(participant, time_bin, trial_type, lp, age_group) %>% 
 	summarise(
 		prop = mean(prop, na.rm = TRUE),
