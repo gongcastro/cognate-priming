@@ -54,8 +54,14 @@ We collected data from `r length(unique(participants$participant))` participants
 # plot participants
 participants %>% 
 	drop_na(valid_participant) %>% 
-	mutate(valid_participant = ifelse(valid_participant, "Valid", "Not valid")) %>% 
-	ggplot(aes(lp, fill = valid_participant)) +
+	mutate(
+		valid_status = case_when(
+			valid_participant & !is.na(vocab_size) ~ "Valid (+ CDI)",
+			valid_participant & is.na(vocab_size) ~ "Valid (no CDI)",
+			!valid_participant ~ "No valid"
+		)
+	) %>% 
+	ggplot(aes(lp, fill = valid_status)) +
 	facet_grid(location~age_group, scales = "free") +
 	geom_bar(colour = NA) +
 	geom_hline(yintercept = 24, linetype = "dashed") +
@@ -80,7 +86,14 @@ We collected data from `r sum(duplicated(participants$participant))` longitudina
 # plot participants
 participants %>% 
 	drop_na(valid_participant) %>% 
-	ggplot(aes(age_group, participant, fill = valid_participant, colour = valid_participant)) +
+	mutate(
+		valid_status = case_when(
+			valid_participant & !is.na(vocab_size) ~ "Valid (+ CDI)",
+			valid_participant & is.na(vocab_size) ~ "Valid (no CDI)",
+			!valid_participant ~ "No valid"
+		)
+	) %>% 
+	ggplot(aes(age_group, participant, fill = valid_status, colour = valid_status)) +
 	facet_grid(lp~location, scales = "free") +
 	geom_point(size = 3, shape = 4) +
 	geom_line(aes(group = participant)) +
@@ -104,7 +117,7 @@ Only valid participants.
 participants %>% 
 	filter(valid_participant) %>% 
 	ggplot(aes(age, doe_2, colour = lp)) +
-	facet_grid(test_language~location) +
+	facet_wrap(location~test_language) +
 	geom_line(aes(group = interaction(lp, participant)), alpha = 0.5) +
 	geom_point(size = 3, alpha = 0.5) +
 	geom_hline(yintercept = 0.2, linetype = "dashed") +
@@ -132,7 +145,6 @@ participants %>%
 
 # Methods
 
-## Preprocessing participant data
 
 ## Preprocessing vocabulary data
 
@@ -263,7 +275,7 @@ participants %>%
 	mutate(age_group = as.factor(paste0(age_group, " mo"))) %>% 
 	drop_na(lp) %>% 
 	ggplot(aes(lp, vocab_size, colour = lp, fill = lp)) +
-	facet_wrap(~age_group) +
+	facet_wrap(location~age_group) +
 	geom_violin(position = position_dodge(width = 0.75)) + 
 	# geom_point(shape = 1, colour = "black", alpha = 0.5, size = 3, stroke = 1,
 	# 		   position = position_jitter(width = 0.1, seed = 888)) +
@@ -288,37 +300,117 @@ participants %>%
 ### Target fixations: Age group and language profile {.tabset .tabset-pills}
 
 
-#### Cross-sectional
+#### Cross-sectional {.tab-set .tab-pills}
 
 For each participant and trial, the proportion of fixations to the target object were calculated from the total of fixations to the target, the distractor, and the rest of the screen. Then proportions for the same participant were aggregated within conditions, so that for each participant three data points were obtained: one in each trial type (cognate, non-cognate, and unrelated). Some participants were longitudinal. Scores form longitudinal participant  are indicated by gray lines linking data points from the same participant.
 
+##### Age group: 21 months
 
-```{r gaze_trial, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_trial_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_trial %>% 
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
-	filter(valid_participant, valid_trial) %>% 
+	mutate(age_group = paste0(age_group, " months")) %>% 
+	filter(valid_participant, valid_trial, age_group == "21 months") %>% 
 	group_by(participant, lp, trial_type, age_group, location) %>% 
-	summarise(prop = mean(prop), .groups = "drop") %>% 
+	summarise(prop_target = mean(prop_target),
+			  prop_distractor = mean(prop_distractor),
+			  .groups = "drop") %>% 
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
 	drop_na() %>% 
-	ggplot(aes(trial_type, prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~age_group) +
+	ggplot(aes(aoi, prop, colour = aoi, fill = aoi)) +
+	facet_grid(trial_type~lp) +
 	geom_violin() +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
 	#stat_slab(position = position_nudge(x = 0.25)) +
-	geom_boxplot(width = 0.1, colour = "black", fill = "white", outlier.colour = NA) +
+	geom_boxplot(aes(group = interaction(aoi, trial_type)), width = 0.1, colour = "black", fill = "white", outlier.colour = NA) +
 	#geom_point(size = 2, shape = 1, stroke = 1) +
-	labs(x = "Condition", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
+	labs(x = "AOI", y = "Target looking / Total looking", colour = "AOI", fill = "AOI") + 
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	theme_bilingual() +
-	theme(legend.position = "none",
-		  axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1),
-		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
-	ggsave(here("Figures", "gaze_trial.png"))
+	theme(
+		legend.position = "none",
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	) +
+	ggsave(here("Figures", "gaze_trial_21.png"))
 
 ```
+
+
+##### Age group: 25 months
+
+```{r gaze_trial_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_trial %>% 
+	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
+	mutate(age_group = paste0(age_group, " months")) %>% 
+	filter(valid_participant, valid_trial, age_group == "25 months") %>% 
+	group_by(participant, lp, trial_type, age_group, location) %>% 
+	summarise(prop_target = mean(prop_target),
+			  prop_distractor = mean(prop_distractor),
+			  .groups = "drop") %>% 
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
+	drop_na() %>% 
+	ggplot(aes(aoi, prop, colour = aoi, fill = aoi)) +
+	facet_grid(trial_type~lp) +
+	geom_violin() +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
+	#stat_slab(position = position_nudge(x = 0.25)) +
+	geom_boxplot(aes(group = interaction(aoi, trial_type)), width = 0.1, colour = "black", fill = "white", outlier.colour = NA) +
+	#geom_point(size = 2, shape = 1, stroke = 1) +
+	labs(x = "AOI", y = "Target looking / Total looking", colour = "AOI", fill = "AOI") + 
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme_bilingual() +
+	theme(
+		legend.position = "none",
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	) +
+	ggsave(here("Figures", "gaze_trial_25.png"))
+```
+
+
+##### Age group: 30 months
+
+```{r gaze_trial_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_trial %>% 
+	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
+	mutate(age_group = paste0(age_group, " months")) %>% 
+	filter(valid_participant, valid_trial, age_group == "30 months") %>% 
+	group_by(participant, lp, trial_type, age_group, location) %>% 
+	summarise(prop_target = mean(prop_target),
+			  prop_distractor = mean(prop_distractor),
+			  .groups = "drop") %>% 
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
+	drop_na() %>% 
+	ggplot(aes(aoi, prop, colour = aoi, fill = aoi)) +
+	facet_grid(trial_type~lp) +
+	geom_violin() +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
+	#stat_slab(position = position_nudge(x = 0.25)) +
+	geom_boxplot(aes(group = interaction(aoi, trial_type)), width = 0.1, colour = "black", fill = "white", outlier.colour = NA) +
+	#geom_point(size = 2, shape = 1, stroke = 1) +
+	labs(x = "AOI", y = "Target looking / Total looking", colour = "AOI", fill = "AOI") + 
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme_bilingual() +
+	theme(
+		legend.position = "none",
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	) +
+	ggsave(here("Figures", "gaze_trial_30.png"))
+
+```
+
+##### {-}
 
 
 #### Longitudinal
@@ -332,16 +424,22 @@ gaze_trial %>%
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
 	filter(valid_participant, valid_trial) %>% 
 	group_by(participant, lp, trial_type, age_group, location) %>% 
-	summarise(prop = mean(prop), .groups = "drop") %>% 
+	summarise(
+		prop_target = mean(prop_target),
+		prop_distractor = mean(prop_distractor),
+		.groups = "drop"
+	) %>% 
 	drop_na() %>% 
-	ggplot(aes(age_group, prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(~lp) +
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
+	ggplot(aes(age_group, prop, colour = aoi, fill = aoi)) +
+	facet_grid(trial_type~lp) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_line(aes(group = interaction(participant, trial_type)), alpha = 0.5) +
 	geom_violin(position = position_dodge(width = 0.5)) +
 	#stat_slab(position = position_nudge(x = 0.25)) +
 	#geom_point(size = 2, shape = 1, stroke = 1, position = position_jitter(width = 0.1)) +
-	geom_boxplot(aes(group = interaction(age_group, trial_type)), width = 0.1, outlier.colour = NA,
+	geom_boxplot(aes(group = interaction(age_group, aoi)), width = 0.1, outlier.colour = NA,
 				 position = position_dodge(width = 0.5), colour = "black", fill = "white") +
 	labs(x = "Age (months)", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
 	scale_colour_brewer(palette = "Set1") +
@@ -358,18 +456,24 @@ gaze_trial %>%
 ### {-}
 
 
-### Target fixations: Time course analysis
+### Target fixations: Time course analysis {.tabset .tab-pills}
 
-```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#### Age group: 21 months
+
+```{r gaze_time_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gaze_time %>% 
-	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
-	filter(valid_participant, valid_trial) %>% 
-	group_by(time_bin, trial_type, lp, age_group,location) %>% 
+	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>%
+	mutate(age_group = paste0(age_group, " months")) %>% 
+	filter(valid_participant, valid_trial, age_group=="21 months") %>% 
+	group_by(time_bin, trial_type, lp, age_group, location) %>% 
 	summarise(
-		prop = mean(prop, na.rm = TRUE),
+		prop_target = mean(prop_target, na.rm = TRUE),
+		prop_distractor = mean(prop_distractor, na.rm = TRUE),
 		n = n(),
 		.groups = "drop"
 	) %>% 
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
 	ungroup() %>% 
 	mutate(
 		se = sqrt((prop*(1-prop))/(n+4)),
@@ -377,14 +481,14 @@ gaze_time %>%
 		upper = prop+se
 	) %>% 
 	drop_na() %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~age_group) +
+	ggplot(aes(x = time_bin, y = prop, colour = aoi, fill = aoi, shape = aoi)) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
+	stat_summary(fun.data = "mean_se", geom = "pointrange", size = 0.5, alpha = 0.5) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
-	geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "AOI", fill = "AOI", shape = "AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
@@ -392,9 +496,97 @@ gaze_time %>%
 	theme(legend.title = element_blank(),
 		  legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
-	ggsave(here("Figures", "gaze_time.png"))
+	ggsave(here("Figures", "gaze_time_21.png"))
+
 
 ```
+
+#### Age group: 25 months
+
+```{r gaze_time_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_time %>% 
+	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>%
+	mutate(age_group = paste0(age_group, " months")) %>% 
+	filter(valid_participant, valid_trial, age_group=="25 months") %>% 
+	group_by(time_bin, trial_type, lp, age_group, location) %>% 
+	summarise(
+		prop_target = mean(prop_target, na.rm = TRUE),
+		prop_distractor = mean(prop_distractor, na.rm = TRUE),
+		n = n(),
+		.groups = "drop"
+	) %>% 
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
+	ungroup() %>% 
+	mutate(
+		se = sqrt((prop*(1-prop))/(n+4)),
+		lower = prop-se,
+		upper = prop+se
+	) %>% 
+	drop_na() %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = aoi, fill = aoi, shape = aoi)) +
+	facet_grid(lp~trial_type) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = "mean_se", geom = "pointrange", size = 0.5, alpha = 0.5) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "AOI", fill = "AOI", shape = "AOI") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "gaze_time_25.png"))
+
+```
+
+#### Age group: 30 months
+
+```{r gaze_time_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gaze_time %>% 
+	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>%
+	mutate(age_group = paste0(age_group, " months")) %>% 
+	filter(valid_participant, valid_trial, age_group=="30 months") %>% 
+	group_by(time_bin, trial_type, lp, age_group, location) %>% 
+	summarise(
+		prop_target = mean(prop_target, na.rm = TRUE),
+		prop_distractor = mean(prop_distractor, na.rm = TRUE),
+		n = n(),
+		.groups = "drop"
+	) %>% 
+	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
+	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
+	ungroup() %>% 
+	mutate(
+		se = sqrt((prop*(1-prop))/(n+4)),
+		lower = prop-se,
+		upper = prop+se
+	) %>% 
+	drop_na() %>% 
+	ggplot(aes(x = time_bin, y = prop, colour = aoi, fill = aoi, shape = aoi)) +
+	facet_grid(lp~trial_type) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
+	geom_smooth() +
+	stat_summary(fun.data = "mean_se", geom = "pointrange", size = 0.5, alpha = 0.5) +
+	#geom_line() +
+	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "AOI", fill = "AOI", shape = "AOI") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	scale_colour_brewer(palette = "Set1") +
+	scale_fill_brewer(palette = "Set1") +
+	theme_bilingual() +
+	theme(legend.title = element_blank(),
+		  legend.position = "top",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "gaze_time_30.png"))
+
+```
+
+
+#### {-}
 
 
 ### Target fixations: Vocabulary size
@@ -404,7 +596,7 @@ gaze_trial %>%
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
 	filter(valid_participant, valid_trial) %>% 
 	group_by(participant, lp, trial_type, age_group, vocab_size) %>% 
-	summarise(prop = mean(prop), .groups = "drop") %>% 
+	summarise(prop = mean(prop_target), .groups = "drop") %>% 
 	drop_na() %>% 
 	ggplot(aes(vocab_size, prop, colour = trial_type, fill = trial_type)) +
 	facet_grid(lp~age_group) +
@@ -413,7 +605,12 @@ gaze_trial %>%
 	#stat_slab(position = position_nudge(x = 0.25)) +
 	geom_point(alpha = 0.5) +
 	geom_smooth(se = FALSE, method = "lm") +
-	labs(x = "L1 vocabulary size", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
+	labs(
+		x = "L1 vocabulary size",
+		y = "Target looking / Total looking",
+		colour = "Condition",
+		fill = "Condition"
+	) + 
 	scale_colour_brewer(palette = "Set1") +
 	scale_x_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
@@ -436,10 +633,12 @@ gaze_time_vocab_d <- gaze_time %>%
 	filter(valid_participant, valid_trial) %>% 
 	group_by(time_bin, trial_type, lp, age_group,location, vocab_size) %>% 
 	summarise(
-		prop = mean(prop, na.rm = TRUE),
+		prop_target = mean(prop_target, na.rm = TRUE),
+		prop_distractor = mean(prop_distractor, na.rm = TRUE),
 		n = n(),
 		.groups = "drop"
 	) %>% 
+	pivot_longer(c(prop_target, prop_distractor), names_to = "aoi", values_to = "prop") %>% 
 	ungroup() %>% 
 	mutate(
 		se = sqrt((prop*(1-prop))/(n+4)),
@@ -451,95 +650,103 @@ gaze_time_vocab_d <- gaze_time %>%
 			"Below the median",
 			"Above the median"
 		),
-		age_group = paste0(age_group, " months")
+		age_group = paste0(age_group, " months"),
+		aoi = str_to_sentence(str_remove(aoi, "prop_"))
 	) %>% 
 	drop_na()
 
 ```
 
+#### Target fixations: 21 months
 
-#### Age group: 21 months
-
-```{r gaze_time_vocab_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_vocab_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
 gaze_time_vocab_d %>% 
 	filter(age_group == "21 months") %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~vocab_cat) +
+	ggplot(aes(
+		x = time_bin, y = prop,
+		colour = interaction(vocab_cat, aoi, sep = " - "),
+		fill = interaction(vocab_cat, aoi, sep = " - "),
+		shape = interaction(vocab_cat, aoi, sep = " - ")
+	)
+	) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
-	labs(x = "Time (ms)", y = "Pr(Target fixation)", colour = "Condition", fill = "Condition") +
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Vocab-AOI",
+		 fill = "Vocab-AOI", shape = "Vocab-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.title = element_blank(),
-		  legend.position = "top",
-		  panel.grid = element_line(colour = "grey", linetype = "dotted"),
-		  panel.grid.minor = element_blank()) +
-	ggsave(here("Figures", "gaze_time.png"), height = 5, width = 7)
-
+	theme(legend.position = "right",
+		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 ```
 
+#### Target fixations: 25 months
 
-#### Age group: 25 months
-
-
-```{r gaze_time_vocab_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_vocab_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
 gaze_time_vocab_d %>% 
 	filter(age_group == "25 months") %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~vocab_cat) +
+	ggplot(aes(
+		x = time_bin, y = prop,
+		colour = interaction(vocab_cat, aoi, sep = " - "),
+		fill = interaction(vocab_cat, aoi, sep = " - "),
+		shape = interaction(vocab_cat, aoi, sep = " - ")
+	)
+	) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Vocab-AOI",
+		 fill = "Vocab-AOI", shape = "Vocab-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.title = element_blank(),
-		  legend.position = "top",
+	theme(legend.position = "right",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
-
 ```
 
 
-#### Age group: 30 months
+#### Target fixations: 30 months
 
-
-```{r gaze_time_vocab_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_vocab_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
 gaze_time_vocab_d %>% 
 	filter(age_group == "30 months") %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~vocab_cat) +
+	ggplot(aes(
+		x = time_bin, y = prop,
+		colour = interaction(vocab_cat, aoi, sep = " - "),
+		fill = interaction(vocab_cat, aoi, sep = " - "),
+		shape = interaction(vocab_cat, aoi, sep = " - ")
+	)
+	) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Vocab-AOI",
+		 fill = "Vocab-AOI", shape = "Vocab-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.title = element_blank(),
-		  legend.position = "top",
+	theme(legend.position = "right",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
-
 ```
-
 
 ### {-}
 
@@ -552,72 +759,86 @@ gaze_time_vocab_d %>%
 
 gaze_time_vocab_d %>% 
 	filter(age_group == "21 months") %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~location) +
+	ggplot(aes(
+		x = time_bin, y = prop,
+		colour = interaction(location, aoi, sep = "-"),
+		fill = interaction(location, aoi, sep = "-"),
+		shape = interaction(location, aoi, sep = "-")
+	)) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "AOI", fill = "AOI", shape = "AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(legend.title = element_blank(),
-		  legend.position = "top",
+		  legend.position = "right",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
-
 ```
 
 
 #### Age group: 25 months
 
-```{r gaze_time_location_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_location_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
 gaze_time_vocab_d %>% 
 	filter(age_group == "25 months") %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~location) +
+	ggplot(aes(
+		x = time_bin, y = prop,
+		colour = interaction(location, aoi, sep = "-"),
+		fill = interaction(location, aoi, sep = "-"),
+		shape = interaction(location, aoi, sep = "-")
+	)) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Location-AOI",
+		 fill = "Location-AOI", shape = "Location-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.title = element_blank(),
-		  legend.position = "top",
+	theme(legend.position = "right",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 
 ```
 
 #### Age group: 30 months
 
-```{r gaze_time_location_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_location_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
 gaze_time_vocab_d %>% 
 	filter(age_group == "30 months") %>% 
-	ggplot(aes(x = time_bin, y = prop, colour = trial_type, fill = trial_type)) +
-	facet_grid(lp~location) +
+	ggplot(aes(
+		x = time_bin, y = prop,
+		colour = interaction(location, aoi, sep = "-"),
+		fill = interaction(location, aoi, sep = "-"),
+		shape = interaction(location, aoi, sep = "-")
+	)) +
+	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Condition", fill = "Condition") +
+	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Location-AOI",
+		 fill = "Location-AOI", shape = "Location-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.title = element_blank(),
-		  legend.position = "top",
+	theme(legend.position = "right",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 
 ```
@@ -631,7 +852,7 @@ gaze_time_vocab_d %>%
 ## Model
 
 $$
-\log(\frac{p}{n - q}) &=& (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
+\log(\frac{p}{n - q}) = (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
 (\beta_{1} + \beta_{1p} + \beta_{1i})\times Condition_{pi} + ... \\
 (\beta_{2} + \beta_{2i}) \times Group_{pi} + ... \\
 (\beta_{3} + \beta_{3i}) \times (Condition_{pi} \times Group_{pi}) + ... \\
@@ -666,7 +887,7 @@ attrition %>%
 		age_group, lp, cognate, non_cognate,
 		unrelated, valid_other, valid_participant) %>% 
 	gt() %>% 
-	gt::tab_spanner(
+	tab_spanner(
 		"Valid trials (%) by trial type",
 		c("cognate", "non_cognate", "unrelated")
 	) %>% 
@@ -710,7 +931,7 @@ attrition %>%
 gaze_time %>% 
 	group_by(participant, time_bin, trial_type, lp, age_group) %>% 
 	summarise(
-		prop = mean(prop, na.rm = TRUE),
+		prop = mean(prop_target, na.rm = TRUE),
 		n = n(),
 		.groups = "drop"
 	) %>% 

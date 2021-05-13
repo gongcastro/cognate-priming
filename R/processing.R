@@ -11,9 +11,9 @@ library(here)
 
 # set params
 sampling_rate <- 120  # how many samples does the eye-tracker take per second?
-left_coords <- c(xmin = 280, xmax = 780, ymin = 290, ymax = 790)
-right_coords <- c(xmin = 1140, xmax = 1640, ymin = 290, ymax = 790)
-center_coords <- c(xmin = 480, xmax = 1160, ymin = 290, ymax = 790)
+left_coords <- c(xmin = 180, xmax = 680, ymin = 290, ymax = 790)
+right_coords <- c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790)
+center_coords <- c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790)
 
 email <- "gonzalo.garciadecastro@upf.edu"
 ml_connect(email)
@@ -28,13 +28,18 @@ vocabulary <- import_vocabulary(
 	distinct(id_db, age_group, .keep_all = TRUE) 
 
 # get participant information
-participants <- get_participants(google_email = email) %>% 
+participants <- get_participants(google_email = email, study = "cp") %>% 
 	rename(valid_other = valid_participant) %>% 
 	left_join(vocabulary) %>% 
 	filter(!pilot) %>% 
 	mutate(
 		date_test = as_date(date_test),
-		doe_2 = ifelse(test_language=="Spanish", doe_catalan, doe_spanish)
+		doe_2 = case_when(
+			location=="Barcelona" & test_language=="Spanish" ~ doe_catalan,
+			location=="Barcelona" & test_language=="Catalan" ~ doe_spanish,
+			location=="Oxford" & test_language=="English" ~ doe_spanish,
+			location=="Oxford" & test_language=="Spannish" ~ doe_english
+		)
 	) %>% 
 	select(participant, id_db, date_test, location, age_group, age, test_language, list, version, lp, doe_2, vocab_size, valid_other, test_language, list, version, filename)
 
@@ -43,8 +48,7 @@ trials <- bilingualr::trials$cp %>%
 	rename(trial = trial_id) %>% 
 	mutate(trial = as.numeric(trial)) %>% 
 	select(location, test_language, list, version, trial, trial_type, target_location,
-		   prime, target, distractor, matches("_cdi")) %>% 
-	filter(location=="Barcelona")
+		   prime, target, distractor, matches("_cdi"))
 
 items_to_know <- trials %>% 
 	select(prime_cdi, target_cdi, distractor_cdi) %>% 
@@ -82,7 +86,7 @@ gaze_trial <- gaze %>%
 		fixations_missing_prime = sum(is.na(fix_prime[phase=="Prime"])),
 		fixations_missing_target = sum(is.na(fix_target[phase=="Target-Distractor"]) | is.na(fix_distractor[phase=="Target-Distractor"])),
 		n_prime = sum(!is.na(fix_prime[phase=="Prime"])),
-		n_target = sum(!is.na(fix_prime[phase=="Target-Distractor"])),
+		n_target = sum(!is.na(fix_target[phase=="Target-Distractor"]) & !is.na(fix_distractor[phase=="Target-Distractor"])),
 		.groups = "drop"
 	) %>% 
 	mutate(
@@ -101,7 +105,8 @@ gaze_trial <- gaze %>%
 	rowwise() %>% 
 	mutate(
 		fixations_n = fixations_target + fixations_distractor,
-		prop = fixations_target/fixations_n,
+		prop_target = fixations_target/n_target,
+		prop_distractor = fixations_distractor/n_target
 	) %>% 
 	ungroup() %>% 
 	left_join(select(participants, participant, age_group, vocab_size))
@@ -139,7 +144,8 @@ gaze_time <- gaze %>%
 	rowwise() %>% 
 	mutate(
 		fixations_n = fixations_target + fixations_distractor,
-		prop = fixations_target/n
+		prop_target = fixations_target/n,
+		prop_distractor = fixations_distractor/n
 	) %>% 
 	filter(phase %in% "Target-Distractor") %>% 
 	ungroup() %>% 
