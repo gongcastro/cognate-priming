@@ -304,13 +304,11 @@ participants %>%
 
 For each participant and trial, the proportion of fixations to the target object were calculated from the total of fixations to the target, the distractor, and the rest of the screen. Then proportions for the same participant were aggregated within conditions, so that for each participant three data points were obtained: one in each trial type (cognate, non-cognate, and unrelated). Some participants were longitudinal. Scores form longitudinal participant  are indicated by gray lines linking data points from the same participant.
 
-##### Age group: 21 months
-
-```{r gaze_trial_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-gaze_trial %>% 
+```{r gaze_trial, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+gaze_trial_age <- gaze_trial %>% 
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
 	mutate(age_group = paste0(age_group, " months")) %>% 
-	filter(valid_participant, valid_trial, age_group == "21 months") %>% 
+	filter(valid_participant, valid_trial) %>% 
 	group_by(participant, lp, trial_type, age_group, location) %>% 
 	summarise(prop_target = mean(prop_target),
 			  prop_distractor = mean(prop_distractor),
@@ -318,8 +316,16 @@ gaze_trial %>%
 	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
 	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
 	drop_na() %>% 
-	ggplot(aes(aoi, prop, colour = aoi, fill = aoi)) +
-	facet_grid(trial_type~lp) +
+	split(f = .$age_group) %>% 
+	set_names(c("21", "25", "30"))
+```
+
+##### Age group: 21 months
+
+```{r gaze_trial_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+ggplot(gaze_trial_age[["21"]], aes(aoi, prop, colour = aoi, fill = aoi)) +
+	facet_grid(lp~trial_type) +
 	geom_violin() +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
@@ -333,6 +339,7 @@ gaze_trial %>%
 	theme_bilingual() +
 	theme(
 		legend.position = "none",
+		axis.title.x = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
 	) +
 	ggsave(here("Figures", "gaze_trial_21.png"))
@@ -343,19 +350,8 @@ gaze_trial %>%
 ##### Age group: 25 months
 
 ```{r gaze_trial_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-gaze_trial %>% 
-	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
-	mutate(age_group = paste0(age_group, " months")) %>% 
-	filter(valid_participant, valid_trial, age_group == "25 months") %>% 
-	group_by(participant, lp, trial_type, age_group, location) %>% 
-	summarise(prop_target = mean(prop_target),
-			  prop_distractor = mean(prop_distractor),
-			  .groups = "drop") %>% 
-	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
-	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
-	drop_na() %>% 
-	ggplot(aes(aoi, prop, colour = aoi, fill = aoi)) +
-	facet_grid(trial_type~lp) +
+ggplot(gaze_trial_age[["25"]], aes(aoi, prop, colour = aoi, fill = aoi)) +
+	facet_grid(lp~trial_type) +
 	geom_violin() +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
@@ -369,6 +365,7 @@ gaze_trial %>%
 	theme_bilingual() +
 	theme(
 		legend.position = "none",
+		axis.title.x = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
 	) +
 	ggsave(here("Figures", "gaze_trial_25.png"))
@@ -378,19 +375,8 @@ gaze_trial %>%
 ##### Age group: 30 months
 
 ```{r gaze_trial_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-gaze_trial %>% 
-	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
-	mutate(age_group = paste0(age_group, " months")) %>% 
-	filter(valid_participant, valid_trial, age_group == "30 months") %>% 
-	group_by(participant, lp, trial_type, age_group, location) %>% 
-	summarise(prop_target = mean(prop_target),
-			  prop_distractor = mean(prop_distractor),
-			  .groups = "drop") %>% 
-	pivot_longer(c("prop_target", "prop_distractor"), names_to = "aoi", values_to = "prop") %>% 
-	mutate(aoi = str_to_sentence(str_remove(aoi, "prop_"))) %>% 
-	drop_na() %>% 
-	ggplot(aes(aoi, prop, colour = aoi, fill = aoi)) +
-	facet_grid(trial_type~lp) +
+ggplot(gaze_trial_age[["30"]], aes(aoi, prop, colour = aoi, fill = aoi)) +
+	facet_grid(lp~trial_type) +
 	geom_violin() +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_line(aes(group = participant), colour = "grey", alpha = 0.5) +
@@ -404,6 +390,7 @@ gaze_trial %>%
 	theme_bilingual() +
 	theme(
 		legend.position = "none",
+		axis.title.x = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
 	) +
 	ggsave(here("Figures", "gaze_trial_30.png"))
@@ -653,7 +640,10 @@ gaze_time_vocab_d <- gaze_time %>%
 		age_group = paste0(age_group, " months"),
 		aoi = str_to_sentence(str_remove(aoi, "prop_"))
 	) %>% 
-	drop_na()
+	drop_na() %>% 
+	split(f = .$age_group) %>% 
+	set_names(c("21", "25", "30"))
+
 
 ```
 
@@ -661,15 +651,15 @@ gaze_time_vocab_d <- gaze_time %>%
 
 ```{r gaze_time_vocab_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
-gaze_time_vocab_d %>% 
-	filter(age_group == "21 months") %>% 
-	ggplot(aes(
+ggplot(
+	gaze_time_vocab_d[["21"]],
+	aes(
 		x = time_bin, y = prop,
 		colour = interaction(vocab_cat, aoi, sep = " - "),
 		fill = interaction(vocab_cat, aoi, sep = " - "),
 		shape = interaction(vocab_cat, aoi, sep = " - ")
 	)
-	) +
+) +
 	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
@@ -677,13 +667,18 @@ gaze_time_vocab_d %>%
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Vocab-AOI",
-		 fill = "Vocab-AOI", shape = "Vocab-AOI") +
+	labs(x = "Time (ms)", y = "Fixations", colour = "Vocabulary-AOI",
+		 fill = "Vocabulary-AOI", shape = "Vocabulary-AOI") +
+	guides(
+		fill = guide_legend(ncol = 2),
+		colour = guide_legend(ncol = 2),
+		shape = guide_legend(ncol = 2)
+	) +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.position = "right",
+	theme(legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 ```
 
@@ -691,15 +686,15 @@ gaze_time_vocab_d %>%
 
 ```{r gaze_time_vocab_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
-gaze_time_vocab_d %>% 
-	filter(age_group == "25 months") %>% 
-	ggplot(aes(
+ggplot(
+	gaze_time_vocab_d[["25"]],
+	aes(
 		x = time_bin, y = prop,
 		colour = interaction(vocab_cat, aoi, sep = " - "),
 		fill = interaction(vocab_cat, aoi, sep = " - "),
 		shape = interaction(vocab_cat, aoi, sep = " - ")
 	)
-	) +
+) +
 	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
@@ -707,13 +702,18 @@ gaze_time_vocab_d %>%
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Vocab-AOI",
-		 fill = "Vocab-AOI", shape = "Vocab-AOI") +
+	labs(x = "Time (ms)", y = "Fixations", colour = "Vocabulary-AOI",
+		 fill = "Vocabulary-AOI", shape = "Vocabulary-AOI") +
+	guides(
+		fill = guide_legend(ncol = 2),
+		colour = guide_legend(ncol = 2),
+		shape = guide_legend(ncol = 2)
+	) +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.position = "right",
+	theme(legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 ```
 
@@ -722,15 +722,15 @@ gaze_time_vocab_d %>%
 
 ```{r gaze_time_vocab_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
-gaze_time_vocab_d %>% 
-	filter(age_group == "30 months") %>% 
-	ggplot(aes(
+ggplot(
+	gaze_time_vocab_d[["21"]],
+	aes(
 		x = time_bin, y = prop,
 		colour = interaction(vocab_cat, aoi, sep = " - "),
 		fill = interaction(vocab_cat, aoi, sep = " - "),
 		shape = interaction(vocab_cat, aoi, sep = " - ")
 	)
-	) +
+) +
 	facet_grid(lp~trial_type) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	geom_smooth() +
@@ -738,13 +738,18 @@ gaze_time_vocab_d %>%
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Vocab-AOI",
-		 fill = "Vocab-AOI", shape = "Vocab-AOI") +
+	labs(x = "Time (ms)", y = "Fixations", colour = "Vocabulary-AOI",
+		 fill = "Vocabulary-AOI", shape = "Vocabulary-AOI") +
+	guides(
+		fill = guide_legend(ncol = 2),
+		colour = guide_legend(ncol = 2),
+		shape = guide_legend(ncol = 2)
+	) +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.position = "right",
+	theme(legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 ```
 
@@ -757,9 +762,9 @@ gaze_time_vocab_d %>%
 
 ```{r gaze_time_location_21, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-gaze_time_vocab_d %>% 
-	filter(age_group == "21 months") %>% 
-	ggplot(aes(
+ggplot(
+	gaze_time_vocab_d[["21"]],
+	aes(
 		x = time_bin, y = prop,
 		colour = interaction(location, aoi, sep = "-"),
 		fill = interaction(location, aoi, sep = "-"),
@@ -772,13 +777,13 @@ gaze_time_vocab_d %>%
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "AOI", fill = "AOI", shape = "AOI") +
+	labs(x = "Time (ms)", y = "Fixations", colour = "AOI", fill = "AOI", shape = "AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
 	theme(legend.title = element_blank(),
-		  legend.position = "right",
+		  legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 ```
 
@@ -787,9 +792,9 @@ gaze_time_vocab_d %>%
 
 ```{r gaze_time_location_25, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
-gaze_time_vocab_d %>% 
-	filter(age_group == "25 months") %>% 
-	ggplot(aes(
+ggplot(
+	gaze_time_vocab_d[["25"]],
+	aes(
 		x = time_bin, y = prop,
 		colour = interaction(location, aoi, sep = "-"),
 		fill = interaction(location, aoi, sep = "-"),
@@ -802,13 +807,13 @@ gaze_time_vocab_d %>%
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Location-AOI",
+	labs(x = "Time (ms)", y = "Fixations", colour = "Location-AOI",
 		 fill = "Location-AOI", shape = "Location-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
 	scale_fill_brewer(palette = "Set1") +
 	theme_bilingual() +
-	theme(legend.position = "right",
+	theme(legend.position = "top",
 		  panel.grid = element_line(colour = "grey", linetype = "dotted"))
 
 ```
@@ -817,9 +822,9 @@ gaze_time_vocab_d %>%
 
 ```{r gaze_time_location_30, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%"}
 
-gaze_time_vocab_d %>% 
-	filter(age_group == "30 months") %>% 
-	ggplot(aes(
+ggplot(
+	gaze_time_vocab_d[["30"]],
+	aes(
 		x = time_bin, y = prop,
 		colour = interaction(location, aoi, sep = "-"),
 		fill = interaction(location, aoi, sep = "-"),
@@ -832,7 +837,7 @@ gaze_time_vocab_d %>%
 	#geom_line() +
 	#geom_ribbon(aes(ymin = lower, ymax = upper), width = 0) 
 	#geom_point(alpha = 0.5) +
-	labs(x = "Time bin (100 ms)", y = "Fixations", colour = "Location-AOI",
+	labs(x = "Time (ms)", y = "Fixations", colour = "Location-AOI",
 		 fill = "Location-AOI", shape = "Location-AOI") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	scale_colour_brewer(palette = "Set1") +
