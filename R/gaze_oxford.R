@@ -12,16 +12,14 @@ screen_resolution <- c(x = 1920, y = 1080)
 center_coords <- c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790)
 left_coords <- c(xmin = 180, xmax = 680, ymin = 290, ymax = 790)
 right_coords <- c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790)
-missing_threshold <- c(prime = 0.5, target = 0.5) # minimum valid samples in prime and target phases
-missing_trials_threshold <- c(cognate = 4, noncognate = 4, unrelated = 8) # minimum n trials in each condition
+looking_threshold <- c(prime = 500, target = 500) # minimum looking time
+missing_trials_threshold <- c(cognate = 2, noncognate = 2, unrelated = 2) # minimum n trials in each condition
 
 # import participant data
 participants <- read_xlsx("Data/Participants/participant_oxford_Apr2021.xlsx") %>% 
 	clean_names() %>% 
-	rename(participant = id,
-		   lp = lang_group) %>% 
-	mutate(id_db = participant,
-		   test_language = "English") %>% 
+	rename(participant = id, lp = lang_group) %>% 
+	mutate(id_db = participant, test_language = "English") %>% 
 	relocate(id_db, .after = participant)
 
 # import vocabulary data
@@ -125,35 +123,34 @@ raw <- list.files("Data/Gaze/Oxford", full.names = TRUE) %>%
 		aoi_center = between(x, center_coords["xmin"], center_coords["xmax"]) & between(y, center_coords["ymin"], center_coords["ymax"]),
 		aoi_right = between(x, right_coords["xmin"], right_coords["xmax"]) & between(y, right_coords["ymin"], right_coords["ymax"]),
 		aoi_left = between(x, left_coords["xmin"], left_coords["xmax"]) & between(y, left_coords["ymin"], left_coords["ymax"]),
+		aoi_prime = aoi_center,
 		aoi_target = ifelse(target_location=="L", aoi_left, aoi_right),
 		aoi_distractor = ifelse(target_location=="L", aoi_right, aoi_left)
 	) %>% 
 	select(
-		participant, date_test, age_group, trial_num, test_language, phase, time,
-		x, y, target_location, aoi_target, aoi_distractor, valid_sample, lp,
+		participant, date_test, age_group, lp, trial_num, test_language, phase, time,
+		x, y, target_location, aoi_prime, aoi_target, aoi_distractor, valid_sample, lp,
 		trial_type, prime, target, distractor
 	)
 
-# evaluate AOIs
+# valid gaze
 valid_gaze <- raw %>% 
 	group_by(participant, age_group, trial_type, trial_num) %>% 
 	summarise(
 		# proportion of prime looking time during prime phase
-		valid_prop_prime = mean(valid_sample[phase=="Prime"], na.rm = FALSE), 
-		# has looked at least once to target during target-distractor phase
-		valid_any_target = mean(aoi_target[phase=="Target-Distractor"], na.rm = TRUE)>0,
-		# has looked at least once to distractor during target-distractor phase
-		valid_any_distractor = mean(aoi_distractor[phase=="Target-Distractor"], na.rm = TRUE)>0,
-		# proportion of target+distractor looking time during target-distractor phase
-		valid_prop_target = mean(valid_sample[phase=="Target-Distractor"], na.rm = TRUE), 
+		valid_prop_prime = sum(aoi_prime[phase=="Prime"], na.rm = TRUE)*(1000/120),
+		# proportion of target looking time during target-distractor phase
+		valid_prop_target = sum(aoi_target[phase=="Target-Distractor"], na.rm = TRUE)*(1000/120), 
+		# proportion of distractor looking time during target-distractor phase
+		valid_prop_distractor = sum(aoi_distractor[phase=="Target-Distractor"], na.rm = TRUE)*(1000/120), 
 		.groups = "drop"
-		
 	) %>% 
 	mutate(
 		# prime looking proportion during prime phase is higher or equal than minimum
-		valid_gaze_prime = valid_prop_prime >= missing_threshold["prime"],
+		valid_gaze_prime = valid_prop_prime >= looking_threshold["prime"],
 		# participant has looked at least once to target AND distractor and higher or equal than minimum to both
-		valid_gaze_target = valid_any_target & valid_any_distractor & (valid_prop_target >= missing_threshold["target"]),
+		valid_gaze_target = valid_prop_target>0 & valid_prop_distractor>0 &
+			(valid_prop_target+valid_prop_distractor >= looking_threshold["target"]),
 		# trial meets all gaze criteria
 		valid_gaze = valid_gaze_prime & valid_gaze_target 
 	)
@@ -199,7 +196,7 @@ valid_participants <- valid_trials %>%
 		# has minimum number of unrelated trials
 		valid_participant_unrelated = unrelated > missing_trials_threshold["unrelated"],
 		# participant fulfills and the conditions above
-		valid_participant = all(valid_participant_cognate, valid_participant_non_cognate, valid_participant_unrelated)
+		valid_participant = valid_participant_cognate & valid_participant_non_cognate & valid_participant_unrelated
 	)
 
 
