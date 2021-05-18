@@ -28,12 +28,13 @@ vocabulary <- import_vocabulary(
 	distinct(id_db, age_group, .keep_all = TRUE) 
 
 # get participant information
-participants <- get_participants(google_email = email, study = "cp") %>% 
+participants <- get_participants(google_email = email, study = "cp") %>% # from the bilingualr package
 	rename(valid_other = valid_participant) %>% 
 	left_join(vocabulary) %>% 
 	filter(!pilot) %>% 
 	mutate(
 		date_test = as_date(date_test),
+		# degre of exposure to a second language
 		doe_2 = case_when(
 			location=="Barcelona" & test_language=="Spanish" ~ doe_catalan,
 			location=="Barcelona" & test_language=="Catalan" ~ doe_spanish,
@@ -44,12 +45,13 @@ participants <- get_participants(google_email = email, study = "cp") %>%
 	select(participant, id_db, date_test, location, age_group, age, test_language, list, version, lp, doe_2, vocab_size, valid_other, test_language, list, version, filename)
 
 # trials -----------------------------------------------------------------------
-trials <- bilingualr::trials$cp %>%
+trials <- bilingualr::trials$cp %>% # dataset trials is part of the bilingualr package
 	rename(trial = trial_id) %>% 
 	mutate(trial = as.numeric(trial)) %>% 
 	select(location, test_language, list, version, trial, trial_type, target_location,
 		   prime, target, distractor, matches("_cdi"))
 
+# items participants should know
 items_to_know <- trials %>% 
 	select(prime_cdi, target_cdi, distractor_cdi) %>% 
 	as.list() %>% 

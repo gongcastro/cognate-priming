@@ -90,10 +90,10 @@ server <- function(input, output) {
                 trial_num %in% input$trial_num
             ) %>% 
             pivot_longer(c(x, y), names_to = "coord", values_to = "value") %>% 
-            ggplot(aes(time, value, colour = fix_any)) +
+            ggplot(aes(time, value, colour = is_imputed)) +
             facet_wrap(~coord, scales = "free", nrow = 2) +
             geom_point(size = 2) +
-            labs(x = "Time (ms)", y = "Value", colour = "AOI") +
+            labs(x = "Time (ms)", y = "Value", colour = "Is imputed") +
             scale_color_brewer(palette = "Set1") +
             scale_y_continuous(limits = c(0, 1920)) +
             theme_bilingual() +
