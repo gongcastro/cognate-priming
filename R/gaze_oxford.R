@@ -215,5 +215,5 @@ processed <- list(raw, vocabulary, valid_trials, valid_participants) %>%
 	)
 
 # export data ----
-saveRDS("Data/Gaze/processed_oxford.rds")
+saveRDS(processed, "Data/Gaze/processed_oxford.rds")
 
