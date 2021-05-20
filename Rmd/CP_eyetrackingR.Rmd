@@ -1,0 +1,139 @@
+---
+title: "CognatePriming_EyetrackingR"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# load packages
+library("Matrix")
+library("eyetrackingR")
+library("tidyverse")
+library("lme4")
+library("ggplot2")
+
+```
+
+
+```{r prepare, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+# load data
+processed_oxford <- readRDS(here("Results", "processed_oxford.rds")) %>%
+  mutate(sample = "oxford")
+
+processed <- bind_rows(processed_oxford)
+
+```
+
+
+## PREPARING DATA FOR ANALYSIS
+
+```{r eyetrackingR, eval=TRUE, echo = FALSE}
+
+processed_clean <- processed %>%
+  filter(valid_trial == TRUE) %>%
+  filter(valid_participant == TRUE) %>%
+  mutate(trackloss_col = ifelse(valid_sample == TRUE, FALSE, TRUE)) # needed for eyetrackingR - TRUE means trackloss, FALSE means valid gaze
+
+data <- make_eyetrackingr_data(processed_clean, 
+                                      participant_column = "participant",
+                                      trial_column = "trial_num",
+                                      time_column = "time",
+                                      trackloss_column = "trackloss_col",
+                                      item_columns = c("prime", "target"),
+                                      aoi_columns = c('aoi_target','aoi_distractor'), 
+                                      treat_non_aoi_looks_as_missing = FALSE)
+
+```
+
+#### Aggregrate timebins + specify Target as AOI
+
+```{r time_sequence, eval=TRUE, echo = FALSE}
+
+# aggregate across trials within subjects in time analysis
+response_time <- make_time_sequence_data(data, time_bin_size = 0.1, 
+                                                predictor_columns = c("test_language", "sample", "trial_type", "age_group", "lp"),
+                                                aois = "aoi_target")
+#summary(response_time)
+
+
+```
+
+### Descriptives
+
+```{r descriptive, eval=TRUE, echo = FALSE}
+
+# Number of participants after cleaning
+print("Final participants after data cleaning")
+
+response_time %>%
+  dplyr::select(participant, sample, age_group, lp) %>%
+  unique() %>%
+  group_by(sample, age_group, lp) %>%
+  summarise(N = n())
+
+```
+
+
+## ANALYSIS
+### Growth curve
+
+```{r visualise only, eval=TRUE, echo = FALSE}
+
+response_time_mono_21 <- response_time %>%
+  filter(lp == "Monolingual" & age_group == "21 months")
+response_time_mono_25 <- response_time %>%
+  filter(lp == "Monolingual" & age_group == "25 months")
+response_time_mono_30 <- response_time %>%
+  filter(lp == "Monolingual" & age_group == "30 months")
+
+# Visualise data from each group
+# Monolingual
+
+print("21 month monolingual data")
+
+plot(response_time_mono_21, predictor_column = "trial_type", dv = "Prop") +
+  theme_light() +
+  xlab("Time from target & distractor image onset (s)") +
+  ylab("Proportion of time looking at target") +
+  ylim(c(0:1))
+
+
+print("21 month monolingual data with model fit curve")
+
+# Plot monolingual data with model fit curve
+model_time_sequence_plot_mono_21 <- lmer(Prop ~ trial_type*(ot1 + ot2 + ot3) + 
+                                               (1 | participant), 
+                                             data = response_time_mono_21, REML = FALSE)
+
+plot(response_time_mono_21, predictor_column = "trial_type", dv = "Prop", model = model_time_sequence_plot_mono_21) +
+  theme_light() +
+  xlab("Time from target & distractor image onset (s)") +
+  ylab("Proportion of time looking at target") +
+  ylim(c(0:1))
+
+
+
+
+print("25 month monolingual data")
+
+plot(response_time_mono_25, predictor_column = "trial_type", dv = "Prop") +
+  theme_light() +
+  xlab("Time from target & distractor image onset (s)") +
+  ylab("Proportion of time looking at target") +
+  ylim(c(0:1))
+
+
+print("30 month monolingual data")
+
+plot(response_time_mono_30, predictor_column = "trial_type", dv = "Prop") +
+  theme_light() +
+  xlab("Time from target & distractor image onset (s)") +
+  ylab("Proportion of time looking at target") +
+  ylim(c(0:1))
+
+
+
+
+```
