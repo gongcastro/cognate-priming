@@ -36,7 +36,7 @@ vocabulary_raw <- excel_sheets("Data/Vocabulary/vocabulary_oxford_Apr2021.xlsx")
 	bind_rows(.id = "version") %>%
 	mutate_at(vars(-c(item, version)), as.integer) %>%
 	pivot_longer(-c(item, version), names_to = "participant", values_to = "response") %>%
-	separate(item, c("category", "item"), sep = " - ", fill = "left") %>%
+	#separate(item, c("category", "item"), sep = " - ", fill = "left") %>% 
 	mutate(
 		understands = response %in% c(1, 2),
 		says = response %in% 2,
@@ -74,7 +74,8 @@ raw <- list.files("Data/Gaze/Oxford", full.names = TRUE) %>%
 	bind_rows() %>% 
 	as_tibble() %>%
 	clean_names() %>% # colnames to snake case
-	rename(
+  mutate(trial = ifelse(block == 2, trial+16, trial)) %>% # because of block format, trial number for 17th trial is recorded as block 2 trial 1
+  rename(
 		id_db = id, trial_num = trial, time = timestamp,
 		l_x = gaze_raw_left_x, l_y = gaze_raw_left_y,
 		r_x = gaze_raw_right_x, r_y = gaze_raw_right_y,
@@ -205,7 +206,8 @@ processed <- list(raw, vocabulary, valid_trials, valid_participants) %>%
 	reduce(left_join) %>% 
 	filter(phase=="Target-Distractor") %>% 
 	select(
-		participant, date_test, age_group, trial_num, test_language, phase,
+		participant, date_test, age_group, lp,
+		trial_num, trial_type, test_language, phase,
 		time, x, y, target_location, aoi_target, aoi_distractor,
 		valid_sample, valid_gaze, valid_vocab, valid_trial,
 		valid_participant, prime, target, vocab_size
