@@ -205,8 +205,8 @@ processed <- list(raw, vocabulary, valid_trials, valid_participants) %>%
 	reduce(left_join) %>% 
 	filter(phase=="Target-Distractor") %>% 
 	select(
-		participant, date_test, age_group, trial_num, test_language, phase,
-		time, x, y, target_location, aoi_target, aoi_distractor,
+		participant, date_test, lp, age_group, trial_num, test_language, trial_type,
+		phase, time, x, y, target_location, aoi_target, aoi_distractor,
 		valid_sample, valid_gaze, valid_vocab, valid_trial,
 		valid_participant, prime, target, vocab_size
 	)
