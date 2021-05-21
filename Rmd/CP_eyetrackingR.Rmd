@@ -12,6 +12,7 @@ library("eyetrackingR")
 library("tidyverse")
 library("lme4")
 library("ggplot2")
+library("multcomp") # bonferroni
 
 ```
 
@@ -91,6 +92,8 @@ response_time_mono_30 <- response_time %>%
 # Visualise data from each group
 # Monolingual
 
+############ 21 months ##################
+
 print("21 month monolingual data")
 
 plot(response_time_mono_21, predictor_column = "trial_type", dv = "Prop") +
@@ -102,19 +105,8 @@ plot(response_time_mono_21, predictor_column = "trial_type", dv = "Prop") +
 
 print("21 month monolingual data with model fit curve")
 
-# Plot monolingual data with model fit curve
-model_time_sequence_plot_mono_21 <- lmer(Prop ~ trial_type*(ot1 + ot2 + ot3) + 
-                                               (1 | participant), 
-                                             data = response_time_mono_21, REML = FALSE)
 
-plot(response_time_mono_21, predictor_column = "trial_type", dv = "Prop", model = model_time_sequence_plot_mono_21) +
-  theme_light() +
-  xlab("Time from target & distractor image onset (s)") +
-  ylab("Proportion of time looking at target") +
-  ylim(c(0:1))
-
-
-
+############ 25 months ##################
 
 print("25 month monolingual data")
 
@@ -124,6 +116,7 @@ plot(response_time_mono_25, predictor_column = "trial_type", dv = "Prop") +
   ylab("Proportion of time looking at target") +
   ylim(c(0:1))
 
+############ 30 months ##################
 
 print("30 month monolingual data")
 
@@ -134,6 +127,36 @@ plot(response_time_mono_30, predictor_column = "trial_type", dv = "Prop") +
   ylim(c(0:1))
 
 
+```
+
+
+```{r analysis, eval=TRUE, echo = FALSE}
+
+# Plot 21 month monolingual data with model fit curve
+model_time_sequence_mono_21 <- lmer(Prop ~ trial_type*(ot1 + ot2 + ot3) + 
+                                               (1 | participant), 
+                                             data = response_time_mono_21, REML = FALSE)
+
+plot(response_time_mono_21, predictor_column = "trial_type", dv = "Prop", model = model_time_sequence_mono_21) +
+  theme_light() +
+  xlab("Time from target & distractor image onset (s)") +
+  ylab("Proportion of time looking at target") +
+  ylim(c(0:1))
+
+
+summary(model_time_sequence_mono_21)
+
+# Post-hoc tests - only analyse significant predictors / interactions
+#library(multcomp)
+# To construct matrix, refer to summary()
+contrast.matrix = rbind(
+  "CP-NP" = c(0,-1,0, 0,0,0, 0,0,0,0,0,0), # ConditionCognate Prime(REFERENCE) - ConditionNon-Cognate Prime (Is there a significant difference between CP and NP?)
+  "NP-UN" = c(0,1,-1, 0,0,0, 0,0, 0,0, 0,0), # ConditionNon-Cognate Prime - ConditionUnrelated Prime (Is there a significant difference between NP and UN?)
+  "CP-NP_OT1" = c(0,0,0, 0,0,0, -1,0, 0,0, 0,0), # ConditionCognate Prime(REFERENCE) - ConditionNon-Cognate Prime (OT1, linear)
+  "NP-UN_OT1" = c(0,0,0, 0,0,0, -1,1, 0,0, 0,0) # ConditionNon-Cognate Prime - ConditionUnrelated Prime (OT1, linear)
+)
+comps <- glht(model_time_sequence_mono_21, contrast.matrix )
+summary(comps, test= adjusted("bonferroni"))
 
 
 ```
