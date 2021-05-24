@@ -127,7 +127,7 @@ raw <- list.files("Data/Gaze/Barcelona", full.names = TRUE) %>%
 	) %>% 
 	relocate(time_bin, .before = time, .after = ) %>%
 	arrange(participant, trial, trial_num, phase, time_bin) %>% 
-	select(participant, date_test, age_group, trial_num, trial, test_language, phase,
+	select(participant, date_test, lp, age_group, trial_num, trial, test_language, phase,
 		   time, x, y, trial_type, target_location, aoi_prime, aoi_target, aoi_distractor,
 		   valid_sample, prime_cdi, target_cdi) %>% 
 	rename_all(function(x) str_remove(x, "_cdi"))
@@ -166,7 +166,6 @@ valid_vocabulary <- raw %>%
 		valid_vocab = valid_vocab_prime & valid_vocab_target
 	)
 
-
 # valid trials
 valid_trials <- left_join(valid_gaze, valid_vocabulary) %>% 
 	# trial meets all gaze and vocabulary criteria
@@ -202,9 +201,10 @@ valid_participants <- valid_trials %>%
 processed <- list(raw, participants, valid_trials, valid_participants) %>%
 	reduce(left_join) %>% 
 	filter(phase=="Target-Distractor") %>% 
+	mutate(age_group = paste0(age_group, " months")) %>% 
 	select(
-		participant, date_test, age_group, trial_num, test_language, phase,
-		time, x, y, target_location, aoi_target, aoi_distractor,
+		participant, date_test, lp, age_group, trial_num, test_language, phase,
+		time, x, y, trial_type, target_location, aoi_target, aoi_distractor,
 		valid_sample, valid_gaze, valid_vocab, valid_trial,
 		valid_participant, prime, target, vocab_size
 	)
