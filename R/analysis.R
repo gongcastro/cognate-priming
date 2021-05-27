@@ -7,28 +7,20 @@ library(tidyverse)
 library(eyetrackingR) # for processing eye-tracking data
 library(lme4) # for fitting multilevel models
 library(lmerTest) # for performing F-tests on lmer coefficientes
-library(multcomp) # for multiple comparisons
 library(patchwork) # for arranging plots together
 library(janitor) # for cleaning colnames
 library(here) # for locating files
 
-# set params
-source("R/utils.R")
-
 # functions
-empirical_logit <- function(x, n) log((x + 0.5) / (n - x + 0.5))
-empirical_weights <- function(x, n) 1/(x + 0.5) + 1/(n - y + 0.5)
 logit_to_prob <- function(x) exp(x) / (1 + exp(x))
 
 # import data ----
-participants <- readRDS("Data/Participants/participants.rds")
-clean <- list(
-	Barcelona = readRDS("Data/Gaze/processed_barcelona.rds"),
-	Oxford = readRDS("Data/Gaze/processed_oxford.rds")
+participants <- readRDS(here("Data", "Participants", "participants.rds"))
+processed <- list(
+	Barcelona = readRDS(here("Data", "Gaze", "processed_barcelona.rds")),
+	Oxford = readRDS(here("Data", "Gaze", "processed_oxford.rds"))
 ) %>% 
 	bind_rows(.id = "location") %>% 
-	filter(valid_trial == TRUE) %>%
-	filter(valid_participant == TRUE) %>%
 	# remove CDI labels from item names
 	mutate_at(vars(prime, target), function(x) str_remove_all(x, "spa_|cat_")) %>% 
 	mutate(
@@ -46,17 +38,24 @@ clean <- list(
 	)) %>% 
 	ungroup()
 
+# attrition
+attrition <- processed %>% 
+	mutate(valid_other = !(valid_gaze & !valid_trial)) %>% 
+	distinct(participant, age_group, lp, trial_type, trial_num, valid_gaze, valid_vocab, valid_other, valid_trial, valid_participant)
+saveRDS(attrition, here("Results", "attrition.rds"))
+
 # to eyetrackingR format
-d <- make_eyetrackingr_data(
-	clean, 
-	participant_column = "participant_unique",
-	trial_column = "trial_num",
-	time_column = "time_stamp",
-	trackloss_column = "trackloss_col",
-	item_columns = c("prime", "target"),
-	aoi_columns = c('aoi_target','aoi_distractor'), 
-	treat_non_aoi_looks_as_missing = FALSE
-) %>% 
+d <- processed %>% 
+	filter(valid_participant, valid_trial) %>% 
+	make_eyetrackingr_data(
+		participant_column = "participant_unique",
+		trial_column = "trial_num",
+		time_column = "time_stamp",
+		trackloss_column = "trackloss_col",
+		item_columns = c("prime", "target"),
+		aoi_columns = c('aoi_target','aoi_distractor'), 
+		treat_non_aoi_looks_as_missing = FALSE
+	) %>% 
 	subset_by_window(rezero = TRUE, window_start_time = 0.25, window_end_time = 1.8) %>% 
 	make_time_sequence_data(
 		time_bin_size = 0.1, 
@@ -65,30 +64,30 @@ d <- make_eyetrackingr_data(
 	) %>% 
 	as_tibble() %>% 
 	# add previous ID to link longitudinal participants
-	left_join(distinct(clean, participant, participant_unique)) %>% 
-	select(-participant_unique) %>% 
-	select(participant, age_group, lp, prime, target, trial_num, trial_type,
-		   TimeBin, ot1, ot2, ot3, Prop, Weights, Elog, LogitAdjusted) %>% 
+	left_join(distinct(processed, participant, participant_unique, vocab_size)) %>% 
 	clean_names() %>% 
+	select(participant, location, age_group, lp, vocab_size, prime, target, trial_num, trial_type,
+		   time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted) %>%
 	mutate_at(vars(age_group, lp, prime, target, trial_num, trial_type), as.factor)
 
 # set a prior contrasts and orthogonal polynomials
 contrasts(d$lp) <- c(-0.5, 0.5)
 contrasts(d$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
 contrasts(d$age_group) <- contr.poly(3, contrasts = TRUE)
+d$vocab_size <- d$vocab_size-mean(d$vocab_size, na.rm = TRUE)
 
-write.csv(d, "Data/Gaze/processed.csv", row.names = FALSE)
-saveRDS(d, "Data/Gaze/processed.rds")
+write.csv(d, here("Data", "Gaze", "processed.csv"), row.names = FALSE)
+saveRDS(d, here("Data", "Gaze", "processed.rds"))
 
 # fit model ----
 fit <- lmer(
-	elog ~ age_group + trial_type*lp*(ot1+ot2+ot3) +
-		(1+ot1+ot2+ot3+trial_type | participant) +
+	elog ~ age_group + vocab_size + trial_type*lp*(ot1+ot2+ot3) +
+		(1+ot1+ot2+ot3+trial_type+age_group | participant) +
 		(1+ot1+ot2+ot3+trial_type | target),
 	control = lmerControl(optimizer = "bobyqa"),
 	data = d
 )
-saveRDS(fit, "Results/fit.rds")
+saveRDS(fit, here("Results", "fit.rds"))
 
 # coefficients ----
 s <- summary(fit)
@@ -118,9 +117,9 @@ random_effects <- lapply(
 cor_matrix <- VarCorr(fit)
 
 # export
-saveRDS(fixed_effects, "Results/fixed-effects.rds")
-saveRDS(random_effects, "Results/random-effects.rds")
-saveRDS(cor_matrix, "Results/random-effects-matrix.rds")
+saveRDS(fixed_effects, here("Results", "fixed-effects.rds"))
+saveRDS(random_effects, here("Results", "random-effects.rds"))
+saveRDS(cor_matrix, here("Results", "random-effects-matrix.rds"))
 
 # plot fixed effects
 ggplot(fixed_effects, aes(estimate, term, colour = term, fill = term)) +
@@ -141,13 +140,15 @@ ggplot(fixed_effects, aes(estimate, term, colour = term, fill = term)) +
 random_effects$target %>% 
 	pivot_longer(-group, names_to = "param", values_to = "estimate") %>% 
 	ggplot(aes(estimate, group, colour = param)) +
+	facet_grid(~param, scales = "free_x") +
 	geom_vline(xintercept = 0) +
 	geom_point(shape = 1, size = 2, stroke = 1) +
 	labs(x = "Estimate", y = "Target picture", colour = "Predictor") +
-
+	
 	random_effects$participant %>% 
 	pivot_longer(-group, names_to = "param", values_to = "estimate") %>% 
 	ggplot(aes(estimate, group, colour = param)) +
+	facet_grid(~param, scales = "free") +
 	geom_vline(xintercept = 0) +
 	geom_point(shape = 1, size = 2, stroke = 1) +
 	labs(x = "Estimate", y = "Participant", colour = "Predictor") +
@@ -155,22 +156,6 @@ random_effects$target %>%
 	plot_layout(guides = "collect") &
 	theme_bw() &
 	theme(axis.text.y = element_text(size = 7))
-
-
-
-# post-hoc analyses
-contrast.matrix <- rbind(
-	# ConditionCognate Prime(REFERENCE) - ConditionNon-Cognate Prime (Is there a significant difference between CP and NP?)
-	"CP-NP" = c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 
-	# ConditionNon-Cognate Prime - ConditionUnrelated Prime (Is there a significant difference between NP and UN?)
-	"NP-UN" = c(0,1,-1, 0,0,0, 0,0, 0, 0, 0,0), 
-	# ConditionCognate Prime(REFERENCE) - ConditionNon-Cognate Prime (OT1, linear)
-	"CP-NP_OT1" = c(0, 0, 0, 0, 0 ,0, -1, 0, 0, 0, 0,0),
-	# ConditionNon-Cognate Prime - ConditionUnrelated Prime (OT1, linear)
-	"NP-UN_OT1" = c(0, 0, 0, 0, 0, 0, -1, 1, 0, 0, 0, 0) 
-)
-comps <- glht(fit, contrast.matrix)
-summary(clean_names(as.data.frame(comps)), test= adjusted("bonferroni"))
 
 
 # marginal effects ----

@@ -6,6 +6,7 @@ library(janitor) # for cleaning colnames
 library(lubridate) # for dealing with dates
 library(readxl) # for importing Excel files
 library(data.table) # for importing CSV files
+library(here) # for locating files
 
 # set params
 screen_resolution <- c(x = 1920, y = 1080)
@@ -16,59 +17,10 @@ looking_threshold <- c(prime = 500, target = 500) # minimum looking time
 missing_trials_threshold <- c(cognate = 2, noncognate = 2, unrelated = 2) # minimum n trials in each condition
 
 # import participant data
-participants <- read_xlsx("Data/Participants/participant_oxford_Apr2021.xlsx") %>% 
-	clean_names() %>% 
-	rename(participant = id, lp = lang_group) %>% 
-	mutate(id_db = participant, test_language = "English") %>% 
-	relocate(id_db, .after = participant)
-
-# import vocabulary data
-vocabulary_raw <- excel_sheets("Data/Vocabulary/vocabulary_oxford_Apr2021.xlsx") %>%
-	map(function(x){
-		read_xlsx(
-			"Data/Vocabulary/vocabulary_oxford_Apr2021.xlsx", 
-			sheet = x, 
-			na = c("", "NA", "?", "x")
-		)
-	}
-	) %>%
-	set_names(excel_sheets("Data/Vocabulary/vocabulary_oxford_Apr2021.xlsx")) %>%
-	bind_rows(.id = "version") %>%
-	mutate_at(vars(-c(item, version)), as.integer) %>%
-	pivot_longer(-c(item, version), names_to = "participant", values_to = "response") %>%
-	#separate(item, c("category", "item"), sep = " - ", fill = "left") %>% 
-	mutate(
-		understands = response %in% c(1, 2),
-		says = response %in% 2,
-		# define age group
-		age_group = case_when(
-			substr(participant, start = 1, stop = 2) %in% c(21) ~ 21,
-			substr(participant, start = 1, stop = 2) %in% c(24, 25) ~ 25,
-			substr(participant, start = 1, stop = 2) %in% c(27, 30) ~ 30
-		),
-		age_group = as.factor(paste0(age_group, " months"))
-	) %>%
-	drop_na(response) %>%
-	arrange(participant, version)
-
-vocabulary_size <- vocabulary_raw %>%
-	group_by(participant, age_group) %>%
-	summarise(
-		vocab_size = mean(understands), # proportion of understood words
-		.groups = "drop"
-	)
-
-vocabulary <- vocabulary_raw %>%
-	filter(understands) %>%
-	group_by(participant, age_group) %>%
-	summarise(
-		vocab_words = list(unique(item)), # list of understood words
-		.groups = "drop"
-	) %>%
-	right_join(vocabulary_size)
+participants <- readRDS(here("Data", "Participants", "participants.rds"))
 
 # import gaze data ----
-raw <- list.files("Data/Gaze/Oxford", full.names = TRUE) %>% 
+raw <- list.files(here("Data", "Gaze", "Oxford"), full.names = TRUE) %>% 
 	# import and merge all files
 	map(fread, na = c("", "NA")) %>% 
 	bind_rows() %>% 
@@ -159,7 +111,7 @@ valid_gaze <- raw %>%
 # evaluate vocabulary
 valid_vocabulary <- raw %>%
 	distinct(participant, age_group, trial_num, prime, target, distractor) %>% 
-	left_join(vocabulary) %>% 
+	left_join(participants) %>% 
 	rowwise() %>% 
 	# participants understands prime, and target words in the testing language
 	# IMPORTANT: some CDI labels don´t match words in the gaze file
@@ -202,7 +154,7 @@ valid_participants <- valid_trials %>%
 
 
 # processed data
-processed <- list(raw, vocabulary, valid_trials, valid_participants) %>%
+processed <- list(raw, participants, valid_trials, valid_participants) %>%
 	reduce(left_join) %>% 
 	filter(phase=="Target-Distractor") %>% 
 	select(
@@ -214,4 +166,4 @@ processed <- list(raw, vocabulary, valid_trials, valid_participants) %>%
 	)
 
 # export data ----
-saveRDS(processed, "Data/Gaze/processed_oxford.rds")
+saveRDS(processed, here("Data", "Gaze", "processed_oxford.rds"))
