@@ -2,7 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-Dissemination/
+*.rds
+Dissemination/*
 Media/*
 Data/*
 Documents/*
