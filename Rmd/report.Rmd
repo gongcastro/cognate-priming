@@ -18,7 +18,12 @@ knitr::opts_chunk$set(
 	results = "asis",
 	dev.args = list(png = list(type = "cairo"))
 )
-options(knitr.kable.NA = '-')
+options(knitr.kable.NA = '-',
+		ggplot2.discrete.fill = RColorBrewer::brewer.pal(6, name = "Dark2"),
+		ggplot2.discrete.colour = RColorBrewer::brewer.pal(6, name = "Dark2"),
+		ggplot2.continuous.fill = RColorBrewer::brewer.pal(6, name = "Dark2"),
+		ggplot2.continuous.colour = RColorBrewer::brewer.pal(6, name = "Dark2")
+)
 
 ```
 
@@ -42,6 +47,18 @@ library(here)
 
 # create functions
 logit_to_prob <- function(x) exp(x) / (1 + exp(x))
+
+theme_custom <- function(){
+	theme(
+		panel.background = element_rect(fill = "transparent"),
+		panel.grid = element_blank(),
+		#panel.grid = element_line(colour = "grey", linetype = "dotted"),
+		panel.border = element_rect(fill = "transparent", colour = "black"),
+		text = element_text(colour = "black", size = 15),
+		axis.text = element_text(colour = "black")
+	)
+}
+theme_set(theme_custom())
 
 # load data
 gaze <- readRDS(here("Data", "Gaze", "processed.rds"))
@@ -78,8 +95,6 @@ participants %>%
 	geom_hline(yintercept = 24, linetype = "dashed") +
 	scale_colour_brewer(palette = "Set1") +
 	labs(x = "Group", y = "Sample size", fill = "Test language") +
-	scale_fill_brewer(palette = "Set1") +
-	theme_bilingual() +
 	theme(
 		legend.position = "top",
 		axis.title.x = element_blank(),
@@ -109,12 +124,10 @@ participants %>%
 	drop_na(valid_status) %>% 
 	ggplot(aes(age_group, participant, colour = valid_status)) +
 	facet_grid(location~lp, scales = "free") +
-	geom_line(aes(group = interaction(lp, participant)), alpha = 0.5) +
-	geom_point(size = 2, alpha = 0.5) +
+	geom_line(aes(group = interaction(lp, participant))) +
+	geom_point(size = 2) +
 	geom_hline(yintercept = 0.2, linetype = "dashed") +
 	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Validity status") +
-	scale_colour_brewer(palette = "Set1") +
-	theme_bilingual() +
 	theme(
 		legend.position = "right",
 		legend.title = element_blank(),
@@ -147,8 +160,6 @@ participants %>%
 	geom_hline(yintercept = 24, linetype = "dashed") +
 	scale_colour_brewer(palette = "Set1") +
 	labs(x = "Group", y = "Sample size", fill = "Valid?") +
-	scale_fill_brewer(palette = "Set1") +
-	theme_bilingual() +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
@@ -295,11 +306,8 @@ attrition %>%
 	facet_grid(lp~age_group) +
 	geom_col(position = position_fill()) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
-	scale_color_brewer(palette = "Set1") +
-	scale_fill_brewer(palette = "Set1") +
 	scale_y_continuous(labels = scales::percent) +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
-	theme_bilingual() +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
@@ -386,6 +394,9 @@ DiagrammeR::grViz("digraph {
 This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
 
 ```{r vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants %>% 
+	count(age_group, location)
+
 # vocabulary
 participants %>% 
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
@@ -398,10 +409,11 @@ participants %>%
 	# 		   position = position_jitter(width = 0.1, seed = 888)) +
 	geom_boxplot(width = 0.1, colour = "black", fill = "white", outlier.colour = NA,
 				 position = position_dodge(width = 0.75)) +
+		geom_text(data = sample_size,
+			  aes(x = 1.5, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
 	labs(y = "Receptive vocabulary size (L1)", colour = "Group", fill = "Group") +
-	scale_colour_brewer(palette = "Set1") +
-	scale_fill_brewer(palette = "Set1") +
-	theme_bilingual() +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	theme(legend.title = element_blank(),
 		  legend.position = "none",
 		  axis.title.x = element_blank(),
@@ -420,6 +432,9 @@ For each participant and trial, the proportion of fixations to the target object
 
 
 ```{r gaze_trial_age, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	count(age_group, lp)
+
 gaze %>% 
 	left_join(select(attrition, participant, age_group, valid_trial, valid_participant)) %>% 
 	left_join(select(participants, participant, age_group, location)) %>% 
@@ -438,11 +453,11 @@ gaze %>%
 	#geom_point(size = 2, shape = 1, stroke = 1, position = position_jitter(width = 0.1)) +
 	geom_boxplot(aes(group = interaction(age_group, trial_type)), width = 0.1, outlier.colour = NA,
 				 position = position_dodge(width = 0.75), colour = "black", fill = "white") +
+	geom_text(data = sample_size,
+			  aes(x = 1, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
 	labs(x = "Trial type", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
-	scale_colour_brewer(palette = "Set1") +
-	scale_fill_brewer(palette = "Set1") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-	theme_bilingual() +
 	theme(legend.position = "none",
 		  axis.title.x = element_blank(),
 		  axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1),
@@ -455,12 +470,13 @@ gaze %>%
 ### Growth curve analysis {.tabset .tab-pills}
 
 
+#### Model details
+
 We fit a multilevel regression model using the `lmer` function of the `lme4` package, used the following formula:
 
 ```
 elog ~ age_group + trial_type * lp * (ot1 + ot2 + ot3) +
-	(1 + ot1 + ot2 + ot3 + trial_type + age_group | participant) +
-	(1 + ot1 + ot2 + ot3 + trial_type + age_group + lp | target)
+(1 + ot1 + ot2 + ot3 + trial_type + age_group | participant)
 ```
 
 The formal implementation of this model is:
@@ -498,15 +514,15 @@ confint.merMod(fit, method = "Wald") %>%
 		df = md("**df**"),
 		p_value = md("***p***")
 	) %>% 
-	  tab_style(
-    style = list(
-      cell_fill(color = "#F9E3D6")
-      ),
-    locations = cells_body(
-      columns = everything(),
-      rows = p_value < 0.05
-    )
-  )
+	tab_style(
+		style = list(
+			cell_fill(color = "#F9E3D6")
+		),
+		locations = cells_body(
+			columns = everything(),
+			rows = p_value < 0.05
+		)
+	)
 ```
 
 
@@ -522,13 +538,12 @@ VarCorr(fit)$participant %>%
 	geom_tile() +
 	coord_fixed() +
 	labs(x = "Term 1", y = "Term 2", fill = "Covariance") +
-	scale_fill_distiller(palette = "Oranges") +
-	theme_bilingual() +
+	scale_fill_viridis_c() +
 	theme(
 		axis.title = element_blank(),
 		axis.text.x = element_text(angle = 90)
 	)
-	
+
 ```
 
 
@@ -536,11 +551,15 @@ VarCorr(fit)$participant %>%
 
 #### {-}
 
-#### Marginal means
+#### Marginal means {.tabset .tab-pills}
 
+##### Overall
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 y_pred <- logit_to_prob(predict(fit))
+sample_size <- participants %>% 
+	filter(valid_participant) %>%
+	count(age_group, lp)
 
 gaze %>% 
 	drop_na() %>% 
@@ -550,29 +569,149 @@ gaze %>%
 	stat_summary(fun.data = mean_se, aes(y = y_pred), geom = "ribbon", alpha = 0.5, colour = NA) +
 	stat_summary(fun = mean, aes(y = y_pred), geom = "line", size = 1) +
 	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
 	labs(x = "Time bin (100 ms)", y = "Prob. of target fixation",
 		 colour = "Trial type", fill = "Trial type") +
-	scale_color_brewer(palette = "Set1") +
-	scale_fill_brewer(palette = "Set1") +
-	scale_y_continuous(limits = c(0, 1)) + 
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) + 
 	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
-	theme_bw() +
+	theme_custom() +
 	theme(
 		legend.position = "top",
-		panel.background = element_rect(fill = "white", colour = NA),
-		strip.background = element_rect(colour = "grey"),
-		panel.border = element_rect(colour = "grey"),
-		panel.grid = element_blank(),
-		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		axis.text.x = element_text(size = 7)
+		axis.text = element_text(size = 7)
 	)
 ```
+
+##### By vocabulary size
+
+
+```{r gaze_time_vocab_lower, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(vocab_size <= median(.$vocab_size, na.rm = TRUE), valid_participant) %>% 
+	count(age_group, lp)
+
+augment(fit) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	filter(vocab_size <= median(.$vocab_size)) %>% 
+	ggplot(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(fun.data = mean_se, aes(y = .fitted_prob), geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(fun = mean, aes(y = .fitted_prob), geom = "line", size = 1) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	labs(x = "Time bin (100 ms)", y = "Prob. of target fixation",
+		 colour = "Trial type", fill = "Trial type",
+		 title = "Vocabulary size <= median") +
+	scale_y_continuous(limits = c(0, 1)) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		legend.position = "top",
+		axis.text = element_text(size = 7)
+	)
+```
+
+
+```{r gaze_time_vocab_upper, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(vocab_size > median(.$vocab_size, na.rm = TRUE), valid_participant) %>% 
+	count(age_group, lp)
+
+augment(fit) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	filter(vocab_size > median(.$vocab_size)) %>% 
+	ggplot(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(fun.data = mean_se, aes(y = .fitted_prob), geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(fun = mean, aes(y = .fitted_prob), geom = "line", size = 1) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	labs(x = "Time bin (100 ms)", y = "Prob. of target fixation",
+		 colour = "Trial type", fill = "Trial type",
+		 title = "Vocabulary size > median") +
+	scale_y_continuous(limits = c(0, 1)) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		legend.position = "top",
+		axis.text = element_text(size = 7)
+	)
+```
+
+##### By location
+
+
+```{r gaze_time_location_barcelona, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(location=="Barcelona", valid_participant) %>% 
+	count(age_group, lp)
+
+augment(fit) %>% 
+	left_join(distinct(participants, participant, location)) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	filter(location=="Barcelona") %>% 
+	ggplot(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(fun.data = mean_se, aes(y = .fitted_prob), geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(fun = mean, aes(y = .fitted_prob), geom = "line", size = 1) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	labs(x = "Time bin (100 ms)", y = "Prob. of target fixation",
+		 colour = "Trial type", fill = "Trial type",
+		 title = "Barcelona") +
+	scale_y_continuous(limits = c(0, 1)) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		legend.position = "top",
+		axis.text = element_text(size = 7)
+	)
+```
+
+
+```{r gaze_time_location_oxford, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(location=="Oxford") %>% 
+	count(age_group, lp)
+
+augment(fit) %>% 
+	left_join(distinct(participants, participant, location)) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	filter(location=="Oxford") %>% 
+	ggplot(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(fun.data = mean_se, aes(y = .fitted_prob), geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(fun = mean, aes(y = .fitted_prob), geom = "line", size = 1) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
+			  	colour = "black", fill = "black"), show.legend = FALSE) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	labs(x = "Time bin (100 ms)", y = "Prob. of target fixation",
+		 colour = "Trial type", fill = "Trial type",
+		 title = "Oxford") +
+	scale_y_continuous(limits = c(0, 1)) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		legend.position = "top",
+		axis.text = element_text(size = 7)
+	)
+```
+
+##### {-}
 
 #### {-}
 
 
 
-# Appendix
+# Appendix {.tabset .tab-pills}
 
 ## Appendix 1: Individual attrition rates
 
@@ -634,5 +773,7 @@ attrition %>%
 	)
 
 ```
+
+## {-}
 
 # References
