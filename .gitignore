@@ -2,11 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-*.rds
 Dissemination/*
 Media/*
-Data/*
 Documents/*
 Figures/*
-Results/*
 Communications/*
