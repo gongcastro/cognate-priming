@@ -556,19 +556,18 @@ VarCorr(fit)$participant %>%
 ##### Overall
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-y_pred <- logit_to_prob(predict(fit))
 sample_size <- participants %>% 
 	filter(valid_participant) %>%
 	count(age_group, lp)
 
-gaze %>% 
-	drop_na() %>% 
-	ggplot(aes(x = ot1, y = prop, colour = trial_type, fill = trial_type)) +
+augment(fit) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	ggplot(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type)) +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(fun.data = mean_se, aes(y = y_pred), geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(fun = mean, aes(y = y_pred), geom = "line", size = 1) +
-	stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(fun = mean, geom = "line", size = 1) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
 			  	colour = "black", fill = "black"), show.legend = FALSE) +
