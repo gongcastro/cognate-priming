@@ -15,7 +15,8 @@ library(here) # for locating files
 logit_to_prob <- function(x) exp(x) / (1 + exp(x))
 
 # import data ----
-participants <- readRDS(here("Data", "Participants", "participants.rds"))
+participants <- readRDS(here("Data", "Participants", "participants.rds")) %>% 
+	mutate(participant_unique = as.character(row_number()))
 processed <- list(
 	Barcelona = readRDS(here("Data", "Gaze", "processed_barcelona.rds")),
 	Oxford = readRDS(here("Data", "Gaze", "processed_oxford.rds"))
@@ -29,14 +30,7 @@ processed <- list(
 	) %>% 
 	# to avoid issues with column names
 	rename(time_stamp = time) %>% 
-	# eyetrackingR only accepts unique IDs, so from now on we treat longitudinal participants as distinct
-	group_by(participant) %>% 
-	mutate(participant_unique = case_when(
-		date_test==unique(date_test)[2] ~ paste0(participant, "_2"),
-		date_test==unique(date_test)[3] ~ paste0(participant, "_3"),
-		TRUE ~ paste0(participant, "_1")
-	)) %>% 
-	ungroup()
+	left_join(distinct(participants, participant, age_group, participant_unique))
 
 # attrition
 attrition <- processed %>% 
@@ -76,14 +70,12 @@ contrasts(d$trial_type) <- cbind(c(-0.5, -0.5, 1), c(0.5, -0.5, 0))
 contrasts(d$age_group) <- contr.poly(3, contrasts = TRUE)
 d$vocab_size <- d$vocab_size-mean(d$vocab_size, na.rm = TRUE)
 
-write.csv(d, here("Data", "Gaze", "processed.csv"), row.names = FALSE)
 saveRDS(d, here("Data", "Gaze", "processed.rds"))
 
 # fit model ----
 fit <- lmer(
 	elog ~ age_group + vocab_size + trial_type*lp*(ot1+ot2+ot3) +
-		(1+ot1+ot2+ot3+trial_type+age_group | participant) +
-		(1+ot1+ot2+ot3+trial_type | target),
+		(1+ot1+ot2+ot3+trial_type+age_group | participant),
 	control = lmerControl(optimizer = "bobyqa"),
 	data = d
 )
@@ -114,12 +106,7 @@ random_effects <- lapply(
 )
 
 # variance-covariance matrices
-cor_matrix <- VarCorr(fit)
-
-# export
-saveRDS(fixed_effects, here("Results", "fixed-effects.rds"))
-saveRDS(random_effects, here("Results", "random-effects.rds"))
-saveRDS(cor_matrix, here("Results", "random-effects-matrix.rds"))
+VarCorr(fit)
 
 # plot fixed effects
 ggplot(fixed_effects, aes(estimate, term, colour = term, fill = term)) +

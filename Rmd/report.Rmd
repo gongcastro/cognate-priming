@@ -510,9 +510,7 @@ confint.merMod(fit, method = "Wald") %>%
 ```
 
 
-#### Random effects {.tabset .tab-pills}
-
-##### By participant
+#### Random effects
 
 ```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -533,26 +531,6 @@ VarCorr(fit)$participant %>%
 	
 ```
 
-##### By target word
-
-```{r random_effects_target, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-VarCorr(fit)$target %>% 
-	as.data.frame() %>% 
-	rownames_to_column("term1") %>% 
-	pivot_longer(-term1, names_to = "term2", values_to = "value") %>% 
-	ggplot(aes(term1, term2, fill = value)) +
-	geom_tile() +
-	coord_fixed() +
-	labs(x = "Term 1", y = "Term 2", fill = "Covariance") +
-	scale_fill_distiller(palette = "Oranges") +
-	theme_bilingual() +
-	theme(
-		axis.title = element_blank(),
-		axis.text.x = element_text(angle = 90)
-	)
-	
-```
 
 ##### {-}
 

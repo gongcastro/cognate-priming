@@ -110,7 +110,7 @@ valid_gaze <- raw %>%
 
 # evaluate vocabulary
 valid_vocabulary <- raw %>%
-	distinct(participant, age_group, trial_num, prime, target, distractor) %>% 
+	distinct(participant, age_group, trial_num, prime, target) %>% 
 	left_join(participants) %>% 
 	rowwise() %>% 
 	# participants understands prime, and target words in the testing language

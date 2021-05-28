@@ -63,9 +63,7 @@ participants_barcelona <- range_read(ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6v
 	left_join(vocabulary_barcelona) %>% 
 	select(participant, date_test, age_group, lp, test_language, list, version, vocab_size, vocab_words, filename)
 
-
 # Oxford data ----
-
 # import vocabulary data
 vocabulary_raw_oxford <- excel_sheets(here("Data", "Vocabulary", "vocabulary_oxford_Apr2021.xlsx")) %>%
 	map(function(x){
