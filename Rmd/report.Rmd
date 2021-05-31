@@ -402,16 +402,18 @@ participants %>%
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
-	ggplot(aes(lp, vocab_size, colour = lp, fill = lp)) +
+	ggplot() +
 	facet_wrap(location~age_group) +
-	geom_violin(position = position_dodge(width = 0.75)) + 
+	geom_violin(position = position_dodge(width = 0.75),
+				aes(lp, vocab_size, colour = lp, fill = lp)) + 
 	# geom_point(shape = 1, colour = "black", alpha = 0.5, size = 3, stroke = 1,
 	# 		   position = position_jitter(width = 0.1, seed = 888)) +
-	geom_boxplot(width = 0.1, colour = "black", fill = "white", outlier.colour = NA,
+	geom_boxplot(aes(lp, vocab_size, colour = lp, fill = lp),
+				 width = 0.1, colour = "black", fill = "white", outlier.colour = NA,
 				 position = position_dodge(width = 0.75)) +
-		geom_text(data = sample_size,
-			  aes(x = 1.5, y = 0.95, label = paste0("n = ", n),
-			  	colour = "black", fill = "black"), show.legend = FALSE) +
+	geom_text(data = sample_size,
+			  aes(x = 1, y = 0.95, label = paste0("n = ", n)),
+			  colour = "black", fill = "black", show.legend = FALSE) +
 	labs(y = "Receptive vocabulary size (L1)", colour = "Group", fill = "Group") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	theme(legend.title = element_blank(),
@@ -445,17 +447,21 @@ gaze %>%
 		.groups = "drop"
 	) %>% 
 	drop_na() %>% 
-	ggplot(aes(trial_type, prop, colour = trial_type, fill = trial_type)) +
+	ggplot() +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, linetype = "dashed") +
-	geom_violin(position = position_dodge(width = 0.75)) +
+	geom_violin(aes(trial_type, prop, colour = trial_type, fill = trial_type),
+				position = position_dodge(width = 0.75)) +
 	#stat_slab(position = position_nudge(x = 0.25)) +
 	#geom_point(size = 2, shape = 1, stroke = 1, position = position_jitter(width = 0.1)) +
-	geom_boxplot(aes(group = interaction(age_group, trial_type)), width = 0.1, outlier.colour = NA,
-				 position = position_dodge(width = 0.75), colour = "black", fill = "white") +
+	geom_boxplot(aes(trial_type, prop, colour = trial_type, fill = trial_type,
+					 group = interaction(age_group, trial_type)),
+				 width = 0.1, outlier.colour = NA,
+				 position = position_dodge(width = 0.75),
+				 colour = "black", fill = "white") +
 	geom_text(data = sample_size,
-			  aes(x = 1, y = 0.95, label = paste0("n = ", n),
-			  	colour = "black", fill = "black"), show.legend = FALSE) +
+			  aes(x = 1, y = 0.95, label = paste0("n = ", n)),
+			  colour = "black", fill = "black", show.legend = FALSE) +
 	labs(x = "Trial type", y = "Target looking / Total looking", colour = "Condition", fill = "Condition") + 
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
 	theme(legend.position = "none",
@@ -493,7 +499,7 @@ $$
 #### Fixed effects
 
 ```{r fixed_effects_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-confint.merMod(fit, method = "Wald") %>% 
+main_effects <- confint.merMod(fit, method = "Wald") %>% 
 	as.data.frame() %>% 
 	clean_names() %>% 
 	drop_na(x2_5_percent) %>%
@@ -523,6 +529,8 @@ confint.merMod(fit, method = "Wald") %>%
 			rows = p_value < 0.05
 		)
 	)
+gtsave(data = main_effects, filename = "main_effects.png", path = here("Figures"))
+main_effects
 ```
 
 
@@ -557,29 +565,36 @@ VarCorr(fit)$participant %>%
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 sample_size <- participants %>% 
-	filter(valid_participant) %>%
+	filter(valid_participant) %>% 
 	count(age_group, lp)
 
 augment(fit) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
-	ggplot(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type)) +
+	ggplot() +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
 	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
-			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n),
-			  	colour = "black", fill = "black"), show.legend = FALSE) +
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
+			  show.legend = FALSE,
+			  colour = "black", fill = "black") +
 	labs(x = "Time bin (100 ms)", y = "Prob. of target fixation",
-		 colour = "Trial type", fill = "Trial type") +
+		 colour = "Trial type", fill = "Trial type",
+		 caption = "Marginal means of the multilevel model, plotted in separate panels for monolinguals and bilinguals, across age\ngroups. Sample sizes are indicated at the upper left corner in each panel. The first and last 300 ms in each trial\nwere trimmed before the analysis.") +
 	scale_y_continuous(limits = c(0, 1), labels = scales::percent) + 
 	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
 	theme_custom() +
 	theme(
 		legend.position = "top",
-		axis.text = element_text(size = 7)
-	)
+		axis.text = element_text(size = 7),
+		plot.caption = element_text(size = 10, hjust = 0),
+		plot.caption.position = "plot"
+	) +
+	ggsave(here("Figures", "emmeans.png"), height = 6)
 ```
 
 ##### By vocabulary size
