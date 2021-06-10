@@ -174,5 +174,13 @@ d %>%
 		axis.text.x = element_text(size = 7)
 	)
 
-
+# this model does not converge
+fit_21_mon <- lmer(
+	elog ~ vocab_size + trial_type*(ot1+ot2+ot3) +
+		(1+ot1+ot2+ot3+trial_type | participant),
+	control = lmerControl(optimizer = "bobyqa"),
+	data = filter(d, age_group=="21 months", lp=="Monolingual")
+)
+# this model converges
+saveRDS(fit_21_mon, here("Results", "fit_21_mon.rds"))
 

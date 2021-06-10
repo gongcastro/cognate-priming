@@ -18,7 +18,7 @@ cdi_replacements <- c("boots" = "boot", "boot(s)" = "boot", "fire engine" = "fir
 
 # Barcelona data ----
 p <- ml_participants()
-r <- ml_responses(p, update = FALSE)
+r <- ml_responses(p, update = TRUE)
 vocab_raw_barcelona <- r %>% 
 	mutate(
 		understands = response > 1,

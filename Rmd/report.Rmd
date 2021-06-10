@@ -67,6 +67,7 @@ participants <- readRDS(here("Data", "Participants", "participants.rds")) %>%
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(participant)
 fit <- readRDS(here("Results", "fit.rds"))
+fit_21_mon <- readRDS(here("Results", "fit_21_mon.rds"))
 
 
 ```
@@ -387,46 +388,9 @@ DiagrammeR::grViz("digraph {
 
 ### {-}
 
-# Results
-
-## Vocabulary
-
-This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
-
-```{r vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-sample_size <- participants %>% 
-	count(age_group, location)
-
-# vocabulary
-participants %>% 
-	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
-	drop_na(lp) %>%
-	filter(valid_participant) %>% 
-	ggplot() +
-	facet_wrap(location~age_group) +
-	geom_violin(position = position_dodge(width = 0.75),
-				aes(lp, vocab_size, colour = lp, fill = lp)) + 
-	# geom_point(shape = 1, colour = "black", alpha = 0.5, size = 3, stroke = 1,
-	# 		   position = position_jitter(width = 0.1, seed = 888)) +
-	geom_boxplot(aes(lp, vocab_size, colour = lp, fill = lp),
-				 width = 0.1, colour = "black", fill = "white", outlier.colour = NA,
-				 position = position_dodge(width = 0.75)) +
-	geom_text(data = sample_size,
-			  aes(x = 1, y = 0.95, label = paste0("n = ", n)),
-			  colour = "black", fill = "black", show.legend = FALSE) +
-	labs(y = "Receptive vocabulary size (L1)", colour = "Group", fill = "Group") +
-	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-	theme(legend.title = element_blank(),
-		  legend.position = "none",
-		  axis.title.x = element_blank(),
-		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
-	ggsave(here("Figures", "vocabulary.png"))
-
-```
-
+# Results {.tabset .tab-pills}
 
 ## Target fixations {.tabset .tab-pills}
-
 
 ### Aggregated by trial
 
@@ -529,6 +493,7 @@ main_effects <- confint.merMod(fit, method = "Wald") %>%
 			rows = p_value < 0.05
 		)
 	)
+
 gtsave(data = main_effects, filename = "main_effects.png", path = here("Figures"))
 main_effects
 ```
@@ -597,6 +562,7 @@ augment(fit) %>%
 	ggsave(here("Figures", "emmeans.png"), height = 6)
 ```
 
+
 ##### By vocabulary size
 
 
@@ -657,8 +623,9 @@ augment(fit) %>%
 	)
 ```
 
-##### By location
 
+
+##### By location
 
 ```{r gaze_time_location_barcelona, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 sample_size <- participants %>% 
@@ -721,72 +688,146 @@ augment(fit) %>%
 
 ##### {-}
 
-#### {-}
 
+#### 21 month-old monolinguals
 
-
-# Appendix {.tabset .tab-pills}
-
-## Appendix 1: Individual attrition rates
-
-```{r attrition_individual, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=12}
-
-attrition %>%
-	left_join(select(participants, location, lp, participant, date_test)) %>% 
-	drop_na(trial_type) %>% 
-	group_by(participant, lp, location, date_test, age_group, trial_type, valid_participant, valid_other) %>% 
-	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
-			  .groups = "drop") %>% 
-	pivot_wider(names_from = trial_type, values_from = valid_trial_count) %>% 
+```{r fixef_21_mon, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+main_effects <- confint.merMod(fit_21_mon, method = "Wald") %>% 
+	as.data.frame() %>% 
 	clean_names() %>% 
-	mutate(
-		participant = str_remove(participant, "cognatepriming"),
-		cognate = paste0(cognate, " (", round(cognate/8, 2), "%)"),
-		non_cognate = paste0(non_cognate, " (", round(non_cognate/8, 2), "%)"),
-		unrelated = paste0(unrelated, " (", round(unrelated/8, 2), "%)"),
-	) %>% 
-	arrange(location, date_test) %>% 
-	relocate(
-		participant, location, date_test,
-		age_group, lp, cognate, non_cognate,
-		unrelated, valid_other, valid_participant) %>% 
+	drop_na(x2_5_percent) %>%
+	rownames_to_column("term") %>% 
+	right_join(clean_names(tidy(fit_21_mon, effects = "fixed"))) %>% 
+	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
+		   statistic, df, p_value) %>% 
 	gt() %>% 
-	tab_spanner(
-		"Valid trials (%) by trial type",
-		c("cognate", "non_cognate", "unrelated")
-	) %>% 
+	fmt_number(2:7) %>% 
+	fmt_number(8, decimals = 3) %>% 
+	cols_merge(starts_with("conf_"), pattern = "[{1}, {2}]") %>% 
 	cols_label(
-		participant = "Participant",
-		location = "Location",
-		date_test = "Date",
-		lp = "Group",
-		age_group = "Age",
-		valid_participant = "Valid trials",
-		valid_other = "Valid (other)?",
-		cognate = "Cognate",
-		non_cognate = "Non-cognate",
-		unrelated = "Unrelated"
+		term = md("**Predictor**"),
+		estimate = md("**Estimate**"),
+		std_error = md("**SE**"),
+		conf_lower = md("**CI<sub>95%</sub>**"),
+		statistic = md("***t***"),
+		df = md("**df**"),
+		p_value = md("***p***")
 	) %>% 
 	tab_style(
 		style = list(
-			cell_fill(color = "#00FA9A")
+			cell_fill(color = "#F9E3D6")
 		),
 		locations = cells_body(
-			columns = c("valid_participant"),
-			rows = valid_participant
-		)
-	) %>% 
-	tab_style(
-		style = list(
-			cell_fill(color = "#00FA9A")
-		),
-		locations = cells_body(
-			columns = c("valid_other"),
-			rows = valid_other
+			columns = everything(),
+			rows = p_value < 0.05
 		)
 	)
 
+gtsave(data = main_effects, filename = "main_effects_21_mon.png", path = here("Figures"))
+main_effects
+
 ```
+
+
+```{r gaze_time_21_mon, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
+	count(age_group, lp)
+
+augment(fit_21_mon) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	ggplot() +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
+			  show.legend = FALSE,
+			  colour = "black", fill = "black") +
+	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		axis.title.y = element_blank(),
+		axis.text = element_text(size = 7),
+		legend.position = "left"
+	) +
+	
+	augment(fit_21_mon) %>% 
+	mutate(elog_prob = logit_to_prob(elog)) %>% 
+	group_by(participant, trial_type) %>% 
+	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
+	ggplot(aes(trial_type, elog_prob, fill = trial_type, colour = trial_type)) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_violin(show.legend = FALSE) +
+	geom_boxplot(width = 0.1, outlier.colour = NA, fill = "white", colour = "black") +
+	labs(x = "Trial type", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) + 
+	theme(
+		axis.title = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_blank(),
+		axis.text.y = element_blank()
+	) +
+	plot_layout(ncol = 2, guides = "collect", widths = c(0.75, 0.25)) &
+	plot_annotation(
+		caption = "A: Marginal means of the multilevel model, plotted in separate panels for monolinguals and bilinguals, across age\ngroups. Sample sizes are indicated at the upper left corner in each panel. The first and last 300 ms in each trial\nwere trimmed before the analysis. B: mean observed probability of target looking, aggregated by participant.",
+		tag_levels = "A") &
+	theme_custom() &
+	theme(
+		legend.position = "right",
+		plot.caption = element_text(size = 10, hjust = 0),
+		plot.caption.position = "plot"
+	) &
+	ggsave(here("Figures", "emmeans_21_mon.png"))
+```
+
+#### {-}
+
+## Vocabulary
+
+This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
+
+```{r vocabulary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants %>% 
+	count(age_group, location)
+
+# vocabulary
+participants %>% 
+	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_wrap(location~age_group) +
+	geom_violin(position = position_dodge(width = 0.75),
+				aes(lp, vocab_size, colour = lp, fill = lp)) + 
+	# geom_point(shape = 1, colour = "black", alpha = 0.5, size = 3, stroke = 1,
+	# 		   position = position_jitter(width = 0.1, seed = 888)) +
+	geom_boxplot(aes(lp, vocab_size, colour = lp, fill = lp),
+				 width = 0.1, colour = "black", fill = "white", outlier.colour = NA,
+				 position = position_dodge(width = 0.75)) +
+	geom_text(data = sample_size,
+			  aes(x = 1, y = 0.95, label = paste0("n = ", n)),
+			  colour = "black", fill = "black", show.legend = FALSE) +
+	labs(y = "Receptive vocabulary size (L1)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+	theme(legend.title = element_blank(),
+		  legend.position = "none",
+		  axis.title.x = element_blank(),
+		  panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")) +
+	ggsave(here("Figures", "vocabulary.png"))
+
+```
+
+## {-}
+
+# Appendix {.tabset .tab-pills}
+
 
 ## {-}
 
