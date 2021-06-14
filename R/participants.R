@@ -61,7 +61,7 @@ participants_barcelona <- range_read(ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6v
 		) %>% 
 	filter(!pilot) %>% 
 	left_join(vocabulary_barcelona) %>% 
-	select(participant, date_test, age_group, lp, test_language, list, version, vocab_size, vocab_words, filename)
+	select(participant, id_db, sex, date_test, age_group, lp, test_language, list, version, vocab_size, vocab_words, filename)
 
 # Oxford data ----
 # import vocabulary data
@@ -121,7 +121,9 @@ participants_oxford <- read_xlsx(here("Data", "Participants", "participant_oxfor
 
 # merge data ----
 participants <- list(Barcelona = participants_barcelona, Oxford = participants_oxford) %>% 
-	bind_rows(.id = "location")
+	bind_rows(.id = "location") %>% 
+	select(participant, id_db, date_test, location, lp, age_group, test_language, list, version, vocab_words, vocab_size, filename) %>% 
+	mutate(vocab_size_center = scale(vocab_size)[,1])
 
 # export data ----
 saveRDS(vocab_norms_barcelona, here("Data", "Vocabulary", "vocabulary_norms.rds"))
