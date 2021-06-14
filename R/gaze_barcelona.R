@@ -170,7 +170,6 @@ valid_participants <- valid_trials %>%
 		valid_participant = valid_participant_cognate & valid_participant_non_cognate & valid_participant_unrelated
 	)
 
-
 # merge data ----
 processed <- list(raw, participants, valid_trials, valid_participants) %>%
 	reduce(left_join) %>% 
