@@ -8,8 +8,8 @@ library(janitor) # for cleaning column names
 library(here) # for locating files
 
 # set params
-looking_threshold <- c(prime = 500, target = 500) # minimum looking time
-missing_trials_threshold <- c(cognate = 2, noncognate = 2, unrelated = 2) # minimum n trials in each condition
+looking_threshold <- c(prime = 250, target = 250) # minimum looking time
+missing_trials_threshold <- c(cognate = 0, noncognate = 0, unrelated = 0) # minimum n trials in each condition
 
 # import data ----
 participants <- readRDS(here("Data", "Participants", "participants.rds"))
