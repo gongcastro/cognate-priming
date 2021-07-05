@@ -29,7 +29,7 @@ clean <- readRDS(here("Data", "Gaze", "clean.rds")) %>%
 	left_join(select(participants, age_group, participant, participant_unique))
 
 # to eyetrackingR format
-d <- clean %>% 
+gaze <- clean %>% 
 	mutate(trackloss_col = !valid_sample) %>% # eyetracking R
 	make_eyetrackingr_data(
 		participant_column = "participant_unique",
@@ -58,29 +58,29 @@ d <- clean %>%
 	mutate_at(vars(age_group, lp, prime, target, trial, trial_type), as.factor)
 
 # set a prior contrasts and orthogonal polynomials
-contrasts(d$lp) <- c(-0.5, 0.5)
-contrasts(d$trial_type) <- cbind(c(-0.25, -0.25, 0.5), c(0.5, -0.5, 0))
-contrasts(d$age_group) <- contr.poly(3, contrasts = TRUE)
-saveRDS(d, here("Data", "Gaze", "d.rds"))
+contrasts(gaze$lp) <- c(-0.5, 0.5)
+contrasts(gaze$trial_type) <- cbind(c(-0.25, -0.25, 0.5), c(0.5, -0.5, 0))
+contrasts(gaze$age_group) <- contr.poly(3, contrasts = TRUE)
+saveRDS(gaze, here("Data", "Gaze", "d.rds"))
 
 # fit models ----
 
 job(
 	title = "Fit models",
-	import = c(d),
+	import = c(gaze, vocab, participants),
 	lmer_result = {
 		# main model
 		fit = lmer(
 			elog ~ age_group + vocab_size_l1_center*trial_type*lp*(ot1+ot2+ot3) +
 				(1+ot1+ot2+ot3+trial_type+age_group | participant),
 			control = lmerControl(optimizer = "bobyqa"),
-			data = d
+			data = gaze
 		)
 		saveRDS(fit, here("Results", "fit.rds"))
 		
 		
 		# 21mo monolinguals only
-		d_21_mon <- filter(d, age_group=="21 months", lp=="Monolingual") %>% 
+		gaze_21_mon <- filter(gaze, age_group=="21 months", lp=="Monolingual") %>% 
 			mutate(vocab_cat = ifelse(
 				vocab_size_l1_center > median(vocab$vocab_size_l1_center, na.rm = TRUE), 
 				"Above median", 
@@ -95,7 +95,7 @@ job(
 			elog ~ vocab_size_l1_center + trial_type*(ot1+ot2+ot3) +
 				(1+ot1+ot2+ot3 | participant),
 			control = lmerControl(optimizer = "bobyqa"),
-			data = filter(d, age_group=="21 months", lp=="Monolingual")
+			data = filter(gaze, age_group=="21 months", lp=="Monolingual")
 		)
 		saveRDS(fit_21_mon, here("Results", "fit_21_mon.rds"))
 		
@@ -104,7 +104,7 @@ job(
 			elog ~ trial_type*vocab_cat*(ot1+ot2+ot3) +
 				(1+ot1+ot2 | participant),
 			control = lmerControl(optimizer = "bobyqa"),
-			data = d_21_mon
+			data = gaze_21_mon
 		)
 		saveRDS(fit_21_mon_vocab, here("Results", "fit_21_mon_vocab.rds"))
 		
@@ -122,7 +122,7 @@ job(
 					((location=="Oxford")) & (vocab_index %in% seq(max(vocab_index[location=="Oxford"])-15, max(vocab_index[location=="Oxford"])))
 			)
 		
-		fit_21_mon_vocab_pct = d_21_mon %>% 
+		fit_21_mon_vocab_pct = gaze_21_mon %>% 
 			filter(participant %in% vocab_max_min$participant) %>% 
 			lmer(
 				elog ~ trial_type*(ot1+ot2+ot3) +
@@ -137,7 +137,7 @@ job(
 			elog ~ trial_type*location*(ot1+ot2+ot3) +
 				(1+ot1+ot2 | participant),
 			control = lmerControl(optimizer = "bobyqa"),
-			data = d_21_mon
+			data = gaze_21_mon
 		)
 		saveRDS(fit_21_mon_location, here("Results", "fit_21_mon_location.rds"))
 		

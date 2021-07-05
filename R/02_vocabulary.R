@@ -6,7 +6,7 @@
 library(tidyverse)
 library(mice) # for multiple imputation
 library(multilex) # for extracting Barcelona vocabulary data
-library(readxl) # for importing Excel spradsheets
+library(readxl) # for importing Excel spreadsheets
 library(here) # for reproducible file paths
 
 # set params
@@ -19,7 +19,7 @@ participants <- readRDS(here("Data", "Participants", "participants.rds"))
 
 # Barcelona vocabulary ----
 p <- ml_participants()
-r <- ml_responses(p, update = FALSE)
+r <- ml_responses(p, update = TRUE)
 l <- ml_logs(p, r) %>% 
 	rename(participant = id_exp) %>% 
 	mutate(

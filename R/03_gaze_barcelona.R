@@ -2,11 +2,10 @@
 
 # set up ----
 library(tidyverse)
-library(janitor)
-library(multilex)
-library(lubridate)
-library(data.table)
-library(here)
+library(janitor) # for cleaning column names
+library(lubridate) # for working with dates
+library(data.table) # for reading CSVs
+library(here) # for reproducible file paths
 
 # set params
 screen_resolution <- c(x = 1920, y = 1080) # screen size in pixels

@@ -2,13 +2,12 @@
 
 # set up ----
 library(tidyverse)
-library(janitor)
-library(multilex)
-library(googlesheets4)
-library(readxl)
-library(multilex)
-library(lubridate)
-library(here)
+library(janitor) # for cleaining column names
+library(multilex) # for vocabulary data
+library(googlesheets4) # for participant data
+library(readxl) # for importing Excel spreadsheets
+library(lubridate) # for working with dates
+library(here) # for reproducible file paths
 
 # import data ----
 # participants
