@@ -434,7 +434,7 @@ animacy <- stimuli %>%
 animacy %>% 
 	filter(role=="Prime") %>% 
 	ggplot(aes(trial_type, n, fill = is_animate, colour = is_animate)) +
-	facet_wrap(role~location~test_language, ncol = 4) +
+	facet_wrap(location~test_language, ncol = 4) +
 	geom_col(position = position_fill(), colour = "white") +
 	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
 	labs(title = "Prime", x = "Trial type", y = "# trials", colour = "Animacy", fill = "Animacy") +
@@ -447,7 +447,7 @@ animacy %>%
 	animacy %>% 
 	filter(role=="Target") %>% 
 	ggplot(aes(trial_type, n, fill = is_animate, colour = is_animate)) +
-	facet_wrap(role~location~test_language, ncol = 4) +
+	facet_wrap(location~test_language, ncol = 4) +
 	geom_col(position = position_fill(), colour = "white") +
 	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
 	labs(title = "Target", x = "Trial type", y = "# trials", colour = "Animacy", fill = "Animacy") +
@@ -888,6 +888,41 @@ participants %>%
 	) 
 ```
 
+
+### By location
+
+```{r trials_attrition_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, out.width="100%"}
+# plot participants
+attrition_location <- attrition %>% 
+	left_join(select(participants, participant, location)) %>% 
+	count(location, lp, age_group, trial_type, valid_status) %>% 
+	drop_na(trial_type)
+
+attrition_location %>% 
+	filter(location=="Barcelona") %>% 
+	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
+	facet_grid(lp~age_group) +
+	geom_col(position = position_fill(), colour = "white") +
+	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity", title = "Barcelona") +
+	
+	attrition_location %>% 
+	filter(location=="Oxford") %>% 
+	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
+	facet_grid(lp~age_group) +
+	geom_col(position = position_fill(), colour = "white") +
+	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity", title = "Oxford") +
+	
+	plot_layout(guides = "collect", ncol = 1) &
+	scale_y_continuous(labels = percent) &
+	coord_flip() &
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		axis.text.x = element_text(size = 10),
+		axis.text.y = element_text(size = 10),
+		axis.title = element_blank()
+	)
+```
 
 ### By group
 

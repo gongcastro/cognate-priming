@@ -4,6 +4,7 @@
 
 # load packages
 library(tidyverse)
+library(keyring) # for retrieve encrypted credentials
 library(readxl) # for importing Excel spreadsheets
 library(multilex) # for extracting familiarity norms
 library(janitor) # for cleaning column names
@@ -11,7 +12,10 @@ library(childesr) # for extracting frequencies from CHILDES
 library(here) # for reproducible file paths
 
 # set params
-ml_connect("gonzalo.garciadecastro@upf.edu")
+ml_connect(
+	google_email = "gonzalo.garciadecastro@upf.edu",
+	formr_password = key_get("formr", "gonzalo.garciadecastro@upf.edu")
+)
 
 # import data ----
 trials <- read_xlsx(here("Stimuli", "stimuli.xlsx"))
@@ -60,7 +64,7 @@ subtlex <- bind_rows(
 
 
 # lexical frequency norms (CHILDES) ----
-childes_n <- get_speaker_statistics(collection = unique(childes_tokens$collection_name)) %>% 
+childes_n <- get_speaker_statistics() %>% 
 	filter(str_detect(language, "spa|cat|eng")) %>%
 	group_by(language) %>% 
 	summarise(num_tokens = sum(num_tokens), .groups = "drop") %>% 

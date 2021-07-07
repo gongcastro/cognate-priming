@@ -3,7 +3,6 @@
 # set up ----
 library(tidyverse)
 library(janitor) # for cleaining column names
-library(multilex) # for vocabulary data
 library(googlesheets4) # for participant data
 library(readxl) # for importing Excel spreadsheets
 library(lubridate) # for working with dates
@@ -22,8 +21,6 @@ participants_barcelona <- range_read(ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6v
 
 # Oxford data ----
 # import vocabulary data
-
-
 participants_oxford <- read_xlsx(here("Data", "Participants", "participant_oxford_Apr2021.xlsx")) %>% 
 	clean_names() %>% 
 	rename(participant = id, lp = lang_group) %>% 

@@ -88,8 +88,8 @@ job(
 			)) %>% 
 			mutate_at(vars(vocab_cat, location), as.factor)
 		
-		contrasts(d_21_mon$vocab_cat) <- c(0.5, -0.5)
-		contrasts(d_21_mon$location) <- c(0.5, -0.5)
+		contrasts(gaze_21_mon$vocab_cat) <- c(0.5, -0.5)
+		contrasts(gaze_21_mon$location) <- c(0.5, -0.5)
 		
 		fit_21_mon = lmer(
 			elog ~ vocab_size_l1_center + trial_type*(ot1+ot2+ot3) +

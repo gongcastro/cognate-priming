@@ -10,10 +10,15 @@ library(readxl) # for importing Excel spreadsheets
 library(here) # for reproducible file paths
 
 # set params
-ml_connect("gonzalo.garciadecastro@upf.edu") # log into MultiLex
-cdi_replacements <- c("boots" = "boot", "boot(s)" = "boot", "fire engine" = "fireengine",
-					  "teddy bear" = "teddy", "bunny / rabbit" = "bunny",
-					  "lorry / truck" = "truck", "bicycle / bike" = "bike")
+ml_connect(
+	google_email = "gonzalo.garciadecastro@upf.edu",
+	formr_password = key_get("formr", "gonzalo.garciadecastro@upf.edu")
+)
+cdi_replacements <- c(
+	"boots" = "boot", "boot(s)" = "boot", "fire engine" = "fireengine",
+	"teddy bear" = "teddy", "bunny / rabbit" = "bunny",
+	"lorry / truck" = "truck", "bicycle / bike" = "bike"
+)
 
 participants <- readRDS(here("Data", "Participants", "participants.rds"))
 
@@ -123,7 +128,7 @@ vocab_barcelona[[2]] <- vocab_barcelona[[2]] %>%
 	left_join(vocab_norms_item_barcelona)
 vocab_barcelona <- bind_rows(vocab_barcelona) %>% 
 	select(-c(lp, is_imputed_vocab_words))
-	
+
 # Oxford vocabulary ----
 vocab_raw_oxford <- excel_sheets(here("Data", "Vocabulary", "vocabulary_oxford_Apr2021.xlsx")) %>%
 	map(function(x){
