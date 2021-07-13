@@ -347,20 +347,20 @@ stimuli %>%
 
 #### Prime
 
-```{r stimuli_familiarity_prime, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, fig.height=5, out.width="100%"}
+```{r stimuli_familiarity_prime, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, fig.height=7, out.width="100%"}
 means <- stimuli %>% 
 	distinct(location, test_language, target, trial_type, prime, .keep_all = TRUE) %>% 
-	filter(location=="Barcelona") %>% 
 	group_by(test_language, location, trial_type) %>% 
-	summarise(familiarity_prime = mean(familiarity_prime, na.rm = TRUE),
-			  .groups = "drop") %>% 
+	summarise(
+		familiarity_prime = mean(familiarity_prime, na.rm = TRUE),
+		.groups = "drop"
+	) %>% 
 	drop_na()
 
 stimuli %>% 
 	distinct(location, test_language, target, prime, .keep_all = TRUE) %>% 
-	drop_na() %>% 
 	ggplot(aes(familiarity_prime, reorder(prime, familiarity_prime), xmin = familiarity_ci_lower_prime, xmax = familiarity_ci_upper_prime, colour = trial_type, fill = trial_type)) +
-	facet_wrap(~test_language, scales = "free_y") +
+	facet_wrap(location~test_language, scales = "free_y") +
 	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
 	geom_vline(data = means, aes(xintercept = familiarity_prime, colour = trial_type), size = 1) +
 	geom_errorbar() +
@@ -384,17 +384,16 @@ stimuli %>%
 ```{r stimuli_familiarity_target, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, fig.height=6, out.width="100%"}
 means <- stimuli %>% 
 	distinct(location, test_language, target, trial_type, prime, .keep_all = TRUE) %>% 
-	filter(location=="Barcelona") %>% 
 	group_by(test_language, location, trial_type) %>% 
-	summarise(familiarity_target = mean(familiarity_target, na.rm = TRUE),
-			  .groups = "drop") %>% 
-	drop_na()
+	summarise(
+		familiarity_target = mean(familiarity_target, na.rm = TRUE),
+		.groups = "drop"
+	) 
 
 stimuli %>% 
 	distinct(location, test_language, target, prime, .keep_all = TRUE) %>% 
-	drop_na() %>% 
 	ggplot(aes(familiarity_target, reorder(target, familiarity_target), xmin = familiarity_ci_lower_target, xmax = familiarity_ci_upper_target, colour = trial_type, fill = trial_type)) +
-	facet_wrap(~test_language, scales = "free_y") +
+	facet_wrap(location~test_language, scales = "free_y") +
 	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
 	geom_vline(data = means, aes(xintercept = familiarity_target, colour = trial_type), size = 1) +
 	geom_errorbar() +
