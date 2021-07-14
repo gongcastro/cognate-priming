@@ -5,6 +5,7 @@ get_attrition <- function(
 	participants, # participants dataset, get_participants output
 	stimuli, # stimuli dataset, get_stimuli output
 	vocabulary, # vocabulary dataset, get_vocabulary output
+	filter_vocabulary = c("prime", "target"), # should the trial be excluded if no comprehension in any of these words? (prime, target, distractor)
 	looking_threshold = c(prime = 250, target = 250), # minimum looking time
 	missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0) # minimum n trials in each condition
 ){
@@ -26,14 +27,17 @@ get_attrition <- function(
 				valid_looking_prime = sum(aoi_prime[phase=="Prime"], na.rm = TRUE)*(1000/120),
 				# proportion of target looking time during target-distractor phase
 				valid_looking_target = sum(aoi_target[phase=="Target-Distractor"], na.rm = TRUE)*(1000/120), 
+				# proportion of distractor looking time during target-distractor phase
+				valid_looking_distractor = sum(aoi_distractor[phase=="Target-Distractor"], na.rm = TRUE)*(1000/120), 
 				.groups = "drop"
 			) %>% 
 			mutate(
 				# prime looking proportion during prime phase is higher or equal than minimum
 				valid_gaze_prime = valid_looking_prime >= looking_threshold["prime"],
 				# participant has looked at least once to target AND distractor and higher or equal than minimum to both
-				valid_gaze_target = valid_looking_target>0 &
-					(valid_looking_target >= looking_threshold["target"]),
+				valid_gaze_target = valid_looking_target>0 & (valid_looking_target >= looking_threshold["target"]),
+				# participant has looked at least once to target AND distractor and higher or equal than minimum to both
+				valid_gaze_distractor = valid_looking_distractor>0 & (valid_looking_distractor >= looking_threshold["distractor"]),
 				# trial meets all gaze criteria
 				valid_gaze = valid_gaze_prime & valid_gaze_target 
 			)
@@ -44,17 +48,18 @@ get_attrition <- function(
 			rowwise() %>% 
 			# evaluate if word in in participant's vocabulary or is understood by 50% or more of 19-22 aged children
 			mutate(
-				valid_vocab_prime = prime %in% vocab_words,
-				valid_vocab_target = target %in% vocab_words,
-				valid_vocab = valid_vocab_prime & valid_vocab_target
+				valid_vocab_prime = ifelse("prime" %in% filter_vocabulary, prime %in% vocab_words, TRUE),
+				valid_vocab_target = ifelse("target" %in% filter_vocabulary, target %in% vocab_words, TRUE),
+				valid_vocab_distractor = ifelse("distractor" %in% filter_vocabulary, distractor %in% vocab_words, TRUE),
+				valid_vocab = valid_vocab_prime & valid_vocab_target & valid_vocab_distractor
 			) %>% 
 			ungroup()
 		
 		# valid trials
 		valid_trials <- left_join(valid_gaze, valid_vocabulary) %>% 
 			# trial meets all gaze and vocabulary criteria
-			mutate(valid_trial =  valid_gaze_prime & valid_gaze_target & valid_vocab) %>% 
-			select(participant, age_group, trial_type, trial, valid_gaze_prime, valid_gaze_target, valid_vocab, valid_trial)
+			mutate(valid_trial =  valid_gaze_prime & valid_gaze_target & valid_gaze_distractor & valid_vocab) %>% 
+			select(participant, age_group, trial_type, trial, valid_gaze_prime, valid_gaze_target, valid_gaze_distractor, valid_vocab, valid_trial)
 		
 		# valid participants
 		valid_participants <- valid_trials %>% 
@@ -72,12 +77,12 @@ get_attrition <- function(
 			clean_names() %>% 
 			mutate(
 				# minimum number of cognate trials
-				valid_participant_cognate = cognate > missing_trials_threshold["cognate"],
+				valid_participant_cognate = cognate>missing_trials_threshold["cognate"],
 				# has minimum number of noncognate trials
-				valid_participant_non_cognate = non_cognate > missing_trials_threshold["noncognate"],
+				valid_participant_non_cognate = non_cognate>missing_trials_threshold["noncognate"],
 				# has minimum number of unrelated trials
-				valid_participant_unrelated = unrelated > missing_trials_threshold["unrelated"],
-				# participant fulfills and the conditions above
+				valid_participant_unrelated = unrelated>missing_trials_threshold["unrelated"],
+				# participant fulfils and the conditions above
 				valid_participant = valid_participant_cognate & valid_participant_non_cognate & valid_participant_unrelated
 			)
 		
@@ -85,7 +90,7 @@ get_attrition <- function(
 		attrition <- reduce(list(processed, valid_trials, valid_participants), left_join) %>% 
 			distinct(
 				participant, age_group, lp, location, test_language,
-				list, trial, trial_type, valid_gaze_prime, valid_gaze_target,
+				list, trial, trial_type, valid_gaze_prime, valid_gaze_target, valid_gaze_distractor,
 				valid_vocab, valid_trial, valid_participant
 			)
 		

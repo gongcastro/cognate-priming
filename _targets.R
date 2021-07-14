@@ -1,4 +1,5 @@
 library(targets)
+library(tarchetypes)
 
 source("R/utils.R")
 source("R/00_stimuli.R")
@@ -146,7 +147,7 @@ list(
 	),
 	
 	# get attrition ----
-	# run functions
+	# stringent version
 	tar_target(
 		attrition,
 		get_attrition(
@@ -154,15 +155,29 @@ list(
 			vocabulary = vocabulary,
 			gaze_bcn = gaze_bcn,
 			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 250, target = 250), # minimum looking time
-			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0) # minimum n trials in each condition
-			
+			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
+			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0), # minimum n trials in each condition
+			filter_vocabulary = c("prime", "target")
+		)
+	),
+	# relaxed version
+	tar_target(
+		attrition_relaxed,
+		get_attrition(
+			participants = participants,
+			vocabulary = vocabulary,
+			gaze_bcn = gaze_bcn,
+			gaze_oxf = gaze_oxf,
+			looking_threshold = c(prime = 0, target = 0, distractor = 0), # minimum looking time
+			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0), # minimum n trials in each condition
+			filter_vocabulary = NULL
 		)
 	),
 	
 	# prepare data for analysis ----
+	# stringent version
 	tar_target(
-		prepared,
+		gaze,
 		prepare_data(
 			gaze_bcn = gaze_bcn,
 			gaze_oxf = gaze_oxf,
@@ -172,28 +187,65 @@ list(
 			attrition = attrition
 		)
 	),
+	# relaxed version
+	tar_target(
+		gaze_relaxed,
+		prepare_data(
+			gaze_bcn = gaze_bcn,
+			gaze_oxf = gaze_oxf,
+			participants = participants,
+			stimuli = stimuli, 
+			vocabulary = vocabulary,
+			attrition = attrition_relaxed
+		)
+	),
 	
 	# fit models ----
-	# run functions
+	# stringent version
 	tar_target(
 		fit,
-		fit_main_model(data = prepared)
+		fit_main_model(data = gaze)
 	),
 	tar_target(
 		fit_21_mon,
-		fit_21_mon_model(data = prepared)
+		fit_21_mon_model(data = gaze)
 	),
 	tar_target(
 		fit_21_mon_vocab_split,
-		fit_21_mon_vocab_split_model(prepared, vocabulary)
+		fit_21_mon_vocab_split_model(gaze, vocabulary)
 	),
 	tar_target(
 		fit_21_mon_vocab_balanced,
-		fit_21_mon_vocab_balanced_model(prepared, participants, vocabulary)
+		fit_21_mon_vocab_balanced_model(gaze, participants, vocabulary)
 	),
 	tar_target(
 		fit_21_mon_location,
-		fit_21_mon_location_model(data = prepared)
-	)
+		fit_21_mon_location_model(data = gaze)
+	),
+	
+	# relaxed version
+	tar_target(
+		fit_relaxed,
+		fit_main_model(data = gaze_relaxed)
+	),
+	tar_target(
+		fit_21_mon_relaxed,
+		fit_21_mon_model(data = gaze_relaxed)
+	),
+	tar_target(
+		fit_21_mon_vocab_split_relaxed,
+		fit_21_mon_vocab_split_model(gaze_relaxed, vocabulary)
+	),
+	tar_target(
+		fit_21_mon_vocab_balanced_relaxed,
+		fit_21_mon_vocab_balanced_model(gaze_relaxed, participants, vocabulary)
+	),
+	tar_target(
+		fit_21_mon_location_relaxed,
+		fit_21_mon_location_model(data = gaze_relaxed)
+	),
+	
+	# render Rmd
+	tar_render(report, "Rmd/report.Rmd")
 	
 )

@@ -90,6 +90,7 @@ fit_21_mon_vocab_balanced_model <- function(
 fit_21_mon_location_model <- function(
 	data
 ){
+	contrasts(data$location) <- c(0.5, -0.5)
 	data <- filter(data, age_group=="21 months", lp=="Monolingual")
 	fit <- lmer(
 		elog ~ trial_type*location*(ot1+ot2+ot3) + (1+ot1+ot2 | participant),

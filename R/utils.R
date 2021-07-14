@@ -1,5 +1,16 @@
 # utils
 
+# custom ggplot theme
+theme_custom <- function(){
+	theme(
+		panel.background = element_rect(fill = "transparent"),
+		panel.grid = element_blank(),
+		#panel.grid = element_line(colour = "grey", linetype = "dotted"),
+		panel.border = element_rect(fill = "transparent", colour = "black"),
+		text = element_text(colour = "black", size = 15),
+		axis.text = element_text(colour = "black")
+	)
+}
 
 # get multilex data ----
 get_credentials <- function(

@@ -60,7 +60,7 @@ prepare_data <- function(
 				   vocab_size_total_center, vocab_size_l1_center, vocab_size_conceptual_center,
 				   prime, target, trial, trial_type,
 				   time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted) %>%
-			mutate_at(vars(age_group, lp, prime, target, trial, trial_type), as.factor)
+			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor)
 		
 		# set a prior contrasts and orthogonal polynomials
 		contrasts(gaze$lp) <- c(-0.5, 0.5)
