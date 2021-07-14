@@ -1,17 +1,3 @@
 name|type|parent|branches|progress
-attrition_relaxed|stem|attrition_relaxed|0|started
-attrition_relaxed|stem|attrition_relaxed|0|built
-gaze_relaxed|stem|gaze_relaxed|0|started
-gaze_relaxed|stem|gaze_relaxed|0|built
-fit_21_mon_relaxed|stem|fit_21_mon_relaxed|0|started
-fit_21_mon_relaxed|stem|fit_21_mon_relaxed|0|built
-fit_21_mon_vocab_balanced_relaxed|stem|fit_21_mon_vocab_balanced_relaxed|0|started
-fit_21_mon_vocab_balanced_relaxed|stem|fit_21_mon_vocab_balanced_relaxed|0|built
-fit_21_mon_location_relaxed|stem|fit_21_mon_location_relaxed|0|started
-fit_21_mon_location_relaxed|stem|fit_21_mon_location_relaxed|0|built
-fit_21_mon_vocab_split_relaxed|stem|fit_21_mon_vocab_split_relaxed|0|started
-fit_21_mon_vocab_split_relaxed|stem|fit_21_mon_vocab_split_relaxed|0|built
-fit_relaxed|stem|fit_relaxed|0|started
-fit_relaxed|stem|fit_relaxed|0|built
 report|stem|report|0|started
 report|stem|report|0|built

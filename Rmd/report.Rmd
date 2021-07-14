@@ -96,8 +96,14 @@ attrition_relaxed <- attrition_relaxed %>%
 			TRUE ~ "Valid"
 		))
 
-participants <- participants %>% 
+participants_stringent <- participants %>% 
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
+	drop_na(participant) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
+
+participants_relaxed <- participants %>% 
+	left_join(distinct(attrition_relaxed, participant, age_group, valid_participant)) %>% 
 	drop_na(participant) %>% 
 	left_join(vocabulary) %>% 
 	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
@@ -107,18 +113,20 @@ participants <- participants %>%
 
 # Methods
 
-## Participants {.tabset .tabpills}
+## Participants {.tabset .tabset-pills}
 
-* We collected data from `r length(unique(participants$participant))` participants `r length(unique(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
-* After applying trial- ad participant-level exclusion criteria, the sample comprise data from `r length(unique(participants$participant[participants$valid_participant]))` (`r length(unique(participants$participant[participants$valid_participant & participants$location=="Oxford"]))` tested in Oxford, and `r length(unique(participants$participant[participants$valid_participant & participants$location=="Barcelona"]))` tested in Barcelona), and were included in our analyses.
-* `r length(participants$participant[duplicated(participants$participant) & participants$valid_participant])` participants in the final sample were longitudinal (tested in at least one age group). `r length(participants$participant[duplicated(participants$participant) & participants$location=="Oxford" & participants$valid_participant])` longitudinal participants were tested in Oxford and `r length(participants$participant[duplicated(participants$participant) & participants$location=="Barcelona" & participants$valid_participant])` were tested in Barcelona.
-* From the longitudinal participants, `r length(participants$participant[(as.data.frame(table(participants$participant))$Freq>2) & participants$valid_participant])` were tested at two age groups, and `r length(participants$participant[(as.data.frame(table(participants$participant))$Freq>2) & participants$valid_participant])`were tested at three age groups.
+### Stringent criteria {.tabset}
+
+* We collected data from `r length(unique(participants_stringent$participant))` participants `r length(unique(participants_stringent$participant[participants_stringent$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants_stringent$participant[participants_stringent$location=="Barcelona"]))` were tested in Barcelona.
+* After applying trial- ad participant-level exclusion criteria, the sample comprise data from `r length(unique(participants_stringent$participant[participants_stringent$valid_participant]))` (`r length(unique(participants_stringent$participant[participants_stringent$valid_participant & participants_stringent$location=="Oxford"]))` tested in Oxford, and `r length(unique(participants_stringent$participant[participants_stringent$valid_participant & participants_stringent$location=="Barcelona"]))` tested in Barcelona), and were included in our analyses.
+* `r length(participants_stringent$participant[duplicated(participants_stringent$participant) & participants_stringent$valid_participant])` participants in the final sample were longitudinal (tested in at least one age group). `r length(participants_stringent$participant[duplicated(participants_stringent$participant) & participants_stringent$location=="Oxford" & participants_stringent$valid_participant])` longitudinal participants were tested in Oxford and `r length(participants_stringent$participant[duplicated(participants_stringent$participant) & participants_stringent$location=="Barcelona" & participants_stringent$valid_participant])` were tested in Barcelona.
+* From the longitudinal participants, `r length(participants_stringent$participant[(as.data.frame(table(participants_stringent$participant))$Freq>2) & participants_stringent$valid_participant])` were tested at two age groups, and `r length(participants_stringent$participant[(as.data.frame(table(participants_stringent$participant))$Freq>2) & participants_stringent$valid_participant])`were tested at three age groups.
 
 
-### Summary
+#### Summary
 
-```{r participants_summary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
-participants %>% 
+```{r participants_summary_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants_stringent %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>% 
 	filter(valid_participant) %>% 
 	drop_na(valid_participant) %>% 
@@ -135,13 +143,13 @@ participants %>%
 	) 
 ```
 
-### Longitudinal
+#### Longitudinal
 
-We collected data from `r sum(duplicated(participants$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
+We collected data from `r sum(duplicated(participants_stringent$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants_stringent$participant[participants_stringent$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants_stringent$participant[participants_stringent$location=="Barcelona"]))` were tested in Barcelona.
 
-```{r participants_cohort, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=6, out.width="100%"}
+```{r participants_cohort_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=6, out.width="100%"}
 # plot participants
-participants %>% 
+participants_stringent %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>%
 	mutate(
 		valid_status = case_when(
@@ -169,12 +177,78 @@ participants %>%
 ```
 
 
+#### {-}
+
+### Relaxed criteria {.tabset}
+
+* We collected data from `r length(unique(participants_relaxed$participant))` participants `r length(unique(participants_relaxed$participant[participants_relaxed$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants_relaxed$participant[participants_relaxed$location=="Barcelona"]))` were tested in Barcelona.
+* After applying trial- ad participant-level exclusion criteria, the sample comprise data from `r length(unique(participants_relaxed$participant[participants_relaxed$valid_participant]))` (`r length(unique(participants_relaxed$participant[participants_relaxed$valid_participant & participants_relaxed$location=="Oxford"]))` tested in Oxford, and `r length(unique(participants_relaxed$participant[participants_relaxed$valid_participant & participants_relaxed$location=="Barcelona"]))` tested in Barcelona), and were included in our analyses.
+* `r length(participants_relaxed$participant[duplicated(participants_relaxed$participant) & participants_relaxed$valid_participant])` participants in the final sample were longitudinal (tested in at least one age group). `r length(participants_relaxed$participant[duplicated(participants_relaxed$participant) & participants_relaxed$location=="Oxford" & participants_relaxed$valid_participant])` longitudinal participants were tested in Oxford and `r length(participants_relaxed$participant[duplicated(participants_relaxed$participant) & participants_relaxed$location=="Barcelona" & participants_relaxed$valid_participant])` were tested in Barcelona.
+* From the longitudinal participants, `r length(participants_relaxed$participant[(as.data.frame(table(participants_relaxed$participant))$Freq>2) & participants_relaxed$valid_participant])` were tested at two age groups, and `r length(participants_relaxed$participant[(as.data.frame(table(participants_relaxed$participant))$Freq>2) & participants_relaxed$valid_participant])`were tested at three age groups.
+
+
+#### Summary
+
+```{r participants_summary_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	ggplot(aes(lp, fill = as.factor(test_language))) +
+	facet_grid(location~age_group, scales = "free") +
+	geom_bar(colour = NA) +
+	geom_hline(yintercept = 24, linetype = "dashed") +
+	labs(x = "Group", y = "Sample size", fill = "Test language") +
+	theme(
+		legend.position = "top",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 10),
+		axis.title.y = element_text(angle = 90)
+	) 
+```
+
+#### Longitudinal
+
+We collected data from `r sum(duplicated(participants_relaxed$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants_relaxed$participant[participants_relaxed$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants_relaxed$participant[participants_relaxed$location=="Barcelona"]))` were tested in Barcelona.
+
+```{r participants_cohort_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=6, out.width="100%"}
+# plot participants
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>%
+	mutate(
+		valid_status = case_when(
+			valid_participant & !is.na(vocab_size_l1) ~ "Valid (+ CDI)",
+			valid_participant & is.na(vocab_size_l1) ~ "Valid (no CDI)",
+			!valid_participant ~ "Not valid"
+		),
+		age_group = str_remove(age_group, " months")
+	) %>%
+	drop_na(valid_status) %>% 
+	ggplot(aes(age_group, participant, colour = valid_status)) +
+	facet_grid(location~lp, scales = "free") +
+	geom_line(aes(group = interaction(lp, participant))) +
+	geom_point(size = 2) +
+	geom_hline(yintercept = 0.2, linetype = "dashed") +
+	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Validity status") +
+	theme(
+		legend.position = "right",
+		legend.title = element_blank(),
+		axis.text = element_text(size = 10),
+		axis.title.y = element_blank(),
+		axis.text.y = element_blank(),
+		axis.ticks.y = element_blank()
+	)
+```
+
+
+#### {-}
 
 ### {-}
 
-## Stimuli {.tabset .tab-pills}
 
-### Frequency {.tabset .tab-pills}
+## Stimuli {.tabset }
+
+### Frequency {.tabset }
 
 #### CHILDES vs. SUBTLEX
 
@@ -253,7 +327,7 @@ frequency_compare_data %>%
 
 ```
 
-#### CHILDES {.tabset .tab-pills}
+#### CHILDES {.tabset }
 
 ##### Prime
 
@@ -306,7 +380,7 @@ stimuli %>%
 
 ##### {-}
 
-#### SUBTLEX {.tabset .tab-pills}
+#### SUBTLEX {.tabset }
 
 ##### Prime
 
@@ -361,7 +435,7 @@ stimuli %>%
 
 #### {-}
 
-### Familiarity {.tabset .tab-pills}
+### Familiarity {.tabset }
 
 #### Prime
 
@@ -603,13 +677,13 @@ contrasts(gaze$trial_type) %>%
 ## {-}
 
 
-# Results {.tabset .tab-pills}
+# Results {.tabset .tabset-pills}
 
 
-## Stringent criteria  {.tabset .tab-pills}
+## Stringent criteria  {.tabset }
 
 
-### Growth curve analysis {.tabset .tab-pills}
+### Growth curve analysis {.tabset }
 
 
 #### Model details
@@ -675,7 +749,8 @@ main_effects
 ```
 
 
-##### Random effects
+#### Random effects
+
 
 ```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -696,12 +771,12 @@ VarCorr(fit)$participant %>%
 ```
 
 
-#### Marginal means {.tabset .tab-pills}
+#### Marginal means {.tabset }
 
 ##### Overall
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	filter(valid_participant) %>% 
 	count(age_group, lp)
 
@@ -738,7 +813,7 @@ augment(fit) %>%
 
 
 ```{r gaze_time_vocab_lower, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	count(age_group, lp)
 
 augment(fit) %>% 
@@ -767,7 +842,7 @@ augment(fit) %>%
 
 
 ```{r gaze_time_vocab_upper, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	filter(vocab_size_l1_center > median(.$vocab_size_l1_center, na.rm = TRUE), valid_participant) %>% 
 	count(age_group, lp)
 
@@ -800,7 +875,7 @@ augment(fit) %>%
 ##### By location
 
 ```{r gaze_time_location_barcelona, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	filter(location=="Barcelona", valid_participant) %>% 
 	count(age_group, lp)
 
@@ -831,7 +906,7 @@ augment(fit) %>%
 
 
 ```{r gaze_time_location_oxford, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	filter(location=="Oxford") %>% 
 	count(age_group, lp)
 
@@ -866,7 +941,7 @@ augment(fit) %>%
 #### {-}
 
 
-### Attrition {.tabset .tab-pills}
+### Attrition {.tabset }
 
 
 #### Summary
@@ -874,7 +949,7 @@ augment(fit) %>%
 
 ```{r participants_cdi, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
-participants %>% 
+participants_stringent %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>%
 	left_join(vocabulary) %>% 
 	drop_na(valid_participant) %>% 
@@ -906,7 +981,7 @@ participants %>%
 ```{r trials_attrition_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, out.width="100%"}
 # plot participants
 attrition_location <- attrition %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_stringent, participant, location)) %>% 
 	count(location, lp, age_group, trial_type, valid_status) %>% 
 	drop_na(trial_type)
 
@@ -944,7 +1019,7 @@ This table shows a summary of the total, total valid, and proportion of valid mo
 
 ```{r attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=12}
 
-left_join(attrition, select(participants, age_group, location, lp, participant, date_test)) %>% 
+left_join(attrition, select(participants_stringent, age_group, location, lp, participant, date_test)) %>% 
 	group_by(participant, lp, location, trial_type, date_test, age_group, valid_participant) %>% 
 	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
 			  .groups = "drop") %>% 
@@ -998,7 +1073,7 @@ left_join(attrition, select(participants, age_group, location, lp, participant, 
 ```{r participants_attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_stringent, participant, location)) %>% 
 	mutate(participant = str_remove(participant, "cognatepriming")) %>% 
 	group_by(location, participant, lp, age_group, valid_participant) %>% 
 	summarise(
@@ -1031,7 +1106,7 @@ attrition %>%
 ```{r trials_attrition_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_stringent, participant, location)) %>% 
 	group_by(location, lp, age_group, trial_type, valid_trial) %>% 
 	count() %>% 
 	ungroup() %>%
@@ -1061,7 +1136,7 @@ attrition %>%
 ```{r trials_attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_stringent, participant, location)) %>% 
 	count(location, lp, age_group, trial_type, valid_status) %>% 
 	drop_na(trial_type) %>% 
 	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
@@ -1080,7 +1155,7 @@ attrition %>%
 ```
 
 
-#### By lexical frequency {.tabset .tab-pills}
+#### By lexical frequency {.tabset }
 
 ##### Prime frequency
 
@@ -1134,7 +1209,9 @@ attrition %>%
 
 ##### {-}
 
-#### By familiarity {.tabset .tab-pills}
+
+#### By familiarity {.tabset }
+
 
 ##### Prime familiarity
 
@@ -1192,10 +1269,11 @@ attrition %>%
 ##### {-}
 
 
-#### By animacy {.tabset .tab-pills}
+#### By animacy {.tabset }
 
 
 ##### Prime
+
 
 ```{r attrition_animacy_prime, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition %>% 
@@ -1250,7 +1328,8 @@ attrition %>%
 ##### {-}
 
 
-#### By category {.tabset .tab-pills}
+#### By category {.tabset }
+
 
 ##### Prime
 
@@ -1313,8 +1392,7 @@ shinyAppFile(
 ```
 
 
-### 21 month-old monolinguals {.tabset .tab-pills}
-
+### 21 month-old monolinguals {.tabset }
 
 #### All data
 
@@ -1356,7 +1434,7 @@ main_effects
 
 
 ```{r gaze_time_21_mon, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
 	count(age_group, lp)
 
@@ -1412,6 +1490,7 @@ augment(fit_21_mon) %>%
 	)
 ```
 
+
 #### Location
 
 ```{r fixef_21_mon_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -1450,8 +1529,9 @@ main_effects
 
 ```
 
+
 ```{r gaze_time_21_mon_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
 	count(age_group, location)
 
@@ -1505,7 +1585,9 @@ augment(fit_21_mon_location) %>%
 	)
 ```
 
+
 #### Vocabulary (median split)
+
 
 ```{r fixef_21_mon_vocab_split, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 main_effects <- confint.merMod(fit_21_mon_vocab_split, method = "Wald") %>% 
@@ -1544,10 +1626,10 @@ main_effects
 
 ```{r gaze_time_21_mon_vocab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-sample_size <- participants %>% 
+sample_size <- participants_stringent %>% 
 	drop_na(vocab_size_l1_center) %>% 
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
-	mutate(vocab_cat = ifelse(vocab_size_l1_center > median(participants$vocab_size_l1_center, na.rm = TRUE), "Above median", "Below median")) %>% 
+	mutate(vocab_cat = ifelse(vocab_size_l1_center > median(participants_stringent$vocab_size_l1_center, na.rm = TRUE), "Above median", "Below median")) %>% 
 	count(age_group, vocab_cat, lp)
 
 augment(fit_21_mon_vocab_split) %>% 
@@ -1642,7 +1724,7 @@ main_effects
 
 ```{r gaze_time_21_mon_vocab_balanced, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 # by vocabulary (balanced)
-sample_size <- participants %>%
+sample_size <- participants_stringent %>%
 	drop_na(vocab_size_l1_center) %>% 
 	filter(age_group=="21 months", lp=="Monolingual") %>% 
 	arrange(location, desc(vocab_size_l1_center)) %>% 
@@ -1710,10 +1792,10 @@ augment(fit_21_mon_vocab_balanced) %>%
 #### {-}
 
 
-## Relaxed criteria  {.tabset .tab-pills}
+## Relaxed criteria  {.tabset }
 
 
-### Growth curve analysis {.tabset .tab-pills}
+### Growth curve analysis {.tabset}
 
 
 #### Model details
@@ -1779,7 +1861,7 @@ main_effects
 ```
 
 
-##### Random effects
+#### Random effects
 
 ```{r random_effects_participant_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -1800,12 +1882,12 @@ VarCorr(fit_relaxed)$participant %>%
 ```
 
 
-#### Marginal means {.tabset .tab-pills}
+#### Marginal means {.tabset }
 
 ##### Overall
 
 ```{r gaze_time_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	filter(valid_participant) %>% 
 	count(age_group, lp)
 
@@ -1842,7 +1924,7 @@ augment(fit_relaxed) %>%
 
 
 ```{r gaze_time_vocab_lower_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	count(age_group, lp)
 
 augment(fit_relaxed) %>% 
@@ -1871,7 +1953,7 @@ augment(fit_relaxed) %>%
 
 
 ```{r gaze_time_vocab_upper_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	filter(vocab_size_l1_center > median(.$vocab_size_l1_center, na.rm = TRUE), valid_participant) %>% 
 	count(age_group, lp)
 
@@ -1904,7 +1986,7 @@ augment(fit_relaxed) %>%
 ##### By location
 
 ```{r gaze_time_location_barcelona_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	filter(location=="Barcelona", valid_participant) %>% 
 	count(age_group, lp)
 
@@ -1935,7 +2017,7 @@ augment(fit_relaxed) %>%
 
 
 ```{r gaze_time_location_oxford_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	filter(location=="Oxford") %>% 
 	count(age_group, lp)
 
@@ -1970,7 +2052,7 @@ augment(fit_relaxed) %>%
 #### {-}
 
 
-### Attrition {.tabset .tab-pills}
+### Attrition {.tabset }
 
 
 #### Summary
@@ -1978,7 +2060,7 @@ augment(fit_relaxed) %>%
 
 ```{r participants_cdi_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
-participants %>% 
+participants_relaxed %>% 
 	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>%
 	left_join(vocabulary) %>% 
 	drop_na(valid_participant) %>% 
@@ -2010,7 +2092,7 @@ participants %>%
 ```{r trials_attrition_location_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, out.width="100%"}
 # plot participants
 attrition_location <- attrition_relaxed %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_relaxed, participant, location)) %>% 
 	count(location, lp, age_group, trial_type, valid_status) %>% 
 	drop_na(trial_type)
 
@@ -2048,7 +2130,7 @@ This table shows a summary of the total, total valid, and proportion of valid mo
 
 ```{r attrition_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=12}
 
-left_join(attrition_relaxed, select(participants, age_group, location, lp, participant, date_test)) %>% 
+left_join(attrition_relaxed, select(participants_relaxed, age_group, location, lp, participant, date_test)) %>% 
 	group_by(participant, lp, location, trial_type, date_test, age_group, valid_participant) %>% 
 	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
 			  .groups = "drop") %>% 
@@ -2102,7 +2184,7 @@ left_join(attrition_relaxed, select(participants, age_group, location, lp, parti
 ```{r participants_attrition_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition_relaxed %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_relaxed, participant, location)) %>% 
 	mutate(participant = str_remove(participant, "cognatepriming")) %>% 
 	group_by(location, participant, lp, age_group, valid_participant) %>% 
 	summarise(
@@ -2135,7 +2217,7 @@ attrition_relaxed %>%
 ```{r trials_attrition_table_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition_relaxed %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_relaxed, participant, location)) %>% 
 	group_by(location, lp, age_group, trial_type, valid_trial) %>% 
 	count() %>% 
 	ungroup() %>%
@@ -2165,7 +2247,7 @@ attrition_relaxed %>%
 ```{r trials_attrition_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition_relaxed %>% 
-	left_join(select(participants, participant, location)) %>% 
+	left_join(select(participants_relaxed, participant, location)) %>% 
 	count(location, lp, age_group, trial_type, valid_status) %>% 
 	drop_na(trial_type) %>% 
 	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
@@ -2184,7 +2266,7 @@ attrition_relaxed %>%
 ```
 
 
-#### By lexical frequency {.tabset .tab-pills}
+#### By lexical frequency {.tabset }
 
 ##### Prime frequency
 
@@ -2214,6 +2296,7 @@ attrition_relaxed %>%
 
 ##### Target frequency
 
+
 ```{r attrition_frequency_target_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 attrition_relaxed %>% 
 	left_join(distinct(stimuli, test_language, location, list, trial, trial_type, frequency_target_childes)) %>% 
@@ -2236,11 +2319,15 @@ attrition_relaxed %>%
 	)
 ```
 
+
 ##### {-}
 
-#### By familiarity {.tabset .tab-pills}
+
+#### By familiarity {.tabset}
+
 
 ##### Prime familiarity
+
 
 ```{r attrition_familiarity_prime_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
@@ -2266,8 +2353,8 @@ attrition_relaxed %>%
 	)
 ```
 
-##### Target familiarity
 
+##### Target familiarity
 
 ```{r attrition_familiarity_target_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
@@ -2293,13 +2380,16 @@ attrition_relaxed %>%
 	)
 ```
 
+
 ##### {-}
 
 
-#### By animacy {.tabset .tab-pills}
+#### By animacy {.tabset }
+
 
 
 ##### Prime
+
 
 ```{r attrition_animacy_prime_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition_relaxed %>% 
@@ -2351,12 +2441,15 @@ attrition_relaxed %>%
 
 ```
 
+
 ##### {-}
 
 
-#### By category {.tabset .tab-pills}
+#### By category {.tabset}
+
 
 ##### Prime
+
 
 ```{r attrition_category_prime_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition_relaxed %>% 
@@ -2381,7 +2474,6 @@ attrition_relaxed %>%
 
 
 ##### Target
-
 
 ```{r attrition_category_target_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition_relaxed %>% 
@@ -2417,10 +2509,11 @@ shinyAppFile(
 ```
 
 
-### 21 month-old monolinguals {.tabset .tab-pills}
+### 21 month-old monolinguals {.tabset }
 
 
 #### All data
+
 
 ```{r fixef_21_mon_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 main_effects <- confint.merMod(fit_21_mon_relaxed, method = "Wald") %>% 
@@ -2459,8 +2552,9 @@ main_effects
 ```
 
 
+
 ```{r gaze_time_21_mon_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
 	count(age_group, lp)
 
@@ -2516,7 +2610,9 @@ augment(fit_21_mon_relaxed) %>%
 	)
 ```
 
+
 #### Location
+
 
 ```{r fixef_21_mon_location_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 main_effects <- confint.merMod(fit_21_mon_location_relaxed, method = "Wald") %>% 
@@ -2554,8 +2650,9 @@ main_effects
 
 ```
 
+
 ```{r gaze_time_21_mon_location_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
 	count(age_group, location)
 
@@ -2609,7 +2706,9 @@ augment(fit_21_mon_location_relaxed) %>%
 	)
 ```
 
+
 #### Vocabulary (median split)
+
 
 ```{r fixef_21_mon_vocab_split_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 main_effects <- confint.merMod(fit_21_mon_vocab_split_relaxed, method = "Wald") %>% 
@@ -2646,12 +2745,13 @@ main_effects
 
 ```
 
+
 ```{r gaze_time_21_mon_vocab_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-sample_size <- participants %>% 
+sample_size <- participants_relaxed %>% 
 	drop_na(vocab_size_l1_center) %>% 
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
-	mutate(vocab_cat = ifelse(vocab_size_l1_center > median(participants$vocab_size_l1_center, na.rm = TRUE), "Above median", "Below median")) %>% 
+	mutate(vocab_cat = ifelse(vocab_size_l1_center > median(participants_relaxed$vocab_size_l1_center, na.rm = TRUE), "Above median", "Below median")) %>% 
 	count(age_group, vocab_cat, lp)
 
 augment(fit_21_mon_vocab_split_relaxed) %>% 
@@ -2706,7 +2806,9 @@ augment(fit_21_mon_vocab_split_relaxed) %>%
 	)
 ```
 
+
 #### Vocabulary (balanced)
+
 
 ```{r fixef_21_mon_vocab_balanced_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -2744,9 +2846,10 @@ main_effects
 
 ```
 
+
 ```{r gaze_time_21_mon_vocab_balanced_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 # by vocabulary (balanced)
-sample_size <- participants %>%
+sample_size <- participants_relaxed %>%
 	drop_na(vocab_size_l1_center) %>% 
 	filter(age_group=="21 months", lp=="Monolingual") %>% 
 	arrange(location, desc(vocab_size_l1_center)) %>% 
@@ -2814,20 +2917,21 @@ augment(fit_21_mon_vocab_balanced_relaxed) %>%
 ### {-}
 
 
-## Vocabulary {.tabset .tab-pills}
+## Vocabulary {.tabset .tabset-pills}
 
+### Stringent criteria {.tabset}
 
-### L1 vocabulary
+#### L1 vocabulary
 
 This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
 
-```{r vocabulary_l1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-sample_size <- participants %>% 
+```{r vocabulary_l1_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants_stringent %>% 
 	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
 	count(age_group, location)
 
 # vocabulary
-participants %>% 
+participants_stringent %>% 
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
@@ -2866,15 +2970,15 @@ participants %>%
 ```
 
 
-### Total vocabulary
+#### Total vocabulary
 
-```{r vocabulary_total, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-sample_size <- participants %>% 
+```{r vocabulary_total_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants_stringent %>% 
 	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
 	count(age_group, location)
 
 # vocabulary
-participants %>% 
+participants_stringent %>% 
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
@@ -2913,16 +3017,16 @@ participants %>%
 ```
 
 
-### Conceptual vocabulary
+#### Conceptual vocabulary
 
 
-```{r vocabulary_conceptual, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-sample_size <- participants %>% 
+```{r vocabulary_conceptual_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants_stringent %>% 
 	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
 	count(age_group, location)
 
 # vocabulary
-participants %>% 
+participants_stringent %>% 
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
@@ -2961,8 +3065,156 @@ participants %>%
 ```
 
 
-### {-}
+#### {-}
 
+### Relaxed criteria {.tabset}
+
+#### L1 vocabulary
+
+This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
+
+```{r vocabulary_l1_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants_relaxed %>% 
+	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	count(age_group, location)
+
+# vocabulary
+participants_relaxed %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_grid(location~age_group) +
+	# geom_violin(
+	# 	position = position_dodge(width = 0.75),
+	# 	aes(lp, vocab_size_l1, colour = lp, fill = lp)
+	# ) + 
+	geom_hline(yintercept = 0.5, colour = "grey") +
+	geom_point(
+		aes(lp, vocab_size_l1),
+		shape = 1, colour = "black", alpha = 0.5, size = 1, stroke = 1,
+		position = position_jitter(width = 0.1, seed = 888)
+	) +
+	geom_boxplot(
+		aes(lp, vocab_size_l1, colour = lp, fill = lp),
+		width = 0.25, colour = "black", outlier.colour = NA,
+		position = position_dodge(width = 0.75)
+	) +
+	geom_text(
+		data = sample_size,
+		aes(x = 1.5, y = 0.95, label = paste0("n = ", n)),
+		colour = "black", fill = "black", show.legend = FALSE
+	) +
+	labs(y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "none",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 9),
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	)
+
+```
+
+
+#### Total vocabulary
+
+```{r vocabulary_total_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants_relaxed %>% 
+	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	count(age_group, location)
+
+# vocabulary
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, age_group, valid_participant)) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_grid(location~age_group) +
+	# geom_violin(
+	# 	position = position_dodge(width = 0.75),
+	# 	aes(lp, vocab_size_l1, colour = lp, fill = lp)
+	# ) + 
+	geom_hline(yintercept = 0.5, colour = "grey") +
+	geom_point(
+		aes(lp, vocab_size_total),
+		shape = 1, colour = "black", alpha = 0.5, size = 1, stroke = 1,
+		position = position_jitter(width = 0.1, seed = 888)
+	) +
+	geom_boxplot(
+		aes(lp, vocab_size_total, colour = lp, fill = lp),
+		width = 0.25, colour = "black", outlier.colour = NA,
+		position = position_dodge(width = 0.75)
+	) +
+	geom_text(
+		data = sample_size,
+		aes(x = 1.5, y = 0.95, label = paste0("n = ", n)),
+		colour = "black", fill = "black", show.legend = FALSE
+	) +
+	labs(y = "Receptive vocabulary (L1+L2)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "none",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 9),
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	)
+
+```
+
+
+#### Conceptual vocabulary
+
+
+```{r vocabulary_conceptual_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants_relaxed %>% 
+	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	count(age_group, location)
+
+# vocabulary
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, age_group, valid_participant)) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_grid(location~age_group) +
+	# geom_violin(
+	# 	position = position_dodge(width = 0.75),
+	# 	aes(lp, vocab_size_l1, colour = lp, fill = lp)
+	# ) + 
+	geom_hline(yintercept = 0.5, colour = "grey") +
+	geom_point(
+		aes(lp, vocab_size_conceptual),
+		shape = 1, colour = "black", alpha = 0.5, size = 1, stroke = 1,
+		position = position_jitter(width = 0.1, seed = 888)
+	) +
+	geom_boxplot(
+		aes(lp, vocab_size_conceptual, colour = lp, fill = lp),
+		width = 0.25, colour = "black", outlier.colour = NA,
+		position = position_dodge(width = 0.75)
+	) +
+	geom_text(
+		data = sample_size,
+		aes(x = 1.5, y = 0.95, label = paste0("n = ", n)),
+		colour = "black", fill = "black", show.legend = FALSE
+	) +
+	labs(y = "Receptive vocabulary (coneptual)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "none",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 9),
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	)
+
+```
+
+
+#### {-}
+
+### {-}
 
 ## {-}
 
