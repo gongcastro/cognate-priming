@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.0.5",
+    "Version": "4.0.4",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -362,6 +362,13 @@
       "Repository": "CRAN",
       "Hash": "77bd60a6157420d4ffa93b27cf6a58b8"
     },
+    "filelock": {
+      "Package": "filelock",
+      "Version": "1.0.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "38ec653c2613bed60052ba3787bd8a2c"
+    },
     "forcats": {
       "Package": "forcats",
       "Version": "0.5.1",
@@ -569,6 +576,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "98138e0994d41508c7a6b84a0600cfcb"
+    },
+    "keyring": {
+      "Package": "keyring",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "dec373d855af8247fd5e24c0ebe14472"
     },
     "knitr": {
       "Package": "knitr",
@@ -958,6 +972,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4079070fc210c7901c0832a3aeab894f"
+    },
+    "sodium": {
+      "Package": "sodium",
+      "Version": "1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "9f07fda8802e9a2ed7e91f20f2d814ce"
     },
     "sourcetools": {
       "Package": "sourcetools",

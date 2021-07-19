@@ -1,0 +1,98 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
+participant_bcn_link|stem|667f9bb590aa77bb|83c332a48c7298d3|ef46db3751d8e999|-2012434061||t18821.4701458238s|739a57fa64463401|96|rds|vector|||1.17|package here was built under R version 4.0.5|
+words|object|0341f5139f4fbc2b||||||||||||||
+y|object|fddba460ddc4dd26||||||||||||||
+n|object|f10b8924448a1a4c||||||||||||||
+subtlex_spa|object|c459e6c590a530ea||||||||||||||
+type|object|2cd7c14695e6f490||||||||||||||
+impute|object|0505a9e7ec7c6343||||||||||||||
+ci|object|3bc5ce7f172d7655||||||||||||||
+animacy_data|object|a56218f295cce349||||||||||||||
+semantic_category|object|3844eeacc40f0e25||||||||||||||
+subtlex_cat|object|0ed1a790f7646d35||||||||||||||
+update|object|0505a9e7ec7c6343||||||||||||||
+familiarity_type|object|2cd7c14695e6f490||||||||||||||
+familiarity_oxf|object|9d99f84023ea8fd3||||||||||||||
+stimuli_oxf|object|b85d05db7df2abfb||||||||||||||
+familiarity_bcn|object|50293d9c1c92a145||||||||||||||
+subtlex_eng|object|25b95f217e8dfdaa||||||||||||||
+frequency_subtlex|object|8a0d86124b4d0e19||||||||||||||
+se|object|115ed3574cd8e8df||||||||||||||
+conf|object|a1392e7373737f6e||||||||||||||
+prop|object|bb4c0ce1f10af0c9||||||||||||||
+frequency|object|a1e197b22dcb85fe||||||||||||||
+familiarity|object|39d74ed62a081d00||||||||||||||
+frequency_childes|object|17523223164f74b9||||||||||||||
+p|object|d664e1fd50111c38||||||||||||||
+oxford_data|object|b85d05db7df2abfb||||||||||||||
+r|object|b4c0295d526ad877||||||||||||||
+tokens|object|6c0a9ef308656a04||||||||||||||
+tf|object|e347af50017754d5||||||||||||||
+get_frequencies_subtlex|function|4fc703a6f1ab6d90||||||||||||||
+get_childes_frequency|function|4da5acfc22a07a7b||||||||||||||
+multilex_pool|stem|39bd1686ca632cdd|eee71dbdb5c481c1|c3b5fc02cdc369c1|-1969977975||t18821.4536833225s|a144daf585c87d1e|60054|rds|vector|||0||
+.Random.seed|object|bb9ba162b7c7cf01||||||||||||||
+multilex_data|stem|45af4a179642172b|079ee1fe4463b160|7ef9b2af9c4db15a|1096876832||t18821.6526675969s|afdc5475b8b59ee5|1239651|rds|vector|||37.93|package here was built under R version 4.0.5|
+get_gaze_osf|function|baf80692e1a9301d||||||||||||||
+vocabulary|stem|21f2faa494e86329|63bdf301ff923b52|6414fc2bd3fd7f67|-1487046481||t18821.8360731136s|b32f5cbe1a4ee096|174674|rds|vector|||11.32|Number of logged events 2|
+gaze_oxf|stem|18d4a64e180d958a|02733ab116bf3938|ea5154d4ade1ed43|249562404||t18821.8361553335s|604c85161b11c011|15286604|rds|vector|||4.36||
+gaze_bcn|stem|af3221b6b6838e43|c198e83fa39c9bef|c9e9006b931d3cdd|-2087868575||t18821.8366953821s|7396b76cef804272|22630729|rds|vector|||38.95|NAs introduced by coercion|
+prepared|stem|3c730ee32938afc2|cadfd4a2d714e81a|0c0a0e79e53a747a|-2067579251||t18821.8369665282s|dc13c2d5bf1f68db|139040|rds|vector|||13.2|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.90mThis warning is displayed once every 8 hour|
+gaze|stem|c7ce4fa577f2b5b6|cadfd4a2d714e81a|4545845089b43a63|-1114821610||t18822.4573236794s|5af1302e4599a1f2|127208|rds|vector|||13.13|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.90mThis warning is displayed once every 8 hour|
+fit_21_mon|stem|6699874781049ff3|adb82414faa0f5b4|e1784e935e437b95|-1380723037||t18822.4582177959s|830b61d864463cb2|1011940|rds|vector|||65.36||
+fit_21_mon_vocab_split|stem|8c2d5b2a4ad7d8b3|8f95a6ac980bc934|625ccac9c0921e99|-1308906723||t18822.4582925119s|fdc11841c81ad1c9|1036211|rds|vector|||6.09||
+fit|stem|885f8871053f7212|7f2ae2fb063c21cd|8648813f16e80750|1780184594||t18822.4653832184s|76356cdc0b7ce564|3341550|rds|vector|||611.92|Model failed to converge with 1 negative eigenvalue 2.4e01|
+fit_21_mon_vocab_balanced|stem|3953b5e82bfbd2f7|bd0e95dbf2bf0151|e7f0ec4ff29805cd|-949605624||t18822.4654623919s|28519fbc01c83df3|700663|rds|vector|||6.58||
+fit_21_mon_location|stem|8efeb628953524f6|97479435cc3defe4|89a7559606e5a5b5|1560586735||t18822.4655633909s|5126dd55d0ffe342|845657|rds|vector|||8.44||
+fit_relaxed_21_mon_location|stem|3e588fd5f5f4307c|ef7583d1a6342fa4|f1e638d13a530ed1|-1242687431||t18822.4656636696s|11e7dde53be89415|961976|rds|vector|||8.35||
+fit_relaxed_21_mon_vocab_split|stem|b5a591f35504f4e8|f5567785b4569ec6|dac6a1c6164bd911|-390862300||t18822.4657383173s|c5ff8276ddfdce7b|1148872|rds|vector|||6||
+fit_relaxed_21_mon|stem|88bebc487ceeebf6|36f69b7975ac1f63|65891754b9639f0a|424430193||t18822.4667649315s|f323d054af2e6c8d|1116322|rds|vector|||88.39|Model failed to converge with 1 negative eigenvalue 1.9e00|
+fit_relaxed_21_mon_vocab_balanced|stem|4e7401ce8e33938e|d1509692ef3d4566|b519ef7879e4d16f|1865740028||t18822.4668472365s|3e7c92103e47352b|746871|rds|vector|||6.81||
+gaze_relaxed|stem|8a161300bfa43f1f|68442c00272b453f|257eaea3cb08f643|1379414338||t18822.5034601137s|cb98505343247c17|207499|rds|vector|||17.29|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.90mThis warning is displayed once every 8 hour|
+fit_21_mon_relaxed|stem|11f15ac0d9881a4e|36f69b7975ac1f63|f94735e83df2353d|-672555693||t18822.5057194636s|7e46074e210a85d9|1488629|rds|vector|||194.77||
+fit_21_mon_vocab_balanced_relaxed|stem|cc9ad23ac69352d2|d1509692ef3d4566|b46d657de280c91d|156733831||t18822.5058605875s|5f22f092ad1a1961|911057|rds|vector|||11.7||
+fit_21_mon_location_relaxed|stem|3293baa408f09dd6|ef7583d1a6342fa4|369902644dce9d7f|526669299||t18822.50602993s|80043c48a2bdaec3|1365748|rds|vector|||14.16||
+fit_21_mon_vocab_split_relaxed|stem|6f31788f4df05216|f5567785b4569ec6|8dfb62b62f5522e7|281456843||t18822.5061476275s|82ccbbbd6627fbd9|1558203|rds|vector|||9.56||
+fit_relaxed|stem|1c611fe617c47c3b|8cb6f0a3f7c4c16d|ec380634e407c406|1674723206||t18822.5237468888s|e081a9f36d8bc092|4341058|rds|vector|||1519.5|maxfun  10  lengthpar2 is not recommended.|
+theme_custom|function|de8f038eec8f5184||||||||||||||
+prop_adj|function|8f984a7e77cc1c9c||||||||||||||
+fit_main_model|function|a37da75a6388c026||||||||||||||
+get_credentials|function|956e8d5d4c37cafa||||||||||||||
+get_frequency_childes|function|650395602003714d||||||||||||||
+get_frequency_subtlex|function|3d4a55a403660a82||||||||||||||
+get_vocabulary|function|f767c3ac9f3cb4ab||||||||||||||
+fit_21_mon_vocab_split_model|function|d1ec3a8d347f67ad||||||||||||||
+get_gaze_raw|function|5c00ba772bd07556||||||||||||||
+get_participants|function|b6786f565c4274b8||||||||||||||
+fit_21_mon_location_model|function|d2cf20e356a2b979||||||||||||||
+fit_21_mon_model|function|de370c0bd12be706||||||||||||||
+fit_21_mon_vocab_balanced_model|function|5a4336e024b0385d||||||||||||||
+logit_to_prob|function|3d1dabf81e9fffb5||||||||||||||
+prepare_data|function|d966c7e93e990c8b||||||||||||||
+get_attrition|function|73455cb835aabe56||||||||||||||
+get_gaze_oxf|function|baf80692e1a9301d||||||||||||||
+prop_se_adj|function|ea05d30982a97289||||||||||||||
+prop_ci_adj|function|f27c95a66588864c||||||||||||||
+get_multilex|function|246f95c5100d2b36||||||||||||||
+get_gaze_bcn|function|e3c5e70b200c1eb6||||||||||||||
+get_familiarity|function|3b289c796852cc14||||||||||||||
+get_stimuli|function|f614322966aa090b||||||||||||||
+trials_path|stem|b7c18330e2e84f36|b844ee5413c76069|4e3739ef91745af0|-1878640110|C:/Users/gonza/Documents/cognate-priming/Stimuli/stimuli.xlsx|t18817.3344298979s|970933f4e38fcd53|76610|file|vector|||0||
+vocabulary_oxf_path|stem|657d51ba56f5c63f|019a65ad50f1c5e6|4e3739ef91745af0|-668526201||t18821.6403163992s|f2000359ad1073b7|131|rds|vector|||0||
+gaze_oxf_paths|stem|3968f801a5cd75e5|6e81c767856d7e86|c793b87d5821f57c|100062445||t18821.6744144182s|747b7a142844cc40|146|rds|vector|||1.14|package here was built under R version 4.0.5|
+participants_bcn|stem|2ea8bdac90bab3e4|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t18821.6405913662s|0a7e595f1e4b5e98|6635|rds|vector|||2.46||
+stimuli_english_path|stem|335ef2db989e45ff|bbd95e7092897b54|4e3739ef91745af0|1083985607|C:/Users/gonza/Documents/cognate-priming/Data/Stimuli/stimuli_english.xlsx|t18821.3878948977s|d0dd821f0a171cc2|25192|file|vector|||0||
+participants_oxf_path|stem|dbba5a019a277bad|5653b09270cf5b15|4e3739ef91745af0|1783076124|C:/Users/gonza/Documents/cognate-priming/Data/Participants/participant_oxford_Apr2021.xlsx|t18817.3344268886s|f2d8c1582a80b449|15527|file|vector|||1.02||
+gaze_bcn_paths|stem|260d0e79e20ba91a|ede0909188788c32|c793b87d5821f57c|1662764019||t18821.6670314459s|a601403d4050b6e1|960|rds|vector|||1.22|package here was built under R version 4.0.5|
+animacy_path|stem|9e7fed753174471b|25a14f0c10b6e7b7|4e3739ef91745af0|1222557669|C:/Users/gonza/Documents/cognate-priming/Data/Stimuli/animacy.csv|t18820.3340341632s|e981a64a5ae107f1|3896|file|vector|||0||
+credentials|stem|0423d8e73b6f5a12|a30b3b1477599b55|a20d18b48885f2af|-1444300154||t18821.6498947179s|10da61cba4cac40f|44|rds|vector|||1.72|package here was built under R version 4.0.5|
+trials|stem|f2943ac134fda441|6b472b1da4faba8c|dd161b368f961177|1837658601||t18821.4536847345s|bdb1efce1a896629|10270|rds|vector|||0.03||
+vocabulary_oxf|stem|8e3a03f120568d5e|fdc87760469a8579|42da184828eab926|-1845302331||t18821.6414952276s|81c5d345cbf27d30|17578|rds|vector|||1.33|package here was built under R version 4.0.5|
+stimuli_english|stem|83b272fb99051aaf|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t18821.6405918519s|7d123d914978397f|1906|rds|vector|||0||
+participants_oxf|stem|e8069fde3e580cc3|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t18821.6405915746s|2bca963e40c13baf|529|rds|vector|||0.01||
+animacy|stem|1c936a297d86c30e|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t18821.4536840632s|e3a470ba8142984b|1269|rds|vector|||0||
+participants|stem|282033a1787dda0d|a7adc9fd1da59829|43cdaba616dc0167|392525641||t18821.8359088852s|52c7ddf589ea11c6|3025|rds|vector|||2.18|package job was built under R version 4.0.5|
+stimuli|stem|2aeb702ca57beda9|b5dd4a1585d193a4|7f30ad7bd12af474|1139532200||t18821.6546670278s|721dbea6601e4d72|23382|rds|vector|||51.18|Number of logged events 289|
+attrition|stem|df5bade0138a9019|6a11fb6f218f9d37|9b74a7aba4099c48|-1403111462||t18822.4448311668s|78a436fee40417b5|13802|rds|vector|||11.75|package job was built under R version 4.0.5|
+attrition_relaxed|stem|a7145f71c2edd272|b95fd7c28f982f3a|9b74a7aba4099c48|643372842||t18822.503258375s|45ae7fbc89dddb68|11119|rds|vector|||11.56|package job was built under R version 4.0.5|
+report|stem|4f1ea9efcf49777d|217391981d0f7199|d9255cce98f07453|-237041703|Rmd/report.html*Rmd/report.Rmd|t18822.7656769541s|daf3839032e903a2|10573706|file|vector|||84.65|Removed 78 rows containing missing values geom_point.|

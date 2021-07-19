@@ -8,6 +8,7 @@
 *.docx
 *.html
 *.pdf
+_targets/*
 Dissemination/*
 Media/*
 Documents/*
