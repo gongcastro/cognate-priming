@@ -1,0 +1,88 @@
+---
+---
+
+## Data analysis
+
+### Vocabulary data
+
+We collected vocabulary data from participants. In Oxford, participants were sent the online version of the Oxford Communicative Development Inventory [OCDI; @hamilton2000] two weeks before each appointment. In Barcelona, participants were sent the online vocabulary inventory [MultiLex](https://github.com/gongcastro/multilex) immediately after the appointment, and were given two weeks to fill it. In Oxford, families filled the vocabulary checklist in the testing language, and when the participant was monolingual, also in the second language. In Barcelona, all participants filled the Catalan and the Spanish versions of the vocabulary checklists. All checklists included the words involved in the trial lists. When filling the vocabulary checklist, families checked each word as being *understood*, *understood and produced* or *none*. Each response to either checklist was aggregated to produce several vocabulary measures:
+
+* **Total vocabulary**: total number of words the child knows, summing up both languages. For instance, a child who knows 210 words in Catalan and 100 words in Spanish would have a total vocabulary size of 210 words.
+* **L1 vocabulary**: number of words the child knows in the languages of higher exposure (i.e., testing language). For instance, for a child exposed to 75% Catalan who knows 210 words in Catalan and 100 words in Spanish, their L1 vocabulary size would be 210 words.
+* **Conceptual vocabulary**: number of lexicalised concepts, that is, the number of concepts for which the child knows a word in at least one of the languages. For example, a Catalan-Spanish bilingual that knows *taula* and *mesa* -- Catalan and Spanish translations of *table*-- would have a conceptual vocabulary size of 1.
+
+Vocabulary sizes of participants whose families failed to complete the vocabulary checklists were imputed, by assigning them the most likely vocabulary size from a distribution of vocabulary sizes of children of similar age ($\pm$ 1 month) and language profile (similar exposure to a second language, $\pm$ 10%) that completed the same vocabulary checklist previously.
+
+
+## Gaze data {.tabset .tabset-pills}
+
+Each trial was divided into 100 ms time bins. for each time bin, the proportion of  target fixations were calculated, from the total of fixations to the target, distractor and the rest of the screen for that same time bin. Proportions were then aggregated across trials for each time bin and participants, so that each participant contributed with 20 data points (one for each time bin) for each trial type (cognate, non-cognate, and unrelated).
+
+### Workflow
+
+```{r workflow_preprocessing, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle, fontname = 'Arial']        
+  rec1 [label = 'Merge Barcelona and Oxford data']
+  rec2 [label = 'Impute missing/invalid samples (pending)']
+  rec2 [label = 'Extract fixations (pending)']
+  rec3 [label = 'For each sample, evaluate if gaze is in target or distractor']
+  rec4 [label = 'Divide each trial into 100 ms time bins']
+  rec5 [label = 'Aggregate samples from the same time bin and calculate\nthe number of valid samples in target, distractor, or none']
+  rec6 [label = 'Exclude time bins 1-3 (pending)']
+  rec7 [label = 'Apply trial-level inclusion criteria']
+  rec8 [label = 'Apply participant-level inclusion criteria']
+
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6 -> rec7 -> rec8
+  }", 
+  height = 500)
+```
+
+
+### Inclusion criteria
+
+#### Trial-level inclusion criteria
+
+* $\geq$ 50% or more valid samples during prime phase (1,500 ms)
+* $\geq$ 50% or more valid samples during target-distractor phase (2,000 ms)
+* At least one sample in target and one sample in distractor
+* Participant understands prime word in both languages
+* Participant knows the target word in the test language
+* Participant knows the distractor word in the test language
+
+#### Participant-level inclusion criteria
+
+* $\geq$ 4 trials in *Cognate* condition (50%, from a total of 8)
+* $\geq$ 4 trials in *Non-cognate* condition (50%, from a total of 8)
+* $\geq$ 8 trials in *Unrelated* condition (50%, from a total of 16)
+* $\geq$ 36 gestational weeks
+* $\geq$ 2,800g birth weight
+* No diagnosed developmental, hearing, or visual disorders
+* Not exposed to more than 10% to a 3rd language
+
+
+### Input variables
+
+* Linear (`ot1`), quadratic (`ot2`), and cubic (`ot3`) orthogonal polynomials of the time domain [@mirman2014growth].
+* Language profile (`lp`). Categorical predictor with two levels: *Monolingual* and *Bilingual*. Sum coded as *Monolingual* = -0.5, *Bilingual* = +0.5.
+* Trial type (`trial_type1` and `trial_type2`). Categorical predictor with three levels: *Cognate*, *Non-cognate*, and *Unrelated*. We coded two contrasts: `trial_type1`, comparing related trials vs. unrelated trials (*Cognate* + *Non-cognate* vs. *Unrelated*), and `trial_type2`, comparing *Cognate* vs. *Non-cognate* trials. These contrasts were sum-coded (see next table for a summary of the contrast coding) [@schad2018capitalize].
+
+
+```{r contrasts, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+contrasts(gaze$trial_type) %>% 
+	as.data.frame() %>% 
+	set_names(paste0("trial_type", 1:2)) %>% 
+	rownames_to_column("level") %>% 
+	gt(rowname_col = "level")
+
+```
+
+
+### {-}
+
+## {-}

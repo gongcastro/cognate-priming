@@ -1,0 +1,401 @@
+---
+---
+
+### 21 month-old monolinguals {.tabset }
+
+#### All data
+
+```{r fixef_21_mon, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+main_effects <- confint.merMod(fit_21_mon, method = "Wald") %>% 
+	as.data.frame() %>% 
+	clean_names() %>% 
+	drop_na(x2_5_percent) %>%
+	rownames_to_column("term") %>% 
+	right_join(clean_names(tidy(fit_21_mon, effects = "fixed"))) %>% 
+	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
+		   statistic, df, p_value) %>% 
+	gt() %>% 
+	fmt_number(2:7) %>% 
+	fmt_number(8, decimals = 3) %>% 
+	cols_merge(starts_with("conf_"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		term = md("**Predictor**"),
+		estimate = md("**Estimate**"),
+		std_error = md("**SE**"),
+		conf_lower = md("**CI<sub>95%</sub>**"),
+		statistic = md("***t***"),
+		df = md("**df**"),
+		p_value = md("***p***")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#ffc7a1")
+		),
+		locations = cells_body(
+			columns = everything(),
+			rows = p_value < 0.05
+		)
+	)
+
+main_effects
+
+```
+
+
+```{r gaze_time_21_mon, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants_stringent %>% 
+	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
+	count(age_group, lp)
+
+augment(fit_21_mon) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	ggplot() +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
+			  show.legend = FALSE,
+			  colour = "black", fill = "black") +
+	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		axis.title.y = element_blank(),
+		axis.text = element_text(size = 7),
+		legend.position = "left"
+	) +
+	
+	augment(fit_21_mon) %>% 
+	mutate(elog_prob = logit_to_prob(elog)) %>% 
+	group_by(participant, trial_type) %>% 
+	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
+	ggplot(aes(trial_type, elog_prob, fill = trial_type, colour = trial_type)) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_violin(show.legend = FALSE) +
+	geom_boxplot(width = 0.1, outlier.colour = NA, fill = "white", colour = "black") +
+	labs(x = "Trial type", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme(
+		axis.title = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_blank(),
+		axis.text.y = element_blank()
+	) +
+	plot_layout(ncol = 2, guides = "collect", widths = c(0.75, 0.25)) &
+	plot_annotation(
+		caption = "A: Marginal means of the multilevel model, plotted in separate panels for monolinguals and bilinguals, across age\ngroups. Sample sizes are indicated at the upper left corner in each panel. The first and last 300 ms in each trial\nwere trimmed before the analysis. B: mean observed probability of target looking, aggregated by participant.",
+		tag_levels = "A") &
+	theme_custom() &
+	theme(
+		legend.position = "right",
+		plot.caption = element_text(size = 10, hjust = 0),
+		plot.caption.position = "plot"
+	)
+```
+
+
+#### Location
+
+```{r fixef_21_mon_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+main_effects <- confint.merMod(fit_21_mon_location, method = "Wald") %>% 
+	as.data.frame() %>% 
+	clean_names() %>% 
+	drop_na(x2_5_percent) %>%
+	rownames_to_column("term") %>% 
+	right_join(clean_names(tidy(fit_21_mon_location, effects = "fixed"))) %>% 
+	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
+		   statistic, df, p_value) %>% 
+	gt() %>% 
+	fmt_number(2:7) %>% 
+	fmt_number(8, decimals = 3) %>% 
+	cols_merge(starts_with("conf_"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		term = md("**Predictor**"),
+		estimate = md("**Estimate**"),
+		std_error = md("**SE**"),
+		conf_lower = md("**CI<sub>95%</sub>**"),
+		statistic = md("***t***"),
+		df = md("**df**"),
+		p_value = md("***p***")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#ffc7a1")
+		),
+		locations = cells_body(
+			columns = everything(),
+			rows = p_value < 0.05
+		)
+	)
+
+main_effects
+
+```
+
+
+```{r gaze_time_21_mon_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants_stringent %>% 
+	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
+	count(age_group, location)
+
+augment(fit_21_mon_location) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	ggplot() +
+	facet_wrap(~location, ncol = 1) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(
+		aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+		fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
+			  colour = "black", fill = "black", show.legend = FALSE) +
+	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		axis.title.y = element_blank(),
+		axis.text = element_text(size = 7),
+		legend.position = "left"
+	) +
+	
+	augment(fit_21_mon_location) %>% 
+	mutate(elog_prob = logit_to_prob(elog)) %>% 
+	group_by(participant, location, trial_type) %>% 
+	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
+	ggplot(aes(trial_type, elog_prob, fill = trial_type, colour = trial_type)) +
+	facet_wrap(~location, ncol = 1) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_violin(show.legend = FALSE) +
+	geom_boxplot(width = 0.1, outlier.colour = NA, fill = "white", colour = "black") +
+	labs(x = "Trial type", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme(
+		axis.title = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_blank(),
+		axis.text.y = element_blank()
+	) +
+	plot_layout(ncol = 2, guides = "collect", widths = c(0.5, 0.5)) &
+	theme_custom() &
+	theme(
+		legend.position = "right",
+		plot.caption = element_text(size = 10, hjust = 0),
+		plot.caption.position = "plot"
+	)
+```
+
+
+#### Vocabulary (median split)
+
+
+```{r fixef_21_mon_vocab_split, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+main_effects <- confint.merMod(fit_21_mon_vocab_split, method = "Wald") %>% 
+	as.data.frame() %>% 
+	clean_names() %>% 
+	drop_na(x2_5_percent) %>%
+	rownames_to_column("term") %>% 
+	right_join(clean_names(tidy(fit_21_mon_vocab_split, effects = "fixed"))) %>% 
+	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
+		   statistic, df, p_value) %>% 
+	gt() %>% 
+	fmt_number(2:7) %>% 
+	fmt_number(8, decimals = 3) %>% 
+	cols_merge(starts_with("conf_"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		term = md("**Predictor**"),
+		estimate = md("**Estimate**"),
+		std_error = md("**SE**"),
+		conf_lower = md("**CI<sub>95%</sub>**"),
+		statistic = md("***t***"),
+		df = md("**df**"),
+		p_value = md("***p***")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#ffc7a1")
+		),
+		locations = cells_body(
+			columns = everything(),
+			rows = p_value < 0.05
+		)
+	)
+main_effects
+
+```
+
+```{r gaze_time_21_mon_vocab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+sample_size <- participants_stringent %>% 
+	drop_na(vocab_size_l1_center) %>% 
+	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
+	mutate(vocab_cat = ifelse(vocab_size_l1_center > median(participants_stringent$vocab_size_l1_center, na.rm = TRUE), "Above median", "Below median")) %>% 
+	count(age_group, vocab_cat, lp)
+
+augment(fit_21_mon_vocab_split) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	ggplot() +
+	facet_wrap(~vocab_cat, ncol = 1) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
+			  show.legend = FALSE,
+			  colour = "black", fill = "black") +
+	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		axis.title.y = element_blank(),
+		axis.text = element_text(size = 7),
+		legend.position = "left"
+	) +
+	
+	augment(fit_21_mon_vocab_split) %>% 
+	mutate(elog_prob = logit_to_prob(elog)) %>% 
+	group_by(participant, vocab_cat, trial_type) %>% 
+	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
+	ggplot(aes(trial_type, elog_prob)) +
+	facet_wrap(~vocab_cat, ncol = 1) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_violin(aes( fill = trial_type, colour = trial_type), show.legend = FALSE) +
+	geom_boxplot(width = 0.1, outlier.colour = NA, fill = "white", colour = "black") +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	labs(x = "Trial type", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme(
+		axis.title = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_blank(),
+		axis.text.y = element_blank()
+	) +
+	plot_layout(ncol = 2, guides = "collect", widths = c(0.5, 0.5)) &
+	theme_custom() &
+	theme(
+		legend.position = "right",
+		plot.caption = element_text(size = 10, hjust = 0),
+		plot.caption.position = "plot"
+	)
+```
+
+#### Vocabulary (balanced)
+
+```{r fixef_21_mon_vocab_balanced, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+main_effects <- confint.merMod(fit_21_mon_vocab_balanced, method = "Wald") %>% 
+	as.data.frame() %>% 
+	clean_names() %>% 
+	drop_na(x2_5_percent) %>%
+	rownames_to_column("term") %>% 
+	right_join(clean_names(tidy(fit_21_mon_vocab_balanced, effects = "fixed"))) %>% 
+	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
+		   statistic, df, p_value) %>% 
+	gt() %>% 
+	fmt_number(2:7) %>% 
+	fmt_number(8, decimals = 3) %>% 
+	cols_merge(starts_with("conf_"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		term = md("**Predictor**"),
+		estimate = md("**Estimate**"),
+		std_error = md("**SE**"),
+		conf_lower = md("**CI<sub>95%</sub>**"),
+		statistic = md("***t***"),
+		df = md("**df**"),
+		p_value = md("***p***")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#ffc7a1")
+		),
+		locations = cells_body(
+			columns = everything(),
+			rows = p_value < 0.05
+		)
+	)
+main_effects
+
+```
+
+```{r gaze_time_21_mon_vocab_balanced, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# by vocabulary (balanced)
+sample_size <- participants_stringent %>%
+	drop_na(vocab_size_l1_center) %>% 
+	filter(age_group=="21 months", lp=="Monolingual") %>% 
+	arrange(location, desc(vocab_size_l1_center)) %>% 
+	group_by(location) %>% 
+	mutate(vocab_index = row_number()) %>% 
+	ungroup() %>% 
+	filter(
+		((location=="Barcelona") & (vocab_index %in% 1:15)) |
+			((location=="Oxford")) & (vocab_index %in% seq(
+				max(vocab_index[location=="Oxford"])-15,
+				max(vocab_index[location=="Oxford"])))
+	) %>% 
+	nrow() %>% 
+	data.frame(n = .)
+
+augment(fit_21_mon_vocab_balanced) %>% 
+	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
+	ggplot() +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(
+		aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+		fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
+	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	geom_text(data = sample_size,
+			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
+			  colour = "black", fill = "black", show.legend = FALSE) +
+	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
+	theme(
+		axis.title.y = element_blank(),
+		axis.text = element_text(size = 7),
+		legend.position = "left"
+	) +
+	
+	augment(fit_21_mon_vocab_balanced) %>% 
+	mutate(elog_prob = logit_to_prob(elog)) %>% 
+	group_by(participant, trial_type) %>% 
+	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
+	ggplot(aes(trial_type, elog_prob)) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_violin(aes(fill = trial_type, colour = trial_type), show.legend = FALSE) +
+	geom_boxplot(width = 0.1, outlier.colour = NA) +
+	labs(x = "Trial type", y = "Pr(Target fixation)",
+		 colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme(
+		axis.title = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_blank(),
+		axis.text.y = element_blank()
+	) +
+	plot_layout(ncol = 2, guides = "collect", widths = c(0.75, 0.25)) &
+	theme_custom() &
+	theme(
+		legend.position = "right",
+		plot.caption = element_text(size = 10, hjust = 0),
+		plot.caption.position = "plot"
+	)
+```
+
+
+#### {-}
