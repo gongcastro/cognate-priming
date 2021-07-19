@@ -1,0 +1,66 @@
+---
+---
+
+
+* We collected data from `r length(unique(participants_relaxed$participant))` participants `r length(unique(participants_relaxed$participant[participants_relaxed$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants_relaxed$participant[participants_relaxed$location=="Barcelona"]))` were tested in Barcelona.
+* After applying trial- ad participant-level exclusion criteria, the sample comprise data from `r length(unique(participants_relaxed$participant[participants_relaxed$valid_participant]))` (`r length(unique(participants_relaxed$participant[participants_relaxed$valid_participant & participants_relaxed$location=="Oxford"]))` tested in Oxford, and `r length(unique(participants_relaxed$participant[participants_relaxed$valid_participant & participants_relaxed$location=="Barcelona"]))` tested in Barcelona), and were included in our analyses.
+* `r length(participants_relaxed$participant[duplicated(participants_relaxed$participant) & participants_relaxed$valid_participant])` participants in the final sample were longitudinal (tested in at least one age group). `r length(participants_relaxed$participant[duplicated(participants_relaxed$participant) & participants_relaxed$location=="Oxford" & participants_relaxed$valid_participant])` longitudinal participants were tested in Oxford and `r length(participants_relaxed$participant[duplicated(participants_relaxed$participant) & participants_relaxed$location=="Barcelona" & participants_relaxed$valid_participant])` were tested in Barcelona.
+* From the longitudinal participants, `r length(participants_relaxed$participant[(as.data.frame(table(participants_relaxed$participant))$Freq>2) & participants_relaxed$valid_participant])` were tested at two age groups, and `r length(participants_relaxed$participant[(as.data.frame(table(participants_relaxed$participant))$Freq>2) & participants_relaxed$valid_participant])`were tested at three age groups.
+
+
+#### Summary
+
+```{r participants_summary_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	ggplot(aes(lp, fill = as.factor(test_language))) +
+	facet_grid(location~age_group, scales = "free") +
+	geom_bar(colour = NA) +
+	geom_hline(yintercept = 24, linetype = "dashed") +
+	labs(x = "Group", y = "Sample size", fill = "Test language") +
+	theme(
+		legend.position = "top",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 10),
+		axis.title.y = element_text(angle = 90)
+	) 
+```
+
+#### Longitudinal
+
+We collected data from `r sum(duplicated(participants_relaxed$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants_relaxed$participant[participants_relaxed$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants_relaxed$participant[participants_relaxed$location=="Barcelona"]))` were tested in Barcelona.
+
+```{r participants_cohort_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=6, out.width="100%"}
+# plot participants
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>%
+	mutate(
+		valid_status = case_when(
+			valid_participant & !is.na(vocab_size_l1) ~ "Valid (+ CDI)",
+			valid_participant & is.na(vocab_size_l1) ~ "Valid (no CDI)",
+			!valid_participant ~ "Not valid"
+		),
+		age_group = str_remove(age_group, " months")
+	) %>%
+	drop_na(valid_status) %>% 
+	ggplot(aes(age_group, participant, colour = valid_status)) +
+	facet_grid(location~lp, scales = "free") +
+	geom_line(aes(group = interaction(lp, participant))) +
+	geom_point(size = 2) +
+	geom_hline(yintercept = 0.2, linetype = "dashed") +
+	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Validity status") +
+	theme(
+		legend.position = "right",
+		legend.title = element_blank(),
+		axis.text = element_text(size = 10),
+		axis.title.y = element_blank(),
+		axis.text.y = element_blank(),
+		axis.ticks.y = element_blank()
+	)
+```
+
+
+#### {-}
+

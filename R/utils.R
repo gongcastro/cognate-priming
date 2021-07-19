@@ -60,16 +60,16 @@ get_multilex <- function(
 # adjusted proportion, SE, and CI ----
 # from Gelman, Hill & Vehtari (2020)
 prop_adj <- function(y, n) (y+2)/(n+4)
-prop_se_adj <- function(y, n) {
+prop_adj_se <- function(y, n) {
 	prop <- prop_adj(y, n)
 	sqrt(prop*(1-prop)/(n+4))
 }
-prop_ci_adj <- function(y, n, conf = 0.95){
-	prop <- prop_adj(y, n)
+prop_adj_ci <- function(y, n, conf = 0.95) {
+	prop <- (y+2)/(n+4)
 	se <- sqrt(prop*(1-prop)/(n+4))
-	ci <- list(prop + qnorm((1-conf)/2)*se, prop + qnorm(1-(1-conf)/2)*se)
-	ci[[1]] <- ifelse(ci[[1]]<0, 0, ci[[1]])
-	ci[[2]] <- ifelse(ci[[2]]>1, 1, ci[[2]])
+	ci <-  prop + qnorm(c((1-.width)/2, (1-(1-.width)/2)))*se
+	ci[1] <- ifelse(ci[1]<0, 0, ci[1]) # truncate at 0
+	ci[2] <- ifelse(ci[2]>1, 1, ci[2]) # truncate at 1
 	return(ci)
 }
 
@@ -115,9 +115,7 @@ get_familiarity <- function(
 	familiarity <- bind_rows(familiarity_bcn, familiarity_oxf) %>% 
 		mutate(
 			familiarity = prop_adj(yes, n),
-			familiarity_se = prop_se_adj(yes, n),
-			familiarity_ci_lower = prop_ci_adj(yes, n)[[1]],
-			familiarity_ci_upper = prop_ci_adj(yes, n)[[2]]
+			familiarity_se = prop_adj_se(yes, n)
 		) %>% 
 		select(item, starts_with("familiarity")) %>% 
 		rename(word = item) %>% 
