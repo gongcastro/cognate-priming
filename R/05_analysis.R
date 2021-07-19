@@ -18,12 +18,21 @@ logit_to_prob <- function(x) exp(x) / (1 + exp(x))
 # import data ----
 participants <- readRDS(here("Data", "Participants", "participants.rds")) %>% 
 	mutate(participant_unique = as.character(row_number()))
+
 vocab <- readRDS(here("Data", "Vocabulary", "vocabulary.rds")) %>% 
 	mutate(
 		vocab_size_total_center = scale(vocab_size_total)[,1],
 		vocab_size_l1_center = scale(vocab_size_l1)[,1],
 		vocab_size_conceptual_center = scale(vocab_size_conceptual)[,1]
 	) 
+
+stimuli <- readRDS(here("Data", "Stimuli", "stimuli.rds")) %>% 
+	select(trial, location, test_language, list, frequency_target_childes) %>% 
+	rename(frequency_target = frequency_target_childes) %>% 
+	mutate(
+		frequency_target_center = scale(frequency_target)[,1],
+		trial = as.factor(trial)
+	)
 
 clean <- readRDS(here("Data", "Gaze", "clean.rds")) %>% 
 	left_join(select(participants, age_group, participant, participant_unique))
@@ -50,9 +59,11 @@ gaze <- clean %>%
 	# add previous ID to link longitudinal participants
 	left_join(distinct(participants, participant, participant_unique)) %>% 
 	left_join(vocab) %>% 
+	left_join(stimuli) %>%
 	clean_names() %>% 
 	select(participant, location, age_group, lp,
-		   vocab_size_total_center, vocab_size_l1_center, vocab_size_conceptual_center,
+		   vocab_size_total_center, vocab_size_l1_center, 
+		   vocab_size_conceptual_center, frequency_target_center,
 		   prime, target, trial, trial_type,
 		   time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted) %>%
 	mutate_at(vars(age_group, lp, prime, target, trial, trial_type), as.factor)
@@ -61,18 +72,19 @@ gaze <- clean %>%
 contrasts(gaze$lp) <- c(-0.5, 0.5)
 contrasts(gaze$trial_type) <- cbind(c(-0.25, -0.25, 0.5), c(0.5, -0.5, 0))
 contrasts(gaze$age_group) <- contr.poly(3, contrasts = TRUE)
-saveRDS(gaze, here("Data", "Gaze", "d.rds"))
+saveRDS(gaze, here("Data", "Gaze", "gaze.rds"))
 
 # fit models ----
-
 job(
 	title = "Fit models",
 	import = c(gaze, vocab, participants),
 	lmer_result = {
 		# main model
 		fit = lmer(
-			elog ~ age_group + vocab_size_l1_center*trial_type*lp*(ot1+ot2+ot3) +
-				(1+ot1+ot2+ot3+trial_type+age_group | participant),
+			elog ~ frequency_target_center +
+				vocab_size_l1_center*trial_type*lp*(ot1+ot2+ot3) +
+				(1+ot1+ot2+ot3+trial_type | participant) +
+				(1+ot1+ot2+ot3+trial_type+lp | target),
 			control = lmerControl(optimizer = "bobyqa"),
 			data = gaze
 		)

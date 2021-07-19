@@ -94,7 +94,7 @@ raw <- list.files(here("Data", "Gaze", "Barcelona"), full.names = TRUE) %>%
 		aoi_prime = aoi_center,
 		aoi_target = ifelse(target_location=="L", aoi_left, aoi_right),
 		aoi_distractor = ifelse(target_location=="L", aoi_right, aoi_left)
-	) %>% 
+	)
 	arrange(participant, trial, trial_num, phase) %>% 
 	select(participant, date_test, lp, age_group, trial_num, trial, test_language, phase,
 		   time, x, y, trial_type, target_location, aoi_prime, aoi_target, aoi_distractor,
@@ -106,7 +106,8 @@ raw <- list.files(here("Data", "Gaze", "Barcelona"), full.names = TRUE) %>%
 processed <- reduce(list(raw, participants), left_join) %>%
 	select(
 		participant, date_test, age_group, lp, trial, trial_type, test_language, phase,
-		time, x, y, valid_sample, target_location, aoi_prime, aoi_target, aoi_distractor, prime, target,
+		time, x, y, valid_sample, target_location, aoi_prime, aoi_target, aoi_distractor,
+		prime, target, distractor
 	)
 
 # export data ---

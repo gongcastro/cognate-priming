@@ -24,7 +24,6 @@ gaze <- list(
 
 processed <- reduce(list(participants, vocab, gaze), left_join)
 
-
 # evaluate inclusion criteria ----
 # valid gaze
 valid_gaze <- processed %>% 
@@ -48,9 +47,9 @@ valid_gaze <- processed %>%
 
 # evaluate vocabulary
 valid_vocabulary <- processed %>%
-	distinct(participant, age_group, trial, prime, target, vocab_words) %>% 
-	rowwise() %>% 
+	distinct(participant, age_group, trial, prime, target, distractor, vocab_words) %>% 
 	# evaluate if word in in participant's vocabulary or is understood by 50% or more of 19-22 aged children
+	rowwise() %>% 
 	mutate(
 		valid_vocab_prime = prime %in% vocab_words,
 		valid_vocab_target = target %in% vocab_words,
@@ -62,7 +61,8 @@ valid_vocabulary <- processed %>%
 valid_trials <- left_join(valid_gaze, valid_vocabulary) %>% 
 	# trial meets all gaze and vocabulary criteria
 	mutate(valid_trial =  valid_gaze_prime & valid_gaze_target & valid_vocab) %>% 
-	select(participant, age_group, trial_type, trial, valid_gaze_prime, valid_gaze_target, valid_vocab, valid_trial)
+	select(participant, age_group, trial_type, trial,
+		   valid_gaze_prime, valid_gaze_target, valid_vocab, valid_trial)
 
 # valid participants
 valid_participants <- valid_trials %>% 
@@ -85,7 +85,7 @@ valid_participants <- valid_trials %>%
 		valid_participant_non_cognate = non_cognate > missing_trials_threshold["noncognate"],
 		# has minimum number of unrelated trials
 		valid_participant_unrelated = unrelated > missing_trials_threshold["unrelated"],
-		# participant fulfills and the conditions above
+		# participant fulfils and the conditions above
 		valid_participant = valid_participant_cognate & valid_participant_non_cognate & valid_participant_unrelated
 	)
 
@@ -100,12 +100,13 @@ saveRDS(attrition, here("Results", "attrition.rds"))
 
 # merge data ----
 clean <- reduce(list(processed, valid_gaze, valid_trials, valid_participants), left_join) %>%
-	filter(phase=="Target-Distractor", valid_trial, valid_participant) %>% 
+	filter(phase=="Target-Distractor", valid_trial, valid_participant) 
 	select(
 		participant, date_test, lp, location, list, age_group, trial, test_language, phase,
-		time_stamp, x, y, valid_sample, trial_type, target_location, aoi_target, aoi_distractor, prime, target,
+		time_stamp, x, y, valid_sample, trial_type, target_location,
+		aoi_target, aoi_distractor, prime, target, distractor,
 		vocab_size_total, vocab_size_l1, vocab_size_conceptual
-		) %>% 
+	) %>% 
 	drop_na(trial)
 saveRDS(clean, here("Data", "Gaze", "clean.rds"))
 

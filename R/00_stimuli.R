@@ -8,6 +8,7 @@ library(keyring) # for retrieve encrypted credentials
 library(readxl) # for importing Excel spreadsheets
 library(multilex) # for extracting familiarity norms
 library(janitor) # for cleaning column names
+library(mice) # for imputing missing data
 library(childesr) # for extracting frequencies from CHILDES
 library(here) # for reproducible file paths
 
@@ -104,7 +105,6 @@ childes <- get_tokens(
 	rename(word = gloss, test_language = language) %>% 
 	select(word, test_language, frequency_childes)
 
-
 # familiarity norms ----
 p <- ml_participants()
 r <- ml_responses(p, update = TRUE)
@@ -161,7 +161,9 @@ stimuli <- trials %>%
 	left_join(familiarity, c("target_cdi" = "item")) %>% 
 	rename_at(vars(starts_with("familiarity") & !ends_with("_prime")), 
 			  function(x) paste0(x, "_target")) %>% 
-	rename_all(function(x) str_replace(x, "prime_target", "prime"))
+	rename_all(function(x) str_replace(x, "prime_target", "prime")) %>% 
+	mice() %>% 
+	complete()
 
 # export data ----
 saveRDS(stimuli, here("Data", "Stimuli", "stimuli.rds"))
