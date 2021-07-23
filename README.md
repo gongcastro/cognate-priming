@@ -12,6 +12,8 @@ Phonological priming paradigm in Spanish-English and Spanish-Catalan bilingual t
 
 # How to set up this repository locally
 
+*NOTE*: We recommend using RStudio (as opposed to base R, the console, and any other IDE). 
+
 1) Download and install [Git](https://git-scm.com/downloads) with default settings.
 2) Clone this repository locally. You can do this in two ways: (a) using your console, navigate to the folder you want to download the repository into, and run `git clone https://github.com/bilingual-project/cognate-priming.git` (if the repository is private at the time you try to clone it, you may have to enter your GitHub credentials), (b) clicking the green button "Code" in this page (upper-right corner), clicking "Download ZIP", and unzipping the downloaded repository.
 3) Open and R session.
