@@ -2,12 +2,12 @@
 
 get_stimuli <- function(
 	trials, # trials dataset
-	familiarity_age = c(17, 19), # age range for familiarity norms
+	familiarity_age = c(17, 19), # age range for familiarity norms (min-max)
 	familiarity_type = c("understands"), # vocabulary type (understands or produces)
 	impute = TRUE, # impute missing data?
-	update = FALSE, # update vocabulary data?
-	conf = 0.95, # confidence level
-	multilex_data,
+	update = FALSE, # update vocabulary data? (multilex may take a while to update)
+	conf = 0.95, # confidence level for familiarity estimates
+	multilex_data, # output of get_multilex()
 	oxford_data,
 	animacy_data
 ){
@@ -16,39 +16,59 @@ get_stimuli <- function(
 		get_credentials()
 		
 		# familiarity norms ----
+		# see utils.R for details on the get_familiarity() function
 		familiarity <- get_familiarity(
-			tokens =  distinct(trials, prime_cdi, target_cdi) %>% unlist() %>% unique(),
+			# words to compute familiarity norms for (primes and targets)
+			tokens =  trials %>% # defined in arguments
+				distinct(prime_cdi, target_cdi) %>%
+				unlist() %>%
+				unique(),
 			oxford_data = oxford_data,
-			type = familiarity_type,
-			update = update,
-			multilex_data = multilex_data
+			type = familiarity_type, # defined in arguments
+			update = update, # defined in arguments
+			multilex_data = multilex_data # defined in arguments
 		)
 		
 		
 		# lexical frequency norms (CHILDES) ----
+		# see utils.R for details on the get_frequency_childes() function
 		frequency_childes <- get_frequency_childes(
-			token = distinct(trials, prime, target) %>% unlist() %>% unique()
+			# words to compute CHILDES frequency norms for (primes and targets)
+			token = trials %>% # defined in arguments
+				distinct(prime, target) %>%
+				unlist() %>%
+				unique()
 		) %>% 
+			# to avoid issues with other column names
 			rename(frequency_childes = frequency) 
 		
 		
 		# lexical frequency norms (SUBTLEX) ----
+		# see utils.R for details on the get_frequency_subtlex() function
 		frequency_subtlex <- get_frequency_subtlex(
-			token = distinct(trials, prime, target) %>% unlist() %>% unique()
+			# words to compute SUBTLEX frequency norms for (primes and targets)
+			token = trials %>% # defined in arguments
+				distinct(prime, target) %>%
+				unlist() %>%
+				unique()
 		) %>% 
 			rename(frequency_subtlex = frequency) 
 		
 		# semantic category ----
-		semantic_category <- select(multilex_data$pool, word = item, language, category) %>%
+		# only available for Barcelona for now (pending: include Oxford categories)
+		semantic_category <- multilex_data$pool %>% # defined in arguments
+			select(word = item, language, category) %>%
 			rename(test_language = language)
 		
 		# animacy ----
-		animacy <- animacy_data %>% 
+		animacy <- animacy_data %>% # defined in arguments
 			as_tibble() %>% 
 			mutate(is_animate = as.logical(is_animate)) %>% 
 			as_tibble()
 		
 		# merge data ----
+		# join all datasets (not very elegant, but does the trick
+		# prime and target data are joined separately to avoid duplicating entries)
 		stimuli <- trials %>% 
 			left_join(semantic_category, by = c("target_cdi" = "word", "test_language")) %>% 
 			rename(category_prime = category) %>% 
@@ -75,10 +95,10 @@ get_stimuli <- function(
 			rename_all(function(x) str_replace(x, "prime_target", "prime"))
 		
 		# impute data
-		if (impute){
+		if (impute){ # defined in arguments
 			stimuli <- stimuli %>% 
-				mice(printFlag = FALSE) %>% 
-				complete() %>% 
+				mice(printFlag = FALSE) %>% # predictive mean matching is used by default
+				complete() %>% # get complete dataset
 				as_tibble()
 			
 		}
