@@ -745,6 +745,13 @@
       "Repository": "CRAN",
       "Hash": "b227d13e29222b4574486cfcbde077fa"
     },
+    "tarchetypes": {
+      "Package": "tarchetypes",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e3bc4a532ee78afda96b3e66cf5f1ef1"
+    },
     "targets": {
       "Package": "targets",
       "Version": "0.6.0",
@@ -814,6 +821,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "55e157e2aa88161bdb0754218470d204"
+    },
+    "visNetwork": {
+      "Package": "visNetwork",
+      "Version": "2.0.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "12545f2acf49d1d346d075580122d89c"
     },
     "vroom": {
       "Package": "vroom",
