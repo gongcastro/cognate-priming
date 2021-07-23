@@ -45,7 +45,11 @@ prepare_data <- function(
 				aoi_columns = c("aoi_target","aoi_distractor"), 
 				treat_non_aoi_looks_as_missing = FALSE
 			) %>% 
-			subset_by_window(rezero = TRUE, window_start_time = 0.3, window_end_time = 1.8) %>% 
+			subset_by_window(
+				rezero = TRUE,
+				window_start_time = 0.3,
+				window_end_time = 1.8
+			) %>% 
 			make_time_sequence_data(
 				time_bin_size = 0.1, 
 				predictor_columns = c("test_language", "location", "trial_type", "age_group", "lp"),
@@ -54,19 +58,22 @@ prepare_data <- function(
 			as_tibble() %>% 
 			# add previous ID to link longitudinal participants
 			left_join(distinct(participants, participant, participant_unique)) %>% 
-			left_join(vocabulary) %>% 
+			left_join(vocabulary) %>%  
 			clean_names() %>% 
-			select(participant, location, age_group, lp,
-				   vocab_size_total_center, vocab_size_l1_center, vocab_size_conceptual_center,
-				   prime, target, trial, trial_type,
-				   time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted) %>%
+			select(
+				participant, location, age_group, lp,
+				vocab_size_total_center, vocab_size_l1_center, vocab_size_conceptual_center,
+				prime, target, trial, trial_type,
+				time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted
+			) %>%
 			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor)
 		
 		# set a prior contrasts and orthogonal polynomials
 		contrasts(gaze$lp) <- c(-0.5, 0.5)
 		contrasts(gaze$trial_type) <- cbind(c(-0.25, -0.25, 0.5), c(0.5, -0.5, 0))
 		contrasts(gaze$age_group) <- contr.poly(3, contrasts = TRUE)
-		
-		return(gaze)
+		contrasts(gaze$location) <- c(0.5, -0.5)
 	})
+	return(gaze)
+	
 }

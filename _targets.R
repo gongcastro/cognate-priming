@@ -17,11 +17,11 @@ tar_option_set(
 		"dplyr", "tidyr", "stringr", "multilex", "keyring",
 		"readxl", "janitor", "childesr", "mice", "here",
 		"googlesheets4", "lubridate", "httr", "data.table",
-		"purrr", "eyetrackingR", "lme4", "lmerTest", "job"
+		"purrr", "eyetrackingR", "lme4", "lmerTest", "shiny",
+		"rmarkdown", "knitr"
 	)
 )
 options(tidyverse.quiet = TRUE)
-
 
 # End this file with a list of target objects.
 list(
@@ -156,8 +156,9 @@ list(
 			gaze_bcn = gaze_bcn,
 			gaze_oxf = gaze_oxf,
 			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
-			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0), # minimum n trials in each condition
-			filter_vocabulary = c("prime", "target")
+			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2), # minimum n trials in each condition
+			filter_vocabulary = c("prime", "target"),
+			filter_counterbalancing = FALSE
 		)
 	),
 	# relaxed version
@@ -168,12 +169,38 @@ list(
 			vocabulary = vocabulary,
 			gaze_bcn = gaze_bcn,
 			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 0, target = 0, distractor = 0), # minimum looking time
+			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
 			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0), # minimum n trials in each condition
+			filter_vocabulary = NULL,
+			filter_counterbalancing = FALSE
+		)
+	),
+	tar_target(
+		attrition_counter,
+		get_attrition(
+			participants = participants,
+			vocabulary = vocabulary,
+			gaze_bcn = gaze_bcn,
+			gaze_oxf = gaze_oxf,
+			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
+			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2), # minimum n trials in each condition
+			filter_counterbalancing = TRUE,
+			filter_vocabulary = c("prime", "target")
+		)
+	),
+	tar_target(
+		attrition_relaxed_counter,
+		get_attrition(
+			participants = participants,
+			vocabulary = vocabulary,
+			gaze_bcn = gaze_bcn,
+			gaze_oxf = gaze_oxf,
+			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
+			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0), # minimum n trials in each condition
+			filter_counterbalancing = TRUE,
 			filter_vocabulary = NULL
 		)
 	),
-	
 	# prepare data for analysis ----
 	# stringent version
 	tar_target(
@@ -200,51 +227,110 @@ list(
 		)
 	),
 	
-	# fit models ----
-	# stringent version
+	# fit frequentist models ----
 	tar_target(
-		fit,
-		fit_main_model(data = gaze)
+		model_formulas,
+		list(
+			fit = "elog ~ age_group + vocab_size_l1_center*trial_type*lp*(ot1+ot2) + (1+ot1+ot2+ot3+trial_type+age_group | participant)",
+			fit_21_mon = "elog ~  vocab_size_l1_center*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
+			fit_21_mon_location = "elog ~ trial_type*location*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
+			fit_21_mon_vocab_split = "elog ~ trial_type*vocab_cat*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
+			fit_21_mon_vocab_balanced = "elog ~ trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3 | participant)"
+		)
 	),
 	tar_target(
-		fit_21_mon,
-		fit_21_mon_model(data = gaze)
+		model_datasets,
+		list(
+			fit = gaze,
+			fit_21_mon = gaze %>% filter(age_group=="21 months", lp=="Monolingual"),
+			fit_21_mon_location = gaze %>% filter(age_group=="21 months", lp=="Monolingual"),
+			fit_21_mon_vocab_split = gaze %>%
+				filter(age_group=="21 months", lp=="Monolingual") %>%
+				mutate(vocab_cat = ifelse(
+					vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
+					"Above median", 
+					"Below median"
+				)) %>% 
+				mutate_at(vars(vocab_cat, location), as.factor),
+			fit_21_mon_vocab_balanced = gaze %>%
+				filter(
+					age_group=="21 months",
+					lp=="Monolingual",
+					participant %in% {
+						participants %>%
+							left_join(vocabulary) %>% 
+							drop_na(vocab_size_l1) %>% 
+							filter(age_group=="21 months", lp=="Monolingual") %>% 
+							arrange(location, desc(vocab_size_l1)) %>% 
+							group_by(location) %>% 
+							mutate(vocab_index = row_number()) %>% 
+							ungroup() %>% 
+							filter(
+								((location=="Barcelona") & (vocab_index %in% 1:15)) |
+									((location=="Oxford")) & (vocab_index %in% seq(
+										max(vocab_index[location=="Oxford"])-15,
+										max(vocab_index[location=="Oxford"]))
+									)
+							) %>%
+							pull(participant)
+					}
+				)
+		)
 	),
 	tar_target(
-		fit_21_mon_vocab_split,
-		fit_21_mon_vocab_split_model(gaze, vocabulary)
+		model_datasets_relaxed,
+		list(
+			fit_relaxed = gaze_relaxed,
+			fit_21_mon_relaxed = gaze_relaxed %>% filter(age_group=="21 months", lp=="Monolingual"),
+			fit_21_mon_location_relaxed = gaze_relaxed %>% filter(age_group=="21 months", lp=="Monolingual"),
+			fit_21_mon_vocab_split_relaxed = gaze_relaxed %>%
+				filter(age_group=="21 months", lp=="Monolingual") %>%
+				mutate(vocab_cat = ifelse(
+					vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
+					"Above median", 
+					"Below median"
+				)) %>% 
+				mutate_at(vars(vocab_cat, location), as.factor),
+			fit_21_mon_vocab_balanced_relaxed = gaze_relaxed %>%
+				filter(
+					age_group=="21 months",
+					lp=="Monolingual",
+					participant %in% {
+						participants %>%
+							left_join(vocabulary) %>% 
+							drop_na(vocab_size_l1) %>% 
+							filter(age_group=="21 months", lp=="Monolingual") %>% 
+							arrange(location, desc(vocab_size_l1)) %>% 
+							group_by(location) %>% 
+							mutate(vocab_index = row_number()) %>% 
+							ungroup() %>% 
+							filter(
+								((location=="Barcelona") & (vocab_index %in% 1:15)) |
+									((location=="Oxford")) & (vocab_index %in% seq(
+										max(vocab_index[location=="Oxford"])-15,
+										max(vocab_index[location=="Oxford"]))
+									)
+							) %>%
+							pull(participant)
+					}
+				)
+		)
+		
 	),
 	tar_target(
-		fit_21_mon_vocab_balanced,
-		fit_21_mon_vocab_balanced_model(gaze, participants, vocabulary)
+		model_fits,
+		fit_models(
+			formulas = model_formulas,
+			datasets = model_datasets
+		)
 	),
 	tar_target(
-		fit_21_mon_location,
-		fit_21_mon_location_model(data = gaze)
+		model_fits_relaxed,
+		fit_models(
+			formulas = model_formulas,
+			datasets = model_datasets_relaxed
+		)
 	),
-	
-	# relaxed version
-	tar_target(
-		fit_relaxed,
-		fit_main_model(data = gaze_relaxed)
-	),
-	tar_target(
-		fit_21_mon_relaxed,
-		fit_21_mon_model(data = gaze_relaxed)
-	),
-	tar_target(
-		fit_21_mon_vocab_split_relaxed,
-		fit_21_mon_vocab_split_model(gaze_relaxed, vocabulary)
-	),
-	tar_target(
-		fit_21_mon_vocab_balanced_relaxed,
-		fit_21_mon_vocab_balanced_model(gaze_relaxed, participants, vocabulary)
-	),
-	tar_target(
-		fit_21_mon_location_relaxed,
-		fit_21_mon_location_model(data = gaze_relaxed)
-	),
-	
 	# render Rmd
 	tar_render(report, "Rmd/report.Rmd")
 	

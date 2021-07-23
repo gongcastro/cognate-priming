@@ -2,7 +2,14 @@
 ---
 
 
-### Growth curve analysis {.tabset}
+
+```{r define_model_relaxed, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+fit <- model_fits_relaxed$fit
+fit_21_mon <- model_fits_relaxed$fit_21_mon
+fit_21_mon_location <- model_fits_relaxed$fit_21_mon_location
+fit_21_mon_vocab_split<- model_fits_relaxed$fit_21_mon_vocab_split
+fit_21_mon_vocab_balanced <- model_fits_relaxed$fit_21_mon_vocab_balanced
+```
 
 
 #### Model details
@@ -33,12 +40,12 @@ $$
 
 
 ```{r fixed_effects_table_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-main_effects <- confint.merMod(fit_relaxed, method = "Wald") %>% 
+main_effects <- confint.merMod(fit, method = "Wald") %>% 
 	as.data.frame() %>% 
 	clean_names() %>% 
 	drop_na(x2_5_percent) %>%
 	rownames_to_column("term") %>% 
-	right_join(clean_names(tidy(fit_relaxed, effects = "fixed"))) %>% 
+	right_join(clean_names(tidy(fit, effects = "fixed"))) %>% 
 	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
 		   statistic, df, p_value) %>% 
 	gt() %>% 
@@ -72,7 +79,7 @@ main_effects
 
 ```{r random_effects_participant_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-VarCorr(fit_relaxed)$participant %>% 
+VarCorr(fit)$participant %>% 
 	cov2cor() %>% 
 	as.data.frame() %>% 
 	rownames_to_column("term1") %>% 
@@ -98,16 +105,20 @@ sample_size <- participants_relaxed %>%
 	filter(valid_participant) %>% 
 	count(age_group, lp)
 
-augment(fit_relaxed) %>% 
+augment(fit) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	ggplot() +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  show.legend = FALSE,
@@ -134,14 +145,21 @@ augment(fit_relaxed) %>%
 sample_size <- participants_relaxed %>% 
 	count(age_group, lp)
 
-augment(fit_relaxed) %>% 
+augment(fit) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	filter(vocab_size_l1_center <= median(.$vocab_size_l1_center)) %>% 
 	ggplot(aes(x = ot1, y = .fitted_prob)) +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  show.legend = FALSE,
@@ -164,14 +182,21 @@ sample_size <- participants_relaxed %>%
 	filter(vocab_size_l1_center > median(.$vocab_size_l1_center, na.rm = TRUE), valid_participant) %>% 
 	count(age_group, lp)
 
-augment(fit_relaxed) %>% 
+augment(fit) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	filter(vocab_size_l1_center > median(.$vocab_size_l1_center)) %>% 
 	ggplot(aes(x = ot1, y = .fitted_prob)) +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  show.legend = FALSE,
@@ -197,15 +222,22 @@ sample_size <- participants_relaxed %>%
 	filter(location=="Barcelona", valid_participant) %>% 
 	count(age_group, lp)
 
-augment(fit_relaxed) %>% 
+augment(fit) %>% 
 	left_join(distinct(participants, participant, location)) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	filter(location=="Barcelona") %>% 
 	ggplot(aes(x = ot1, y = .fitted_prob)) +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  show.legend = FALSE,
@@ -228,15 +260,22 @@ sample_size <- participants_relaxed %>%
 	filter(location=="Oxford") %>% 
 	count(age_group, lp)
 
-augment(fit_relaxed) %>% 
+augment(fit) %>% 
 	left_join(distinct(participants, participant, location)) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	filter(location=="Oxford") %>% 
 	ggplot(aes(x = ot1, y = .fitted_prob)) +
 	facet_grid(lp~age_group) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  show.legend = FALSE,

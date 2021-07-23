@@ -9,6 +9,23 @@
 
 #### Summary
 
+```{r participants_summary_stringent_tab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	count(location, age_group, lp) %>% 
+	pivot_wider(names_from = "age_group", values_from = c("n"), values_fill = 0) %>% 
+	gt(groupname_col = "location") %>% 
+	cols_label(
+		lp = md("**Language profile**"),
+		`21 months` = md("**21 months**"),
+		`25 months` = md("**25 months**"),
+		`30 months` = md("**30 months**")
+	)
+
+```
+
 ```{r participants_summary_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 participants_stringent %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>% 

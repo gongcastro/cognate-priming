@@ -1,7 +1,6 @@
 ---
 ---
 
-## Stimuli {.tabset }
 
 ### Frequency {.tabset }
 
@@ -154,7 +153,7 @@ stimuli %>%
 	theme(
 		legend.position = "none",
 		legend.title = element_blank(),
-		axis.text = element_text(size = 9),
+		axis.text = element_text(size = 7),
 		axis.title.x = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
 		plot.caption = element_text(size = 10, hjust = 0),
@@ -179,7 +178,7 @@ stimuli %>%
 	theme(
 		legend.position = "none",
 		legend.title = element_blank(),
-		axis.text = element_text(size = 9),
+		axis.text = element_text(size = 7),
 		axis.title.x = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
 		plot.caption = element_text(size = 10, hjust = 0),
@@ -207,7 +206,7 @@ means <- stimuli %>%
 stimuli %>% 
 	distinct(location, test_language, target, prime, .keep_all = TRUE) %>% 
 	# mutate(prime = reorder_within(target, familiarity_prime, list(location, test_language))) %>% 
-	ggplot(aes(familiarity_prime, reorder(prime, familiarity_prime), colour = trial_type, fill = trial_type)) +
+	ggplot(aes(familiarity_prime, reorder(prime, familiarity_prime),  colour = trial_type, fill = trial_type)) +
 	facet_wrap(location~test_language, scales = "free_y") +
 	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
 	geom_vline(data = means, aes(xintercept = familiarity_prime, colour = trial_type), size = 1) +
@@ -215,13 +214,11 @@ stimuli %>%
 	geom_point() +
 	labs(x = "% of infants that understand", y = "Prime word",
 		 colour = "Trial type", fill = "Trial type") +
-	scale_x_continuous(labels = percent) +
-	# scale_y_reordered() +
-	theme_custom() +
+	scale_x_continuous(labels = percent, limits = c(0, 1)) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		axis.text = element_text(size = 10),
+		axis.text = element_text(size = 7),
 		axis.title.y = element_blank(),
 		plot.caption = element_text(size = 10, hjust = 0),
 	)
@@ -249,12 +246,12 @@ stimuli %>%
 	geom_point() +
 	labs(x = "% of infants that understand", y = "Target word",
 		 colour = "Trial type", fill = "Trial type") +
-	scale_x_continuous(labels = percent) +
-	theme_custom() +
+	scale_x_continuous(labels = percent, limits = c(0, 1)) +
+	# scale_y_reordered() +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		axis.text = element_text(size = 10),
+		axis.text = element_text(size = 7),
 		axis.title.y = element_blank(),
 		plot.caption = element_text(size = 10, hjust = 0),
 	)
@@ -307,7 +304,7 @@ animacy %>%
 		legend.position = "top",
 		legend.title = element_blank(),
 		axis.title.y = element_blank(),
-		axis.text = element_text(size = 10),
+		axis.text = element_text(size = 7),
 		strip.text = element_text(size = 11)
 	)
 

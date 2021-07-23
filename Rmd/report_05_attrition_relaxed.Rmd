@@ -1,11 +1,8 @@
 ---
 ---
 
-### Attrition {.tabset}
-
 
 #### Summary
-
 
 ```{r participants_cdi_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
@@ -167,6 +164,7 @@ attrition_relaxed %>%
 # plot participants
 attrition_relaxed %>% 
 	left_join(select(participants_relaxed, participant, location)) %>% 
+	drop_na(trial_type) %>% 
 	group_by(location, lp, age_group, trial_type, valid_trial) %>% 
 	count() %>% 
 	ungroup() %>%
@@ -235,7 +233,7 @@ attrition_relaxed %>%
 	geom_boxplot(fill = "white", width = 0.25,
 				 position =  position_dodge(width = 0.5),
 				 size = 1, outlier.colour = NA) +
-	geom_label(data = sample_size, aes(y = 2, label = n),
+	geom_label(data = sample_size, aes(y = 2, label = n), size = 3,
 			   position = position_dodge(width = 0.7), colour = "white") +
 	labs(x = "Trial type", y = "Frequency (CHILDES)", colour = "Validity", fill = "Validity") +
 	scale_y_continuous(breaks = 0:7, limits = c(0, 7)) +
@@ -243,7 +241,8 @@ attrition_relaxed %>%
 		legend.position = "top",
 		legend.title = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		axis.text.x = element_text(size = 10),
+		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
+		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
@@ -291,7 +290,7 @@ attrition_relaxed %>%
 	geom_boxplot(fill = "white", width = 0.25,
 				 position =  position_dodge(width = 0.5),
 				 size = 1, outlier.colour = NA) +
-	geom_label(data = sample_size, aes(y = 2, label = n),
+	geom_label(data = sample_size, aes(y = 2, label = n), size = 3,
 			   position = position_dodge(width = 0.7), colour = "white") +
 	labs(x = "Trial type", y = "Frequency (CHILDES)", colour = "Validity", fill = "Validity") +
 	scale_y_continuous(breaks = 0:7, limits = c(0, 7)) +
@@ -299,7 +298,8 @@ attrition_relaxed %>%
 		legend.position = "top",
 		legend.title = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		axis.text.x = element_text(size = 10),
+		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
+		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
@@ -352,7 +352,7 @@ attrition_relaxed %>%
 	geom_boxplot(fill = "white", width = 0.25,
 				 position =  position_dodge(width = 0.5),
 				 size = 1, outlier.colour = NA) +
-	geom_label(data = sample_size, aes(y = 0.1, label = n),
+	geom_label(data = sample_size, aes(y = 0.1, label = n), size = 3,
 			   position = position_dodge(width = 0.7), colour = "white") +
 	labs(x = "Trial type", y = "Familiarity", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
@@ -361,7 +361,7 @@ attrition_relaxed %>%
 		legend.position = "top",
 		legend.title = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		axis.text.x = element_text(size = 10),
+		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
@@ -412,7 +412,7 @@ attrition_relaxed %>%
 	geom_boxplot(fill = "white", width = 0.25,
 				 position =  position_dodge(width = 0.5),
 				 size = 1, outlier.colour = NA) +
-	geom_label(data = sample_size, aes(y = 0.1, label = n),
+	geom_label(data = sample_size, aes(y = 0.1, label = n), size = 3,
 			   position = position_dodge(width = 0.7), colour = "white") +
 	labs(x = "Trial type", y = "Familiarity", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
@@ -421,7 +421,7 @@ attrition_relaxed %>%
 		legend.position = "top",
 		legend.title = element_blank(),
 		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		axis.text.x = element_text(size = 10),
+		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
@@ -457,8 +457,6 @@ attrition_relaxed %>%
 
 
 #### By animacy {.tabset }
-
-
 
 ##### Prime
 
@@ -568,5 +566,5 @@ attrition_relaxed %>%
 	)
 ```
 
-#### {-}
+##### {-}
 

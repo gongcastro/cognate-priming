@@ -26,6 +26,7 @@ options(knitr.kable.NA = '-',
 
 ```
 
+
 ```{r params, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
 # load packages
@@ -47,29 +48,18 @@ library(shiny)
 library(tidytext)
 library(here)
 
-
 # load objects
 tar_load(participants)
 tar_load(stimuli)
 tar_load(vocabulary)
-
-# stringent version
 tar_load(gaze)
-tar_load(attrition)
-tar_load(fit)
-tar_load(fit_21_mon)
-tar_load(fit_21_mon_vocab_split)
-tar_load(fit_21_mon_vocab_balanced)
-tar_load(fit_21_mon_location)
-
-# relaxed version
 tar_load(gaze_relaxed)
+tar_load(attrition)
 tar_load(attrition_relaxed)
-tar_load(fit_relaxed)
-tar_load(fit_21_mon_relaxed)
-tar_load(fit_21_mon_vocab_split_relaxed)
-tar_load(fit_21_mon_vocab_balanced_relaxed)
-tar_load(fit_21_mon_location_relaxed)
+tar_load(attrition_counter)
+tar_load(attrition_relaxed_counter)
+tar_load(model_fits)
+tar_load(model_fits_relaxed)
 
 theme_set(theme_custom()) # in utils.R
 ```
@@ -97,6 +87,28 @@ attrition_relaxed <- attrition_relaxed %>%
 			TRUE ~ "Valid"
 		))
 
+attrition_counter <- attrition_counter %>% 
+	mutate(
+		valid_gaze = valid_gaze_prime & valid_gaze_target,
+		valid_status = case_when(
+			!valid_vocab ~ "Invalid vocabulary",
+			!valid_gaze ~ "Invalid gaze",
+			!valid_participant ~ "Invalid participant",
+			!valid_counter ~ "Invalid counter",
+			TRUE ~ "Valid"
+		))
+
+attrition_relaxed_counter <- attrition_relaxed_counter %>% 
+	mutate(
+		valid_gaze = valid_gaze_prime & valid_gaze_target,
+		valid_status = case_when(
+			!valid_vocab ~ "Invalid vocabulary",
+			!valid_gaze ~ "Invalid gaze",
+			!valid_participant ~ "Invalid participant",
+			!valid_counter ~ "Invalid counter",
+			TRUE ~ "Valid"
+		))
+
 participants_stringent <- participants %>% 
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(participant) %>% 
@@ -109,17 +121,25 @@ participants_relaxed <- participants %>%
 	left_join(vocabulary) %>% 
 	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
 
-```
+participants_counter <- participants %>% 
+	left_join(distinct(attrition_counter, participant, age_group, valid_participant)) %>% 
+	drop_na(participant) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
 
+participants_relaxed_counter <- participants %>% 
+	left_join(distinct(attrition_relaxed_counter, participant, age_group, valid_participant)) %>% 
+	drop_na(participant) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
+
+```
 
 # Methods
 
-
 ## Participants {.tabset .tabset-pills}
 
-
 ### Stringent criteria {.tabset}
-
 
 ```{r child="report_00_participants_stringent.Rmd"}
 ```
@@ -133,7 +153,6 @@ participants_relaxed <- participants %>%
 
 
 ## Stimuli
-
 
 ```{r child="report_01_stimuli.Rmd"}
 ```
@@ -161,40 +180,62 @@ participants_relaxed <- participants %>%
 
 # Results {.tabset .tabset-pills}
 
-
 ## Gaze {.tabset .tabset-pills}
 
-
 ### Stringent criteria {.tabset}
-
 
 ```{r child="report_04_gca_stringent.Rmd"}
 ```
 
-```{r child="report_05_attrition_stringent.Rmd"}
-```
-
-```{r child="report_06_21-mon_stringent.Rmd"}
-```
-
-```{r child="report_07_raw_relaxed.Rmd"}
-```
-
 ### Relaxed criteria {.tabset}
-
 
 ```{r child="report_04_gca_relaxed.Rmd"}
 ```
 
+### {-}
+
+## Attrition {.tabset}
+
+### Stringent criteria {.tabset}
+
+```{r child="report_05_attrition_stringent.Rmd"}
+```
+
+### Relaxed criteria {.tabset}
+
 ```{r child="report_05_attrition_relaxed.Rmd"}
 ```
 
+### Counterbalancing {.tabset}
+
+#### Stringent criteria {.tabset}
+
+```{r child="report_05_attrition_counter_stringent.Rmd"}
+```
+
+#### Relaxed criteria {.tabset}
+
+```{r child="report_05_attrition_counter_relaxed.Rmd"}
+```
+
+
+#### {-}
+
+### {-}
+
+
+## 21 months-old monolinguals {.tabset}
+
+
+### Stringent criteria {.tabset}
+
+```{r child="report_06_21-mon_stringent.Rmd"}
+```
+
+### Relaxed criteria {.tabset}
+
 ```{r child="report_06_21-mon_relaxed.Rmd"}
 ```
-
-```{r child="report_07_raw_relaxed.Rmd"}
-```
-
 
 ### {-}
 
@@ -210,7 +251,6 @@ participants_relaxed <- participants %>%
 
 
 ### Relaxed criteria {.tabset}
-
 
 ```{r child="report_08_vocabulary_relaxed.Rmd"}
 ```

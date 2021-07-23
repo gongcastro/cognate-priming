@@ -1,7 +1,14 @@
 ---
 ---
 
-### 21 month-old monolinguals {.tabset }
+
+```{r define_model_21_mon, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+fit_21_mon <- model_fits$fit_21_mon
+fit_21_mon_location <- model_fits$fit_21_mon_location
+fit_21_mon_vocab_split<- model_fits$fit_21_mon_vocab_split
+fit_21_mon_vocab_balanced <- model_fits$fit_21_mon_vocab_balanced
+```
+
 
 #### All data
 
@@ -53,9 +60,13 @@ augment(fit_21_mon) %>%
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
 			  show.legend = FALSE,
@@ -149,11 +160,15 @@ augment(fit_21_mon_location) %>%
 	ggplot() +
 	facet_wrap(~location, ncol = 1) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(
-		aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
-		fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  colour = "black", fill = "black", show.legend = FALSE) +
@@ -248,9 +263,13 @@ augment(fit_21_mon_vocab_split) %>%
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
 			  show.legend = FALSE,
@@ -353,11 +372,15 @@ augment(fit_21_mon_vocab_balanced) %>%
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	ggplot() +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(
-		aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
-		fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  colour = "black", fill = "black", show.legend = FALSE) +

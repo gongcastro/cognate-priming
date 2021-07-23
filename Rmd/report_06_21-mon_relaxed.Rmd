@@ -1,19 +1,24 @@
 ---
 ---
 
-### 21 month-old monolinguals {.tabset }
 
+```{r define_model_21_mon_relaxed, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+fit_21_mon <- model_fits_relaxed$fit_21_mon
+fit_21_mon_location <- model_fits_relaxed$fit_21_mon_location
+fit_21_mon_vocab_split<- model_fits_relaxed$fit_21_mon_vocab_split
+fit_21_mon_vocab_balanced <- model_fits_relaxed$fit_21_mon_vocab_balanced
+```
 
 #### All data
 
 
 ```{r fixef_21_mon_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-main_effects <- confint.merMod(fit_21_mon_relaxed, method = "Wald") %>% 
+main_effects <- confint.merMod(fit_21_mon, method = "Wald") %>% 
 	as.data.frame() %>% 
 	clean_names() %>% 
 	drop_na(x2_5_percent) %>%
 	rownames_to_column("term") %>% 
-	right_join(clean_names(tidy(fit_21_mon_relaxed, effects = "fixed"))) %>% 
+	right_join(clean_names(tidy(fit_21_mon, effects = "fixed"))) %>% 
 	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
 		   statistic, df, p_value) %>% 
 	gt() %>% 
@@ -50,15 +55,19 @@ sample_size <- participants_relaxed %>%
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
 	count(age_group, lp)
 
-augment(fit_21_mon_relaxed) %>% 
+augment(fit_21_mon) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	ggplot() +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
 			  show.legend = FALSE,
@@ -73,7 +82,7 @@ augment(fit_21_mon_relaxed) %>%
 		legend.position = "left"
 	) +
 	
-	augment(fit_21_mon_relaxed) %>% 
+	augment(fit_21_mon) %>% 
 	mutate(elog_prob = logit_to_prob(elog)) %>% 
 	group_by(participant, trial_type) %>% 
 	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
@@ -107,12 +116,12 @@ augment(fit_21_mon_relaxed) %>%
 
 
 ```{r fixef_21_mon_location_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-main_effects <- confint.merMod(fit_21_mon_location_relaxed, method = "Wald") %>% 
+main_effects <- confint.merMod(fit_21_mon_location, method = "Wald") %>% 
 	as.data.frame() %>% 
 	clean_names() %>% 
 	drop_na(x2_5_percent) %>%
 	rownames_to_column("term") %>% 
-	right_join(clean_names(tidy(fit_21_mon_location_relaxed, effects = "fixed"))) %>% 
+	right_join(clean_names(tidy(fit_21_mon_location, effects = "fixed"))) %>% 
 	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
 		   statistic, df, p_value) %>% 
 	gt() %>% 
@@ -148,16 +157,20 @@ sample_size <- participants_relaxed %>%
 	filter(valid_participant, age_group=="21 months", lp=="Monolingual") %>% 
 	count(age_group, location)
 
-augment(fit_21_mon_location_relaxed) %>% 
+augment(fit_21_mon_location) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	ggplot() +
 	facet_wrap(~location, ncol = 1) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(
-		aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
-		fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  colour = "black", fill = "black", show.legend = FALSE) +
@@ -171,7 +184,7 @@ augment(fit_21_mon_location_relaxed) %>%
 		legend.position = "left"
 	) +
 	
-	augment(fit_21_mon_location_relaxed) %>% 
+	augment(fit_21_mon_location) %>% 
 	mutate(elog_prob = logit_to_prob(elog)) %>% 
 	group_by(participant, location, trial_type) %>% 
 	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
@@ -203,12 +216,12 @@ augment(fit_21_mon_location_relaxed) %>%
 
 
 ```{r fixef_21_mon_vocab_split_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-main_effects <- confint.merMod(fit_21_mon_vocab_split_relaxed, method = "Wald") %>% 
+main_effects <- confint.merMod(fit_21_mon_vocab_split, method = "Wald") %>% 
 	as.data.frame() %>% 
 	clean_names() %>% 
 	drop_na(x2_5_percent) %>%
 	rownames_to_column("term") %>% 
-	right_join(clean_names(tidy(fit_21_mon_vocab_split_relaxed, effects = "fixed"))) %>% 
+	right_join(clean_names(tidy(fit_21_mon_vocab_split, effects = "fixed"))) %>% 
 	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
 		   statistic, df, p_value) %>% 
 	gt() %>% 
@@ -246,16 +259,20 @@ sample_size <- participants_relaxed %>%
 	mutate(vocab_cat = ifelse(vocab_size_l1_center > median(participants_relaxed$vocab_size_l1_center, na.rm = TRUE), "Above median", "Below median")) %>% 
 	count(age_group, vocab_cat, lp)
 
-augment(fit_21_mon_vocab_split_relaxed) %>% 
+augment(fit_21_mon_vocab_split) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	ggplot() +
 	facet_wrap(~vocab_cat, ncol = 1) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("N = ", n)),
 			  show.legend = FALSE,
@@ -270,7 +287,7 @@ augment(fit_21_mon_vocab_split_relaxed) %>%
 		legend.position = "left"
 	) +
 	
-	augment(fit_21_mon_vocab_split_relaxed) %>% 
+	augment(fit_21_mon_vocab_split) %>% 
 	mutate(elog_prob = logit_to_prob(elog)) %>% 
 	group_by(participant, vocab_cat, trial_type) %>% 
 	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 
@@ -304,12 +321,12 @@ augment(fit_21_mon_vocab_split_relaxed) %>%
 
 ```{r fixef_21_mon_vocab_balanced_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-main_effects <- confint.merMod(fit_21_mon_vocab_balanced_relaxed, method = "Wald") %>% 
+main_effects <- confint.merMod(fit_21_mon_vocab_balanced, method = "Wald") %>% 
 	as.data.frame() %>% 
 	clean_names() %>% 
 	drop_na(x2_5_percent) %>%
 	rownames_to_column("term") %>% 
-	right_join(clean_names(tidy(fit_21_mon_vocab_balanced_relaxed, effects = "fixed"))) %>% 
+	right_join(clean_names(tidy(fit_21_mon_vocab_balanced, effects = "fixed"))) %>% 
 	select(term, estimate, std_error, conf_lower = x2_5_percent, conf_upper = x97_5_percent,
 		   statistic, df, p_value) %>% 
 	gt() %>% 
@@ -357,15 +374,19 @@ sample_size <- participants_relaxed %>%
 	nrow() %>% 
 	data.frame(n = .)
 
-augment(fit_21_mon_vocab_balanced_relaxed) %>% 
+augment(fit_21_mon_vocab_balanced) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
 	ggplot() +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
-	stat_summary(
-		aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
-		fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type), fun = mean, geom = "line", size = 1) +
-	# stat_summary(fun.data = mean_se, geom = "pointrange", size = 0.25) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
+	stat_summary(aes(x = ot1, y = .fitted_prob,
+					 group = interaction(participant, trial_type),
+					 colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
 	geom_text(data = sample_size,
 			  aes(x = -0.3, y = 0.95, label = paste0("n = ", n)),
 			  colour = "black", fill = "black", show.legend = FALSE) +
@@ -379,7 +400,7 @@ augment(fit_21_mon_vocab_balanced_relaxed) %>%
 		legend.position = "left"
 	) +
 	
-	augment(fit_21_mon_vocab_balanced_relaxed) %>% 
+	augment(fit_21_mon_vocab_balanced) %>% 
 	mutate(elog_prob = logit_to_prob(elog)) %>% 
 	group_by(participant, trial_type) %>% 
 	summarise(elog_prob = mean(elog_prob, na.rm = TRUE)) %>% 

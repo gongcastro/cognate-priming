@@ -86,7 +86,8 @@ get_gaze_oxf <- function(
 		processed <- reduce(list(raw, participants), left_join) %>%
 			select(
 				participant, date_test, age_group, lp, trial, trial_type, test_language, phase,
-				time, x, y, valid_sample, target_location, aoi_prime, aoi_target, aoi_distractor, prime, target,
+				time, x, y, valid_sample, target_location, aoi_prime, aoi_target, aoi_distractor,
+				prime, target, distractor
 			)
 		
 		return(processed)

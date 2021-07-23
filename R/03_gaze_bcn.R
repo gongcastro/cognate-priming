@@ -52,16 +52,19 @@ get_gaze_bcn <- function(
 				aoi_distractor = ifelse(target_location=="L", aoi_right, aoi_left)
 			) %>% 
 			arrange(participant, trial, trial_num, phase) %>% 
-			select(participant, date_test, lp, age_group, trial_num, trial, test_language, phase,
-				   time, x, y, trial_type, target_location, aoi_prime, aoi_target, aoi_distractor,
-				   valid_sample, prime_cdi, target_cdi) %>% 
+			select(
+				participant, date_test, lp, age_group, trial_num, trial, test_language, phase,
+				time, x, y, trial_type, target_location, aoi_prime, aoi_target, aoi_distractor,
+				valid_sample, prime_cdi, target_cdi, distractor_cdi
+			) %>% 
 			rename_all(function(x) str_remove(x, "_cdi"))
 		
 		# merge data ----
 		processed <- reduce(list(raw, participants), left_join) %>%
 			select(
 				participant, date_test, age_group, lp, trial, trial_type, test_language, phase,
-				time, x, y, valid_sample, target_location, aoi_prime, aoi_target, aoi_distractor, prime, target,
+				time, x, y, valid_sample, target_location, aoi_prime, aoi_target, aoi_distractor,
+				prime, target, distractor
 			)
 		
 		return(processed)

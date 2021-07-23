@@ -1,13 +1,12 @@
 # stimuli
 
-
 get_stimuli <- function(
 	trials, # trials dataset
 	familiarity_age = c(17, 19), # age range for familiarity norms
 	familiarity_type = c("understands"), # vocabulary type (understands or produces)
 	impute = TRUE, # impute missing data?
 	update = FALSE, # update vocabulary data?
-	conf = 0.95, # confidence level,
+	conf = 0.95, # confidence level
 	multilex_data,
 	oxford_data,
 	animacy_data
@@ -18,7 +17,7 @@ get_stimuli <- function(
 		
 		# familiarity norms ----
 		familiarity <- get_familiarity(
-			tokens =  distinct(trials, prime, target) %>% unlist() %>% unique(),
+			tokens =  distinct(trials, prime_cdi, target_cdi) %>% unlist() %>% unique(),
 			oxford_data = oxford_data,
 			type = familiarity_type,
 			update = update,
@@ -86,6 +85,3 @@ get_stimuli <- function(
 	})
 	return(stimuli)
 }
-
-
->>>>>>> targets
