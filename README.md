@@ -37,7 +37,7 @@ If you want to inspect specific objects into the Global Environment of your R se
 
 # Password-protected data
 
-Some data are password protected. This password is not hard-coded in the scripts, but rather saved locally in the authors' machines. We suggest you to get in touch [gonzalo.garciadecastro@upf.edu](mailto:gonzalo.garciadecastro@upf.edu) to obtain the password, and then use the [keyring](https://github.com/r-lib/keyring) package to save it securely in your local machine. Once you have obtained the password, run the following code:
+Some data (in the multilex package) are password protected. This password is not hard-coded in the scripts, but rather saved locally in the authors' machines. We suggest you to get in touch [gonzalo.garciadecastro@upf.edu](mailto:gonzalo.garciadecastro@upf.edu) to obtain the password, and then use the [keyring](https://github.com/r-lib/keyring) package to save it securely in your local machine. Once you have obtained the password, run the following code:
 
 ```r
 keyring::keyring(user = "gonzalo.garciadecastro@upf.edu")
@@ -49,7 +49,7 @@ Then, enter the password in the dialogue box that will pop up in you RStudio Ses
 
 When running `r renv::restore()` for the first time, you may encounter an error indicating that the package [multilex](https://github.com/gongcastro/multilex) is not available. To fix this:
 
-1) If you are using Ubuntu (as opposed to Windows or Mac), you may have to run
+1) If you are using Ubuntu (as opposed to Windows or Mac), you may have to run the following lines in your (bash) console first, in order to be able to install some R necessary R packages later (e.g., [openssl](https://github.com/jeroen/openssl), [Cairo](https://github.com/s-u/Cairo)).
 
 ```console
 sudo apt-get install libssl-dev
@@ -60,12 +60,11 @@ sudo apt-get install libcairo2-dev
 sudo apt-get update
 ```
 
-in your console first to install de [openssl](https://github.com/jeroen/openssl) R package]:
+Finally you may have to install the [childesr](https://github.com/langcog/childesr), [formr](https://github.com/rubenarslan/formr), and [multilex](https://github.com/gongcastro/multilex) packages manually from your R console. for some reason, `renv` assumes that these packages are available in CRAN (formr and multilex are not), and therefore `renv::restore()` may fail to install them.
 
 ```r
-renv::install("lancog/childesr") # a dependency of multilex, only available in GitHub
-renv::install("rubenarslan/formr") # a dependency of multilex, only available in GitHub
-renv::install("gongcastro/multilex")
+renv::install("lancog/childesr", "rubenarslan/formr", "gongcastro/multilex")
 ```
 
-This may take a while, but hopefully will fix the issue.
+This may take a while, but hopefully will fix the issue. Please get in contact in case you need any help setting up this repository. We did our best facilitating others' use of our code, but our familiarity with the tools above mentioned is limited.
+
