@@ -14,3 +14,4 @@ Media/*
 Documents/*
 Figures/*
 Communications/*
+!Data/Stimuli/*

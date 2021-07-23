@@ -35,9 +35,22 @@ Then, enter the password in the dialogue box that will pop up in you RStudio Ses
 
 # Troubleshooting
 
-When running `r renv::restore()` for the first time, you may encounter an error indicating that the package [multilex](https://github.com/gongcastro/multilex) is not available. To fix this, install it manually by running:
+When running `r renv::restore()` for the first time, you may encounter an error indicating that the package [multilex](https://github.com/gongcastro/multilex) is not available. To fix this:
+
+1) If you are using Ubuntu (as opposed to Windows or Mac), you may have to run
+
+```console
+sudo apt-get install libssl-dev
+sudo apt-get install libxt-dev
+sudo apt-get install libmysqlclient-dev
+sudo apt-get install libsodium-dev
+sudo apt-get update
+```
+
+in your console first to install de [openssl](https://github.com/jeroen/openssl) R package]:
 
 ```r
+renv::install("lancog/childesr") # a dependency of multilex, only available in GitHub
 renv::install("rubenarslan/formr") # a dependency of multilex, only available in GitHub
 renv::install("gongcastro/multilex")
 ```
