@@ -38,8 +38,8 @@ Then, enter the password in the dialogue box that will pop up in you RStudio Ses
 When running `r renv::restore()` for the first time, you may encounter an error indicating that the package [multilex](https://github.com/gongcastro/multilex) is not available. To fix this, install it manually by running:
 
 ```r
-renv::install("formr") # a dependency of multilex, only available in GitHub
-renv::install("multilex")
+renv::install("rubenarslan/formr") # a dependency of multilex, only available in GitHub
+renv::install("gongcastro/multilex")
 ```
 
 This may take a while, but hopefully will fix the issue.
