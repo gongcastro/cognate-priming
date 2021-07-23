@@ -54,6 +54,7 @@ sudo apt-get install libssl-dev
 sudo apt-get install libxt-dev
 sudo apt-get install libmysqlclient-dev
 sudo apt-get install libsodium-dev
+sudo apt-get install libcairo2-dev
 sudo apt-get update
 ```
 
