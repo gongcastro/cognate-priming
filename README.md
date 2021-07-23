@@ -15,14 +15,24 @@ Phonological priming paradigm in Spanish-English and Spanish-Catalan bilingual t
 *NOTE*: We recommend using RStudio (as opposed to base R, the console, and any other IDE). 
 
 1) Download and install [Git](https://git-scm.com/downloads) with default settings.
-2) Clone this repository locally. You can do this in two ways: (a) using your console, navigate to the folder you want to download the repository into, and run `git clone https://github.com/bilingual-project/cognate-priming.git` (if the repository is private at the time you try to clone it, you may have to enter your GitHub credentials), (b) clicking the green button "Code" in this page (upper-right corner), clicking "Download ZIP", and unzipping the downloaded repository.
-3) Open and R session.
-4) Install the [renv](https://rstudio.github.io/renv/articles/renv.html) R package running `r install.packages("renv")`.
-4) Install the [targets](https://books.ropensci.org/targets/) package running  `r install.packages("targets")`.
-5) Run `r renv::restore()`. This will create an environment for the project that contains the necessary R packages (and package dependencies) you need, in version you need. 
-6) Run `targets::tar_make()`. This command will run the scripts in the appropriate order (as specified in the [_targets.R](https://github.com/bilingual-project/cognate-priming/blob/master/_targets.R) script) and create the objects, which will be stored in the [targets/](https://github.com/bilingual-project/cognate-priming/tree/master/_targets). The final output of this command will be the renderisation of the [Rmd/report.Rmd](https://github.com/bilingual-project/cognate-priming/blob/master/Rmd/report.Rmd) file into and HTML file (Rmd/report.html) with the laboratory notes and all the information about the study.
+2) Clone this repository locally. You can do this in two ways:
 
-If you want to inspect specific objects into the Global Environment of your R session, you can run `r tar_load()`, specifying the object you want to import (e.g., `r tar_load(model_fits)`). You can also visualise the dependencies across files and scripts running `r tar_visnetwork()`.
+* Using your console, navigate to the folder you want to download the repository into, and run:
+
+```console
+git clone https://github.com/bilingual-project/cognate-priming.git
+```
+If the repository is private at the time you try to clone it, you may have to enter your GitHub credentials)
+
+* Clicking the green button "Code" in this page (upper-right corner), clicking "Download ZIP", and unzipping the downloaded repository.
+
+4) Open and R session.
+5) Install the [renv](https://rstudio.github.io/renv/articles/renv.html) R package running `install.packages("renv")`.
+6) Install the [targets](https://books.ropensci.org/targets/) package running  `install.packages("targets")`.
+7) Run `renv::restore()`. This will create an environment for the project that contains the necessary R packages (and package dependencies) you need, in version you need. 
+8) Run `targets::tar_make()`. This command will run the scripts in the appropriate order (as specified in the [_targets.R](https://github.com/bilingual-project/cognate-priming/blob/master/_targets.R) script) and create the objects, which will be stored in the [targets/](https://github.com/bilingual-project/cognate-priming/tree/master/_targets). The final output of this command will be the renderisation of the [Rmd/report.Rmd](https://github.com/bilingual-project/cognate-priming/blob/master/Rmd/report.Rmd) file into and HTML file (Rmd/report.html) with the laboratory notes and all the information about the study.
+
+If you want to inspect specific objects into the Global Environment of your R session, you can run `tar_load()`, specifying the object you want to import (e.g., `tar_load(model_fits)`). You can also visualise the dependencies across files and scripts running `tar_visnetwork()`.
 
 
 # Password-protected data
@@ -46,6 +56,7 @@ sudo apt-get install libssl-dev
 sudo apt-get install libxt-dev
 sudo apt-get install libmysqlclient-dev
 sudo apt-get install libsodium-dev
+sudo apt-get install libcairo2-dev
 sudo apt-get update
 ```
 
