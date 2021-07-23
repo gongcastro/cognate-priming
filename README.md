@@ -60,7 +60,7 @@ sudo apt-get install libcairo2-dev
 sudo apt-get update
 ```
 
-Finally you may have to install the [childesr](https://github.com/langcog/childesr), [formr](https://github.com/rubenarslan/formr), and [multilex](https://github.com/gongcastro/multilex) packages manually from your R console. for some reason, `renv` assumes that these packages are available in CRAN (formr and multilex are not), and therefore `renv::restore()` may fail to install them.
+Finally you may have to install the [childesr](https://github.com/langcog/childesr), [formr](https://github.com/rubenarslan/formr), and [multilex](https://github.com/gongcastro/multilex) packages manually from your R console. for some reason, renv assumes that these packages are available in CRAN (formr and multilex are not), and therefore `renv::restore()` may fail to install them.
 
 ```r
 renv::install("lancog/childesr", "rubenarslan/formr", "gongcastro/multilex")
