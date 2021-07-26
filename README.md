@@ -26,11 +26,13 @@ If the repository is private at the time you try to clone it, you may have to en
 
 * Clicking the green button "Code" in this page (upper-right corner), clicking "Download ZIP", and unzipping the downloaded repository.
 
-4) Open and R session.
-5) Install the [renv](https://rstudio.github.io/renv/articles/renv.html) R package running `install.packages("renv")`.
-6) Install the [targets](https://books.ropensci.org/targets/) package running  `install.packages("targets")`.
-7) Run `renv::restore()`. This will create an environment for the project that contains the necessary R packages (and package dependencies) you need, in version you need. 
-8) Run `targets::tar_make()`. This command will run the scripts in the appropriate order (as specified in the [_targets.R](https://github.com/bilingual-project/cognate-priming/blob/master/_targets.R) script) and create the objects, which will be stored in the [targets/](https://github.com/bilingual-project/cognate-priming/tree/master/_targets). The final output of this command will be the renderisation of the [Rmd/report.Rmd](https://github.com/bilingual-project/cognate-priming/blob/master/Rmd/report.Rmd) file into and HTML file (Rmd/report.html) with the laboratory notes and all the information about the study.
+3) Download the Barcelona gaze data CSV files from this [Google Drive folder](https://drive.google.com/drive/folders/1SHiZlR2kM3RlwkngCqhCSAtZbL10JicN?usp=sharing), and move the files under Data/Gaze/Barcelona.
+4) Download the Oxford gaze data CSV files from this [Google Drive folder](https://drive.google.com/drive/folders/1SHiZlR2kM3RlwkngCqhCSAtZbL10JicN?usp=sharing), and move the files under Data/Gaze/Oxford.
+5) Open and R session.
+6) Install the [renv](https://rstudio.github.io/renv/articles/renv.html) R package running `install.packages("renv")`.
+7) Install the [targets](https://books.ropensci.org/targets/) package running  `install.packages("targets")`.
+8) Run `renv::restore()`. This will create an environment for the project that contains the necessary R packages (and package dependencies) you need, in version you need. 
+9) Run `targets::tar_make()`. This command will run the scripts in the appropriate order (as specified in the [_targets.R](https://github.com/bilingual-project/cognate-priming/blob/master/_targets.R) script) and create the objects, which will be stored in the [targets/](https://github.com/bilingual-project/cognate-priming/tree/master/_targets). The final output of this command will be the rendering of the [Rmd/report.Rmd](https://github.com/bilingual-project/cognate-priming/blob/master/Rmd/report.Rmd) file into and HTML file (Rmd/report.html) with the laboratory notes and all the information about the study.
 
 If you want to inspect specific objects into the Global Environment of your R session, you can run `tar_load()`, specifying the object you want to import (e.g., `tar_load(model_fits)`). You can also visualise the dependencies across files and scripts running `tar_visnetwork()`.
 
