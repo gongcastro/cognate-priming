@@ -1,0 +1,11 @@
+---
+---
+
+
+```{r, echo = FALSE}
+shinyAppFile(
+	here("R", "gaze_app", "app.R"), 
+	options = list(width = "100%", height = 700)
+)
+```
+

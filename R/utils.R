@@ -73,6 +73,9 @@ prop_adj_ci <- function(y, n, conf = 0.95) {
 	return(ci)
 }
 
+# inverse logi
+inv_logit <- function(x) exp(x)/(1+exp(x))
+
 # transform logit scale to probability
 logit_to_prob <- function(x) exp(x) / (1 + exp(x))
 

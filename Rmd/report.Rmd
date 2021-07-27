@@ -239,6 +239,41 @@ participants_relaxed_counter <- participants %>%
 
 ### {-}
 
+## 21 and 25 months-old monolinguals {.tabset}
+
+
+### Stringent criteria {.tabset}
+
+```{r child="report_07_2125-mon_stringent.Rmd"}
+```
+
+### Relaxed criteria {.tabset}
+
+```{r child="report_07_2125-mon_relaxed.Rmd"}
+```
+
+### {-}
+
+
+## 21, 25, and 30 months-old monolinguals {.tabset}
+
+
+### Stringent criteria {.tabset}
+
+
+```{r child="report_08_mon_stringent.Rmd"}
+```
+
+
+### Relaxed criteria {.tabset}
+
+
+```{r child="report_08_mon_relaxed.Rmd"}
+```
+
+
+### {-}
+
 
 ## Vocabulary {.tabset .tabset-pills}
 
@@ -246,13 +281,13 @@ participants_relaxed_counter <- participants %>%
 ### Stringent criteria {.tabset}
 
 
-```{r child="report_08_vocabulary_stringent.Rmd"}
+```{r child="report_09_vocabulary_stringent.Rmd"}
 ```
 
 
 ### Relaxed criteria {.tabset}
 
-```{r child="report_08_vocabulary_relaxed.Rmd"}
+```{r child="report_09_vocabulary_relaxed.Rmd"}
 ```
 
 

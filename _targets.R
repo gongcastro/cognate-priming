@@ -19,7 +19,7 @@ tar_option_set(
 		"readxl", "janitor", "childesr", "mice", "here",
 		"googlesheets4", "lubridate", "httr", "data.table",
 		"purrr", "eyetrackingR", "lme4", "lmerTest", "shiny",
-		"rmarkdown", "knitr"
+		"rmarkdown", "knitr", "broom.mixed", "patchwork", "scales"
 	)
 )
 
@@ -281,9 +281,9 @@ list(
 		model_formulas,
 		list(
 			# this model includes all data and all predictors of interest
-			fit = "elog ~ age_group + vocab_size_l1_center*trial_type*lp*(ot1+ot2) + (1+ot1+ot2+ot3+trial_type+age_group | participant)",
+			fit = "elog ~ age_group + trial_type*lp*(ot1+ot2) + (1+ot1+ot2+ot3+trial_type+age_group | participant)",
 			# this model includes only data from 21 monolingual participants
-			fit_21_mon = "elog ~  vocab_size_l1_center*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
+			fit_21_mon = "elog ~  trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
 			# this model includes only data from 21 monolingual participants and the location predictor (Barcelona vs. Oxford)
 			fit_21_mon_location = "elog ~ trial_type*location*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
 			# this model includes only data from 21 monolingual participants and vocabulary in L1 as predictor (median split)
@@ -292,7 +292,11 @@ list(
 			# only data from the 15 Oxford participants with the lowest vocabulary size,
 			# and 15 Barcelona participants with the highest vocabulary size
 			# we did this because participants in Oxford had higher L1 vocabulary sizes at the time
-			fit_21_mon_vocab_balanced = "elog ~ trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3 | participant)"
+			fit_21_mon_vocab_balanced = "elog ~ trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3 | participant)",
+			# this model includes only data from 21 and 25 monolingual participants and vocabulary in L1 as predictor (median split)
+			fit_2125_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
+			fit_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+age_group | participant)"
+			
 		)
 	),
 	# define the dataset corresponding to each model (same order as in previous target)
@@ -339,8 +343,15 @@ list(
 							) %>%
 							pull(participant)
 					}
-				)
+				),
+			fit_2125_mon = gaze %>%
+				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
+				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
+				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
+			fit_mon = gaze %>%
+				filter(lp=="Monolingual")
 		)
+		
 	),
 	# same datasets, but applying the relaxed inclusion criteria
 	tar_target(
@@ -355,10 +366,10 @@ list(
 				filter(age_group=="21 months", lp=="Monolingual") %>%
 				mutate(
 					vocab_cat = ifelse(
-					vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
-					"Above median", 
-					"Below median"
-				)) %>% 
+						vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
+						"Above median", 
+						"Below median"
+					)) %>% 
 				mutate_at(vars(vocab_cat, location), as.factor),
 			fit_21_mon_vocab_balanced_relaxed = gaze_relaxed %>%
 				filter(
@@ -382,7 +393,13 @@ list(
 							) %>%
 							pull(participant)
 					}
-				)
+				),
+			fit_2125_mon = gaze_relaxed %>%
+				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
+				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
+				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
+			fit_mon = gaze_relaxed %>%
+				filter(lp=="Monolingual")
 		)
 		
 	),

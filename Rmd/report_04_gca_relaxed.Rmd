@@ -141,7 +141,7 @@ augment(fit) %>%
 ##### By vocabulary size
 
 
-```{r gaze_time_vocab_lower_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_vocab_lower_relaxed, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 sample_size <- participants_relaxed %>% 
 	count(age_group, lp)
 
@@ -177,7 +177,7 @@ augment(fit) %>%
 ```
 
 
-```{r gaze_time_vocab_upper_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_vocab_upper_relaxed, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 sample_size <- participants_relaxed %>% 
 	filter(vocab_size_l1_center > median(.$vocab_size_l1_center, na.rm = TRUE), valid_participant) %>% 
 	count(age_group, lp)

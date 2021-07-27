@@ -70,8 +70,12 @@ prepare_data <- function(
 		
 		# set a prior contrasts and orthogonal polynomials
 		contrasts(gaze$lp) <- c(-0.5, 0.5)
-		contrasts(gaze$trial_type) <- cbind(c(-0.25, -0.25, 0.5), c(0.5, -0.5, 0))
-		contrasts(gaze$age_group) <- contr.poly(3, contrasts = TRUE)
+		contrasts(gaze$trial_type) <- cbind(c(0.25, 0.25, -0.5), c(0.5, -0.5, 0))
+		if (length(unique(gaze$age_group))==3) {
+			contrasts(gaze$age_group) <- contr.poly(3, contrasts = TRUE)
+		} else if (length(unique(gaze$age_group))==2){
+			contrasts(gaze$age_group) <- c(-0.5, 0.5)
+		}
 		contrasts(gaze$location) <- c(0.5, -0.5)
 	})
 	return(gaze)

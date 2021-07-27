@@ -30,4 +30,5 @@ model_datasets_relaxed|stem|model_datasets_relaxed|0|skipped
 model_datasets|stem|model_datasets|0|skipped
 model_fits_relaxed|stem|model_fits_relaxed|0|skipped
 model_fits|stem|model_fits|0|skipped
-report|stem|report|0|skipped
+report|stem|report|0|started
+report|stem|report|0|built
