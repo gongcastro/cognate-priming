@@ -45,14 +45,14 @@ main_effects
 
 
 
-```{r gaze_time_2125_mon_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r gaze_time_2125_mon_stringent, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.dim = c(6.5, 5)}
 sample_size <- augment(fit_2125_mon) %>%
 	distinct(participant, age_group) %>% 
 	count(age_group)
 
 augment(fit_2125_mon) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
-	ggplot() +
+	ggplot(shape = trial_type, linetype = trial_type) +
 	facet_wrap(~age_group, ncol = 1) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
@@ -69,7 +69,8 @@ augment(fit_2125_mon) %>%
 			  show.legend = FALSE,
 			  colour = "black", fill = "black") +
 	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
-		 colour = "Trial type", fill = "Trial type") +
+		 colour = "Prime type", fill = "Prime type",
+		 shape = "Prime type", linetype = "Prime type") +
 	scale_y_continuous(limits = c(0, 1), labels = percent) + 
 	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
 	theme(
@@ -88,7 +89,7 @@ augment(fit_2125_mon) %>%
 	geom_violin(show.legend = FALSE) +
 	geom_boxplot(width = 0.1, outlier.colour = NA, fill = "white", colour = "black") +
 	labs(x = "Trial type", y = "Pr(Target fixation)",
-		 colour = "Trial type", fill = "Trial type") +
+		 colour = "Trial type", fill = "Prime type") +
 	scale_y_continuous(limits = c(0, 1), labels = percent) + 
 	theme(
 		axis.title = element_blank(),
@@ -98,8 +99,9 @@ augment(fit_2125_mon) %>%
 	) +
 	plot_layout(ncol = 2, guides = "collect", widths = c(0.75, 0.25)) &
 	plot_annotation(
-		caption = "A: Marginal means of the multilevel model, plotted in separate panels for 21- and 25-month olds.\nSample sizes are indicated at the upper left corner in each panel. The first and last 300 ms in each trial\nwere trimmed before the analysis. B: mean observed probability of target looking, aggregated by participant\nfirst and by prime type second.",
-		tag_levels = "A") &
+		caption = "(A) Marginal means of the Growth Curve analysis model (100 ms time bins), plotted in separate\npanels for 21- and 25-month olds. Sample sizes are indicated at the upper left corner in each panel.\n(B) Mean observed probability of target looking, aggregated across time bins.",
+		tag_levels = "A"
+	) &
 	theme_custom() &
 	theme(
 		legend.position = "right",

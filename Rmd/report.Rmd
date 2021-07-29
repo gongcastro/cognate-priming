@@ -135,6 +135,7 @@ participants_relaxed_counter <- participants %>%
 
 ```
 
+
 # Methods
 
 ## Participants {.tabset .tabset-pills}
@@ -194,6 +195,7 @@ participants_relaxed_counter <- participants %>%
 
 ### {-}
 
+
 ## Attrition {.tabset}
 
 ### Stringent criteria {.tabset}
@@ -226,7 +228,6 @@ participants_relaxed_counter <- participants %>%
 
 ## 21 months-old monolinguals {.tabset}
 
-
 ### Stringent criteria {.tabset}
 
 ```{r child="report_06_21-mon_stringent.Rmd"}
@@ -244,10 +245,14 @@ participants_relaxed_counter <- participants %>%
 
 ### Stringent criteria {.tabset}
 
+
 ```{r child="report_07_2125-mon_stringent.Rmd"}
 ```
 
+
 ### Relaxed criteria {.tabset}
+
+
 
 ```{r child="report_07_2125-mon_relaxed.Rmd"}
 ```
@@ -265,11 +270,11 @@ participants_relaxed_counter <- participants %>%
 ```
 
 
-### Relaxed criteria {.tabset}
-
+### Relax
 
 ```{r child="report_08_mon_relaxed.Rmd"}
 ```
+
 
 
 ### {-}
