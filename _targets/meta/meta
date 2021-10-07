@@ -1,26 +1,4 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-theme_custom|function|de8f038eec8f5184||||||||||||||
-make|function|f908df0eeee79a4a||||||||||||||
-get_credentials|function|956e8d5d4c37cafa||||||||||||||
-get_frequency_childes|function|650395602003714d||||||||||||||
-get_frequency_subtlex|function|3d4a55a403660a82||||||||||||||
-theme_github|function|4fd11f3888ebdee7||||||||||||||
-get_vocabulary|function|f767c3ac9f3cb4ab||||||||||||||
-get_gaze_raw|function|5c00ba772bd07556||||||||||||||
-get_participants|function|b6786f565c4274b8||||||||||||||
-prop_adj_ci|function|3332254173832f76||||||||||||||
-inv_logit|function|3d1dabf81e9fffb5||||||||||||||
-fit_models|function|fbc3ea856cfb6f74||||||||||||||
-prop_adj|function|8f984a7e77cc1c9c||||||||||||||
-logit_to_prob|function|3d1dabf81e9fffb5||||||||||||||
-prepare_data|function|a4d9cfef3d4f5765||||||||||||||
-get_attrition|function|11cdd0ff8e3d8994||||||||||||||
-get_gaze_oxf|function|e06ea734ae3fcec8||||||||||||||
-get_multilex|function|246f95c5100d2b36||||||||||||||
-get_gaze_bcn|function|e71a0a586a0b5e0f||||||||||||||
-prop_adj_se|function|ea05d30982a97289||||||||||||||
-get_familiarity|function|d9f23dd2f8a57b76||||||||||||||
-get_stimuli|function|8084dfd4726ecf5b||||||||||||||
 vocabulary_oxf_path|stem|5f205e4d57f65d13|019a65ad50f1c5e6|4e3739ef91745af0|-668526201||t18906.4658865115s|655903f9b31c339f|135|rds|vector|||4.11||
 trials_path|stem|b7c18330e2e84f36|b844ee5413c76069|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/Stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||0||
 model_formulas|stem|fd92278a1a2a921c|a946f198b324c50e|a3e1c62e4a102ec9|-291946610||t18906.4658872041s|0030e3a80d38c7c3|1433|rds|vector|||0.03||
@@ -52,4 +30,26 @@ model_datasets|stem|c73f31991e13bdf4|2f19eaf617fafe3e|cd691f0bdeddb5ed|138690637
 model_datasets_relaxed|stem|694c95d3f82d5056|83086d17c425dbcd|b1de47fcc1ccda5b|-1585778198||t18906.468812663s|909eb934c9267a0d|194275|rds|vector|||0||
 model_fits|stem|a4e2506cf4af21f9|4282950cda813d1b|04aeda5a85a8820b|-553083469||t18906.6399050277s|795ca2a24f3567b8|18152554|rds|vector|||14781.89|Rows containing NAs were excluded from the model.|
 model_fits_relaxed|stem|261bbd1b40eb91f0|9f3c6da8a26c7525|42b738f79a620882|1614427668||t18906.9995550295s|aced50bd1994c94d|27853473|rds|vector|||31073.58|Rows containing NAs were excluded from the model.|
-report|stem|098f8496aff1ff82|8739f1f211a95e42|60a95b7c6b401079|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18907.0004167196s|89d50cfe66a6970b|4188370|file|vector|||83.35|Removed 74 rows containing missing values geom_point.|
+theme_custom|function|de8f038eec8f5184||||||||||||||
+make|function|f908df0eeee79a4a||||||||||||||
+get_credentials|function|956e8d5d4c37cafa||||||||||||||
+get_frequency_childes|function|650395602003714d||||||||||||||
+get_frequency_subtlex|function|3d4a55a403660a82||||||||||||||
+theme_github|function|4fd11f3888ebdee7||||||||||||||
+get_vocabulary|function|f767c3ac9f3cb4ab||||||||||||||
+get_gaze_raw|function|5c00ba772bd07556||||||||||||||
+get_participants|function|b6786f565c4274b8||||||||||||||
+prop_adj_ci|function|3332254173832f76||||||||||||||
+inv_logit|function|3d1dabf81e9fffb5||||||||||||||
+fit_models|function|fbc3ea856cfb6f74||||||||||||||
+prop_adj|function|8f984a7e77cc1c9c||||||||||||||
+logit_to_prob|function|3d1dabf81e9fffb5||||||||||||||
+prepare_data|function|a4d9cfef3d4f5765||||||||||||||
+get_attrition|function|11cdd0ff8e3d8994||||||||||||||
+get_gaze_oxf|function|e06ea734ae3fcec8||||||||||||||
+get_multilex|function|246f95c5100d2b36||||||||||||||
+get_gaze_bcn|function|e71a0a586a0b5e0f||||||||||||||
+prop_adj_se|function|ea05d30982a97289||||||||||||||
+get_familiarity|function|d9f23dd2f8a57b76||||||||||||||
+get_stimuli|function|8084dfd4726ecf5b||||||||||||||
+report|stem|417ad57458143a12|8739f1f211a95e42|60a95b7c6b401079|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18907.4161280962s|08e4d888f52329ce|4205410|file|vector|||141.06|Removed 74 rows containing missing values geom_point.|

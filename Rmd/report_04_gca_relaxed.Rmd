@@ -154,14 +154,14 @@ m <- epred_draws(object = fit, newdata = n, ndraws = 20, re_formula = NA) %>%
 
 ggplot(m, aes(time_bin_center, .value)) +
 	facet_wrap(~fct_rev(lp)) +
-	geom_hline(yintercept = 0.5) +
+	geom_hline(yintercept = 0.5, colour = "white") +
 	geom_line(aes(group = interaction(age_group, trial_type, lp, .draw),
 				  colour = trial_type),
-			  alpha = 0.15, size = 0.75) +
+			  alpha = 0.15, size = 0.65) +
 	stat_summary(aes(group = trial_type, colour = trial_type),
 				 fun = mean, geom = "line", size = 1.25) +
 	stat_summary(data = gaze_relaxed, aes(y = logit_to_prob(logit_adjusted), group = trial_type,
-							   colour = trial_type),
+										  colour = trial_type),
 				 fun.data = mean_se, geom = "errorbar", size = 0.5, na.rm = TRUE,
 				 position = position_dodge(width = 0.3)) +
 	geom_text(data = sample_size, aes(x = min(gaze_relaxed$time_bin_center), y = 1, label = paste0("N = ", n)),
@@ -174,7 +174,9 @@ ggplot(m, aes(time_bin_center, .value)) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		axis.text.x = element_text(size = 9)
+		axis.text.x = element_text(size = 9),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.x = element_blank()
 	)
 ```
 

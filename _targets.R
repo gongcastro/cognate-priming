@@ -19,7 +19,8 @@ tar_option_set(
 		"readxl", "janitor", "childesr", "mice", "here",
 		"googlesheets4", "lubridate", "httr", "data.table",
 		"purrr", "eyetrackingR", "brms", "tidybayes", "shiny",
-		"rmarkdown", "knitr", "patchwork", "scales"
+		"rmarkdown", "knitr", "patchwork", "scales", "ggplot2",
+		"tibble", "forcats"
 	)
 )
 
