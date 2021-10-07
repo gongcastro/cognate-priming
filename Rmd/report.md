@@ -139,52 +139,6 @@ were tested in Oxford, and 47 were tested in Barcelona.
 
 ### Frequency
 
-#### CHILDES vs. SUBTLEX
-
-We tested the correlation between the (standardised) lexical frequencies
-of the stimuli extract from SUBTLEX (adult norms based on subtitles) and
-CHILDES (child norms based on audio transcriptions) within each test
-language using a Pearson’s product-moment correlation at .05 confidence
-level (two-sided):
-
-<table style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif; display: table; border-collapse: collapse; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;">
-  
-  <thead style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
-    <tr>
-      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: left;" rowspan="1" colspan="1"></th>
-      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1"><strong>Correlation</strong></th>
-      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1"><em><strong>t</strong></em></th>
-      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1"><em><strong>df</strong></em></th>
-      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: left;" rowspan="1" colspan="1"><em><strong>p</strong></em></th>
-      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1"><strong>CI<sub>95%<sub/></strong></th>
-    </tr>
-  </thead>
-  <tbody style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3;">
-    <tr><td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; padding-left: 12px; text-align: left;">Catalan</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.56</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">5.35</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">62</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">&lt; .001</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.37, 0.71</td></tr>
-    <tr><td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; padding-left: 12px; text-align: left;">English</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.63</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">6.43</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">63</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">&lt; .001</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.46, 0.76</td></tr>
-    <tr><td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; padding-left: 12px; text-align: left;">Spanish</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.69</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">9.95</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">110</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">&lt; .001</td>
-<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.58, 0.77</td></tr>
-  </tbody>
-  
-  
-</table>
-
-<img src="report_files/figure-gfm/stimuli_frequency_compare_plot-1.png" width="100%" />
-
 #### CHILDES
 
 ##### Prime
@@ -194,18 +148,6 @@ level (two-sided):
 ##### Target
 
 <img src="report_files/figure-gfm/stimuli_frequency_childes_target-1.png" width="80%" />
-
-##### 
-
-#### SUBTLEX
-
-##### Prime
-
-<img src="report_files/figure-gfm/stimuli_frequency_subtlex_prime-1.png" width="80%" />
-
-##### Target
-
-<img src="report_files/figure-gfm/stimuli_frequency_subtlex_target-1.png" width="80%" />
 
 ##### 
 
@@ -333,12 +275,12 @@ non-cognate, and unrelated).
     These contrasts were sum-coded (see next table for a summary of the
     contrast coding) \[@schad2018capitalize\].
 
-<div id="wzmnxscuug" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="cjwzmnxscu" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#wzmnxscuug .gt_table {
+#cjwzmnxscu .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -363,7 +305,7 @@ non-cognate, and unrelated).
   border-left-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_heading {
+#cjwzmnxscu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -375,7 +317,7 @@ non-cognate, and unrelated).
   border-right-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_title {
+#cjwzmnxscu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -385,7 +327,7 @@ non-cognate, and unrelated).
   border-bottom-width: 0;
 }
 
-#wzmnxscuug .gt_subtitle {
+#cjwzmnxscu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -395,13 +337,13 @@ non-cognate, and unrelated).
   border-top-width: 0;
 }
 
-#wzmnxscuug .gt_bottom_border {
+#cjwzmnxscu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_col_headings {
+#cjwzmnxscu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -416,7 +358,7 @@ non-cognate, and unrelated).
   border-right-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_col_heading {
+#cjwzmnxscu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -436,7 +378,7 @@ non-cognate, and unrelated).
   overflow-x: hidden;
 }
 
-#wzmnxscuug .gt_column_spanner_outer {
+#cjwzmnxscu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -448,15 +390,15 @@ non-cognate, and unrelated).
   padding-right: 4px;
 }
 
-#wzmnxscuug .gt_column_spanner_outer:first-child {
+#cjwzmnxscu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wzmnxscuug .gt_column_spanner_outer:last-child {
+#cjwzmnxscu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wzmnxscuug .gt_column_spanner {
+#cjwzmnxscu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -468,7 +410,7 @@ non-cognate, and unrelated).
   width: 100%;
 }
 
-#wzmnxscuug .gt_group_heading {
+#cjwzmnxscu .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #FFFFFF;
@@ -490,7 +432,7 @@ non-cognate, and unrelated).
   vertical-align: middle;
 }
 
-#wzmnxscuug .gt_empty_group_heading {
+#cjwzmnxscu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -505,15 +447,15 @@ non-cognate, and unrelated).
   vertical-align: middle;
 }
 
-#wzmnxscuug .gt_from_md > :first-child {
+#cjwzmnxscu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wzmnxscuug .gt_from_md > :last-child {
+#cjwzmnxscu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wzmnxscuug .gt_row {
+#cjwzmnxscu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -532,7 +474,7 @@ non-cognate, and unrelated).
   overflow-x: hidden;
 }
 
-#wzmnxscuug .gt_stub {
+#cjwzmnxscu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -544,7 +486,7 @@ non-cognate, and unrelated).
   padding-left: 12px;
 }
 
-#wzmnxscuug .gt_summary_row {
+#cjwzmnxscu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -554,7 +496,7 @@ non-cognate, and unrelated).
   padding-right: 5px;
 }
 
-#wzmnxscuug .gt_first_summary_row {
+#cjwzmnxscu .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -564,7 +506,7 @@ non-cognate, and unrelated).
   border-top-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_grand_summary_row {
+#cjwzmnxscu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -574,7 +516,7 @@ non-cognate, and unrelated).
   padding-right: 5px;
 }
 
-#wzmnxscuug .gt_first_grand_summary_row {
+#cjwzmnxscu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -584,11 +526,11 @@ non-cognate, and unrelated).
   border-top-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_striped {
+#cjwzmnxscu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wzmnxscuug .gt_table_body {
+#cjwzmnxscu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -597,7 +539,7 @@ non-cognate, and unrelated).
   border-bottom-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_footnotes {
+#cjwzmnxscu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -611,13 +553,13 @@ non-cognate, and unrelated).
   border-right-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_footnote {
+#cjwzmnxscu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#wzmnxscuug .gt_sourcenotes {
+#cjwzmnxscu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -631,41 +573,41 @@ non-cognate, and unrelated).
   border-right-color: #D3D3D3;
 }
 
-#wzmnxscuug .gt_sourcenote {
+#cjwzmnxscu .gt_sourcenote {
   font-size: 90%;
   padding: 4px;
 }
 
-#wzmnxscuug .gt_left {
+#cjwzmnxscu .gt_left {
   text-align: left;
 }
 
-#wzmnxscuug .gt_center {
+#cjwzmnxscu .gt_center {
   text-align: center;
 }
 
-#wzmnxscuug .gt_right {
+#cjwzmnxscu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wzmnxscuug .gt_font_normal {
+#cjwzmnxscu .gt_font_normal {
   font-weight: normal;
 }
 
-#wzmnxscuug .gt_font_bold {
+#cjwzmnxscu .gt_font_bold {
   font-weight: bold;
 }
 
-#wzmnxscuug .gt_font_italic {
+#cjwzmnxscu .gt_font_italic {
   font-style: italic;
 }
 
-#wzmnxscuug .gt_super {
+#cjwzmnxscu .gt_super {
   font-size: 65%;
 }
 
-#wzmnxscuug .gt_footnote_marks {
+#cjwzmnxscu .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 65%;
