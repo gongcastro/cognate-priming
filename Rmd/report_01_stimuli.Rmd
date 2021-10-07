@@ -55,7 +55,8 @@ frequency_compare_test %>%
 		parameter = md("***df***"),
 		p_value = md("***p***"),
 		conf_low = md("**CI<sub>95%<sub/>**")
-	)
+	) %>% 
+	as_raw_html()
 
 ```
 

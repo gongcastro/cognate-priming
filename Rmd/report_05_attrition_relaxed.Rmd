@@ -119,7 +119,8 @@ left_join(attrition_relaxed, select(participants_relaxed, age_group, location, l
 	) %>% 
 	fmt_number(c("cognate", "non_cognate", "unrelated")) %>%
 	fmt_percent(c("prop_n")) %>% 
-	fmt_number(c("n", "sum_n"), decimals = 0)
+	fmt_number(c("n", "sum_n"), decimals = 0) %>% 
+	as_raw_html()
 
 ```
 
@@ -153,7 +154,7 @@ attrition_relaxed %>%
 		invalid_vocab = "Vocabulary (%)"
 	) %>% 
 	fmt_percent(c("valid", "invalid_gaze", "invalid_vocab")) %>% 
-	div(style='height:600px; overflow-y: scroll', .)
+	as_raw_html()
 ```
 
 
@@ -185,7 +186,8 @@ attrition_relaxed %>%
 		x25_months_valid = "Valid",
 		x30_months_not_valid = "Not valid",
 		x30_months_valid = "Valid"
-	)
+	) %>% 
+	as_raw_html()
 
 
 ```

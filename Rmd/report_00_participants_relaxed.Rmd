@@ -23,7 +23,8 @@ participants_relaxed %>%
 		`21 months` = md("**21 months**"),
 		`25 months` = md("**25 months**"),
 		`30 months` = md("**30 months**")
-	)
+	) %>% 
+	as_raw_html()
 
 ```
 

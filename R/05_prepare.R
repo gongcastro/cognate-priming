@@ -66,17 +66,23 @@ prepare_data <- function(
 				prime, target, trial, trial_type,
 				time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted
 			) %>%
-			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor)
+			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor) %>% 
+			mutate(
+				time_bin_center = scale(time_bin, scale = FALSE)[,1],
+				vocab_size_l1_center = scale(vocab_size_l1_center)[,1]
+			)
 		
 		# set a prior contrasts and orthogonal polynomials
-		contrasts(gaze$lp) <- c(-0.5, 0.5)
-		contrasts(gaze$trial_type) <- cbind(c(0.25, 0.25, -0.5), c(0.5, -0.5, 0))
-		if (length(unique(gaze$age_group))==3) {
-			contrasts(gaze$age_group) <- contr.poly(3, contrasts = TRUE)
-		} else if (length(unique(gaze$age_group))==2){
-			contrasts(gaze$age_group) <- c(-0.5, 0.5)
-		}
+		contrasts(gaze$lp) <- c(0.5, -0.5)
+		colnames(attr(gaze$lp, "contrasts")) <-  c("LP (Mon vs. Bil)")
+		
+		contrasts(gaze$trial_type) <- cbind("Prime (U vs. C+NC)" = c(0.25, 0.25, -0.5), "Prime (NC vs. C)" = c(0.5, -0.5, 0))
+		
+		contrasts(gaze$age_group) <- cbind("Age (21 vs. 25)" = c(-0.5, 0.5, 0), "Age (25 vs. 30)" = c(0, -0.5, 0.5))
+		
 		contrasts(gaze$location) <- c(0.5, -0.5)
+		colnames(attr(gaze$location, "contrasts")) <-  c("Location (BCN vs. OXF)")
+		
 	})
 	return(gaze)
 	
