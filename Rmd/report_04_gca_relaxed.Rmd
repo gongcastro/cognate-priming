@@ -18,7 +18,9 @@ elog ~ age_group + trial_type * lp * (ot1 + ot2 + ot3) +
 The formal implementation of this model is:
 
 $$
-\log(\frac{p}{n - q}) = (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
+
+\color{white}{
+\log \Bigg( \frac{p}{n - q} \Bigg) = (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
 (\beta_{1} + \beta_{1p} + \beta_{1i}) \times Age_{pi} + ... \\
 (\beta_{2} + \beta_{2p} + \beta_{2i}) \times Vocabulary_{pi} + ... \\
 (\beta_{3} + \beta_{3p} + \beta_{3i})\times Condition_{pi} + ... \\
@@ -27,6 +29,7 @@ $$
 (\beta_{6} + \beta_{6i}) \times (Vocabulary_{pi} \times Condition_{pi}) + ... \\
 (\beta_{7} + \beta_{7i}) \times (Condition_{pi} \times Group_{pi}) + ... \\
 (\beta_{8} + \beta_{8i}) \times (Vocabulary_{pi} \times Group_{pi} \times Condition_{pi}) + \varepsilon_{pi}
+}
 $$
 
 
@@ -95,9 +98,10 @@ draws %>%
 
 draws %>% 
 	filter(!str_detect(.variable, "time_bin|sigma")) %>% 
-	ggplot(aes(.value, .variable, fill = stat(cut_cdf_qi(cdf, labels = percent, .width = c(0.50, 0.80, 0.95, 1))))) +
-	geom_vline(xintercept = 0) +
-	stat_halfeye() +
+	mutate(.value = ifelse(.variable=="b_Intercept", inv_logit_scaled(.value), .value/4)) %>% 
+	ggplot(aes(.value, .variable, fill = stat(cut_cdf_qi(cdf, labels = percent, .width = c(0.50, 0.80, 0.95))))) +
+	geom_vline(xintercept = 0, colour = "white") +
+	stat_halfeye(point_color = "white", interval_color = "white") +
 	labs(x = "Value", y = "Variable", fill = "CrI") +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
 	theme(
@@ -119,15 +123,15 @@ vcov(fit) %>%
 	pivot_longer(-term1, names_to = "term2", values_to = ".value") %>% 
 	ggplot(aes(fct_rev(term1), term2, fill = .value)) +
 	geom_tile() +
-	labs(x = "Term 1", y = "Term 2", fill = "Mean post. correlation") +
+	labs(x = "Term 1", y = "Term 2", fill = "Posterior correlation") +
 	scale_fill_distiller(limits = c(-1, 1)) +
 	coord_equal() +
 	theme(
 		legend.position = "top",
 		legend.text = element_text(size = 8),
 		axis.title = element_blank(),
-		axis.text = element_text(hjust = 1, size = 8),
-		axis.text.x = element_text(angle = 90, hjust = 1, size = 8)
+		axis.text.y = element_text(hjust = 1, size = 7),
+		axis.text.x = element_text(angle = 90, hjust = 1, size = 7)
 	)
 
 ```
@@ -164,7 +168,7 @@ ggplot(m, aes(time_bin_center, .value)) +
 										  colour = trial_type),
 				 fun.data = mean_se, geom = "errorbar", size = 0.5, na.rm = TRUE,
 				 position = position_dodge(width = 0.3)) +
-	geom_text(data = sample_size, aes(x = min(gaze_relaxed$time_bin_center), y = 1, label = paste0("N = ", n)),
+	geom_text(data = sample_size, aes(x = min(gaze_relaxed$time_bin_center), y = 0.95, label = paste0("N = ", n)),
 			  colour = "white", hjust = 0, size = 5) +
 	labs(x = "Time bin (100 ms)", y = "Expected posterior mean PTLT", colour = "Trial type",
 		 fill = "Trial type", shape = "Trial type", linetype = "Trial type") +

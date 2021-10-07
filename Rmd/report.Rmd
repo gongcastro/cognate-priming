@@ -137,83 +137,44 @@ participants_relaxed_counter <- participants %>%
 
 ## Participants {.tabset .tabset-pills}
 
-### Stringent criteria {.tabset}
-
-
-### Relaxed criteria {.tabset}
-
-
 ```{r child="report_00_participants_relaxed.Rmd"}
 ```
-
 
 ## Stimuli
 
 ```{r child="report_01_stimuli.Rmd"}
 ```
 
-
 ## Procedure
-
 
 ```{r child="report_02_procedure.Rmd"}
 ```
 
-
 ## Data analysis
-
 
 ```{r child="report_03_data-analysis.Rmd"}
 ```
 
-
 ### {-}
 
-
 ## {-}
-
 
 # Results {.tabset .tabset-pills}
 
 ## Gaze {.tabset .tabset-pills}
 
-### Stringent criteria {.tabset}
-
-### Relaxed criteria {.tabset}
-
 ```{r child="report_04_gca_relaxed.Rmd"}
 ```
 
-### {-}
-
 ## Attrition {.tabset}
-
-### Stringent criteria {.tabset}
-
-
-### Relaxed criteria {.tabset}
 
 ```{r child="report_05_attrition_relaxed.Rmd"}
 ```
 
-### {-}
-
-
 ## Vocabulary {.tabset .tabset-pills}
-
-
-### Stringent criteria {.tabset}
-
-
-
-### Relaxed criteria {.tabset}
 
 ```{r child="report_06_vocabulary_relaxed.Rmd"}
 ```
-
-
-### {-}
-
 
 ## {-}
 

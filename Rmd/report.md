@@ -5,10 +5,6 @@ Cognate Priming: Report
 
 ## Participants
 
-### Stringent criteria
-
-### Relaxed criteria
-
 -   We collected data from 192 participants 79 were tested in Oxford,
     and 113 were tested in Barcelona.
 -   After applying trial- ad participant-level exclusion criteria, the
@@ -212,368 +208,29 @@ non-cognate, and unrelated).
     These contrasts were sum-coded (see next table for a summary of the
     contrast coding) \[@schad2018capitalize\].
 
-<div id="cjwzmnxscu" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>html {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-}
-
-#cjwzmnxscu .gt_table {
-  display: table;
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#cjwzmnxscu .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 0;
-  padding-bottom: 4px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#cjwzmnxscu .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#cjwzmnxscu .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#cjwzmnxscu .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#cjwzmnxscu .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#cjwzmnxscu .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#cjwzmnxscu .gt_group_heading {
-  padding: 8px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#cjwzmnxscu .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#cjwzmnxscu .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#cjwzmnxscu .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#cjwzmnxscu .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#cjwzmnxscu .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 12px;
-}
-
-#cjwzmnxscu .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#cjwzmnxscu .gt_first_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#cjwzmnxscu .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05);
-}
-
-#cjwzmnxscu .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding: 4px;
-}
-
-#cjwzmnxscu .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#cjwzmnxscu .gt_sourcenote {
-  font-size: 90%;
-  padding: 4px;
-}
-
-#cjwzmnxscu .gt_left {
-  text-align: left;
-}
-
-#cjwzmnxscu .gt_center {
-  text-align: center;
-}
-
-#cjwzmnxscu .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#cjwzmnxscu .gt_font_normal {
-  font-weight: normal;
-}
-
-#cjwzmnxscu .gt_font_bold {
-  font-weight: bold;
-}
-
-#cjwzmnxscu .gt_font_italic {
-  font-style: italic;
-}
-
-#cjwzmnxscu .gt_super {
-  font-size: 65%;
-}
-
-#cjwzmnxscu .gt_footnote_marks {
-  font-style: italic;
-  font-weight: normal;
-  font-size: 65%;
-}
-</style>
-<table class="gt_table">
+<table style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif; display: table; border-collapse: collapse; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;">
   
-  <thead class="gt_col_headings">
+  <thead style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
     <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">trial_type1</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">trial_type2</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: left;" rowspan="1" colspan="1"></th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1">trial_type1</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1">trial_type2</th>
     </tr>
   </thead>
-  <tbody class="gt_table_body">
-    <tr><td class="gt_row gt_left gt_stub">Cognate</td>
-<td class="gt_row gt_right">0.25</td>
-<td class="gt_row gt_right">0.5</td></tr>
-    <tr><td class="gt_row gt_left gt_stub">Non-cognate</td>
-<td class="gt_row gt_right">0.25</td>
-<td class="gt_row gt_right">-0.5</td></tr>
-    <tr><td class="gt_row gt_left gt_stub">Unrelated</td>
-<td class="gt_row gt_right">-0.50</td>
-<td class="gt_row gt_right">0.0</td></tr>
+  <tbody style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3;">
+    <tr><td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; padding-left: 12px; text-align: left;">Cognate</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.25</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.5</td></tr>
+    <tr><td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; padding-left: 12px; text-align: left;">Non-cognate</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.25</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">-0.5</td></tr>
+    <tr><td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; padding-left: 12px; text-align: left;">Unrelated</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">-0.50</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.0</td></tr>
   </tbody>
   
   
 </table>
-</div>
 
 ### 
 
@@ -587,10 +244,6 @@ non-cognate, and unrelated).
 
 ## Gaze
 
-### Stringent criteria
-
-### Relaxed criteria
-
 #### Model details
 
 We fit a multilevel regression model using the `lmer` function of the
@@ -601,27 +254,9 @@ We fit a multilevel regression model using the `lmer` function of the
 
 The formal implementation of this model is:
 
-![
-\\log(\\frac{p}{n - q}) = (\\beta\_{0} + \\beta\_{0p} + \\beta\_{0i}) + ... \\\\
-(\\beta\_{1} + \\beta\_{1p} + \\beta\_{1i}) \\times Age\_{pi} + ... \\\\
-(\\beta\_{2} + \\beta\_{2p} + \\beta\_{2i}) \\times Vocabulary\_{pi} + ... \\\\
-(\\beta\_{3} + \\beta\_{3p} + \\beta\_{3i})\\times Condition\_{pi} + ... \\\\
-(\\beta\_{4} + \\beta\_{4i}) \\times Group\_{pi} + ... \\\\
-(\\beta\_{5} + \\beta\_{5i}) \\times (Vocabulary\_{pi} \\times Group\_{pi}) + ... \\\\
-(\\beta\_{6} + \\beta\_{6i}) \\times (Vocabulary\_{pi} \\times Condition\_{pi}) + ... \\\\
-(\\beta\_{7} + \\beta\_{7i}) \\times (Condition\_{pi} \\times Group\_{pi}) + ... \\\\
-(\\beta\_{8} + \\beta\_{8i}) \\times (Vocabulary\_{pi} \\times Group\_{pi} \\times Condition\_{pi}) + \\varepsilon\_{pi}
-](https://latex.codecogs.com/png.latex?%0A%5Clog%28%5Cfrac%7Bp%7D%7Bn%20-%20q%7D%29%20%3D%20%28%5Cbeta_%7B0%7D%20%2B%20%5Cbeta_%7B0p%7D%20%2B%20%5Cbeta_%7B0i%7D%29%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B1%7D%20%2B%20%5Cbeta_%7B1p%7D%20%2B%20%5Cbeta_%7B1i%7D%29%20%5Ctimes%20Age_%7Bpi%7D%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B2%7D%20%2B%20%5Cbeta_%7B2p%7D%20%2B%20%5Cbeta_%7B2i%7D%29%20%5Ctimes%20Vocabulary_%7Bpi%7D%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B3%7D%20%2B%20%5Cbeta_%7B3p%7D%20%2B%20%5Cbeta_%7B3i%7D%29%5Ctimes%20Condition_%7Bpi%7D%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B4%7D%20%2B%20%5Cbeta_%7B4i%7D%29%20%5Ctimes%20Group_%7Bpi%7D%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B5%7D%20%2B%20%5Cbeta_%7B5i%7D%29%20%5Ctimes%20%28Vocabulary_%7Bpi%7D%20%5Ctimes%20Group_%7Bpi%7D%29%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B6%7D%20%2B%20%5Cbeta_%7B6i%7D%29%20%5Ctimes%20%28Vocabulary_%7Bpi%7D%20%5Ctimes%20Condition_%7Bpi%7D%29%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B7%7D%20%2B%20%5Cbeta_%7B7i%7D%29%20%5Ctimes%20%28Condition_%7Bpi%7D%20%5Ctimes%20Group_%7Bpi%7D%29%20%2B%20...%20%5C%5C%0A%28%5Cbeta_%7B8%7D%20%2B%20%5Cbeta_%7B8i%7D%29%20%5Ctimes%20%28Vocabulary_%7Bpi%7D%20%5Ctimes%20Group_%7Bpi%7D%20%5Ctimes%20Condition_%7Bpi%7D%29%20%2B%20%5Cvarepsilon_%7Bpi%7D%0A "
-\log(\frac{p}{n - q}) = (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
-(\beta_{1} + \beta_{1p} + \beta_{1i}) \times Age_{pi} + ... \\
-(\beta_{2} + \beta_{2p} + \beta_{2i}) \times Vocabulary_{pi} + ... \\
-(\beta_{3} + \beta_{3p} + \beta_{3i})\times Condition_{pi} + ... \\
-(\beta_{4} + \beta_{4i}) \times Group_{pi} + ... \\
-(\beta_{5} + \beta_{5i}) \times (Vocabulary_{pi} \times Group_{pi}) + ... \\
-(\beta_{6} + \beta_{6i}) \times (Vocabulary_{pi} \times Condition_{pi}) + ... \\
-(\beta_{7} + \beta_{7i}) \times (Condition_{pi} \times Group_{pi}) + ... \\
-(\beta_{8} + \beta_{8i}) \times (Vocabulary_{pi} \times Group_{pi} \times Condition_{pi}) + \varepsilon_{pi}
-")
+$$
+
+$$
 
 #### Fixed effects
 
@@ -765,13 +400,7 @@ The formal implementation of this model is:
 
 #### 
 
-### 
-
 ## Attrition
-
-### Stringent criteria
-
-### Relaxed criteria
 
 #### Summary
 
@@ -3050,13 +2679,7 @@ non-cognate, and unrelated).
 
 ##### 
 
-### 
-
 ## Vocabulary
-
-### Stringent criteria
-
-### Relaxed criteria
 
 #### L1 vocabulary
 
@@ -3085,8 +2708,6 @@ words.
 <img src="report_files/figure-gfm/vocabulary_conceptual_relaxed-1.png" width="100%" />
 
 #### 
-
-### 
 
 ### 
 

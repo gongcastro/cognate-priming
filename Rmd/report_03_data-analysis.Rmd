@@ -77,7 +77,8 @@ contrasts(gaze$trial_type) %>%
 	as.data.frame() %>% 
 	set_names(paste0("trial_type", 1:2)) %>% 
 	rownames_to_column("level") %>% 
-	gt(rowname_col = "level")
+	gt(rowname_col = "level") %>%
+	as_raw_html()
 
 ```
 
