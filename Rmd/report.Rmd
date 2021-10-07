@@ -139,9 +139,6 @@ participants_relaxed_counter <- participants %>%
 
 ### Stringent criteria {.tabset}
 
-```{r child="report_00_participants_stringent.Rmd"}
-```
-
 
 ### Relaxed criteria {.tabset}
 
@@ -182,9 +179,6 @@ participants_relaxed_counter <- participants %>%
 
 ### Stringent criteria {.tabset}
 
-```{r child="report_04_gca_stringent.Rmd"}
-```
-
 ### Relaxed criteria {.tabset}
 
 ```{r child="report_04_gca_relaxed.Rmd"}
@@ -196,8 +190,6 @@ participants_relaxed_counter <- participants %>%
 
 ### Stringent criteria {.tabset}
 
-```{r child="report_05_attrition_stringent.Rmd"}
-```
 
 ### Relaxed criteria {.tabset}
 
@@ -212,9 +204,6 @@ participants_relaxed_counter <- participants %>%
 
 ### Stringent criteria {.tabset}
 
-
-```{r child="report_06_vocabulary_stringent.Rmd"}
-```
 
 
 ### Relaxed criteria {.tabset}
