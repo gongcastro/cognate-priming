@@ -86,7 +86,7 @@ model {
   }
   // priors including constants
   target += normal_lpdf(b | 0, 0.1);
-  target += student_t_lpdf(Intercept | 3, 1.3, 2.9);
+  target += student_t_lpdf(Intercept | 3, 1.4, 2.7);
   target += exponential_lpdf(sigma | 6);
   target += exponential_lpdf(sd_1 | 6);
   target += std_normal_lpdf(to_vector(z_1));

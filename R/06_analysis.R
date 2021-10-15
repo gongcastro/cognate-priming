@@ -22,7 +22,7 @@ fit_models <- function(
 		~brm(
 			formula = .x, data = .y, prior = p, backend = "cmdstanr",
 			file = file, save_model = save_model,
-			init = 0, iter = 500, chains = 4, seed = 888, cores = 4
+			init = 0, iter = 500, chains = 3, seed = 888, cores = 3
 		) 
 	)
 	
