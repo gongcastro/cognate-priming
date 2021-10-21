@@ -46,21 +46,21 @@ main_effects
 
 
 ```{r gaze_time_2125_mon_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-sample_size <- augment(fit_2125_mon) %>% 
+sample_size <- augment(fit_2125_mon) %>%
 	distinct(participant, age_group) %>% 
 	count(age_group)
 
 augment(fit_2125_mon) %>% 
 	mutate(.fitted_prob = logit_to_prob(.fitted)) %>% 
-	ggplot() +
-	facet_wrap(~age_group) +
+	ggplot(shape = trial_type, linetype = trial_type) +
+	facet_wrap(~age_group, ncol = 1) +
 	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun.data = mean_se, geom = "ribbon", alpha = 0.5, colour = NA) +
-	stat_summary(aes(x = ot1, y = .fitted_prob,
-					 group = interaction(participant, trial_type),
-					 colour = trial_type, fill = trial_type),
-				 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
+	# stat_summary(aes(x = ot1, y = .fitted_prob,
+	# 				 group = interaction(participant, trial_type),
+	# 				 colour = trial_type, fill = trial_type),
+	# 			 fun = mean, geom = "line", alpha = 0.25, size = 0.5) +
 	stat_summary(aes(x = ot1, y = .fitted_prob, colour = trial_type, fill = trial_type),
 				 fun = mean, geom = "line", size = 1) +
 	stat_summary(aes(x = ot1, y = logit_to_prob(elog), colour = trial_type, fill = trial_type), fun.data = mean_se, geom = "pointrange", size = 0.25) +
@@ -69,9 +69,10 @@ augment(fit_2125_mon) %>%
 			  show.legend = FALSE,
 			  colour = "black", fill = "black") +
 	labs(x = "Time bin (100 ms)", y = "Pr(Target fixation)",
-		 colour = "Trial type", fill = "Trial type") +
-	scale_y_continuous(limits = c(0.25, 0.75), labels = percent) + 
-	scale_x_continuous(breaks = unique(gaze_relaxed$ot1), labels = unique(gaze_relaxed$time_bin)) +
+		 colour = "Prime type", fill = "Prime type",
+		 shape = "Prime type", linetype = "Prime type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	scale_x_continuous(breaks = unique(gaze$ot1), labels = unique(gaze$time_bin)) +
 	theme(
 		axis.title.y = element_blank(),
 		axis.text = element_text(size = 7),
@@ -88,8 +89,8 @@ augment(fit_2125_mon) %>%
 	geom_violin(show.legend = FALSE) +
 	geom_boxplot(width = 0.1, outlier.colour = NA, fill = "white", colour = "black") +
 	labs(x = "Trial type", y = "Pr(Target fixation)",
-		 colour = "Trial type", fill = "Trial type") +
-	scale_y_continuous(limits = c(0.25, 0.75), labels = percent) + 
+		 colour = "Trial type", fill = "Prime type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
 	theme(
 		axis.title = element_blank(),
 		axis.ticks = element_blank(),
@@ -98,8 +99,9 @@ augment(fit_2125_mon) %>%
 	) +
 	plot_layout(ncol = 2, guides = "collect", widths = c(0.75, 0.25)) &
 	plot_annotation(
-		caption = "A: Marginal means of the multilevel model, plotted in separate panels for monolinguals and bilinguals, across age\ngroups. Sample sizes are indicated at the upper left corner in each panel. The first and last 300 ms in each trial\nwere trimmed before the analysis. B: mean observed probability of target looking, aggregated by participant.",
-		tag_levels = "A") &
+		caption = "(A) Marginal means of the Growth Curve analysis model (100 ms time bins), plotted in separate\npanels for 21- and 25-month olds. Sample sizes are indicated at the upper left corner in each panel.\n(B) Mean observed probability of target looking, aggregated across time bins.",
+		tag_levels = "A"
+	) &
 	theme_custom() &
 	theme(
 		legend.position = "right",

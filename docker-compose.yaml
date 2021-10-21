@@ -1,0 +1,22 @@
+version: "1.0.0"
+services:
+  rstudio:
+    image: "rocker/rstudio:4.1.0"
+    environment:
+            GH_PAT: /run/secrets/GH_PAT
+            ML_USER: /run/secrets/ML_USER
+            ML_PASSWORD: /run/secrets/ML_PASSWORD
+    secrets:
+	    - GH_PAT
+      - ML_USER
+	    - ML_PASSWORD
+    ports:
+      - 8787:8787
+
+secrets:
+  GH_PAT:
+    external: true
+  ML_PASSWORD:
+	  external: true
+  ML_USER:
+	  external: true

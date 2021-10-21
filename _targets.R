@@ -293,10 +293,11 @@ list(
 			# and 15 Barcelona participants with the highest vocabulary size
 			# we did this because participants in Oxford had higher L1 vocabulary sizes at the time
 			fit_21_mon_vocab_balanced = "elog ~ trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3 | participant)",
+			# 21 mo monolinguals with median split on frequency
+			fit_21_mon_frequency = "elog ~ trial_type*frequency_target_childes_cat*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+frequency_target_childes_cat | participant)",
 			# this model includes only data from 21 and 25 monolingual participants and vocabulary in L1 as predictor (median split)
 			fit_2125_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
 			fit_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+age_group | participant)"
-			
 		)
 	),
 	# define the dataset corresponding to each model (same order as in previous target)
@@ -343,6 +344,22 @@ list(
 							) %>%
 							pull(participant)
 					}
+				),
+			fit_21_mon_frequency = gaze %>%
+				filter(
+					age_group=="21 months",
+					lp=="Monolingual"
+				) %>% 
+				left_join(
+					distinct(stimuli, target_cdi, frequency_target_childes) %>% 
+						mutate(
+							frequency_target_childes_cat = ifelse(
+								frequency_target_childes-median(.$frequency_target_childes) > 0,
+								"> Median frequency", "<= Median frequency"
+							) %>% as.factor()
+						) %>% 
+						do({function(x) {contrasts(x$frequency_target_childes_cat) <- c(-0.5, 0.5); return(x)}}(.)),
+					c("target" = "target_cdi")
 				),
 			fit_2125_mon = gaze %>%
 				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
@@ -394,6 +411,22 @@ list(
 							pull(participant)
 					}
 				),
+			fit_21_mon_frequency = gaze_relaxed %>%
+				filter(
+					age_group=="21 months",
+					lp=="Monolingual"
+				) %>% 
+				left_join(
+					distinct(stimuli, target_cdi, frequency_target_childes) %>% 
+						mutate(
+							frequency_target_childes_cat = ifelse(
+								frequency_target_childes-median(.$frequency_target_childes) > 0,
+								"> Median frequency", "<= Median frequency"
+							) %>% as.factor()
+						) %>% 
+						do({function(x) {contrasts(x$frequency_target_childes_cat) <- c(-0.5, 0.5); return(x)}}(.)),
+					c("target" = "target_cdi")
+				),
 			fit_2125_mon = gaze_relaxed %>%
 				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
 				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
@@ -401,8 +434,8 @@ list(
 			fit_mon = gaze_relaxed %>%
 				filter(lp=="Monolingual")
 		)
-		
 	),
+	
 	# fit models (stringent criteria)
 	tar_target(
 		model_fits,

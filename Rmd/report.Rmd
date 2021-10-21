@@ -6,7 +6,6 @@ output:
     toc: true
     toc_depth: 5
     toc_float: true
-runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -25,6 +24,7 @@ options(knitr.kable.NA = '-',
 )
 
 ```
+
 
 
 ```{r params, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
