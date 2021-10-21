@@ -1,0 +1,95 @@
+---
+---
+
+
+* We collected data from `r length(unique(participants$participant))` participants `r length(unique(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
+* After applying trial- ad participant-level exclusion criteria, the sample comprise data from `r length(unique(participants$participant[participants$valid_participant]))` (`r length(unique(participants$participant[participants$valid_participant & participants$location=="Oxford"]))` tested in Oxford, and `r length(unique(participants$participant[participants$valid_participant & participants$location=="Barcelona"]))` tested in Barcelona), and were included in our analyses.
+* `r length(participants$participant[duplicated(participants$participant) & participants$valid_participant])` participants in the final sample were longitudinal (tested in at least one age group). `r length(participants$participant[duplicated(participants$participant) & participants$location=="Oxford" & participants$valid_participant])` longitudinal participants were tested in Oxford and `r length(participants$participant[duplicated(participants$participant) & participants$location=="Barcelona" & participants$valid_participant])` were tested in Barcelona.
+* From the longitudinal participants, `r length(participants$participant[(as.data.frame(table(participants$participant))$Freq>2) & participants$valid_participant])` were tested at two age groups, and `r length(participants$participant[(as.data.frame(table(participants$participant))$Freq>2) & participants$valid_participant])`were tested at three age groups.
+
+
+#### Summary
+
+```{r participants_summary_tab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants %>% 
+	left_join(distinct(attrition, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	count(location, age_group, lp) %>% 
+	pivot_wider(names_from = "age_group", values_from = c("n"), values_fill = 0) %>% 
+	gt(groupname_col = "location") %>% 
+	cols_label(
+		lp = md("**Language profile**"),
+		`21 months` = md("**21 months**"),
+		`25 months` = md("**25 months**"),
+		`30 months` = md("**30 months**")
+	) %>% 
+	as_raw_html()
+```
+
+```{r participants_summary_tab_language, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants %>% 
+	left_join(distinct(attrition, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	count(location, age_group, lp, test_language) %>% 
+	pivot_wider(names_from = "age_group", values_from = c("n"), values_fill = 0) %>% 
+	gt(groupname_col = "location") %>% 
+	cols_label(
+		lp = md("**Language profile**"),
+		test_language = md("**Language**"),
+		`21 months` = md("**21 months**"),
+		`25 months` = md("**25 months**"),
+		`30 months` = md("**30 months**")
+	) %>% 
+	as_raw_html()
+```
+
+
+```{r participants_summary_plot, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants %>% 
+	left_join(distinct(attrition, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	ggplot(aes(lp, fill = as.factor(test_language))) +
+	facet_grid(location~age_group, scales = "free") +
+	geom_bar(colour = NA) +
+	geom_hline(yintercept = 24, linetype = "dashed", colour = "white") +
+	labs(x = "Group", y = "Sample size", fill = "Test language") +
+	theme(
+		legend.position = "top",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 10),
+		axis.title.y = element_text(angle = 90)
+	) 
+```
+
+#### Longitudinal
+
+We collected data from `r sum(duplicated(participants$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
+
+```{r participants_cohort, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+# plot participants
+participants %>% 
+	left_join(distinct(attrition, participant, valid_participant)) %>%
+	filter(valid_participant) %>% 
+	mutate(age_group = str_remove(age_group, " months")) %>%
+	ggplot(aes(age_group, participant, colour = lp)) +
+	facet_grid(~location, scales = "free") +
+	geom_line(aes(group = interaction(lp, participant))) +
+	geom_point(size = 2) +
+	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Lang. Pofile") +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		panel.grid = element_blank(),
+		axis.text = element_text(size = 10),
+		axis.title.y = element_blank(),
+		axis.text.y = element_blank(),
+		axis.ticks.y = element_blank()
+	)
+```
+
+
+#### {-}
+

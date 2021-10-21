@@ -183,29 +183,8 @@ list(
 	
 	# attrition data ----
 	# see R/04_attrition.R for details on this function
-	# stringent version
 	tar_target(
 		attrition,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			# minimum looking time to each picture for valid trial
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), 
-			# minimum number of valid trials in each condition for valid participant
-			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2),
-			# what words should the participant know for valid trial?
-			filter_vocabulary = c("prime", "target"),
-			# should target-distractor counterbalancing pairs we filtered out together?
-			# e.g. if TRUE, cat-balloon removed (even if valid) if balloon-cat is not valid
-			filter_counterbalancing = FALSE
-		)
-	),
-	# relaxed version
-	# same function, different argument values (less stringent version)
-	tar_target(
-		attrition_relaxed,
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
@@ -217,23 +196,8 @@ list(
 			filter_counterbalancing = FALSE
 		)
 	),
-	# stringent version with filter_counterbalancing = TRUE
 	tar_target(
 		attrition_counter,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
-			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2), # minimum n trials in each condition
-			filter_counterbalancing = TRUE,
-			filter_vocabulary = c("prime", "target")
-		)
-	),
-	# relaxed version with filter_counterbalancing = TRUE
-	tar_target(
-		attrition_relaxed_counter,
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
@@ -261,18 +225,6 @@ list(
 			attrition = attrition
 		)
 	),
-	# relaxed version
-	tar_target(
-		gaze_relaxed,
-		prepare_data(
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			participants = participants,
-			stimuli = stimuli, 
-			vocabulary = vocabulary,
-			attrition = attrition_relaxed
-		)
-	),
 	
 	# fit models ----
 	# see R/06_analysis.R for details on the fit_models() function
@@ -291,21 +243,12 @@ list(
 		)
 	),
 	# define the dataset corresponding to each model (same order as in previous target)
-	# stringent inclusion criteria
 	tar_target(
 		model_datasets,
 		list(
 			fit = gaze
 		)
 	),
-	# same datasets, but applying the relaxed inclusion criteria
-	tar_target(
-		model_datasets_relaxed,
-		list(
-			fit_relaxed = gaze_relaxed
-		)
-	),
-	# fit models (stringent criteria)
 	tar_target(
 		model_fits,
 		fit_models(
@@ -315,16 +258,7 @@ list(
 			save_model = here("Stan", "fit.stan")
 		)
 	),
-	# fit model (relaxed criteria)
-	tar_target(
-		model_fits_relaxed,
-		fit_models(
-			formulas = model_formulas,
-			datasets = model_datasets_relaxed,
-			file = here("Results", "fit_relaxed.rds"),
-			save_model = here("Stan", "fit_relaxed.stan")
-		)
-	),
+
 	# render report.Rmd with the updated model fits
 	tar_render(report, "Rmd/report.Rmd")
 	

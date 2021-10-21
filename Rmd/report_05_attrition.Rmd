@@ -4,10 +4,9 @@
 
 #### Summary
 
-
 ```{r participants_cdi, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
-participants_stringent %>% 
+participants %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>%
 	left_join(vocabulary) %>% 
 	drop_na(valid_participant) %>% 
@@ -20,13 +19,15 @@ participants_stringent %>%
 	) %>% 
 	ggplot(aes(lp, fill = valid_status)) +
 	facet_grid(location~age_group, scales = "free") +
-	geom_bar(colour = NA) +
-	geom_hline(yintercept = 24, linetype = "dashed") +
+	geom_bar(colour = "#0D1117", size = 1) +
+	geom_hline(yintercept = 24, linetype = "dashed", colour = "white") +
 	scale_colour_brewer(palette = "Set1") +
 	labs(x = "Group", y = "Sample size", fill = "Valid?") +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.y = element_blank(),
 		axis.title.x = element_blank(),
 		axis.text = element_text(size = 10),
 		axis.title.y = element_text(angle = 90)
@@ -39,7 +40,7 @@ participants_stringent %>%
 ```{r trials_attrition_location, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, out.width="100%"}
 # plot participants
 attrition_location <- attrition %>% 
-	left_join(select(participants_stringent, participant, location)) %>% 
+	left_join(select(participants, participant, location)) %>% 
 	count(location, lp, age_group, trial_type, valid_status) %>% 
 	drop_na(trial_type)
 
@@ -47,14 +48,14 @@ attrition_location %>%
 	filter(location=="Barcelona") %>% 
 	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
 	facet_grid(lp~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity", title = "Barcelona") +
 	
 	attrition_location %>% 
 	filter(location=="Oxford") %>% 
 	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
 	facet_grid(lp~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity", title = "Oxford") +
 	
 	plot_layout(guides = "collect", ncol = 1) &
@@ -63,6 +64,7 @@ attrition_location %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 10),
 		axis.title = element_blank()
@@ -77,7 +79,7 @@ This table shows a summary of the total, total valid, and proportion of valid mo
 
 ```{r attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=12}
 
-left_join(attrition, select(participants_stringent, age_group, location, lp, participant, date_test)) %>% 
+left_join(attrition, select(participants, age_group, location, lp, participant, date_test)) %>% 
 	group_by(participant, lp, location, trial_type, date_test, age_group, valid_participant) %>% 
 	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
 			  .groups = "drop") %>% 
@@ -132,7 +134,7 @@ left_join(attrition, select(participants_stringent, age_group, location, lp, par
 ```{r participants_attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition %>% 
-	left_join(select(participants_stringent, participant, location)) %>% 
+	left_join(select(participants, participant, location)) %>% 
 	mutate(participant = str_remove(participant, "cognatepriming")) %>% 
 	group_by(location, participant, lp, age_group, valid_participant) %>% 
 	summarise(
@@ -162,31 +164,11 @@ attrition %>%
 #### By trial
 
 
-```{r trials_attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
-# plot participants
-attrition %>% 
-	left_join(select(participants_stringent, participant, location)) %>% 
-	count(location, lp, age_group, trial_type, valid_status) %>% 
-	drop_na(trial_type) %>% 
-	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
-	facet_grid(lp~age_group) +
-	geom_col(position = position_fill()) +
-	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
-	scale_y_continuous(labels = percent) +
-	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
-	theme(
-		legend.position = "top",
-		legend.title = element_blank(),
-		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
-		axis.text.y = element_text(size = 8),
-		axis.title = element_blank()
-	)
-```
-
 ```{r trials_attrition_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition %>% 
-	left_join(select(participants_stringent, participant, location)) %>% 
+	left_join(select(participants, participant, location)) %>% 
+	drop_na(trial_type) %>% 
 	group_by(location, lp, age_group, trial_type, valid_trial) %>% 
 	count() %>% 
 	ungroup() %>%
@@ -213,11 +195,34 @@ attrition %>%
 
 ```
 
-#### By lexical frequency {.tabset}
 
+```{r trials_attrition, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+# plot participants
+attrition %>% 
+	left_join(select(participants, participant, location)) %>% 
+	count(location, age_group, trial_type, valid_status) %>% 
+	drop_na(trial_type) %>% 
+	ggplot(aes(trial_type, n, fill = valid_status, colour = valid_status)) +
+	facet_grid(location~age_group) +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
+	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
+	scale_y_continuous(labels = percent) +
+	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
+	coord_flip() +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		panel.grid = element_blank(),
+		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
+		axis.text.y = element_text(size = 8),
+		axis.title = element_blank()
+	)
+```
+
+
+#### By lexical frequency {.tabset }
 
 ##### Prime frequency
-
 
 ```{r attrition_frequency_prime, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 sample_size <- attrition %>% 
@@ -234,7 +239,7 @@ attrition %>%
 	facet_grid(lp~age_group) +
 	geom_boxplot(fill = "white", width = 0.25,
 				 position =  position_dodge(width = 0.5),
-				 size = 1, outlier.colour = NA) +
+				 size = 0.75, outlier.colour = NA) +
 	geom_label(data = sample_size, aes(y = 2, label = n), size = 3,
 			   position = position_dodge(width = 0.7), colour = "white") +
 	labs(x = "Trial type", y = "Frequency (CHILDES)", colour = "Validity", fill = "Validity") +
@@ -242,7 +247,8 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.y = element_blank(),
 		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
@@ -259,7 +265,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, frequency_prime_childes) %>% 
 	ggplot(aes(as.factor(frequency_prime_childes), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent) +
@@ -267,15 +273,15 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
-		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
+		panel.grid = element_blank(),
+		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
 
-##### Target frequency
 
+##### Target frequency
 
 ```{r attrition_frequency_target, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 sample_size <- attrition %>% 
@@ -290,22 +296,24 @@ attrition %>%
 	drop_na(trial_type, frequency_target_childes) %>% 
 	ggplot(aes(trial_type, frequency_target_childes, fill = valid_status, colour = valid_status)) +
 	facet_grid(lp~age_group) +
-	geom_boxplot(fill = "white", width = 0.25,
+	geom_boxplot(fill = "#0D1117", width = 0.25,
 				 position =  position_dodge(width = 0.5),
-				 size = 1, outlier.colour = NA) +
+				 size = 0.75, outlier.colour = NA) +
 	geom_label(data = sample_size, aes(y = 2, label = n), size = 3,
-			   position = position_dodge(width = 0.7), colour = "white") +
+			   position = position_dodge(width = 0.7), colour = "#0D1117") +
 	labs(x = "Trial type", y = "Frequency (CHILDES)", colour = "Validity", fill = "Validity") +
 	scale_y_continuous(breaks = 0:7, limits = c(0, 7)) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.y = element_blank(),
 		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
+
 
 ```{r attrition_frequency_target_causes, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 attrition %>% 
@@ -315,7 +323,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, frequency_target_childes) %>% 
 	ggplot(aes(as.factor(frequency_target_childes), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent) +
@@ -323,11 +331,13 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
+
 
 ##### {-}
 
@@ -350,23 +360,24 @@ attrition %>%
 	drop_na(trial_type, familiarity_prime) %>% 
 	ggplot(aes(trial_type, familiarity_prime, fill = valid_status, colour = valid_status)) +
 	facet_grid(lp~age_group) +
-	geom_boxplot(fill = "white", width = 0.25,
+	geom_boxplot(fill = "#0D1117", width = 0.25,
 				 position =  position_dodge(width = 0.5),
-				 size = 1, outlier.colour = NA) +
+				 size = 0.75, outlier.colour = NA) +
 	geom_label(data = sample_size, aes(y = 0.1, label = n), size = 3,
-			   position = position_dodge(width = 0.7), colour = "white") +
-	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
+			   position = position_dodge(width = 0.7), colour = "#0D1117") +
+	labs(x = "Trial type", y = "Familiarity", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent, limits = c(0, 1)) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
+		panel.grid.major.y = element_blank(),
 		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
+
 
 
 ```{r attrition_familiarity_prime_causes, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
@@ -378,7 +389,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, familiarity_prime) %>% 
 	ggplot(aes(as.factor(familiarity_prime), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_x_discrete(labels = function(x) paste0(as.numeric(x)*100, "%")) +
@@ -387,11 +398,13 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
+
 
 ##### Target familiarity
 
@@ -408,25 +421,27 @@ attrition %>%
 	drop_na(trial_type, familiarity_target) %>% 
 	ggplot(aes(trial_type, familiarity_target, fill = valid_status, colour = valid_status)) +
 	facet_grid(lp~age_group) +
-	geom_boxplot(fill = "white", width = 0.25,
+	geom_boxplot(fill = "#0D1117", width = 0.25,
 				 position =  position_dodge(width = 0.5),
-				 size = 1, outlier.colour = NA) +
+				 size = 0.75, outlier.colour = NA) +
 	geom_label(data = sample_size, aes(y = 0.1, label = n), size = 3,
-			   position = position_dodge(width = 0.7), colour = "white") +
-	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
+			   position = position_dodge(width = 0.7), colour = "#0D1117") +
+	labs(x = "Trial type", y = "Familiarity", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent, limits = c(0, 1)) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted"),
+		panel.grid.major.y = element_blank(),
 		axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1, size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
 
+
 ```{r attrition_familiarity_target_causes, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+# plot participants
 attrition %>% 
 	left_join(distinct(stimuli, test_language, location, list, trial, trial_type, familiarity_target)) %>% 
 	drop_na(trial_type, familiarity_target) %>% 
@@ -434,7 +449,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, familiarity_target) %>% 
 	ggplot(aes(as.factor(familiarity_target), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_x_discrete(labels = function(x) paste0(as.numeric(x)*100, "%")) +
@@ -443,17 +458,18 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
 ```
 
+
 ##### {-}
 
 
 #### By animacy {.tabset }
-
 
 ##### Prime
 
@@ -466,7 +482,7 @@ attrition %>%
 	count(trial_type, location, age_group, valid_status, trial_type, is_animate_prime) %>% 
 	ggplot(aes(as.factor(is_animate_prime), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent) +
@@ -474,6 +490,7 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
@@ -493,7 +510,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, is_animate_target) %>% 
 	ggplot(aes(as.factor(is_animate_target), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent) +
@@ -501,6 +518,7 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
@@ -508,13 +526,15 @@ attrition %>%
 
 ```
 
+
 ##### {-}
 
 
-#### By category {.tabset }
+#### By category {.tabset}
 
 
 ##### Prime
+
 
 ```{r attrition_category_prime, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition %>% 
@@ -523,7 +543,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, category_prime) %>% 
 	ggplot(aes(fct_rev(category_prime), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent) +
@@ -531,6 +551,7 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
@@ -540,7 +561,6 @@ attrition %>%
 
 ##### Target
 
-
 ```{r attrition_category_target, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition %>% 
 	left_join(distinct(stimuli, test_language, location, list, trial, trial_type, category_target)) %>%
@@ -548,7 +568,7 @@ attrition %>%
 	count(trial_type, age_group, valid_status, trial_type, category_target) %>% 
 	ggplot(aes(fct_rev(category_target), n, fill = valid_status, colour = valid_status)) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
+	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
 	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
 	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
 	scale_y_continuous(labels = percent) +
@@ -556,6 +576,7 @@ attrition %>%
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
+		panel.grid = element_blank(),
 		axis.text.x = element_text(size = 10),
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
@@ -564,4 +585,3 @@ attrition %>%
 
 ##### {-}
 
-#### {-}

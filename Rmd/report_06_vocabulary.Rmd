@@ -1,0 +1,153 @@
+---
+---
+
+
+#### L1 vocabulary
+
+This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
+
+```{r vocabulary_l1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants %>% 
+	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	count(age_group, location)
+
+# vocabulary
+participants %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_grid(location~age_group) +
+	# geom_violin(
+	# 	position = position_dodge(width = 0.75),
+	# 	aes(lp, vocab_size_l1, colour = lp, fill = lp)
+	# ) + 
+	geom_hline(yintercept = 0.5, colour = "white") +
+	geom_point(
+		aes(lp, vocab_size_l1),
+		shape = 1, colour = "white", size = 1, stroke = 1,
+		position = position_jitter(width = 0.1, seed = 888)
+	) +
+	geom_boxplot(
+		aes(lp, vocab_size_l1, colour = lp, fill = lp),
+		width = 0.25, outlier.colour = NA, fill = "#0D1117",
+		position = position_dodge(width = 0.75), size = 1
+	) +
+	geom_text(
+		data = sample_size,
+		aes(x = 1.5, y = 0.95, label = paste0("n = ", n)),
+		colour = "white", fill = "white", show.legend = FALSE
+	) +
+	labs(y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "none",
+		panel.grid.major.y = element_blank(),
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 9)
+	)
+
+```
+
+
+#### Total vocabulary
+
+```{r vocabulary_total, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants %>% 
+	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	count(age_group, location)
+
+# vocabulary
+participants %>% 
+	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_grid(location~age_group) +
+	# geom_violin(
+	# 	position = position_dodge(width = 0.75),
+	# 	aes(lp, vocab_size_l1, colour = lp, fill = lp)
+	# ) + 
+	geom_hline(yintercept = 0.5, colour = "grey") +
+	geom_point(
+		aes(lp, vocab_size_total),
+		shape = 1, colour = "white", size = 1, stroke = 1,
+		position = position_jitter(width = 0.1, seed = 888)
+	) +
+	geom_boxplot(
+		aes(lp, vocab_size_total, colour = lp, fill = lp),
+		width = 0.25, fill = "#0D1117", outlier.colour = NA,
+		position = position_dodge(width = 0.75), size = 1
+	) +
+	geom_text(
+		data = sample_size,
+		aes(x = 1.5, y = 0.95, label = paste0("n = ", n)),
+		colour = "white", fill = "white", show.legend = FALSE
+	) +
+	labs(y = "Receptive vocabulary (L1+L2)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "none",
+		panel.grid.major.x = element_blank(),
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 9),
+		panel.grid.major.y = element_line(colour = "grey", linetype = "dotted")
+	)
+
+```
+
+
+#### Conceptual vocabulary
+
+
+```{r vocabulary_conceptual, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
+sample_size <- participants %>% 
+	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	count(age_group, location)
+
+# vocabulary
+participants %>% 
+	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot() +
+	facet_grid(location~age_group) +
+	# geom_violin(
+	# 	position = position_dodge(width = 0.75),
+	# 	aes(lp, vocab_size_l1, colour = lp, fill = lp)
+	# ) + 
+	geom_hline(yintercept = 0.5, colour = "grey") +
+	geom_point(
+		aes(lp, vocab_size_conceptual),
+		shape = 1, colour = "white", size = 1, stroke = 1,
+		position = position_jitter(width = 0.1, seed = 888)
+	) +
+	geom_boxplot(
+		aes(lp, vocab_size_conceptual, colour = lp, fill = lp),
+		width = 0.25, fill = "#0D1117", outlier.colour = NA,
+		position = position_dodge(width = 0.75), size = 1
+	) +
+	geom_text(
+		data = sample_size,
+		aes(x = 1.5, y = 0.95, label = paste0("n = ", n)),
+		colour = "white", fill = "white", show.legend = FALSE
+	) +
+	labs(y = "Receptive vocabulary (coneptual)", colour = "Group", fill = "Group") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "none",
+		axis.title.x = element_blank(),
+		axis.text = element_text(size = 9),
+		panel.grid.major.x = element_blank()
+	)
+
+```
+
+
+#### {-}
+
+### {-}
+
+

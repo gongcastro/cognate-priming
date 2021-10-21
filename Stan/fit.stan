@@ -1,4 +1,4 @@
-// generated with brms 2.15.0
+// generated with brms 2.16.1
 functions {
  /* compute correlated group-level effects
   * Args: 
@@ -46,7 +46,7 @@ transformed data {
 parameters {
   vector[Kc] b;  // population-level effects
   real Intercept;  // temporary intercept for centered predictors
-  real<lower=0> sigma;  // residual SD
+  real<lower=0> sigma;  // dispersion parameter
   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
   matrix[M_1, N_1] z_1;  // standardized group-level effects
   cholesky_factor_corr[M_1] L_1;  // cholesky factor of correlation matrix
@@ -86,7 +86,7 @@ model {
   }
   // priors including constants
   target += normal_lpdf(b | 0, 0.1);
-  target += student_t_lpdf(Intercept | 3, 1.4, 2.7);
+  target += student_t_lpdf(Intercept | 3, 1.6, 2.5);
   target += exponential_lpdf(sigma | 6);
   target += exponential_lpdf(sd_1 | 6);
   target += std_normal_lpdf(to_vector(z_1));
