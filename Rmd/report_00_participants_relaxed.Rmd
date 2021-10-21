@@ -41,7 +41,7 @@ participants_relaxed %>%
 		`21 months` = md("**21 months**"),
 		`25 months` = md("**25 months**"),
 		`30 months` = md("**30 months**")
-	) 
+	) %>% 
 	as_raw_html()
 ```
 
@@ -85,7 +85,7 @@ participants_relaxed %>%
 	facet_grid(location~lp, scales = "free") +
 	geom_line(aes(group = interaction(lp, participant))) +
 	geom_point(size = 2) +
-	geom_hline(yintercept = 0.2, linetype = "dashed") +
+	geom_hline(yintercept = 0.2, linetype = "dashed", colour = "white") +
 	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Validity status") +
 	theme(
 		legend.position = "right",

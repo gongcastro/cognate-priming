@@ -3,6 +3,8 @@ title: "Cognate Priming: Report"
 output:
   github_document:
     pandoc_args: --webtex
+always_allow_html: true
+date: "`r paste0('Updated: ', format(Sys.Date(), '%d/%m/%Y'))`"
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +18,8 @@ knitr::opts_chunk$set(
 	dpi = 150,
 	dev.args = list(png = list(type = "cairo"))
 )
-options(knitr.kable.NA = '-',
+options(
+	knitr.kable.NA = '-',
 		knitr.duplicate.label = "allow",
 		ggplot2.discrete.fill = ggsci::pal_tron("legacy")(7),
 		ggplot2.discrete.colour = ggsci::pal_tron("legacy")(7)
