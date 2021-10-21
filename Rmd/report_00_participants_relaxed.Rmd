@@ -23,9 +23,28 @@ participants_relaxed %>%
 		`21 months` = md("**21 months**"),
 		`25 months` = md("**25 months**"),
 		`30 months` = md("**30 months**")
-	)
-
+	) %>% 
+	as_raw_html()
 ```
+
+```{r participants_summary_relaxed_tab_language, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
+participants_relaxed %>% 
+	left_join(distinct(attrition_relaxed, participant, valid_participant)) %>% 
+	filter(valid_participant) %>% 
+	drop_na(valid_participant) %>% 
+	count(location, age_group, lp, test_language) %>% 
+	pivot_wider(names_from = "age_group", values_from = c("n"), values_fill = 0) %>% 
+	gt(groupname_col = "location") %>% 
+	cols_label(
+		lp = md("**Language profile**"),
+		test_language = md("**Language**"),
+		`21 months` = md("**21 months**"),
+		`25 months` = md("**25 months**"),
+		`30 months` = md("**30 months**")
+	) %>% 
+	as_raw_html()
+```
+
 
 ```{r participants_summary_relaxed, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 participants_relaxed %>% 
@@ -35,7 +54,7 @@ participants_relaxed %>%
 	ggplot(aes(lp, fill = as.factor(test_language))) +
 	facet_grid(location~age_group, scales = "free") +
 	geom_bar(colour = NA) +
-	geom_hline(yintercept = 24, linetype = "dashed") +
+	geom_hline(yintercept = 24, linetype = "dashed", colour = "white") +
 	labs(x = "Group", y = "Sample size", fill = "Test language") +
 	theme(
 		legend.position = "top",
@@ -66,7 +85,7 @@ participants_relaxed %>%
 	facet_grid(location~lp, scales = "free") +
 	geom_line(aes(group = interaction(lp, participant))) +
 	geom_point(size = 2) +
-	geom_hline(yintercept = 0.2, linetype = "dashed") +
+	geom_hline(yintercept = 0.2, linetype = "dashed", colour = "white") +
 	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Validity status") +
 	theme(
 		legend.position = "right",

@@ -1,4 +1,4 @@
-# Cognate Priming
+# Cognate Priming [[report](https://github.com/bilingual-project/cognate-priming/blob/single/Rmd/report.md)]
 
 Phonological priming paradigm in Spanish-English and Spanish-Catalan bilingual toddlers, controlling the cognate status of the prime. This repository contains the following sub-folders:
 

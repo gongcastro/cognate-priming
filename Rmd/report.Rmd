@@ -1,12 +1,10 @@
 ---
-title: "Report"
+title: "Cognate Priming: Report"
 output:
-  html_document:
-    df_print: paged
-    toc: true
-    toc_depth: 5
-    toc_float: true
-runtime: shiny
+  github_document:
+    pandoc_args: --webtex
+always_allow_html: true
+date: "`r paste0('Updated: ', format(Sys.Date(), '%d/%m/%Y'))`"
 ---
 
 ```{r setup, include=FALSE}
@@ -17,12 +15,16 @@ knitr::opts_chunk$set(
 	cache.extra = knitr::rand_seed,
 	out.width = "100%",
 	results = "asis",
+	dpi = 150,
 	dev.args = list(png = list(type = "cairo"))
 )
-options(knitr.kable.NA = '-',
+options(
+	knitr.kable.NA = '-',
+		knitr.duplicate.label = "allow",
 		ggplot2.discrete.fill = ggsci::pal_tron("legacy")(7),
 		ggplot2.discrete.colour = ggsci::pal_tron("legacy")(7)
 )
+
 
 ```
 
@@ -38,14 +40,15 @@ library(lubridate)
 library(scales)
 library(DiagrammeR)
 library(janitor)
-library(lme4)
-library(broom.mixed)
 library(gt)
 library(patchwork)
-library(htmltools)
 library(wesanderson)
 library(shiny)
+library(tidybayes)
+library(brms)
 library(tidytext)
+library(brms)
+library(tidyverse)
 library(here)
 
 # load objects
@@ -61,7 +64,7 @@ tar_load(attrition_relaxed_counter)
 tar_load(model_fits)
 tar_load(model_fits_relaxed)
 
-theme_set(theme_custom()) # in utils.R
+theme_set(theme_github()) # in utils.R
 ```
 
 
@@ -140,164 +143,45 @@ participants_relaxed_counter <- participants %>%
 
 ## Participants {.tabset .tabset-pills}
 
-### Stringent criteria {.tabset}
-
-```{r child="report_00_participants_stringent.Rmd"}
-```
-
-
-### Relaxed criteria {.tabset}
-
-
 ```{r child="report_00_participants_relaxed.Rmd"}
 ```
-
 
 ## Stimuli
 
 ```{r child="report_01_stimuli.Rmd"}
 ```
 
-
 ## Procedure
-
 
 ```{r child="report_02_procedure.Rmd"}
 ```
 
-
 ## Data analysis
-
 
 ```{r child="report_03_data-analysis.Rmd"}
 ```
 
-
 ### {-}
 
-
 ## {-}
-
 
 # Results {.tabset .tabset-pills}
 
 ## Gaze {.tabset .tabset-pills}
 
-### Stringent criteria {.tabset}
-
-```{r child="report_04_gca_stringent.Rmd"}
-```
-
-### Relaxed criteria {.tabset}
-
 ```{r child="report_04_gca_relaxed.Rmd"}
 ```
 
-### {-}
-
-
 ## Attrition {.tabset}
-
-### Stringent criteria {.tabset}
-
-```{r child="report_05_attrition_stringent.Rmd"}
-```
-
-### Relaxed criteria {.tabset}
 
 ```{r child="report_05_attrition_relaxed.Rmd"}
 ```
 
-### Counterbalancing {.tabset}
-
-#### Stringent criteria {.tabset}
-
-```{r child="report_05_attrition_counter_stringent.Rmd"}
-```
-
-#### Relaxed criteria {.tabset}
-
-```{r child="report_05_attrition_counter_relaxed.Rmd"}
-```
-
-
-#### {-}
-
-### {-}
-
-
-## 21 months-old monolinguals {.tabset}
-
-### Stringent criteria {.tabset}
-
-```{r child="report_06_21-mon_stringent.Rmd"}
-```
-
-### Relaxed criteria {.tabset}
-
-```{r child="report_06_21-mon_relaxed.Rmd"}
-```
-
-### {-}
-
-## 21 and 25 months-old monolinguals {.tabset}
-
-
-### Stringent criteria {.tabset}
-
-
-```{r child="report_07_2125-mon_stringent.Rmd"}
-```
-
-
-### Relaxed criteria {.tabset}
-
-
-
-```{r child="report_07_2125-mon_relaxed.Rmd"}
-```
-
-### {-}
-
-
-## 21, 25, and 30 months-old monolinguals {.tabset}
-
-
-### Stringent criteria {.tabset}
-
-
-```{r child="report_08_mon_stringent.Rmd"}
-```
-
-
-### Relax
-
-```{r child="report_08_mon_relaxed.Rmd"}
-```
-
-
-
-### {-}
-
 
 ## Vocabulary {.tabset .tabset-pills}
 
-
-### Stringent criteria {.tabset}
-
-
-```{r child="report_09_vocabulary_stringent.Rmd"}
+```{r child="report_06_vocabulary_relaxed.Rmd"}
 ```
-
-
-### Relaxed criteria {.tabset}
-
-```{r child="report_09_vocabulary_relaxed.Rmd"}
-```
-
-
-### {-}
-
 
 ## {-}
 
