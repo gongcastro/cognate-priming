@@ -24,6 +24,7 @@ attrition_counter|stem|e5d4a13e42305fec|14ad860550f825d7|13e59ecf32020c75|-11926
 gaze|stem|4bf824d16edb79ba|cadfd4a2d714e81a|aadebcc8a1c6bc8d|-1114821610||t18922.3644992826s|2738c32ad1542e2a|209669|rds|vector|||17.31|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
 model_datasets|stem|f150bb041d497e0c|2f19eaf617fafe3e|3116704df2cfe5ee|1386906376||t18922.364500489s|f318f9df067e9029|209687|rds|vector|||0||
 model_fits|stem|0db195aa8baec6f3|4282950cda813d1b|20059fbd051bc267|-553083469||t18922.3645082535s|a4e6e5d5f805f00d|13810482|rds|vector|||0.16||
+stimuli|stem|8d0620e4316b23da|b5dd4a1585d193a4|0a6ceb9bf05d66ab|1139532200||t18922.3861262113s|97ad8611ad610888|18803|rds|vector|||266.08|Number of logged events 19|
 theme_custom|function|de8f038eec8f5184||||||||||||||
 make|function|a5bde9df03cfb7e2||||||||||||||
 get_credentials|function|956e8d5d4c37cafa||||||||||||||
@@ -46,5 +47,4 @@ get_gaze_bcn|function|e71a0a586a0b5e0f||||||||||||||
 prop_adj_se|function|ea05d30982a97289||||||||||||||
 get_familiarity|function|d9f23dd2f8a57b76||||||||||||||
 get_stimuli|function|6df2dfa471f95d5c||||||||||||||
-stimuli|stem|8d0620e4316b23da|b5dd4a1585d193a4|0a6ceb9bf05d66ab|1139532200||t18922.3861262113s|97ad8611ad610888|18803|rds|vector|||266.08|Number of logged events 19|
-report|stem|04a14099935f4610|57f1f469675d7be9|201b0f659f6e6a6b|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18922.3866073983s|9fffb6b1934fa60a|3184322|file|vector|||47.64|Removed 84 rows containing missing values geom_point.|
+report|stem|ac0aa27aa8e912a7|57f1f469675d7be9|201b0f659f6e6a6b|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18922.3976009213s|a2d5b81e707d5055|3175875|file|vector|||46.12|Removed 84 rows containing missing values geom_point.|

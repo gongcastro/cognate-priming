@@ -2758,14 +2758,6 @@ non-cognate, and unrelated).
 
 #### By lexical frequency
 
-##### Prime frequency
-
-<img src="report_files/figure-gfm/attrition_frequency_prime-1.png" width="100%" />
-
-<img src="report_files/figure-gfm/attrition_frequency_prime_causes-1.png" width="100%" />
-
-##### Target frequency
-
 <img src="report_files/figure-gfm/attrition_frequency_target-1.png" width="100%" />
 
 <img src="report_files/figure-gfm/attrition_frequency_target_causes-1.png" width="100%" />
@@ -2773,14 +2765,6 @@ non-cognate, and unrelated).
 ##### 
 
 #### By familiarity
-
-##### Prime familiarity
-
-<img src="report_files/figure-gfm/attrition_familiarity_prime-1.png" width="100%" />
-
-<img src="report_files/figure-gfm/attrition_familiarity_prime_causes-1.png" width="100%" />
-
-##### Target familiarity
 
 <img src="report_files/figure-gfm/attrition_familiarity_target-1.png" width="100%" />
 
@@ -2790,23 +2774,11 @@ non-cognate, and unrelated).
 
 #### By animacy
 
-##### Prime
-
-<img src="report_files/figure-gfm/attrition_animacy_prime-1.png" width="100%" />
-
-##### Target
-
 <img src="report_files/figure-gfm/attrition_animacy_target-1.png" width="100%" />
 
 ##### 
 
 #### By category
-
-##### Prime
-
-<img src="report_files/figure-gfm/attrition_category_prime-1.png" width="100%" />
-
-##### Target
 
 <img src="report_files/figure-gfm/attrition_category_target-1.png" width="100%" />
 
