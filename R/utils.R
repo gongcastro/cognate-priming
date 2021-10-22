@@ -191,6 +191,7 @@ get_frequency_subtlex <- function(
 			) %>% 
 				select(d, y)
 			colnames(subtlex_spa) <- c("word", "frequency")
+			file.remove("SUTBLEX-ESP.xlsx")
 		}
 		
 		if("cat" %in% languages){

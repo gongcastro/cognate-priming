@@ -22,7 +22,7 @@ prepare_data <- function(
 			bind_rows(.id = "location") %>% 
 			# to avoid issues with column names
 			rename(time_stamp = time) %>% 
-			left_join(attrition) %>%
+			left_join(attrition) %>% 
 			left_join(vocabulary) %>% 
 			filter(phase=="Target-Distractor", valid_trial, valid_participant) %>% 
 			select(
@@ -31,7 +31,7 @@ prepare_data <- function(
 				vocab_size_total, vocab_size_l1, vocab_size_conceptual
 			) %>% 
 			drop_na(trial) %>% 
-			left_join(select(participants, age_group, participant, participant_unique))
+			left_join(participants)
 		
 		# to eyetrackingR format
 		gaze <- clean %>% 
