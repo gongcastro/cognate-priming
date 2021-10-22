@@ -25,11 +25,12 @@ attrition_counter|stem|e5d4a13e42305fec|14ad860550f825d7|13e59ecf32020c75|-11926
 gaze|stem|4bf824d16edb79ba|cadfd4a2d714e81a|aadebcc8a1c6bc8d|-1114821610||t18922.3644992826s|2738c32ad1542e2a|209669|rds|vector|||17.31|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
 model_datasets|stem|f150bb041d497e0c|2f19eaf617fafe3e|3116704df2cfe5ee|1386906376||t18922.364500489s|f318f9df067e9029|209687|rds|vector|||0||
 model_fits|stem|0db195aa8baec6f3|4282950cda813d1b|20059fbd051bc267|-553083469||t18922.3645082535s|a4e6e5d5f805f00d|13810482|rds|vector|||0.16||
+report|stem|dae3e914dc787148|57f1f469675d7be9|201b0f659f6e6a6b|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18922.3696040836s|2eae2483f3a3127a|3744267|file|vector|||48.61|Removed 84 rows containing missing values geom_point.|
 theme_custom|function|de8f038eec8f5184||||||||||||||
 make|function|a5bde9df03cfb7e2||||||||||||||
 get_credentials|function|956e8d5d4c37cafa||||||||||||||
 get_frequency_childes|function|650395602003714d||||||||||||||
-get_frequency_subtlex|function|3d4a55a403660a82||||||||||||||
+get_frequency_subtlex|function|fe37a0b46de8cff3||||||||||||||
 theme_github|function|4fd11f3888ebdee7||||||||||||||
 get_vocabulary|function|f767c3ac9f3cb4ab||||||||||||||
 get_gaze_raw|function|5c00ba772bd07556||||||||||||||
@@ -46,5 +47,26 @@ get_multilex|function|246f95c5100d2b36||||||||||||||
 get_gaze_bcn|function|e71a0a586a0b5e0f||||||||||||||
 prop_adj_se|function|ea05d30982a97289||||||||||||||
 get_familiarity|function|d9f23dd2f8a57b76||||||||||||||
-get_stimuli|function|8084dfd4726ecf5b||||||||||||||
-report|stem|dae3e914dc787148|57f1f469675d7be9|201b0f659f6e6a6b|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18922.3696040836s|2eae2483f3a3127a|3744267|file|vector|||48.61|Removed 84 rows containing missing values geom_point.|
+get_stimuli|function|6df2dfa471f95d5c||||||||||||||
+theme_custom|function|de8f038eec8f5184
+make|function|a5bde9df03cfb7e2
+get_credentials|function|956e8d5d4c37cafa
+get_frequency_childes|function|650395602003714d
+get_frequency_subtlex|function|fe37a0b46de8cff3
+theme_github|function|4fd11f3888ebdee7
+get_vocabulary|function|f767c3ac9f3cb4ab
+get_gaze_raw|function|5c00ba772bd07556
+get_participants|function|b6786f565c4274b8
+prop_adj_ci|function|3332254173832f76
+inv_logit|function|3d1dabf81e9fffb5
+fit_models|function|e98b9b3f1dbaff4c
+prop_adj|function|8f984a7e77cc1c9c
+logit_to_prob|function|3d1dabf81e9fffb5
+prepare_data|function|36b54b82f91ffea2
+get_attrition|function|11cdd0ff8e3d8994
+get_gaze_oxf|function|e06ea734ae3fcec8
+get_multilex|function|246f95c5100d2b36
+get_gaze_bcn|function|e71a0a586a0b5e0f
+prop_adj_se|function|ea05d30982a97289
+get_familiarity|function|d9f23dd2f8a57b76
+get_stimuli|function|6df2dfa471f95d5c
