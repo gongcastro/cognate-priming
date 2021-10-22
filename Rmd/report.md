@@ -216,7 +216,7 @@ non-cognate, and unrelated).
 
 ### Workflow
 
-<img src="report_files/figure-gfm/workflow_preprocessing-1.png" width="100%" />
+<img src="report_files/figure-gfm/workflow_preprocessing-1.png" width="80%" />
 
 ### Inclusion criteria
 
@@ -437,17 +437,17 @@ $$
   
 </table>
 
-<img src="report_files/figure-gfm/main_effects_plot-1.png" width="100%" />
+<img src="report_files/figure-gfm/main_effects_plot-1.png" width="80%" />
 
 #### Random effects
 
-<img src="report_files/figure-gfm/random_effects_participant-1.png" width="100%" />
+<img src="report_files/figure-gfm/random_effects_participant-1.png" width="80%" />
 
 #### Marginal means
 
 ##### Overall
 
-<img src="report_files/figure-gfm/gaze_time-1.png" width="100%" />
+<img src="report_files/figure-gfm/gaze_time-1.png" width="80%" />
 
 ##### 
 
@@ -2774,13 +2774,13 @@ non-cognate, and unrelated).
 
 #### By animacy
 
-<img src="report_files/figure-gfm/attrition_animacy_target-1.png" width="100%" />
+<img src="report_files/figure-gfm/attrition_animacy_target-1.png" width="80%" />
 
 ##### 
 
 #### By category
 
-<img src="report_files/figure-gfm/attrition_category_target-1.png" width="100%" />
+<img src="report_files/figure-gfm/attrition_category_target-1.png" width="80%" />
 
 ##### 
 
@@ -2802,15 +2802,15 @@ dominant language was calculated as the proportion of words they were
 reported to understand and/or say in Catalan, from a total of \~200
 words.
 
-<img src="report_files/figure-gfm/vocabulary_l1-1.png" width="100%" />
+<img src="report_files/figure-gfm/vocabulary_l1-1.png" width="80%" />
 
 #### Total vocabulary
 
-<img src="report_files/figure-gfm/vocabulary_total-1.png" width="100%" />
+<img src="report_files/figure-gfm/vocabulary_total-1.png" width="80%" />
 
 #### Conceptual vocabulary
 
-<img src="report_files/figure-gfm/vocabulary_conceptual-1.png" width="100%" />
+<img src="report_files/figure-gfm/vocabulary_conceptual-1.png" width="80%" />
 
 #### 
 
