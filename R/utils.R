@@ -12,6 +12,24 @@ theme_custom <- function(){
 	)
 }
 
+# dark GitHub theme
+theme_github <- function(){
+	theme_dark() +
+		theme(
+			text = element_text(colour = "white", size = 12),
+			axis.text = element_text(colour = "white", size = 8),
+			legend.title = element_text(colour = "white", size = 10),
+			legend.text = element_text(colour = "white", size = 10),
+			legend.background = element_rect(fill = "#0D1117"),
+			strip.text = element_text(size = 10),
+			legend.key = element_rect(fill = "#0D1117", colour = "#0D1117"),
+			strip.background = element_rect(fill = "#161B22"),
+			plot.background = element_rect(fill = "#0D1117"),
+			panel.background = element_rect(fill = "#0D1117"),
+			panel.border = element_rect(fill = "transparent", colour = "#0D1117")
+		)
+}
+
 # get multilex data ----
 get_credentials <- function(
 	google_email = "gonzalo.garciadecastro@upf.edu",
@@ -173,6 +191,7 @@ get_frequency_subtlex <- function(
 			) %>% 
 				select(d, y)
 			colnames(subtlex_spa) <- c("word", "frequency")
+			file.remove("SUTBLEX-ESP.xlsx")
 		}
 		
 		if("cat" %in% languages){

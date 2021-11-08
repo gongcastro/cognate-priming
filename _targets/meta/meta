@@ -1,54 +1,58 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-vocabulary_oxf_path|stem|5f205e4d57f65d13|019a65ad50f1c5e6|4e3739ef91745af0|-668526201||t18906.4658865115s|655903f9b31c339f|135|rds|vector|||1.56||
+vocabulary_oxf_path|stem|5f205e4d57f65d13|019a65ad50f1c5e6|4e3739ef91745af0|-668526201||t18922.3576211663s|655903f9b31c339f|135|rds|vector|||2.64||
+<<<<<<< HEAD||||||||||||||||
+trials_path|stem|b7c18330e2e84f36|b844ee5413c76069|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/Stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||4.68|Package version inconsistency detected.TMB was built with Matrix version 1.3.2Current Matrix version is 1.3.4Please reinstall TMB from source using install.packagesTMB, type  source or ask CRAN for a binary version of TMB matching CRANs Matrix package|
+animacy_path|stem|9e7fed753174471b|25a14f0c10b6e7b7|4e3739ef91745af0|1222557669|C:/Users/u155880/Documents/cognate-priming/Data/Stimuli/animacy.csv|t18834.3807950083s|e981a64a5ae107f1|3896|file|vector|||0.02||
+participants_oxf_path|stem|dbba5a019a277bad|5653b09270cf5b15|4e3739ef91745af0|1783076124|C:/Users/u155880/Documents/cognate-priming/Data/Participants/participant_oxford_Apr2021.xlsx|t18775.3205096492s|f2d8c1582a80b449|15527|file|vector|||0.01||
+stimuli_english_path|stem|335ef2db989e45ff|bbd95e7092897b54|4e3739ef91745af0|1083985607|C:/Users/u155880/Documents/cognate-priming/Data/Stimuli/stimuli_english.xlsx|t18827.6414678027s|d0dd821f0a171cc2|25192|file|vector|||0.02||
+attrition_relaxed|stem|c2fdde04c357b246|6b60c955cee78acb|5e0f967b7199808e|643372842||t18907.5747335528s|33223dc1b1b9fcd7|26294|rds|vector|||7.28||
+attrition_relaxed_counter|stem|cb07d3abe7a72d0b|14ad860550f825d7|5e0f967b7199808e|1196079850||t18907.5762711343s|f8afa1d9f628d311|26496|rds|vector|||19.22||
+gaze_relaxed|stem|9b0ae676bf94550c|68442c00272b453f|c2520706bb5a4ec4|1379414338||t18907.5770248657s|091c0aab2969070f|191067|rds|vector|||40.16||
+model_datasets_relaxed|stem|881291d77646373a|ff6e6a8c252fdf84|592b3df0ea4a8652|-1585778198||t18907.5770314221s|67f60e2129efda37|748906|rds|vector|||0.15||
+model_fits_relaxed|stem|ce8d6389310b6e13|d70a3496a6f6bd80|3d48ce5dbf4ce81f|1614427668||t18907.6439178528s|5c9255627fb18315|9803183|rds|vector|||5776.07|maxfun  10  lengthpar2 is not recommended.|
+=======||||||||||||||||
+>>>>>>> bayesian||||||||||||||||
+gaze_oxf_paths|stem|9de23c406f7ddb66|6e81c767856d7e86|c793b87d5821f57c|100062445||t18922.3576214938s|31a61c22599c2a35|149|rds|vector|||0||
+multilex_data|stem|fba05232bebe6e52|079ee1fe4463b160|7ef9b2af9c4db15a|1096876832||t18925.3458555024s|f46e0e51bf80de8c|1196301|rds|vector|||39.62|Please use the keyring package via the formr_store_keys function instead of specifying email and password in plaintext.|
+participants_bcn|stem|d7ef365cd1af0892|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t18925.3458767187s|0540556bcf8fdb99|7403|rds|vector|||1.81||
+credentials|stem|0bf25546ff171d55|a30b3b1477599b55|a20d18b48885f2af|-1444300154||t18922.3580431615s|3bd8f66805fd112b|45|rds|vector|||0||
+model_formulas|stem|fd92278a1a2a921c|a946f198b324c50e|a3e1c62e4a102ec9|-291946610||t18925.3458772036s|0030e3a80d38c7c3|1433|rds|vector|||0.02||
+gaze_bcn_paths|stem|9ee6617703c59aba|ede0909188788c32|c793b87d5821f57c|1662764019||t18925.3458773655s|2b17632ddec8e25c|1133|rds|vector|||0||
+vocabulary_oxf|stem|334965b8d5a9d82d|fdc87760469a8579|9d881f61eae0ec7e|-1845302331||t18922.3580449616s|d884270725a42d53|17579|rds|vector|||0.09||
+stimuli_english|stem|5641f766e95e17b0|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t18922.3580451578s|7dff3d66c21f3419|1907|rds|vector|||0.02||
+participants_oxf|stem|ce152c8135799004|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t18922.3580453079s|2bca963e40c13baf|529|rds|vector|||0.01||
+animacy|stem|8759294cc14e9f68|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t18922.3580453875s|e3a470ba8142984b|1269|rds|vector|||0||
+trials|stem|31e24d174e0d48cc|6b472b1da4faba8c|dd161b368f961177|1837658601||t18922.3580456s|2dc4589c04eeaf2f|10269|rds|vector|||0.01||
+participants|stem|b4c6fba0ff561fe9|a7adc9fd1da59829|9bb82ea4af2426a9|392525641||t18925.3458781963s|05461b2113da15ef|3404|rds|vector|||0.05||
+stimuli|stem|8d0620e4316b23da|b5dd4a1585d193a4|04f49048e85953e9|1139532200||t18925.3465089641s|97ad8611ad610888|18803|rds|vector|||54.49|Number of logged events 19|
+vocabulary|stem|0a60b297c2425167|63bdf301ff923b52|11c4f0c569a349e4|-1487046481||t18925.3465327892s|143116ff7561272b|201918|rds|vector|||1.99|Number of logged events 2|
+gaze_oxf|stem|215ad378c5e92dae|02733ab116bf3938|192736de980f2683|249562404||t18925.3465972722s|4380430a3ec58c15|15320054|rds|vector|||3.35||
+gaze_bcn|stem|07b5c0ca0d16a1ed|c198e83fa39c9bef|b217457a2c176972|-2087868575||t18925.3470890437s|bb1bb084fc7be3ee|25226953|rds|vector|||36.77|NAs introduced by coercion|
+attrition|stem|79b104551932d6d6|6b60c955cee78acb|ae63389e1d226867|-1403111462||t18925.3471869826s|837af9d2f045ab1b|27766|rds|vector|||8.38||
+attrition_counter|stem|74b8668fbeb70af0|14ad860550f825d7|ae63389e1d226867|-1192657156||t18925.3472815915s|fb2298a124fb7079|27983|rds|vector|||8.14||
+gaze|stem|3a7374ac1853436c|cadfd4a2d714e81a|7763c1d2a52bc405|-1114821610||t18925.3474465055s|be101be49359a974|210499|rds|vector|||14.16|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
+model_datasets|stem|e6868808ced92225|2f19eaf617fafe3e|77f570ea2e758d74|1386906376||t18925.3474476407s|6e5a8f7025c45f2e|210517|rds|vector|||0||
 theme_custom|function|de8f038eec8f5184||||||||||||||
+make|function|a5bde9df03cfb7e2||||||||||||||
 get_credentials|function|956e8d5d4c37cafa||||||||||||||
 get_frequency_childes|function|650395602003714d||||||||||||||
-get_frequency_subtlex|function|3d4a55a403660a82||||||||||||||
+get_frequency_subtlex|function|fe37a0b46de8cff3||||||||||||||
+theme_github|function|4fd11f3888ebdee7||||||||||||||
 get_vocabulary|function|f767c3ac9f3cb4ab||||||||||||||
 get_gaze_raw|function|5c00ba772bd07556||||||||||||||
 get_participants|function|b6786f565c4274b8||||||||||||||
 prop_adj_ci|function|3332254173832f76||||||||||||||
 inv_logit|function|3d1dabf81e9fffb5||||||||||||||
-fit_models|function|920544121656c331||||||||||||||
-run|function|c0a274a24e50b9a7||||||||||||||
+fit_models|function|e98b9b3f1dbaff4c||||||||||||||
 prop_adj|function|8f984a7e77cc1c9c||||||||||||||
 logit_to_prob|function|3d1dabf81e9fffb5||||||||||||||
-prepare_data|function|b58caee71105c5e6||||||||||||||
+prepare_data|function|36b54b82f91ffea2||||||||||||||
 get_attrition|function|11cdd0ff8e3d8994||||||||||||||
 get_gaze_oxf|function|e06ea734ae3fcec8||||||||||||||
 get_multilex|function|246f95c5100d2b36||||||||||||||
 get_gaze_bcn|function|e71a0a586a0b5e0f||||||||||||||
 prop_adj_se|function|ea05d30982a97289||||||||||||||
 get_familiarity|function|d9f23dd2f8a57b76||||||||||||||
-get_stimuli|function|8084dfd4726ecf5b||||||||||||||
-trials_path|stem|b7c18330e2e84f36|b844ee5413c76069|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/Stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||4.68|Package version inconsistency detected.TMB was built with Matrix version 1.3.2Current Matrix version is 1.3.4Please reinstall TMB from source using install.packagesTMB, type  source or ask CRAN for a binary version of TMB matching CRANs Matrix package|
-model_formulas|stem|cd97f1e8db36f5fe|caecfd95bb790a99|8fb75deda0f036e8|-291946610||t18907.5756403808s|f8c7895daedd2f74|276|rds|vector|||0||
-gaze_oxf_paths|stem|9de23c406f7ddb66|6e81c767856d7e86|c793b87d5821f57c|100062445||t18906.4658874006s|31a61c22599c2a35|149|rds|vector|||0||
-multilex_data|stem|d9d508e00b72744f|079ee1fe4463b160|7ef9b2af9c4db15a|1096876832||t18907.5747367502s|0cdcdbae9df0e7a1|1168466|rds|vector|||31.43|Please use the keyring package via the formr_store_keys function instead of specifying email and password in plaintext.|
-animacy_path|stem|9e7fed753174471b|25a14f0c10b6e7b7|4e3739ef91745af0|1222557669|C:/Users/u155880/Documents/cognate-priming/Data/Stimuli/animacy.csv|t18834.3807950083s|e981a64a5ae107f1|3896|file|vector|||0.02||
-participants_oxf_path|stem|dbba5a019a277bad|5653b09270cf5b15|4e3739ef91745af0|1783076124|C:/Users/u155880/Documents/cognate-priming/Data/Participants/participant_oxford_Apr2021.xlsx|t18775.3205096492s|f2d8c1582a80b449|15527|file|vector|||0.01||
-participants_bcn|stem|f05d75b556ba8cb2|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t18907.5747367848s|3bc9ff750e813629|6660|rds|vector|||1.75||
-gaze_bcn_paths|stem|0d5bf02798ce99de|ede0909188788c32|c793b87d5821f57c|1662764019||t18906.4665084765s|6f7ad7b2dd4de505|1017|rds|vector|||0||
-stimuli_english_path|stem|335ef2db989e45ff|bbd95e7092897b54|4e3739ef91745af0|1083985607|C:/Users/u155880/Documents/cognate-priming/Data/Stimuli/stimuli_english.xlsx|t18827.6414678027s|d0dd821f0a171cc2|25192|file|vector|||0.02||
-credentials|stem|0bf25546ff171d55|a30b3b1477599b55|a20d18b48885f2af|-1444300154||t18906.4665087535s|3bd8f66805fd112b|45|rds|vector|||0||
-vocabulary_oxf|stem|334965b8d5a9d82d|fdc87760469a8579|9d881f61eae0ec7e|-1845302331||t18906.4665106235s|d884270725a42d53|17579|rds|vector|||0.09||
-trials|stem|31e24d174e0d48cc|6b472b1da4faba8c|dd161b368f961177|1837658601||t18906.4665111545s|2dc4589c04eeaf2f|10269|rds|vector|||0.01||
-animacy|stem|8759294cc14e9f68|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t18906.4665113622s|e3a470ba8142984b|1269|rds|vector|||0||
-participants_oxf|stem|ce152c8135799004|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t18906.4665116508s|2bca963e40c13baf|529|rds|vector|||0.01||
-stimuli_english|stem|5641f766e95e17b0|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t18906.4665119394s|7dff3d66c21f3419|1907|rds|vector|||0.02||
-participants|stem|515718fb295c65a8|a7adc9fd1da59829|1421daa8c223f2af|392525641||t18907.5747367733s|ce5b770daa40adfa|3039|rds|vector|||0.06||
-stimuli|stem|8d0620e4316b23da|b5dd4a1585d193a4|89ab72b61a5e6add|1139532200||t18906.4672356569s|97ad8611ad610888|18803|rds|vector|||56.33|Number of logged events 19|
-vocabulary|stem|e951ddef27c9afbe|63bdf301ff923b52|8343552c372b7a3e|-1487046481||t18907.5747368079s|4a35d4e7e5e3a2cb|175171|rds|vector|||1.85|Number of logged events 2|
-gaze_bcn|stem|21adbf1cf065d4b9|c198e83fa39c9bef|fcbd13fc558cf14d|-2087868575||t18907.5747352381s|56dae6b5d2125a09|21818552|rds|vector|||22.72|NAs introduced by coercion|
-gaze_oxf|stem|add0334679317048|02733ab116bf3938|37351e35ed37ca59|249562404||t18907.5747365309s|f760bab59a258890|15320039|rds|vector|||2.39||
-attrition|stem|ff67ba4fb0f1b729|5456eb763e50d2ce|5e0f967b7199808e|-1403111462||t18907.5747335412s|7c20f89d54ff8304|27750|rds|vector|||7.72||
-attrition_counter|stem|9798745f21b426fd|bb27ffab2f860639|5e0f967b7199808e|-1192657156||t18907.576047813s|0069e3a9bdefdf49|27936|rds|vector|||24.67||
-attrition_relaxed|stem|c2fdde04c357b246|6b60c955cee78acb|5e0f967b7199808e|643372842||t18907.5747335528s|33223dc1b1b9fcd7|26294|rds|vector|||7.28||
-attrition_relaxed_counter|stem|cb07d3abe7a72d0b|14ad860550f825d7|5e0f967b7199808e|1196079850||t18907.5762711343s|f8afa1d9f628d311|26496|rds|vector|||19.22||
-gaze|stem|699a628360e05108|cadfd4a2d714e81a|6f159382a7ba01e8|-1114821610||t18907.576558796s|92e57904d01ff9cb|113917|rds|vector|||24.76|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
-gaze_relaxed|stem|9b0ae676bf94550c|68442c00272b453f|c2520706bb5a4ec4|1379414338||t18907.5770248657s|091c0aab2969070f|191067|rds|vector|||40.16||
-model_datasets_relaxed|stem|881291d77646373a|ff6e6a8c252fdf84|592b3df0ea4a8652|-1585778198||t18907.5770314221s|67f60e2129efda37|748906|rds|vector|||0.15||
-model_datasets|stem|1cf1d0a7ad1516d2|e6d47dda2cc63b55|2b2796f28032f416|1386906376||t18907.5770357854s|2a47975862642e9e|419821|rds|vector|||0.14||
-model_fits_relaxed|stem|ce8d6389310b6e13|d70a3496a6f6bd80|3d48ce5dbf4ce81f|1614427668||t18907.6439178528s|5c9255627fb18315|9803183|rds|vector|||5776.07|maxfun  10  lengthpar2 is not recommended.|
-model_fits|stem|f3ca7dda5034be84|370363c4e9d3215e|d73de1593ce631c9|-553083469||t18907.6871003861s|4e7e9dad9baf0e7e|5765119|rds|vector|||3729.61|Model failed to converge with 3 negative eigenvalues 2.4e03 1.9e02 1.4e02|
-report|stem|723bb843aa7a2739|8739f1f211a95e42|a641742fefa75550|-237041703|Rmd/report.html*Rmd/report.Rmd|t18907.6907842241s|95f022989a2677af|21311615|file|vector|||318.33|Removed 74 rows containing missing values geom_point.|
+get_stimuli|function|6df2dfa471f95d5c||||||||||||||
+model_fits|stem|0db195aa8baec6f3|4282950cda813d1b|db40610ab6c20f7f|-553083469||t18939.4739635981s|a4e6e5d5f805f00d|13810482|rds|vector|||1.35||
+report|stem|ce99aa230b3fa3e9|57f1f469675d7be9|ce4c1a6bb701466d|-237041703|Rmd/report.md*Rmd/report.Rmd*Rmd/report_files|t18925.3479091048s|1a1047f5b7cc3f7d|1130293|file|vector|||45.73|Removed 84 rows containing missing values geom_point.|

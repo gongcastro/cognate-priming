@@ -18,8 +18,9 @@ tar_option_set(
 		"dplyr", "tidyr", "stringr", "multilex", "keyring",
 		"readxl", "janitor", "childesr", "mice", "here",
 		"googlesheets4", "lubridate", "httr", "data.table",
-		"purrr", "eyetrackingR", "lme4", "lmerTest", "shiny",
-		"rmarkdown", "knitr", "broom.mixed", "patchwork", "scales"
+		"purrr", "eyetrackingR", "brms", "tidybayes", "shiny",
+		"rmarkdown", "knitr", "patchwork", "scales", "ggplot2",
+		"tibble", "forcats"
 	)
 )
 
@@ -182,29 +183,8 @@ list(
 	
 	# attrition data ----
 	# see R/04_attrition.R for details on this function
-	# stringent version
 	tar_target(
 		attrition,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			# minimum looking time to each picture for valid trial
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), 
-			# minimum number of valid trials in each condition for valid participant
-			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2),
-			# what words should the participant know for valid trial?
-			filter_vocabulary = c("prime", "target"),
-			# should target-distractor counterbalancing pairs we filtered out together?
-			# e.g. if TRUE, cat-balloon removed (even if valid) if balloon-cat is not valid
-			filter_counterbalancing = FALSE
-		)
-	),
-	# relaxed version
-	# same function, different argument values (less stringent version)
-	tar_target(
-		attrition_relaxed,
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
@@ -216,23 +196,8 @@ list(
 			filter_counterbalancing = FALSE
 		)
 	),
-	# stringent version with filter_counterbalancing = TRUE
 	tar_target(
 		attrition_counter,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
-			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2), # minimum n trials in each condition
-			filter_counterbalancing = TRUE,
-			filter_vocabulary = c("prime", "target")
-		)
-	),
-	# relaxed version with filter_counterbalancing = TRUE
-	tar_target(
-		attrition_relaxed_counter,
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
@@ -260,18 +225,6 @@ list(
 			attrition = attrition
 		)
 	),
-	# relaxed version
-	tar_target(
-		gaze_relaxed,
-		prepare_data(
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			participants = participants,
-			stimuli = stimuli, 
-			vocabulary = vocabulary,
-			attrition = attrition_relaxed
-		)
-	),
 	
 	# fit models ----
 	# see R/06_analysis.R for details on the fit_models() function
@@ -281,145 +234,34 @@ list(
 		model_formulas,
 		list(
 			# this model includes all data and all predictors of interest
-			fit = "elog ~ age_group + trial_type*lp*(ot1+ot2) + (1+ot1+ot2+ot3+trial_type+age_group | participant)",
-			# this model includes only data from 21 monolingual participants
-			fit_21_mon = "elog ~  trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
-			# this model includes only data from 21 monolingual participants and the location predictor (Barcelona vs. Oxford)
-			fit_21_mon_location = "elog ~ trial_type*location*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
-			# this model includes only data from 21 monolingual participants and vocabulary in L1 as predictor (median split)
-			fit_21_mon_vocab_split = "elog ~ trial_type*vocab_cat*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
-			# this model includes only data from 21 monolingual participants and
-			# only data from the 15 Oxford participants with the lowest vocabulary size,
-			# and 15 Barcelona participants with the highest vocabulary size
-			# we did this because participants in Oxford had higher L1 vocabulary sizes at the time
-			fit_21_mon_vocab_balanced = "elog ~ trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3 | participant)",
-			# this model includes only data from 21 and 25 monolingual participants and vocabulary in L1 as predictor (median split)
-			fit_2125_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
-			fit_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+age_group | participant)"
-			
+			fit = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp + age_group +
+					(1 + time_bin_center*trial_type + age_group | participant),
+				family = gaussian
+			)
 		)
 	),
 	# define the dataset corresponding to each model (same order as in previous target)
-	# stringent inclusion criteria
 	tar_target(
 		model_datasets,
 		list(
-			fit = gaze,
-			fit_21_mon = gaze %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_location = gaze %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_vocab_split = gaze %>%
-				filter(age_group=="21 months", lp=="Monolingual") %>%
-				# vocabulary in L1 median split
-				mutate(
-					vocab_cat = ifelse(
-						vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
-						"Above median", 
-						"Below median"
-					)
-				) %>% 
-				mutate_at(vars(vocab_cat, location), as.factor),
-			fit_21_mon_vocab_balanced = gaze %>%
-				filter(
-					age_group=="21 months",
-					lp=="Monolingual",
-					participant %in% {
-						participants %>%
-							left_join(vocabulary) %>% 
-							drop_na(vocab_size_l1) %>% 
-							filter(age_group=="21 months", lp=="Monolingual") %>% 
-							arrange(location, desc(vocab_size_l1)) %>% 
-							group_by(location) %>% 
-							mutate(vocab_index = row_number()) %>% 
-							ungroup() %>% 
-							# get 15 highest in Barcelona and 15 lowest in Oxford
-							filter(
-								((location=="Barcelona") & (vocab_index %in% 1:15)) |
-									((location=="Oxford")) & (vocab_index %in% seq(
-										max(vocab_index[location=="Oxford"])-15,
-										max(vocab_index[location=="Oxford"]))
-									)
-							) %>%
-							pull(participant)
-					}
-				),
-			fit_2125_mon = gaze %>%
-				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
-				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
-				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
-			fit_mon = gaze %>%
-				filter(lp=="Monolingual")
+			fit = gaze
 		)
-		
 	),
-	# same datasets, but applying the relaxed inclusion criteria
-	tar_target(
-		model_datasets_relaxed,
-		list(
-			fit_relaxed = gaze_relaxed,
-			fit_21_mon_relaxed = gaze_relaxed %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_location_relaxed = gaze_relaxed %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_vocab_split_relaxed = gaze_relaxed %>%
-				filter(age_group=="21 months", lp=="Monolingual") %>%
-				mutate(
-					vocab_cat = ifelse(
-						vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
-						"Above median", 
-						"Below median"
-					)) %>% 
-				mutate_at(vars(vocab_cat, location), as.factor),
-			fit_21_mon_vocab_balanced_relaxed = gaze_relaxed %>%
-				filter(
-					age_group=="21 months",
-					lp=="Monolingual",
-					participant %in% {
-						participants %>%
-							left_join(vocabulary) %>% 
-							drop_na(vocab_size_l1) %>% 
-							filter(age_group=="21 months", lp=="Monolingual") %>% 
-							arrange(location, desc(vocab_size_l1)) %>% 
-							group_by(location) %>% 
-							mutate(vocab_index = row_number()) %>% 
-							ungroup() %>% 
-							filter(
-								((location=="Barcelona") & (vocab_index %in% 1:15)) |
-									((location=="Oxford")) & (vocab_index %in% seq(
-										max(vocab_index[location=="Oxford"])-15,
-										max(vocab_index[location=="Oxford"]))
-									)
-							) %>%
-							pull(participant)
-					}
-				),
-			fit_2125_mon = gaze_relaxed %>%
-				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
-				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
-				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
-			fit_mon = gaze_relaxed %>%
-				filter(lp=="Monolingual")
-		)
-		
-	),
-	# fit models (stringent criteria)
 	tar_target(
 		model_fits,
 		fit_models(
 			formulas = model_formulas,
-			datasets = model_datasets
+			datasets = model_datasets, 
+			file = here("Results", "fit.rds"),
+			save_model = here("Stan", "fit.stan")
 		)
 	),
-	# fit model (relaxed criteria)
-	tar_target(
-		model_fits_relaxed,
-		fit_models(
-			formulas = model_formulas,
-			datasets = model_datasets_relaxed
-		)
-	),
+
 	# render report.Rmd with the updated model fits
 	tar_render(report, "Rmd/report.Rmd")
 	
 )
+
+
