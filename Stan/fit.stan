@@ -32,6 +32,26 @@ data {
   vector[N] Z_1_7;
   vector[N] Z_1_8;
   int<lower=1> NC_1;  // number of group-level correlations
+  // data for group-level effects of ID 2
+  int<lower=1> N_2;  // number of grouping levels
+  int<lower=1> M_2;  // number of coefficients per level
+  int<lower=1> J_2[N];  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_2_1;
+  vector[N] Z_2_2;
+  vector[N] Z_2_3;
+  vector[N] Z_2_4;
+  vector[N] Z_2_5;
+  vector[N] Z_2_6;
+  vector[N] Z_2_7;
+  vector[N] Z_2_8;
+  vector[N] Z_2_9;
+  vector[N] Z_2_10;
+  vector[N] Z_2_11;
+  vector[N] Z_2_12;
+  vector[N] Z_2_13;
+  vector[N] Z_2_14;
+  int<lower=1> NC_2;  // number of group-level correlations
   int prior_only;  // should the likelihood be ignored?
 }
 transformed data {
@@ -50,6 +70,9 @@ parameters {
   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
   matrix[M_1, N_1] z_1;  // standardized group-level effects
   cholesky_factor_corr[M_1] L_1;  // cholesky factor of correlation matrix
+  vector<lower=0>[M_2] sd_2;  // group-level standard deviations
+  matrix[M_2, N_2] z_2;  // standardized group-level effects
+  cholesky_factor_corr[M_2] L_2;  // cholesky factor of correlation matrix
 }
 transformed parameters {
   matrix[N_1, M_1] r_1;  // actual group-level effects
@@ -62,6 +85,22 @@ transformed parameters {
   vector[N_1] r_1_6;
   vector[N_1] r_1_7;
   vector[N_1] r_1_8;
+  matrix[N_2, M_2] r_2;  // actual group-level effects
+  // using vectors speeds up indexing in loops
+  vector[N_2] r_2_1;
+  vector[N_2] r_2_2;
+  vector[N_2] r_2_3;
+  vector[N_2] r_2_4;
+  vector[N_2] r_2_5;
+  vector[N_2] r_2_6;
+  vector[N_2] r_2_7;
+  vector[N_2] r_2_8;
+  vector[N_2] r_2_9;
+  vector[N_2] r_2_10;
+  vector[N_2] r_2_11;
+  vector[N_2] r_2_12;
+  vector[N_2] r_2_13;
+  vector[N_2] r_2_14;
   // compute actual group-level effects
   r_1 = scale_r_cor(z_1, sd_1, L_1);
   r_1_1 = r_1[, 1];
@@ -72,6 +111,22 @@ transformed parameters {
   r_1_6 = r_1[, 6];
   r_1_7 = r_1[, 7];
   r_1_8 = r_1[, 8];
+  // compute actual group-level effects
+  r_2 = scale_r_cor(z_2, sd_2, L_2);
+  r_2_1 = r_2[, 1];
+  r_2_2 = r_2[, 2];
+  r_2_3 = r_2[, 3];
+  r_2_4 = r_2[, 4];
+  r_2_5 = r_2[, 5];
+  r_2_6 = r_2[, 6];
+  r_2_7 = r_2[, 7];
+  r_2_8 = r_2[, 8];
+  r_2_9 = r_2[, 9];
+  r_2_10 = r_2[, 10];
+  r_2_11 = r_2[, 11];
+  r_2_12 = r_2[, 12];
+  r_2_13 = r_2[, 13];
+  r_2_14 = r_2[, 14];
 }
 model {
   // likelihood including constants
@@ -80,17 +135,20 @@ model {
     vector[N] mu = Intercept + rep_vector(0.0, N);
     for (n in 1:N) {
       // add more terms to the linear predictor
-      mu[n] += r_1_1[J_1[n]] * Z_1_1[n] + r_1_2[J_1[n]] * Z_1_2[n] + r_1_3[J_1[n]] * Z_1_3[n] + r_1_4[J_1[n]] * Z_1_4[n] + r_1_5[J_1[n]] * Z_1_5[n] + r_1_6[J_1[n]] * Z_1_6[n] + r_1_7[J_1[n]] * Z_1_7[n] + r_1_8[J_1[n]] * Z_1_8[n];
+      mu[n] += r_1_1[J_1[n]] * Z_1_1[n] + r_1_2[J_1[n]] * Z_1_2[n] + r_1_3[J_1[n]] * Z_1_3[n] + r_1_4[J_1[n]] * Z_1_4[n] + r_1_5[J_1[n]] * Z_1_5[n] + r_1_6[J_1[n]] * Z_1_6[n] + r_1_7[J_1[n]] * Z_1_7[n] + r_1_8[J_1[n]] * Z_1_8[n] + r_2_1[J_2[n]] * Z_2_1[n] + r_2_2[J_2[n]] * Z_2_2[n] + r_2_3[J_2[n]] * Z_2_3[n] + r_2_4[J_2[n]] * Z_2_4[n] + r_2_5[J_2[n]] * Z_2_5[n] + r_2_6[J_2[n]] * Z_2_6[n] + r_2_7[J_2[n]] * Z_2_7[n] + r_2_8[J_2[n]] * Z_2_8[n] + r_2_9[J_2[n]] * Z_2_9[n] + r_2_10[J_2[n]] * Z_2_10[n] + r_2_11[J_2[n]] * Z_2_11[n] + r_2_12[J_2[n]] * Z_2_12[n] + r_2_13[J_2[n]] * Z_2_13[n] + r_2_14[J_2[n]] * Z_2_14[n];
     }
     target += normal_id_glm_lpdf(Y | Xc, mu, b, sigma);
   }
   // priors including constants
-  target += normal_lpdf(b | 0, 0.1);
-  target += student_t_lpdf(Intercept | 3, 1.6, 2.5);
-  target += exponential_lpdf(sigma | 6);
-  target += exponential_lpdf(sd_1 | 6);
+  target += normal_lpdf(b | 0, 1);
+  target += student_t_lpdf(Intercept | 3, 1.4, 2.7);
+  target += exponential_lpdf(sigma | 2);
+  target += exponential_lpdf(sd_1 | 2);
   target += std_normal_lpdf(to_vector(z_1));
-  target += lkj_corr_cholesky_lpdf(L_1 | 8);
+  target += lkj_corr_cholesky_lpdf(L_1 | 2);
+  target += exponential_lpdf(sd_2 | 2);
+  target += std_normal_lpdf(to_vector(z_2));
+  target += lkj_corr_cholesky_lpdf(L_2 | 2);
 }
 generated quantities {
   // actual population-level intercept
@@ -98,10 +156,19 @@ generated quantities {
   // compute group-level correlations
   corr_matrix[M_1] Cor_1 = multiply_lower_tri_self_transpose(L_1);
   vector<lower=-1,upper=1>[NC_1] cor_1;
+  // compute group-level correlations
+  corr_matrix[M_2] Cor_2 = multiply_lower_tri_self_transpose(L_2);
+  vector<lower=-1,upper=1>[NC_2] cor_2;
   // extract upper diagonal of correlation matrix
   for (k in 1:M_1) {
     for (j in 1:(k - 1)) {
       cor_1[choose(k - 1, 2) + j] = Cor_1[j, k];
+    }
+  }
+  // extract upper diagonal of correlation matrix
+  for (k in 1:M_2) {
+    for (j in 1:(k - 1)) {
+      cor_2[choose(k - 1, 2) + j] = Cor_2[j, k];
     }
   }
 }

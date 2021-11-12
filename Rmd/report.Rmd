@@ -531,20 +531,46 @@ elog ~ age_group + trial_type * lp * (ot1 + ot2 + ot3) +
 
 The formal implementation of this model is:
 
-$$
+**Likelihoods**:
 
+$$
 \color{white}{
-\log \Bigg( \frac{p}{n - q} \Bigg) = (\beta_{0} + \beta_{0p} + \beta_{0i}) + ... \\
-(\beta_{1} + \beta_{1p} + \beta_{1i}) \times Age_{pi} + ... \\
-(\beta_{2} + \beta_{2p} + \beta_{2i}) \times Vocabulary_{pi} + ... \\
-(\beta_{3} + \beta_{3p} + \beta_{3i})\times Condition_{pi} + ... \\
-(\beta_{4} + \beta_{4i}) \times Group_{pi} + ... \\
-(\beta_{5} + \beta_{5i}) \times (Vocabulary_{pi} \times Group_{pi}) + ... \\
-(\beta_{6} + \beta_{6i}) \times (Vocabulary_{pi} \times Condition_{pi}) + ... \\
-(\beta_{7} + \beta_{7i}) \times (Condition_{pi} \times Group_{pi}) + ... \\
-(\beta_{8} + \beta_{8i}) \times (Vocabulary_{pi} \times Group_{pi} \times Condition_{pi}) + \varepsilon_{pi}
+\Bigg( \frac{p}{n - q} \Bigg) \sim \mathcal{N}(y_{ij}, ~ \sigma^2_m)
 }
 $$
+
+**Parameters**:
+
+$$
+\color{white}{
+\begin{align}
+y_{ij} =&~ (\beta_{0} + \beta_{0p} + \beta_{0i}) ~+~ ... \\ 
+& (\beta_{1} + \beta_{1p} + \beta_{1i}) \times Age_{pi} ~+~ ... \\
+& (\beta_{2} + \beta_{2p} + \beta_{2i}) \times Vocabulary_{pi} ~ + ~ ... \\
+& (\beta_{3} + \beta_{3p} + \beta_{3i})\times Condition_{pi} ~ + ~ ... \\
+& (\beta_{4} + \beta_{4i}) \times Group_{pi} ~+~ ... \\
+& (\beta_{5} + \beta_{5i}) \times (Vocabulary_{pi} \times Group_{pi}) ~+~ ... \\
+& (\beta_{6} + \beta_{6i}) \times (Vocabulary_{pi} \times Condition_{pi}) ~+~ ... \\
+& (\beta_{7} + \beta_{7i}) \times (Condition_{pi} \times Group_{pi}) ~+~ ... \\
+& (\beta_{8} + \beta_{8i}) \times (Vocabulary_{pi} \times Group_{pi} \times Condition_{pi}) ~+~ \\ & \sigma^2_{e}
+\end{align}
+}
+$$
+
+
+**Priors**:
+
+$$
+\color{white}{
+\begin{align}
+\beta_0 \sim~ & \mathcal{N}(0, 1) \\
+\beta_{1-8} \sim~ &\mathcal{N}(0, 1) \\
+\sigma_m, ~\sigma^2,~ \sigma^2_p,~ \sigma^2_i \sim~ & exp(2) \\
+\rho \sim ~&  LKJ(2)
+\end{align}
+}
+$$
+
 
 
 #### Fixed effects

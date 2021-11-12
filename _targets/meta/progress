@@ -24,6 +24,5 @@ attrition|stem|attrition|0|skipped
 attrition_counter|stem|attrition_counter|0|skipped
 gaze|stem|gaze|0|skipped
 model_datasets|stem|model_datasets|0|skipped
-model_fits|stem|model_fits|0|started
-model_fits|stem|model_fits|0|built
+model_fits|stem|model_fits|0|skipped
 report|stem|report|0|skipped

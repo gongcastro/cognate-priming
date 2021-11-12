@@ -20,7 +20,7 @@ tar_option_set(
 		"googlesheets4", "lubridate", "httr", "data.table",
 		"purrr", "eyetrackingR", "brms", "tidybayes", "shiny",
 		"rmarkdown", "knitr", "patchwork", "scales", "ggplot2",
-		"tibble", "forcats"
+		"tibble", "forcats", "shiny"
 	)
 )
 
@@ -237,7 +237,8 @@ list(
 			fit = bf(
 				formula = logit_adjusted ~
 					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp + age_group +
-					(1 + time_bin_center*trial_type + age_group | participant),
+					(1 + time_bin_center*trial_type + age_group | participant) +
+					(1 + time_bin_center*trial_type*lp + age_group | target),
 				family = gaussian
 			)
 		)
