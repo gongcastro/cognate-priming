@@ -15,12 +15,19 @@ source("R/06_analysis.R")
 # load packages ----
 tar_option_set(
 	packages = c(
-		"dplyr", "tidyr", "stringr", "multilex", "keyring",
-		"readxl", "janitor", "childesr", "mice", "here",
-		"googlesheets4", "lubridate", "httr", "data.table",
-		"purrr", "eyetrackingR", "brms", "tidybayes", "shiny",
-		"rmarkdown", "knitr", "patchwork", "scales", "ggplot2",
-		"tibble", "forcats", "shiny"
+		# project utils
+		"targets", "tarchetypes", "here",
+		# data manipulation
+		"dplyr", "tidyr", "purrr", "stringr", "tibble", "forcats", 
+		"lubridate", "data.table", "janitor",
+		# data retrieval
+		"readxl", "janitor", "childesr", "multilex", "keyring", "googlesheets4", "httr",
+		# modelling
+		"eyetrackingR", "brms", "tidybayes", "emmeans", "mice", 
+		# data visualisation
+		"ggplot2", "shiny", "patchwork", "shiny",
+		# data reporting
+		"rmarkdown", "knitr", "papaja", "scales", "DiagrammeR", "gt"
 	)
 )
 
@@ -236,13 +243,14 @@ list(
 			# this model includes all data and all predictors of interest
 			fit = bf(
 				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp + age_group +
-					(1 + time_bin_center*trial_type + age_group | participant) +
-					(1 + time_bin_center*trial_type*lp + age_group | target),
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
+					(1 + time_bin_center*trial_type*age_group | participant) +
+					(1 + time_bin_center*trial_type*lp*age_group | target),
 				family = gaussian
 			)
 		)
 	),
+	
 	# define the dataset corresponding to each model (same order as in previous target)
 	tar_target(
 		model_datasets,
@@ -261,8 +269,9 @@ list(
 	),
 
 	# render report.Rmd with the updated model fits
-	tar_render(report, "Rmd/report.Rmd")
-	
+	tar_render(report, "Rmd/report.Rmd"),
+	tar_render(communications_lacre, "Communications/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd"),
+	tar_render(communications_icis, "Communications/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
 )
 
 
