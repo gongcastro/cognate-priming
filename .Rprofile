@@ -3,7 +3,24 @@ source("renv/activate.R")
 library(targets)
 
 make <- function() {
-	job::job({{ targets::tar_make() }}, title = "Cognate Priming")
+	job::job(
+		{{ 
+			targets::tar_make()
+			job::export("none")  # return nothing
+		}}, 
+		import = NULL,
+		title = "Cognate Priming"
+		
+	)
+}
+
+unmake <- function() {
+	path <- "Results/fit.rds"
+	tar_destroy(ask = FALSE)
+	if (file.exists(path)) {
+		file.remove(path)
+	}
+	"Removed project outputs!"
 }
 
 message('Welcome! To execute the repository, 1) run renv::restore(), 2) and then make() in your R console.')
