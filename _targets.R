@@ -15,11 +15,19 @@ source("R/06_analysis.R")
 # load packages ----
 tar_option_set(
 	packages = c(
-		"dplyr", "tidyr", "stringr", "multilex", "keyring",
-		"readxl", "janitor", "childesr", "mice", "here",
-		"googlesheets4", "lubridate", "httr", "data.table",
-		"purrr", "eyetrackingR", "lme4", "lmerTest", "shiny",
-		"rmarkdown", "knitr", "broom.mixed", "patchwork", "scales"
+		# project utils
+		"targets", "tarchetypes", "here",
+		# data manipulation
+		"dplyr", "tidyr", "purrr", "stringr", "tibble", "forcats", 
+		"lubridate", "data.table", "janitor",
+		# data retrieval
+		"readxl", "janitor", "childesr", "multilex", "keyring", "googlesheets4", "httr",
+		# modelling
+		"eyetrackingR", "brms", "tidybayes", "emmeans", "mice", 
+		# data visualisation
+		"ggplot2", "shiny", "patchwork", "shiny",
+		# data reporting
+		"rmarkdown", "knitr", "papaja", "scales", "DiagrammeR", "gt"
 	)
 )
 
@@ -182,29 +190,8 @@ list(
 	
 	# attrition data ----
 	# see R/04_attrition.R for details on this function
-	# stringent version
 	tar_target(
 		attrition,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			# minimum looking time to each picture for valid trial
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), 
-			# minimum number of valid trials in each condition for valid participant
-			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2),
-			# what words should the participant know for valid trial?
-			filter_vocabulary = c("prime", "target"),
-			# should target-distractor counterbalancing pairs we filtered out together?
-			# e.g. if TRUE, cat-balloon removed (even if valid) if balloon-cat is not valid
-			filter_counterbalancing = FALSE
-		)
-	),
-	# relaxed version
-	# same function, different argument values (less stringent version)
-	tar_target(
-		attrition_relaxed,
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
@@ -216,23 +203,8 @@ list(
 			filter_counterbalancing = FALSE
 		)
 	),
-	# stringent version with filter_counterbalancing = TRUE
 	tar_target(
 		attrition_counter,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
-			missing_trials_threshold = c(cognate = 2, noncognate = 2, unrelated = 2), # minimum n trials in each condition
-			filter_counterbalancing = TRUE,
-			filter_vocabulary = c("prime", "target")
-		)
-	),
-	# relaxed version with filter_counterbalancing = TRUE
-	tar_target(
-		attrition_relaxed_counter,
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
@@ -260,18 +232,6 @@ list(
 			attrition = attrition
 		)
 	),
-	# relaxed version
-	tar_target(
-		gaze_relaxed,
-		prepare_data(
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			participants = participants,
-			stimuli = stimuli, 
-			vocabulary = vocabulary,
-			attrition = attrition_relaxed
-		)
-	),
 	
 	# fit models ----
 	# see R/06_analysis.R for details on the fit_models() function
@@ -281,6 +241,7 @@ list(
 		model_formulas,
 		list(
 			# this model includes all data and all predictors of interest
+<<<<<<< HEAD
 			fit = "elog ~ age_group + trial_type*lp*(ot1+ot2) + (1+ot1+ot2+ot3+trial_type+age_group | participant)",
 			# this model includes only data from 21 monolingual participants
 			fit_21_mon = "elog ~  trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
@@ -298,13 +259,23 @@ list(
 			# this model includes only data from 21 and 25 monolingual participants and vocabulary in L1 as predictor (median split)
 			fit_2125_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
 			fit_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+age_group | participant)"
+=======
+			fit = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
+					(1 + time_bin_center*trial_type*age_group | participant) +
+					(1 + time_bin_center*trial_type*lp*age_group | target),
+				family = gaussian
+			)
+>>>>>>> 3c13b467d76a7b9ef473bb6d774f6bcbd72bc289
 		)
 	),
+	
 	# define the dataset corresponding to each model (same order as in previous target)
-	# stringent inclusion criteria
 	tar_target(
 		model_datasets,
 		list(
+<<<<<<< HEAD
 			fit = gaze,
 			fit_21_mon = gaze %>%
 				filter(age_group=="21 months", lp=="Monolingual"),
@@ -367,9 +338,12 @@ list(
 				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
 			fit_mon = gaze %>%
 				filter(lp=="Monolingual")
+=======
+			fit = gaze
+>>>>>>> 3c13b467d76a7b9ef473bb6d774f6bcbd72bc289
 		)
-		
 	),
+<<<<<<< HEAD
 	# same datasets, but applying the relaxed inclusion criteria
 	tar_target(
 		model_datasets_relaxed,
@@ -437,22 +411,22 @@ list(
 	),
 	
 	# fit models (stringent criteria)
+=======
+>>>>>>> 3c13b467d76a7b9ef473bb6d774f6bcbd72bc289
 	tar_target(
 		model_fits,
 		fit_models(
 			formulas = model_formulas,
-			datasets = model_datasets
+			datasets = model_datasets, 
+			file = here("Results", "fit.rds"),
+			save_model = here("Stan", "fit.stan")
 		)
 	),
-	# fit model (relaxed criteria)
-	tar_target(
-		model_fits_relaxed,
-		fit_models(
-			formulas = model_formulas,
-			datasets = model_datasets_relaxed
-		)
-	),
+
 	# render report.Rmd with the updated model fits
-	tar_render(report, "Rmd/report.Rmd")
-	
+	tar_render(report, "Rmd/report.Rmd"),
+	tar_render(communications_lacre, "Communications/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd"),
+	tar_render(communications_icis, "Communications/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
 )
+
+

@@ -1,0 +1,99 @@
+---
+title: "ICIS 2022: abstract"
+author: "Gonzalo Garcia-Castro"
+date: "07/07/2022"
+output: 
+  word_document: 
+    reference_docx: "manuscript_template.docx"
+bibliography: "../../references.bib"
+csl: "../../apa7.csl"
+---
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE, 
+	dpi = 800
+)
+
+tar_load_globals()
+tar_load(participants)
+tar_load(gaze)
+tar_load(attrition)
+tar_load(vocabulary)
+tar_load(model_fits)
+
+theme_set(theme_custom())
+
+participants <- participants %>% 
+	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
+	drop_na(participant) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
+
+coefs <- fixef(model_fits$fit) %>%
+	as.data.frame() %>% 
+	clean_names()
+
+emmean <- emmeans(
+	model_fits$fit,
+	~trial_type, 
+	by = "lp",
+	epred = TRUE
+) %>% 
+	as_tibble() %>% 
+	mutate_if(is.numeric, inv_logit_scaled)
+
+```
+
+
+Previous studies have provided evidence that lexical access is language non-selective in bilinguals: recognising and producing words in one language activates lexical representations of words in the other language [e.g., @costa2000cognate; @thierry2007brain]. It has been suggested that this parallel activation is already present during toddlerhood [@von2012language; @jardak2019labels], but it is unclear how it impacts the developing lexicon. In the present study, we tested Catalan-Spanish and English-Spanish bilinguals in a word recognition task, in which they were presented with words in their dominant language exclusively. In each trial, two pictures were presented side-by-side and one of them was named (target picture). Participants' visual preference for the named picture was taken as an indicator of word recognition. Each pair of pictures was preceded by the presentation of a silent image (prime picture). We designed three types of trials: trials in which prime and target labels shared phonological onset and the prime label was a cognate (cognate trials; e.g., *flower*-*flor* / *bird*, for an English-Spanish participant), trials where prime and target labels shared phonological onset but the prime label was a non-cognate (non-cognate trials; e.g., *chair*-*silla* / *bird*), and trials where prime and target labels did not share phonological onset (unrelated trials; *car*-*coche* / *bird*).
+
+In line with previous studies, we expected participants to generate implicit labels for the prime pictures, which should interfere with target word recognition when both words share phonological onset [e.g., @mani2010infant]. Additionally, under the hypothesis that bilingual participants would activate labels for the prime pictures in both languages, we predicted that interference would be stronger after cognate primes (labels from both languages share phonological overlap with target word recognition) than after non-cognate primes (only the label in the target language share phonological overlap with target word recognition). We tested bilinguals (*n* = `r length(unique(model_fits$fit$data[model_fits$fit$data$lp=="Bilingual",]$participant))`) and same-aged monolingual controls, *n* = `r length(unique(model_fits$fit$data[model_fits$fit$data$lp=="Monolingual",]$participant))`) at three age points (21, 25, and 30 months) to investigate how any cross-language priming effect emerged or changed across these ages.
+
+Preliminary results (data collection is ongoing) from a Bayesian Growth Curve Analysis suggest that bilinguals' proportion target looking (PTL) did not differ across the cognate (`r percent(emmean$emmean[1], accuracy = 0.01)`, 95% *HPD* = [`r printnum(emmean$lower.HPD[1]*100)`, `r printnum(emmean$upper.HPD[1]*100)`]), non-cognate (`r percent(emmean$emmean[2], accuracy = 0.01)`, 95% *HPD* = [`r printnum(emmean$lower.HPD[2]*100)`, `r printnum(emmean$upper.HPD[2]*100)`]), or unrelated (`r percent(emmean$emmean[3], accuracy = 0.01)`, 95% *HPD* = [`r printnum(emmean$lower.HPD[3]*100)`, `r printnum(emmean$upper.HPD[3]*100)`]) priming conditions. Surprisingly, monolinguals' preference for the target picture was stronger after non-cognate primes (`r percent(emmean$emmean[5], accuracy = 0.01)`, 95% *HPD* = [`r printnum(emmean$lower.HPD[5]*100)`, `r printnum(emmean$upper.HPD[5]*100)`]) and unrelated primes (`r percent(emmean$emmean[6], accuracy = 0.01)`, 95% *HPD* = [`r printnum(emmean$lower.HPD[6]*100)`, `r printnum(emmean$upper.HPD[6]*100)`]) compared to cognate primes (`r percent(emmean$emmean[4], accuracy = 0.01)`, 95% *HPD* = [`r printnum(emmean$lower.HPD[1]*100)`, `r printnum(emmean$upper.HPD[1]*100)`]). This suggests that contrary to our predictions, monolinguals were sensitive to both phonological priming and cognateness. This effect survived after adjusting for potential confounders such as lexical frequency, age of acquisition or object animacy. We present these results along with exploratory analyses addressing the puzzling pattern of results we observed. 
+
+
+```{r results, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, out.width="100%", fig.height=4, fig.width=8}
+sample_size <- participants %>% 
+	filter(valid_participant) %>% 
+	count(lp, age_group)
+
+n <- expand_grid(
+	lp = c("Monolingual", "Bilingual"),
+	age_group = paste(c(21, 25, 30), "months"),
+	trial_type = unique(gaze$trial_type),
+	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.5)
+)
+
+m <- epred_draws(object = model_fits$fit, newdata = n, ndraws = 50, re_formula = NA) %>% 
+	mutate(.value = logit_to_prob(.epred))
+
+ggplot(m, aes(time_bin_center, .value)) +
+	facet_grid(fct_rev(lp)~age_group) +
+	geom_hline(yintercept = 0.5, colour = "black") +
+	geom_line(aes(group = interaction(age_group, trial_type, lp, .draw),
+				  colour = trial_type),
+			  alpha = 0.1, size = 0.45) +
+	stat_summary(aes(group = trial_type),
+				 fun = mean, geom = "line", size = 1.1, colour = "white") +
+	stat_summary(aes(group = trial_type, colour = trial_type),
+				 fun = mean, geom = "line", size = 1) +
+	geom_text(data = sample_size, aes(x = min(gaze$time_bin_center), y = 0.95, label = paste0("N = ", n)),
+			  colour = "white", hjust = 0, size = 5) +
+	labs(x = "Time (ms)", y = "Expected posterior PTLT", colour = "Trial type",
+		 fill = "Trial type", shape = "Trial type", linetype = "Trial type") +
+	scale_color_manual(values = c("#00AFBB", "#E7B800", "#FC4E07")) +
+	scale_x_continuous(breaks = seq(-7, 7, 3.5), labels = seq(0, 1400, 350)) +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		legend.key = element_rect(fill = "white", colour = NA),
+		axis.text.x = element_text(size = 9),
+		axis.text.y = element_text(size = 9),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.x = element_blank()
+	)
+```

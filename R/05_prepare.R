@@ -22,7 +22,7 @@ prepare_data <- function(
 			bind_rows(.id = "location") %>% 
 			# to avoid issues with column names
 			rename(time_stamp = time) %>% 
-			left_join(attrition) %>%
+			left_join(attrition) %>% 
 			left_join(vocabulary) %>% 
 			filter(phase=="Target-Distractor", valid_trial, valid_participant) %>% 
 			select(
@@ -31,7 +31,7 @@ prepare_data <- function(
 				vocab_size_total, vocab_size_l1, vocab_size_conceptual
 			) %>% 
 			drop_na(trial) %>% 
-			left_join(select(participants, age_group, participant, participant_unique))
+			left_join(participants)
 		
 		# to eyetrackingR format
 		gaze <- clean %>% 
@@ -66,7 +66,11 @@ prepare_data <- function(
 				prime, target, trial, trial_type,
 				time_bin, ot1, ot2, ot3, prop, weights, elog, logit_adjusted
 			) %>%
-			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor)
+			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor) %>% 
+			mutate(
+				time_bin_center = scale(time_bin, scale = FALSE)[,1],
+				vocab_size_l1_center = scale(vocab_size_l1_center)[,1]
+			)
 		
 		# set a prior contrasts and orthogonal polynomials
 		contrasts(gaze$lp) <- c(0.5, -0.5)
