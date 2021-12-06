@@ -1,8 +1,6 @@
 ---
 title: "Cognate Priming: Report"
-output:
-  github_document:
-    pandoc_args: --webtex
+output: html_document
 always_allow_html: true
 date: "`r paste0('Updated: ', format(Sys.Date(), '%d/%m/%Y'))`"
 ---
@@ -15,7 +13,7 @@ knitr::opts_chunk$set(
 	cache.extra = knitr::rand_seed,
 	out.width = "80%",
 	results = "asis",
-	dpi = 25,
+	dpi = 300,
 	dev.args = list(png = list(type = "cairo"))
 )
 options(
@@ -31,26 +29,6 @@ options(
 
 ```{r params, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-# load packages
-library(targets)
-library(papaja)
-library(knitr)
-library(tidyverse)
-library(lubridate)
-library(scales)
-library(DiagrammeR)
-library(janitor)
-library(gt)
-library(patchwork)
-library(wesanderson)
-library(shiny)
-library(tidybayes)
-library(brms)
-library(tidytext)
-library(brms)
-library(tidyverse)
-library(here)
-
 # load objects
 tar_load_globals()
 tar_load(participants)
@@ -61,7 +39,7 @@ tar_load(attrition)
 tar_load(attrition_counter)
 tar_load(model_fits)
 
-theme_set(theme_github()) # in utils.R
+theme_set(theme_minimal()) # in utils.R
 ```
 
 
@@ -159,7 +137,7 @@ participants %>%
 	ggplot(aes(lp, fill = as.factor(test_language))) +
 	facet_grid(location~age_group, scales = "free") +
 	geom_bar(colour = NA) +
-	geom_hline(yintercept = 24, linetype = "dashed", colour = "white") +
+	geom_hline(yintercept = 24, linetype = "dashed", colour = "black") +
 	labs(x = "Group", y = "Sample size", fill = "Test language") +
 	theme(
 		legend.position = "top",
@@ -534,15 +512,12 @@ The formal implementation of this model is:
 **Likelihoods**:
 
 $$
-\color{white}{
 \Bigg( \frac{p}{n - q} \Bigg) \sim \mathcal{N}(y_{ij}, ~ \sigma^2_m)
-}
 $$
 
 **Parameters**:
 
 $$
-\color{white}{
 \begin{align}
 y_{ij} =&~ (\beta_{0} + \beta_{0p} + \beta_{0i}) ~+~ ... \\ 
 & (\beta_{1} + \beta_{1p} + \beta_{1i}) \times Age_{pi} ~+~ ... \\
@@ -554,21 +529,18 @@ y_{ij} =&~ (\beta_{0} + \beta_{0p} + \beta_{0i}) ~+~ ... \\
 & (\beta_{7} + \beta_{7i}) \times (Condition_{pi} \times Group_{pi}) ~+~ ... \\
 & (\beta_{8} + \beta_{8i}) \times (Vocabulary_{pi} \times Group_{pi} \times Condition_{pi}) ~+~ \\ & \sigma^2_{e}
 \end{align}
-}
 $$
 
 
 **Priors**:
 
 $$
-\color{white}{
 \begin{align}
 \beta_0 \sim~ & \mathcal{N}(0, 1) \\
 \beta_{1-8} \sim~ &\mathcal{N}(0, 1) \\
 \sigma_m, ~\sigma^2,~ \sigma^2_p,~ \sigma^2_i \sim~ & exp(2) \\
 \rho \sim ~&  LKJ(2)
 \end{align}
-}
 $$
 
 
@@ -640,8 +612,8 @@ draws %>%
 	filter(!str_detect(.variable, "time_bin|sigma")) %>% 
 	mutate(.value = ifelse(.variable=="b_Intercept", inv_logit_scaled(.value), .value/4)) %>% 
 	ggplot(aes(.value, .variable, fill = stat(cut_cdf_qi(cdf, labels = percent, .width = c(0.50, 0.80, 0.95))))) +
-	geom_vline(xintercept = 0, colour = "white") +
-	stat_halfeye(point_color = "white", interval_color = "white") +
+	geom_vline(xintercept = 0, colour = "black") +
+	stat_halfeye(point_color = "black", interval_color = "black") +
 	labs(x = "Value", y = "Variable", fill = "CrI") +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
 	theme(
@@ -680,26 +652,51 @@ vcov(fit) %>%
 
 #### Marginal means {.tabset }
 
-##### Overall
+##### Marginal to time course
+
+```{r gaze_marginal, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+m <- emmeans(fit, ~trial_type:lp, by = "age_group", epred = TRUE) %>% 
+	as_tibble() %>% 
+	clean_names() %>% 
+	mutate_at(vars(emmean:upper_hpd), function(x) ifelse(x < 0, 0, x)) %>% 
+	mutate_at(vars(emmean:upper_hpd), function(x) ifelse(x > 1, 1, x))
+
+ggplot(m, aes(age_group, emmean, ymin = lower_hpd, ymax = upper_hpd, colour = trial_type)) +
+	facet_wrap(~lp, ncol = 1) +
+	# geom_line(aes(group = trial_type), size = 1, position = position_dodge(width = 0.25)) +
+	geom_errorbar(size = 1, width = 0, position = position_dodge(width = 0.25)) +
+	geom_point(size = 4, position = position_dodge(width = 0.25)) +
+	labs(x = "Age (months))", y = "P(target)", colour = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent)  +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "top"
+	)
+
+
+```
+
+##### Time course
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 sample_size <- participants %>% 
 	filter(valid_participant) %>% 
-	count(lp)
+	count(lp, age_group)
 
 n <- expand_grid(
 	lp = c("Monolingual", "Bilingual"),
-	age_group = c("25 months"),
+	age_group = paste(c(21, 25, 30), "months"),
 	trial_type = unique(gaze$trial_type),
 	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.5)
 )
 
-m <- epred_draws(object = fit, newdata = n, ndraws = 20, re_formula = NA) %>% 
+m <- epred_draws(object = fit, newdata = n, ndraws = 50, re_formula = NA) %>% 
 	mutate(.value = logit_to_prob(.epred))
 
 ggplot(m, aes(time_bin_center, .value)) +
-	facet_wrap(~fct_rev(lp)) +
-	geom_hline(yintercept = 0.5, colour = "white") +
+	facet_grid(fct_rev(lp)~age_group) +
+	geom_hline(yintercept = 0.5, colour = "black") +
 	geom_line(aes(group = interaction(age_group, trial_type, lp, .draw),
 				  colour = trial_type),
 			  alpha = 0.15, size = 0.65) +
@@ -724,8 +721,6 @@ ggplot(m, aes(time_bin_center, .value)) +
 		panel.grid.minor.x = element_blank()
 	)
 ```
-
-
 
 ##### {-}
 
