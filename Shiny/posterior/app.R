@@ -45,11 +45,11 @@ preds_participant <- add_epred_draws(
     mutate(.epred = inv_logit_scaled(.epred)) %>% 
     ungroup() %>% 
     group_split(participant) %>% 
-    set_names(unique(d$participant))
+    set_names(unique(unlist(map(., "participant"))))
 
 coefs_participant <- gather_draws(fit, r_participant[participant, param]) %>% 
     ungroup() %>% 
-    group_split(participant) %>% 
+    group_split(participant) %>%  
     set_names(unique(d$participant))
 
 # conditional means by target
