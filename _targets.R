@@ -241,25 +241,6 @@ list(
 		model_formulas,
 		list(
 			# this model includes all data and all predictors of interest
-<<<<<<< HEAD
-			fit = "elog ~ age_group + trial_type*lp*(ot1+ot2) + (1+ot1+ot2+ot3+trial_type+age_group | participant)",
-			# this model includes only data from 21 monolingual participants
-			fit_21_mon = "elog ~  trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
-			# this model includes only data from 21 monolingual participants and the location predictor (Barcelona vs. Oxford)
-			fit_21_mon_location = "elog ~ trial_type*location*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
-			# this model includes only data from 21 monolingual participants and vocabulary in L1 as predictor (median split)
-			fit_21_mon_vocab_split = "elog ~ trial_type*vocab_cat*(ot1+ot2+ot3) + (1+ot1+ot2 | participant)",
-			# this model includes only data from 21 monolingual participants and
-			# only data from the 15 Oxford participants with the lowest vocabulary size,
-			# and 15 Barcelona participants with the highest vocabulary size
-			# we did this because participants in Oxford had higher L1 vocabulary sizes at the time
-			fit_21_mon_vocab_balanced = "elog ~ trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3 | participant)",
-			# 21 mo monolinguals with median split on frequency
-			fit_21_mon_frequency = "elog ~ trial_type*frequency_target_childes_cat*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+frequency_target_childes_cat | participant)",
-			# this model includes only data from 21 and 25 monolingual participants and vocabulary in L1 as predictor (median split)
-			fit_2125_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type | participant)",
-			fit_mon = "elog ~ age_group*trial_type*(ot1+ot2+ot3) + (1+ot1+ot2+ot3+trial_type+age_group | participant)"
-=======
 			fit = bf(
 				formula = logit_adjusted ~
 					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
@@ -267,7 +248,6 @@ list(
 					(1 + time_bin_center*trial_type*lp*age_group | target),
 				family = gaussian
 			)
->>>>>>> 3c13b467d76a7b9ef473bb6d774f6bcbd72bc289
 		)
 	),
 	
@@ -275,144 +255,11 @@ list(
 	tar_target(
 		model_datasets,
 		list(
-<<<<<<< HEAD
-			fit = gaze,
-			fit_21_mon = gaze %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_location = gaze %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_vocab_split = gaze %>%
-				filter(age_group=="21 months", lp=="Monolingual") %>%
-				# vocabulary in L1 median split
-				mutate(
-					vocab_cat = ifelse(
-						vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
-						"Above median", 
-						"Below median"
-					)
-				) %>% 
-				mutate_at(vars(vocab_cat, location), as.factor),
-			fit_21_mon_vocab_balanced = gaze %>%
-				filter(
-					age_group=="21 months",
-					lp=="Monolingual",
-					participant %in% {
-						participants %>%
-							left_join(vocabulary) %>% 
-							drop_na(vocab_size_l1) %>% 
-							filter(age_group=="21 months", lp=="Monolingual") %>% 
-							arrange(location, desc(vocab_size_l1)) %>% 
-							group_by(location) %>% 
-							mutate(vocab_index = row_number()) %>% 
-							ungroup() %>% 
-							# get 15 highest in Barcelona and 15 lowest in Oxford
-							filter(
-								((location=="Barcelona") & (vocab_index %in% 1:15)) |
-									((location=="Oxford")) & (vocab_index %in% seq(
-										max(vocab_index[location=="Oxford"])-15,
-										max(vocab_index[location=="Oxford"]))
-									)
-							) %>%
-							pull(participant)
-					}
-				),
-			fit_21_mon_frequency = gaze %>%
-				filter(
-					age_group=="21 months",
-					lp=="Monolingual"
-				) %>% 
-				left_join(
-					distinct(stimuli, target_cdi, frequency_target_childes) %>% 
-						mutate(
-							frequency_target_childes_cat = ifelse(
-								frequency_target_childes-median(.$frequency_target_childes) > 0,
-								"> Median frequency", "<= Median frequency"
-							) %>% as.factor()
-						) %>% 
-						do({function(x) {contrasts(x$frequency_target_childes_cat) <- c(-0.5, 0.5); return(x)}}(.)),
-					c("target" = "target_cdi")
-				),
-			fit_2125_mon = gaze %>%
-				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
-				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
-				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
-			fit_mon = gaze %>%
-				filter(lp=="Monolingual")
-=======
 			fit = gaze
->>>>>>> 3c13b467d76a7b9ef473bb6d774f6bcbd72bc289
-		)
-	),
-<<<<<<< HEAD
-	# same datasets, but applying the relaxed inclusion criteria
-	tar_target(
-		model_datasets_relaxed,
-		list(
-			fit_relaxed = gaze_relaxed,
-			fit_21_mon_relaxed = gaze_relaxed %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_location_relaxed = gaze_relaxed %>%
-				filter(age_group=="21 months", lp=="Monolingual"),
-			fit_21_mon_vocab_split_relaxed = gaze_relaxed %>%
-				filter(age_group=="21 months", lp=="Monolingual") %>%
-				mutate(
-					vocab_cat = ifelse(
-						vocab_size_l1_center > median(distinct(gaze_relaxed, participant, vocab_size_l1_center)$vocab_size_l1_center, na.rm = TRUE), 
-						"Above median", 
-						"Below median"
-					)) %>% 
-				mutate_at(vars(vocab_cat, location), as.factor),
-			fit_21_mon_vocab_balanced_relaxed = gaze_relaxed %>%
-				filter(
-					age_group=="21 months",
-					lp=="Monolingual",
-					participant %in% {
-						participants %>%
-							left_join(vocabulary) %>% 
-							drop_na(vocab_size_l1) %>% 
-							filter(age_group=="21 months", lp=="Monolingual") %>% 
-							arrange(location, desc(vocab_size_l1)) %>% 
-							group_by(location) %>% 
-							mutate(vocab_index = row_number()) %>% 
-							ungroup() %>% 
-							filter(
-								((location=="Barcelona") & (vocab_index %in% 1:15)) |
-									((location=="Oxford")) & (vocab_index %in% seq(
-										max(vocab_index[location=="Oxford"])-15,
-										max(vocab_index[location=="Oxford"]))
-									)
-							) %>%
-							pull(participant)
-					}
-				),
-			fit_21_mon_frequency = gaze_relaxed %>%
-				filter(
-					age_group=="21 months",
-					lp=="Monolingual"
-				) %>% 
-				left_join(
-					distinct(stimuli, target_cdi, frequency_target_childes) %>% 
-						mutate(
-							frequency_target_childes_cat = ifelse(
-								frequency_target_childes-median(.$frequency_target_childes) > 0,
-								"> Median frequency", "<= Median frequency"
-							) %>% as.factor()
-						) %>% 
-						do({function(x) {contrasts(x$frequency_target_childes_cat) <- c(-0.5, 0.5); return(x)}}(.)),
-					c("target" = "target_cdi")
-				),
-			fit_2125_mon = gaze_relaxed %>%
-				filter(age_group %in% c("21 months", "25 months"), lp=="Monolingual") %>% 
-				mutate(age_group = factor(age_group, levels = c("21 months", "25 months"))) %>% 
-				do({function(x) {contrasts(x$age_group) <- c(-0.5, 0.5); return(x)}}(.)),
-			fit_mon = gaze_relaxed %>%
-				filter(lp=="Monolingual")
 		)
 	),
 	
 	# fit models (stringent criteria)
-=======
->>>>>>> 3c13b467d76a7b9ef473bb6d774f6bcbd72bc289
 	tar_target(
 		model_fits,
 		fit_models(
@@ -421,6 +268,24 @@ list(
 			file = here("Results", "fit.rds"),
 			save_model = here("Stan", "fit.stan")
 		)
+	),
+	
+	# fit models
+	tar_target(
+		posterior_draws,
+		get_posterior_draws(model_fits$fit)
+	),
+	
+	# expected predictions
+	tar_target(
+		epreds,
+		get_epreds(model_fits$fit, gaze = gaze)
+	),
+	
+	# emmeans by LP
+	tar_target(
+		emmeans_lp,
+		get_emmeans(model_fits$fit, by = "lp")
 	),
 
 	# render report.Rmd with the updated model fits

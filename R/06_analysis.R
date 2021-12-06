@@ -28,4 +28,37 @@ fit_models <- function(
 	
 	return(fits)
 }
-                
+
+# get posterior draws for population-level effects
+get_posterior_draws <- function(fit){
+	post <- gather_draws(fit, `b_.*`, regex = TRUE)
+	return(post)
+}
+
+# get expected predictions
+get_epreds <- function(fit, gaze, transform = TRUE){
+	n <- expand_grid(
+		lp = c("Monolingual", "Bilingual"),
+		age_group = paste(c(21, 25, 30), "months"),
+		trial_type = unique(gaze$trial_type),
+		time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.5)
+	)
+	
+	m <- epred_draws(object = fit, newdata = n, ndraws = 50, re_formula = NA)
+	
+	if (transform) m$.epred <- logit_to_prob(m$.epred)
+
+	return(m)
+}
+
+
+# get marginal means
+get_emmeans <- function(fit, ...){
+	
+	emmean <- emmeans(fit, ~trial_type, epred = TRUE, ...) %>% 
+		as_tibble() %>% 
+		mutate_if(is.numeric, inv_logit_scaled)
+	
+	return(emmean)
+}
+
