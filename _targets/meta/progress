@@ -10,6 +10,7 @@ credentials|stem|credentials|0|skipped
 trials_path|stem|trials_path|0|skipped
 model_formulas|stem|model_formulas|0|skipped
 gaze_bcn_paths|stem|gaze_bcn_paths|0|skipped
+communications_lacre|stem|communications_lacre|0|skipped
 vocabulary_oxf|stem|vocabulary_oxf|0|skipped
 stimuli_english|stem|stimuli_english|0|skipped
 participants_oxf|stem|participants_oxf|0|skipped
@@ -25,4 +26,6 @@ attrition_counter|stem|attrition_counter|0|skipped
 gaze|stem|gaze|0|skipped
 model_datasets|stem|model_datasets|0|skipped
 model_fits|stem|model_fits|0|skipped
+communications_icis|stem|communications_icis|0|started
+communications_icis|stem|communications_icis|0|built
 report|stem|report|0|skipped
