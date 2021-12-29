@@ -1,0 +1,155 @@
+---
+title: "Analysis"
+output: github_document
+always_allow_html: true
+date: "`r paste0('Updated: ', format(Sys.Date(), '%d/%m/%Y'))`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = TRUE,
+	warning = TRUE, 
+	cache.extra = knitr::rand_seed,
+	out.width = "80%",
+	results = "asis",
+	dpi = 300,
+	dev.args = list(png = list(type = "cairo"))
+)
+options(
+	knitr.kable.NA = '-',
+	knitr.duplicate.label = "allow",
+	ggplot2.discrete.fill = ggsci::pal_tron("legacy")(7),
+	ggplot2.discrete.colour = ggsci::pal_tron("legacy")(7)
+)
+
+
+```
+
+
+```{r params, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+# load objects
+tar_load_globals()
+tar_load(gaze)
+
+theme_set(theme_minimal()) # in utils.R
+```
+
+
+# Gaze data {.tabset .tabset-pills}
+
+Each trial was divided into 100 ms time bins. for each time bin, the proportion of  target fixations were calculated, from the total of fixations to the target, distractor and the rest of the screen for that same time bin. Proportions were then aggregated across trials for each time bin and participants, so that each participant contributed with 20 data points (one for each time bin) for each trial type (cognate, non-cognate, and unrelated).
+
+## Workflow
+
+```{r workflow_preprocessing, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle, fontname = 'Arial']        
+  rec1 [label = 'Merge Barcelona and Oxford data']
+  rec2 [label = 'Impute missing/invalid samples (pending)']
+  rec2 [label = 'Extract fixations (pending)']
+  rec3 [label = 'For each sample, evaluate if gaze is in target or distractor']
+  rec4 [label = 'Divide each trial into 100 ms time bins']
+  rec5 [label = 'Aggregate samples from the same time bin and calculate\nthe number of valid samples in target, distractor, or none']
+  rec6 [label = 'Exclude time bins 1-3 (pending)']
+  rec7 [label = 'Apply trial-level inclusion criteria']
+  rec8 [label = 'Apply participant-level inclusion criteria']
+
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6 -> rec7 -> rec8
+  }", 
+  height = 500)
+```
+
+
+## Inclusion criteria
+
+### Trial-level inclusion criteria
+
+* $\geq$ 50% or more valid samples during prime phase (1,500 ms)
+* $\geq$ 50% or more valid samples during target-distractor phase (2,000 ms)
+* At least one sample in target and one sample in distractor
+* Participant understands prime word in both languages
+* Participant knows the target word in the test language
+* Participant knows the distractor word in the test language
+
+### Participant-level inclusion criteria
+
+* $\geq$ 4 trials in *Cognate* condition (50%, from a total of 8)
+* $\geq$ 4 trials in *Non-cognate* condition (50%, from a total of 8)
+* $\geq$ 8 trials in *Unrelated* condition (50%, from a total of 16)
+* $\geq$ 36 gestational weeks
+* $\geq$ 2,800g birth weight
+* No diagnosed developmental, hearing, or visual disorders
+* Not exposed to more than 10% to a 3rd language
+
+
+### Input variables
+
+* Linear (`ot1`), quadratic (`ot2`), and cubic (`ot3`) orthogonal polynomials of the time domain [@mirman2014growth].
+* Language profile (`lp`). Categorical predictor with two levels: *Monolingual* and *Bilingual*. Sum coded as *Monolingual* = -0.5, *Bilingual* = +0.5.
+* Trial type (`trial_type1` and `trial_type2`). Categorical predictor with three levels: *Cognate*, *Non-cognate*, and *Unrelated*. We coded two contrasts: `trial_type1`, comparing related trials vs. unrelated trials (*Cognate* + *Non-cognate* vs. *Unrelated*), and `trial_type2`, comparing *Cognate* vs. *Non-cognate* trials. These contrasts were sum-coded (see next table for a summary of the contrast coding) [@schad2018capitalize].
+
+
+```{r contrasts, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+contrasts(gaze$trial_type) %>% 
+	as.data.frame() %>% 
+	set_names(paste0("trial_type", 1:2)) %>% 
+	rownames_to_column("level") %>% 
+	gt(rowname_col = "level") %>%
+	as_raw_html()
+
+```
+
+
+
+# Model
+
+We fit a multilevel regression model using the `lmer` function of the `lme4` package, used the following formula:
+
+```
+elog ~ age_group + trial_type * lp * (ot1 + ot2 + ot3) +
+(1 + ot1 + ot2 + ot3 + trial_type + age_group | participant)
+```
+
+The formal implementation of this model is:
+
+**Likelihoods**:
+
+$$
+\Bigg( \frac{p}{n - q} \Bigg) \sim \mathcal{N}(y_{ij}, ~ \sigma^2_m)
+$$
+
+**Parameters**:
+
+$$
+\begin{align}
+y_{ij} =&~ (\beta_{0} + \beta_{0p} + \beta_{0i}) ~+~ ... \\ 
+& (\beta_{1} + \beta_{1p} + \beta_{1i}) \times Age_{pi} ~+~ ... \\
+& (\beta_{2} + \beta_{2p} + \beta_{2i}) \times Vocabulary_{pi} ~ + ~ ... \\
+& (\beta_{3} + \beta_{3p} + \beta_{3i})\times Condition_{pi} ~ + ~ ... \\
+& (\beta_{4} + \beta_{4i}) \times Group_{pi} ~+~ ... \\
+& (\beta_{5} + \beta_{5i}) \times (Vocabulary_{pi} \times Group_{pi}) ~+~ ... \\
+& (\beta_{6} + \beta_{6i}) \times (Vocabulary_{pi} \times Condition_{pi}) ~+~ ... \\
+& (\beta_{7} + \beta_{7i}) \times (Condition_{pi} \times Group_{pi}) ~+~ ... \\
+& (\beta_{8} + \beta_{8i}) \times (Vocabulary_{pi} \times Group_{pi} \times Condition_{pi}) ~+~ \\ & \sigma^2_{e}
+\end{align}
+$$
+
+
+**Priors**:
+
+$$
+\begin{align}
+\beta_0 \sim~ & \mathcal{N}(0, 1) \\
+\beta_{1-8} \sim~ &\mathcal{N}(0, 1) \\
+\sigma_m, ~\sigma^2,~ \sigma^2_p,~ \sigma^2_i \sim~ & exp(2) \\
+\rho \sim ~&  LKJ(2)
+\end{align}
+$$
+

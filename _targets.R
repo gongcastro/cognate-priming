@@ -2,15 +2,15 @@ library(targets)
 library(tarchetypes)
 
 # load functions
-source("R/utils.R")
-source("R/00_stimuli.R")
-source("R/01_participants.R")
-source("R/02_vocabulary.R")
-source("R/03_gaze_bcn.R")
-source("R/03_gaze_oxf.R")
-source("R/04_attrition.R")
-source("R/05_prepare.R")
-source("R/06_analysis.R")
+source("src/R/utils.R")
+source("src/R/00_stimuli.R")
+source("src/R/01_participants.R")
+source("src/R/02_vocabulary.R")
+source("src/R/03_gaze_bcn.R")
+source("src/R/03_gaze_oxf.R")
+source("src/R/04_attrition.R")
+source("src/R/05_prepare.R")
+source("src/R/06_analysis.R")
 
 # load packages ----
 tar_option_set(
@@ -27,7 +27,9 @@ tar_option_set(
 		# data visualisation
 		"ggplot2", "shiny", "patchwork", "shiny",
 		# data reporting
-		"rmarkdown", "knitr", "papaja", "scales", "DiagrammeR", "gt"
+		"rmarkdown", "knitr", "papaja", "scales", "DiagrammeR", "gt",
+		# unit testing
+		"testthat"
 	)
 )
 
@@ -55,9 +57,9 @@ list(
 	
 	# stimuli ----
 	# define file paths
-	tar_target(trials_path, here("Stimuli", "stimuli.xlsx"), format = "file"), # trial list,
-	tar_target(stimuli_english_path, here("Data", "Stimuli", "stimuli_english.xlsx"), format = "file"), # stimuli info for English version
-	tar_target(animacy_path, here("Data", "Stimuli", "animacy.csv"), format = "file"), # animacy of stimuli (hand coded)
+	tar_target(trials_path, here("stimuli", "stimuli.xlsx"), format = "file"), # trial list,
+	tar_target(stimuli_english_path, here("data", "stimuli", "stimuli_english.xlsx"), format = "file"), # stimuli info for English version
+	tar_target(animacy_path, here("data", "stimuli", "animacy.csv"), format = "file"), # animacy of stimuli (hand coded)
 	
 	# import data
 	tar_target(trials, read_xlsx(trials_path)),
@@ -78,41 +80,18 @@ list(
 	
 	# participants ----
 	# define Oxford file paths
-	tar_target(
-		participants_oxf_path,
-		here("Data", "Participants", "participant_oxford_Apr2021.xlsx"),
-		format = "file"
-	),
+	tar_target(participants_oxf_path, here("data", "participants", "participant_oxford_Apr2021.xlsx"), format = "file"),
 	# import Oxford data
-	tar_target(
-		participants_oxf,
-		read_xlsx(
-			participants_oxf_path,
-			na = "NA"
-		)
-	),
+	tar_target(participants_oxf, read_xlsx(participants_oxf_path, na = "NA")),
 	# import Barcelona data from Google Sheets
 	# in the future, this will be a local CSV
-	tar_target(
-		participants_bcn,
-		range_read(
-			ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6vNS2eEqE",
-			sheet = "barcelona", na = ""
-		)
-	),
+	tar_target(participants_bcn, range_read(ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6vNS2eEqE", sheet = "barcelona", na = "")),
 	# join datasets
 	# see R/01_participants.R for details on this function
-	tar_target(
-		participants,
-		get_participants(participants_bcn, participants_oxf)
-	),
-	
+	tar_target(participants, get_participants(participants_bcn, participants_oxf)),
 	# vocabulary ----
 	# define Oxford file path
-	tar_target(
-		vocabulary_oxf_path,
-		here("Data", "Vocabulary", "vocabulary_oxford_Apr2021.xlsx")
-	),
+	tar_target(vocabulary_oxf_path, here("data", "vocabulary", "vocabulary_oxford_Apr2021.xlsx")),
 	# import Oxford data
 	tar_target(
 		vocabulary_oxf,
@@ -120,13 +99,7 @@ list(
 			# get sheets names
 			excel_sheets() %>%
 			# read all sheets into a list
-			map(
-				~read_xlsx(
-					vocabulary_oxf_path,
-					sheet = .,
-					na = c("", "NA", "?", "x")
-				)
-			) %>%
+			map(~read_xlsx(vocabulary_oxf_path, sheet = ., na = c("", "NA", "?", "x"))) %>%
 			# name each sheet
 			set_names(excel_sheets(vocabulary_oxf_path)) %>%
 			# join sheets into a data frame
@@ -152,41 +125,21 @@ list(
 	tar_target(
 		gaze_bcn_paths,
 		list.files(
-			here("Data", "Gaze", "Barcelona"),
+			here("data", "gaze", "barcelona"),
 			full.names = TRUE
 		)
 	),
 	
 	# import data
 	# see R/03_gaze_bcn.R and utils.R for details on this function
-	tar_target(
-		gaze_bcn,
-		get_gaze_bcn(
-			file_paths = gaze_bcn_paths,
-			participants = participants,
-			stimuli = stimuli
-		)
-	),
+	tar_target(gaze_bcn, get_gaze_bcn(file_paths = gaze_bcn_paths, participants = participants, stimuli = stimuli)),
 	
 	# gaze data (Oxford) ----
 	# define file paths
-	tar_target(
-		gaze_oxf_paths,
-		list.files(
-			here("Data", "Gaze", "Oxford"),
-			full.names = TRUE
-		)
-	),
+	tar_target(gaze_oxf_paths, list.files(here("data", "gaze", "oxford"), full.names = TRUE)),
 	# import data
 	# see R/03_gaze_oxf.R for details on this function
-	tar_target(
-		gaze_oxf,
-		get_gaze_oxf(
-			file_paths = gaze_oxf_paths,
-			participants = participants,
-			stimuli = stimuli
-		)
-	),
+	tar_target(gaze_oxf, get_gaze_oxf(file_paths = gaze_oxf_paths, participants = participants, stimuli = stimuli)),
 	
 	# attrition data ----
 	# see R/04_attrition.R for details on this function
@@ -263,15 +216,25 @@ list(
 		fit_models(
 			formulas = model_formulas,
 			datasets = model_datasets, 
-			file = here("Results", "fit.rds"),
-			save_model = here("Stan", "fit.stan")
+			file = here("results", "fit.rds"),
+			save_model = here("src", "stan", "fit.stan")
 		)
 	),
 
-	# render report.Rmd with the updated model fits
-	tar_render(report, "Rmd/report.Rmd"),
-	tar_render(communications_lacre, "Communications/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd"),
-	tar_render(communications_icis, "Communications/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
+	# render docs
+	tar_render(docs_participants, "docs/00_participants.Rmd"),
+	tar_render(docs_stimuli, "docs/01_stimuli.Rmd"),
+	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd"),
+	tar_render(report, "docs/03_design.Rmd"),
+	tar_render(docs_analysis, "docs/04_analysis.Rmd"),
+	tar_render(docs_attrition, "docs/05_attrition.Rmd"),
+	tar_render(docs_results, "docs/06_results.Rmd"),
+	
+	# render presentations
+	tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd"),
+	tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
+	
+	# render manuscript
 )
 
 

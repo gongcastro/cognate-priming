@@ -1,0 +1,242 @@
+---
+title: "Results"
+output: github_document
+always_allow_html: true
+date: "`r paste0('Updated: ', format(Sys.Date(), '%d/%m/%Y'))`"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = TRUE,
+	warning = TRUE, 
+	cache.extra = knitr::rand_seed,
+	out.width = "80%",
+	results = "asis",
+	dpi = 300,
+	dev.args = list(png = list(type = "cairo"))
+)
+options(
+	knitr.kable.NA = '-',
+	knitr.duplicate.label = "allow",
+	ggplot2.discrete.fill = ggsci::pal_tron("legacy")(7),
+	ggplot2.discrete.colour = ggsci::pal_tron("legacy")(7)
+)
+
+
+```
+
+
+
+```{r params, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+# load objects
+tar_load_globals()
+tar_load(participants)
+tar_load(attrition)
+tar_load(vocabulary)
+tar_load(gaze)
+tar_load(model_fits)
+
+theme_set(theme_minimal()) # in utils.R
+
+attrition <- attrition %>% 
+	mutate(
+		valid_gaze = valid_gaze_prime & valid_gaze_target,
+		valid_status = case_when(
+			!valid_vocab ~ "Invalid vocabulary",
+			!valid_gaze ~ "Invalid gaze",
+			!valid_participant ~ "Invalid participant",
+			TRUE ~ "Valid"
+		))
+
+
+participants <- participants %>% 
+	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
+	drop_na(participant) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
+
+```
+
+
+#### Fixed effects
+
+
+```{r fixed_effects_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+draws <- gather_draws(model_fits$fit, `b_.*`, `sigma`, regex = TRUE)
+
+draws %>% 
+	mean_qi(.width = c(0.95, 0.50)) %>% 
+	pivot_wider(names_from = .width, values_from = c(.value, .lower, .upper)) %>% 
+	clean_names() %>% 
+	select(-c(point, interval, value_0_5)) %>% 
+	gt(rowname_col = "variable") %>% 
+	fmt_number(2:6) %>% 
+	cols_merge(c("lower_0_95", "upper_0_95"), pattern = "[{1}, {2}]") %>% 
+	cols_merge(c("lower_0_5", "upper_0_5"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		variable = md("**Predictor**"),
+		value_0_95 = md("**Mean**"),
+		lower_0_95 = md("**95% CrI**"),
+		lower_0_5 = md("**50% CrI**")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#b9fac4")
+		),
+		locations = cells_body(
+			columns = lower_0_95,
+			rows = lower_0_95 > 0
+		)
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#b9fac4")
+		),
+		locations = cells_body(
+			columns = lower_0_5,
+			rows = lower_0_5 > 0
+		)
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#fabfb9")
+		),
+		locations = cells_body(
+			columns = lower_0_95,
+			rows = upper_0_95 < 0
+		)
+	) %>% 
+	tab_style(
+		style = list(
+			cell_fill(color = "#fabfb9")
+		),
+		locations = cells_body(
+			columns = lower_0_5,
+			rows = upper_0_5 < 0
+		)
+	) %>% 
+	as_raw_html()
+```
+
+
+```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE}
+
+draws %>% 
+	filter(!str_detect(.variable, "time_bin|sigma")) %>% 
+	mutate(.value = ifelse(.variable=="b_Intercept", inv_logit_scaled(.value), .value/4)) %>% 
+	ggplot(aes(.value, .variable, fill = stat(cut_cdf_qi(cdf, labels = percent, .width = c(0.50, 0.80, 0.95))))) +
+	geom_vline(xintercept = 0, colour = "black") +
+	stat_halfeye(point_color = "black", interval_color = "black") +
+	labs(x = "Value", y = "Variable", fill = "CrI") +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	theme(
+		axis.title = element_blank(),
+		legend.position = "top"
+	)
+
+```
+
+#### Random effects
+
+
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+vcov(model_fits$fit) %>% 
+	cov2cor() %>% 
+	as.data.frame() %>% 
+	rownames_to_column("term1") %>% 
+	pivot_longer(-term1, names_to = "term2", values_to = ".value") %>% 
+	filter(!grepl("time_bin", term1), !grepl("time_bin", term2)) %>% 
+	ggplot(aes(fct_rev(term1), term2, fill = .value)) +
+	geom_tile() +
+	labs(x = "Term 1", y = "Term 2", fill = "Posterior correlation") +
+	scale_fill_distiller(limits = c(-1, 1)) +
+	coord_equal() +
+	theme(
+		legend.position = "top",
+		legend.text = element_text(size = 8),
+		axis.title = element_blank(),
+		axis.text.y = element_text(hjust = 1, size = 7),
+		axis.text.x = element_text(angle = 90, hjust = 1, size = 7)
+	)
+
+```
+
+
+#### Marginal means {.tabset }
+
+##### Marginal to time course
+
+```{r gaze_marginal, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+m <- emmeans(model_fits$fit, ~trial_type:lp, by = "age_group", epred = TRUE) %>% 
+	as_tibble() %>% 
+	clean_names() %>% 
+	mutate_at(vars(emmean:upper_hpd), function(x) ifelse(x < 0, 0, x)) %>% 
+	mutate_at(vars(emmean:upper_hpd), function(x) ifelse(x > 1, 1, x))
+
+ggplot(m, aes(age_group, emmean, ymin = lower_hpd, ymax = upper_hpd, colour = trial_type)) +
+	facet_wrap(~lp, ncol = 1) +
+	# geom_line(aes(group = trial_type), size = 1, position = position_dodge(width = 0.25)) +
+	geom_errorbar(size = 1, width = 0, position = position_dodge(width = 0.25)) +
+	geom_point(size = 4, position = position_dodge(width = 0.25)) +
+	labs(x = "Age (months))", y = "P(target)", colour = "Trial type") +
+	scale_y_continuous(limits = c(0, 1), labels = percent)  +
+	theme(
+		legend.title = element_blank(),
+		legend.position = "top"
+	)
+
+
+```
+
+##### Time course
+
+```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(valid_participant) %>% 
+	count(lp, age_group)
+
+n <- expand_grid(
+	lp = c("Monolingual", "Bilingual"),
+	age_group = paste(c(21, 25, 30), "months"),
+	trial_type = unique(gaze$trial_type),
+	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.5)
+)
+
+m <- epred_draws(object = model_fits$fit, newdata = n, ndraws = 50, re_formula = NA) %>% 
+	mutate(.value = logit_to_prob(.epred))
+
+ggplot(m, aes(time_bin_center, .value)) +
+	facet_grid(fct_rev(lp)~age_group) +
+	geom_hline(yintercept = 0.5, colour = "black") +
+	geom_line(aes(group = interaction(age_group, trial_type, lp, .draw),
+				  colour = trial_type),
+			  alpha = 0.15, size = 0.65) +
+	stat_summary(aes(group = trial_type, colour = trial_type),
+				 fun = mean, geom = "line", size = 1.25) +
+	stat_summary(data = gaze, aes(y = logit_to_prob(logit_adjusted), group = trial_type,
+								  colour = trial_type),
+				 fun.data = mean_se, geom = "errorbar", size = 0.5, na.rm = TRUE,
+				 position = position_dodge(width = 0.3)) +
+	geom_text(data = sample_size, aes(x = min(gaze$time_bin_center), y = 0.95, label = paste0("N = ", n)),
+			  colour = "white", hjust = 0, size = 5) +
+	labs(x = "Time bin (100 ms)", y = "Expected posterior mean PTLT", colour = "Trial type",
+		 fill = "Trial type", shape = "Trial type", linetype = "Trial type") +
+	scale_color_brewer(palette = "Set1") +
+	scale_x_continuous(breaks = min(gaze$time_bin_center):max(gaze$time_bin_center), labels = unique(gaze$time_bin)) +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		axis.text.x = element_text(size = 9),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.x = element_blank()
+	)
+```
+
+
+
