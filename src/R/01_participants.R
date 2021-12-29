@@ -52,18 +52,6 @@ get_participants <- function(
 		
 	})
 	
-	# check that participants and age groups are not duplicated
-	duplicated_rows <- duplicated(select(participants, participant, age_group))
-	
-	if (any(duplicated_rows)){
-		duplicates <- participants[which(duplicated_rows),]
-		duplicated_info <- paste0(duplicates$participant, " (", duplicates$age_group, ")")
-		msg <- paste0("Duplicated participants: ", paste0(duplicated_info, collapse = ", "))
-		stop(msg)
-	}
-	
-	saveRDS(participants, here("results", "participants.rds"))
-	
 	return(participants)
 	
 }

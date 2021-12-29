@@ -1,5 +1,7 @@
 source("renv/activate.R")
 
+if ("targets" %in% installed.packages()) library(targets)
+
 library(targets)
 
 make <- function() {

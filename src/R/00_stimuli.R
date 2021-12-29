@@ -102,10 +102,6 @@ get_stimuli <- function(
 				as_tibble()
 			
 		}
-		
 	})
-	
-	saveRDS(stimuli, here("results", "stimuli.rds"))
-	
 	return(stimuli)
 }

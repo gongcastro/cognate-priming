@@ -211,6 +211,8 @@ list(
 			fit = gaze
 		)
 	),
+	
+	# fit models (stringent criteria)
 	tar_target(
 		model_fits,
 		fit_models(
@@ -219,6 +221,24 @@ list(
 			file = here("results", "fit.rds"),
 			save_model = here("src", "stan", "fit.stan")
 		)
+	),
+	
+	# fit models
+	tar_target(
+		posterior_draws,
+		get_posterior_draws(model_fits$fit)
+	),
+	
+	# expected predictions
+	tar_target(
+		epreds,
+		get_epreds(model_fits$fit, gaze = gaze)
+	),
+	
+	# emmeans by LP
+	tar_target(
+		emmeans_lp,
+		get_emmeans(model_fits$fit, by = "lp")
 	),
 
 	# render docs

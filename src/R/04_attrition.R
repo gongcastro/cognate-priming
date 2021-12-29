@@ -112,8 +112,8 @@ get_attrition <- function(
 		
 		valid_trials <- reduce(list(valid_trials, pairs, valid_counter), left_join) %>% 
 			mutate(valid_trial = valid_trial & valid_counter)
-
-	
+		
+		
 		# valid participants
 		valid_participants <- valid_trials %>% 
 			group_by(participant, age_group, trial_type) %>% 
@@ -147,8 +147,6 @@ get_attrition <- function(
 				valid_gaze_prime, valid_gaze_target, valid_gaze_distractor,
 				valid_vocab, valid_trial, valid_counter, valid_participant
 			)
-		
-		saveRDS(attrition, here("results", "attrition.rds"))
 		
 		return(attrition)
 	})

@@ -70,4 +70,3 @@ get_gaze_bcn <- function(
 		return(processed)
 	})
 }
-
