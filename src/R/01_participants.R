@@ -48,7 +48,8 @@ get_participants <- function(
 			select(
 				participant, id_db, date_test, location, lp, age_group,
 				test_language, list, version, filename
-			)
+			) %>% 
+			drop_na(participant)
 		
 	})
 	

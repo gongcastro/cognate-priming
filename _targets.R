@@ -51,9 +51,9 @@ list(
 	
 	# get multilex data (Barcelona vocabulary data) ----
 	# log into multilex
-	tar_target(credentials, get_credentials()),
+	tar_target(credentials, get_credentials()), # see src/R/utils.R
 	# this returns a list with all necessary data
-	tar_target(multilex_data, get_multilex(update = TRUE, type = "understands")),
+	tar_target(multilex_data, get_multilex(update = TRUE, type = "understands")), 
 	
 	# stimuli ----
 	# define file paths
@@ -67,16 +67,8 @@ list(
 	tar_target(animacy, read.csv(animacy_path)),
 	
 	# join all stimuli datasets into a single object
-	# see R/00_stimuli.R for details on this function
-	tar_target(
-		stimuli,
-		get_stimuli(
-			trials = trials,
-			animacy_data = animacy,
-			oxford_data = stimuli_english,
-			multilex_data = multilex_data
-		)
-	),
+	# see src/R/00_stimuli.R for details on this function
+	tar_target(stimuli, get_stimuli(trials = trials, animacy_data = animacy, oxford_data = stimuli_english, multilex_data = multilex_data)), # see src/R/utils.R
 	
 	# participants ----
 	# define Oxford file paths
@@ -200,6 +192,13 @@ list(
 					(1 + time_bin_center*trial_type*age_group | participant) +
 					(1 + time_bin_center*trial_type*lp*age_group | target),
 				family = gaussian
+			),
+			fit_bcn = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
+					(1 + time_bin_center*trial_type*age_group | participant) +
+					(1 + time_bin_center*trial_type*lp*age_group | target),
+				family = gaussian
 			)
 		)
 	),
@@ -208,7 +207,19 @@ list(
 	tar_target(
 		model_datasets,
 		list(
-			fit = gaze
+			fit = gaze,
+			fit_bcn = gaze %>% filter(location=="Barcelona")
+		)
+	),
+	
+	# define model prior
+	tar_target(
+		model_prior,
+		c(
+			prior(normal(0, 1), class = "b"),
+			prior(exponential(2), class = "sigma"),
+			prior(exponential(2), class = "sd"),
+			prior(lkj(2), class = "cor")
 		)
 	),
 	
@@ -218,28 +229,20 @@ list(
 		fit_models(
 			formulas = model_formulas,
 			datasets = model_datasets, 
-			file = here("results", "fit.rds"),
-			save_model = here("src", "stan", "fit.stan")
+			prior = model_prior,
+			model_paths = here("src", "stan", c("fit.stan", "fit_bcn.stan"))
 		)
 	),
 	
+	
 	# fit models
-	tar_target(
-		posterior_draws,
-		get_posterior_draws(model_fits$fit)
-	),
+	tar_target(posterior_draws, get_posterior_draws(model_fits)),
 	
 	# expected predictions
-	tar_target(
-		epreds,
-		get_epreds(model_fits$fit, gaze = gaze)
-	),
+	tar_target(epreds, get_epreds(model_fits, gaze = gaze)),
 	
 	# emmeans by LP
-	tar_target(
-		emmeans_lp,
-		get_emmeans(model_fits$fit, by = "lp")
-	),
+	tar_target(emmeans_lp, get_emmeans(model_fits, by = "lp")),
 
 	# render docs
 	tar_render(docs_participants, "docs/00_participants.Rmd"),
@@ -249,10 +252,12 @@ list(
 	tar_render(docs_analysis, "docs/04_analysis.Rmd"),
 	tar_render(docs_attrition, "docs/05_attrition.Rmd"),
 	tar_render(docs_results, "docs/06_results.Rmd"),
+	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd"),
+	
 	
 	# render presentations
 	tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd"),
-	tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
+	# tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
 	
 	# render manuscript
 )
