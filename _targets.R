@@ -256,7 +256,7 @@ list(
 	
 	
 	# render presentations
-	tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd"),
+	tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd")
 	# tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
 	
 	# render manuscript

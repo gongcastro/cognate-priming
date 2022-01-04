@@ -1,41 +1,4 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-participants_oxf_path|stem|dbba5a019a277bad|b380715ad411fa9f|4e3739ef91745af0|1783076124|C:/Users/u155880/Documents/cognate-priming/data/participants/participant_oxford_Apr2021.xlsx|t18775.3205096492s|f2d8c1582a80b449|15527|file|vector|||2.81||
-multilex_data|stem|f98726d3bbd54a51|079ee1fe4463b160|e2f6fcaa00013623|1096876832||t18990.3426370136s|a25da69eea5224e7|1233495|rds|vector|||40.17||
-vocabulary_oxf_path|stem|0579ba88e27dab75|8814c1ca438adb0e|4e3739ef91745af0|-668526201||t18990.3426371292s|044b6a5ab253dca2|133|rds|vector|||0||
-stimuli_english_path|stem|335ef2db989e45ff|e723bd887b23f955|4e3739ef91745af0|1083985607|C:/Users/u155880/Documents/cognate-priming/data/stimuli/stimuli_english.xlsx|t18827.6414678027s|d0dd821f0a171cc2|25192|file|vector|||0||
-gaze_oxf_paths|stem|b2d4bda770cff4ec|d77c90ca1ab86b48|c793b87d5821f57c|100062445||t18990.3426372442s|fd91a1ccfb8901b1|147|rds|vector|||0||
-report|stem|6d2c7d7f6348aba6|8a25a318d96097c9|4745aa592080ea1d|-237041703|docs/03_design.md*docs/03_design.Rmd|t18990.3426432604s|2f66fc98afd0957b|631|file|vector|||0.53||
-trials_path|stem|b7c18330e2e84f36|d2636bd855e68f09|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||0||
-participants_bcn|stem|5d46dcbc241513d4|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t18990.3426689182s|d585c6413c8339f4|8378|rds|vector|||2.15||
-gaze_bcn_paths|stem|a3f94ea602e946d1|8686c6870b75a6dc|c793b87d5821f57c|1662764019||t18990.3426690303s|59a457aca6ebbf27|1273|rds|vector|||0||
-animacy_path|stem|9e7fed753174471b|1767f15b48abc1b8|4e3739ef91745af0|1222557669|C:/Users/u155880/Documents/cognate-priming/data/stimuli/animacy.csv|t18834.3807950083s|e981a64a5ae107f1|3896|file|vector|||0||
-credentials|stem|e082e149348ab808|a30b3b1477599b55|221be27212764aca|-1444300154||t18990.3426725293s|97452b5a3d70b0b8|49|rds|vector|||0.28||
-communications_lacre|stem|054ba5c7f1ca226b|1bf154f6c70f2753|4745aa592080ea1d|-1556210973|presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.docx*presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd|t18990.3426746717s|5e15f15ad472d25c|2292051|file|vector|||0.19||
-participants_oxf|stem|ce152c8135799004|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t18990.3426751334s|2bca963e40c13baf|529|rds|vector|||0.01||
-vocabulary_oxf|stem|334965b8d5a9d82d|fdc87760469a8579|03f6fbb04aa16cca|-1845302331||t18990.3426764029s|d884270725a42d53|17579|rds|vector|||0.1||
-stimuli_english|stem|5641f766e95e17b0|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t18990.342676596s|7dff3d66c21f3419|1907|rds|vector|||0.02||
-trials|stem|31e24d174e0d48cc|6b472b1da4faba8c|dd161b368f961177|1837658601||t18990.3426769307s|2dc4589c04eeaf2f|10269|rds|vector|||0.01||
-animacy|stem|8759294cc14e9f68|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t18990.3426770577s|e3a470ba8142984b|1269|rds|vector|||0||
-stimuli|stem|e0a3857901fbbb06|b5dd4a1585d193a4|8a7c70e726ac7bdc|1139532200||t18990.3432858474s|97ad8611ad610888|18803|rds|vector|||52.53|Number of logged events 19|
-model_formulas|stem|85ad077495624507|316608380895335a|3a7802aab64177be|-291946610||t18990.3689492215s|cd00b190d5878976|1712|rds|vector|||2.82||
-model_prior|stem|c7ab8b39ee57eb63|8072ffe9c63c5be9|1beb2bfaf7fa617f|-1420164522||t18990.3689497477s|128d20c17187268c|245|rds|vector|||0||
-participants|stem|d4271720e9462764|a7adc9fd1da59829|3fd38a035f0cea94|392525641||t18990.3689514446s|7c41c2ce3ed696a6|3784|rds|vector|||0.1||
-vocabulary|stem|178c6223cafee89b|63bdf301ff923b52|016e4e3cd70956d5|-1487046481||t18990.3690139196s|361a52e9b5f46341|228592|rds|vector|||2.83|Number of logged events 2|
-gaze_bcn|stem|e8e0b4c6ceb9bb3b|c198e83fa39c9bef|fcec5a929c0a0cbf|-2087868575||t18990.3694384024s|04e3585f9e03f23d|28597980|rds|vector|||30.33|NAs introduced by coercion|
-gaze_oxf|stem|07e1943fa3f62a22|02733ab116bf3938|caa3aa6cb694c30e|249562404||t18990.3694897057s|47c911b6fdd0e6fe|15320052|rds|vector|||2.19||
-docs_stimuli|stem|af246f195b8f6f85|8b924c9cb953be53|27b5581103937045|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t18990.3438462203s|47a84b087ce00cd9|9241|file|vector|||4.11||
-attrition|stem|55c283cb30216a66|6b60c955cee78acb|a6ca9a1e2266a6ec|-1403111462||t18990.3695992368s|eea5b9a76cbad756|29364|rds|vector|||9.36||
-attrition_counter|stem|af19ec58c6f355bd|14ad860550f825d7|a6ca9a1e2266a6ec|-1192657156||t18990.3697008059s|55f69b1ab7f91a8a|29594|rds|vector|||8.75||
-gaze|stem|c475e773986b4c5c|cadfd4a2d714e81a|525cf89e64bd94fe|-1114821610||t18990.3699126525s|d6eece06c8f7feee|226054|rds|vector|||15.14|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
-model_datasets|stem|709ef9ad40423d13|3773b7cb592f5857|741f624e04eec4a0|1386906376||t18990.3702716498s|00aba04b35e759ca|391721|rds|vector|||0||
-docs_analysis|stem|933458ea4a1f81e9|84db6b24af326297|e58b2bd20650b4ba|-410177745|docs/04_analysis.md*docs/04_analysis.Rmd|t18990.3702774726s|f7389620971bb8d5|17613|file|vector|||0.58||
-docs_participants|stem|c0d5c3eb3812c41a|2073afc881612b2d|3458f8bb2e6c88ac|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t18990.3697351531s|cdfefb857e9c72fc|40786|file|vector|||3.05|longer object length is not a multiple of shorter object length|
-docs_vocabulary|stem|71aadf4a714f858e|a2a0169174a995a9|3458f8bb2e6c88ac|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t18990.3699362526s|2af9e507bd00268b|12120|file|vector|||2.1|Removed 94 rows containing missing values geom_point.|
-docs_attrition|stem|7677b652ea8f1bef|c36606e5bcaca2e6|d400c2efc225221f|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t18990.3702578785s|b817ace5af03b773|1099128|file|vector|||28.74||
-model_fits|stem|1832ccced04b09f4|b0a86216d3df9154|49c99ec1a2d2383a|-553083469||t18995.4389763652s|ab332e77b94835fa|1026741448|rds|vector|||9.54||
-emmeans_lp|stem|526f2407995f1e79|2ed15315ad323146|4e63ebe4ae735467|-2100666026||t18995.4399531626s|b64ec10517c08040|779|rds|vector|||82.77||
-epreds|stem|c81d8c8b44f58acb|513305dad6df6b22|4231ed9cb55021ce|484658962||t18995.4406645226s|2e73f173bc7b20f6|536098|rds|vector|||61.36||
-posterior_draws|stem|4603ab4a9b0ba829|716c017cfaadf6ee|4f0fc75ccff7c7ec|-1530540741||t18995.4413299471s|b192ab5e71567a24|5546541|rds|vector|||56.89||
 get_gaze_raw|function|5c00ba772bd07556||||||||||||||
 prop_adj|function|8f984a7e77cc1c9c||||||||||||||
 get_credentials|function|3929802812762e5e||||||||||||||
@@ -50,7 +13,7 @@ get_emmeans|function|ebaf4a49b78bda58||||||||||||||
 get_gaze_oxf|function|e06ea734ae3fcec8||||||||||||||
 theme_github|function|4fd11f3888ebdee7||||||||||||||
 inv_logit|function|3d1dabf81e9fffb5||||||||||||||
-prepare_data|function|cc86012c50bba810||||||||||||||
+prepare_data|function|489af2318248f446||||||||||||||
 fit_models|function|88fd3e3d9951d368||||||||||||||
 prop_adj_ci|function|3332254173832f76||||||||||||||
 get_participants|function|22de91089f573add||||||||||||||
@@ -62,6 +25,42 @@ get_multilex|function|2f97085430b3ed46||||||||||||||
 get_epreds|function|70f2388877790e5f||||||||||||||
 get_familiarity|function|b87071ee4e9600bb||||||||||||||
 get_stimuli|function|c388d729efc18a7d||||||||||||||
-docs_results|stem|736be93d31389995|8ee476851d5699bf|66711126ee7236bf|-1466068189|docs/06_results.md*docs/06_results.Rmd*docs/06_results_files|t18995.443010448s|8d8531989e1e89f2|159558|file|vector|||145.37||
-docs_results_bcn|stem|a8a0fa1126735426|aed0d33343dc32b7|66711126ee7236bf|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t18995.4524372911s|0a5615b56c459849|1095104|file|vector|||87.95||
-communications_icis|stem|20c4fe9df398a9cf|b833dc47026f7822|1b003fe33f61a788|-2121186024|presentations/2022-07-07_icis/2022-07-07_icis-abstract.docx*presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd|t18990.3482976726s||865622|file|vector|||7.61||The parameter x must be of length 1.
+multilex_data|stem|666915cccb3a1687|079ee1fe4463b160|e2f6fcaa00013623|1096876832||t18995.7867388684s|7a0c99bb3349c7b4|1233508|rds|vector|||44.03||
+vocabulary_oxf_path|stem|0579ba88e27dab75|8814c1ca438adb0e|4e3739ef91745af0|-668526201||t18995.7867392963s|044b6a5ab253dca2|133|rds|vector|||0||
+model_formulas|stem|85ad077495624507|316608380895335a|3a7802aab64177be|-291946610||t18995.7867396888s|cd00b190d5878976|1712|rds|vector|||0.04||
+gaze_bcn_paths|stem|a3f94ea602e946d1|8686c6870b75a6dc|c793b87d5821f57c|1662764019||t18995.786739816s|59a457aca6ebbf27|1273|rds|vector|||0||
+animacy_path|stem|9e7fed753174471b|1767f15b48abc1b8|4e3739ef91745af0|1222557669|C:/Users/u155880/Documents/cognate-priming/data/stimuli/animacy.csv|t18834.3807950083s|e981a64a5ae107f1|3896|file|vector|||0||
+stimuli_english_path|stem|335ef2db989e45ff|e723bd887b23f955|4e3739ef91745af0|1083985607|C:/Users/u155880/Documents/cognate-priming/data/stimuli/stimuli_english.xlsx|t18827.6414678027s|d0dd821f0a171cc2|25192|file|vector|||0||
+credentials|stem|e082e149348ab808|a30b3b1477599b55|221be27212764aca|-1444300154||t18995.7867434037s|97452b5a3d70b0b8|49|rds|vector|||0.28||
+participants_bcn|stem|40e3a5553a98e863|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t18995.7867576702s|7fb013ac08007b25|8410|rds|vector|||1.22||
+model_prior|stem|c7ab8b39ee57eb63|8072ffe9c63c5be9|1beb2bfaf7fa617f|-1420164522||t18995.7867578412s|128d20c17187268c|245|rds|vector|||0.02||
+participants_oxf_path|stem|dbba5a019a277bad|b380715ad411fa9f|4e3739ef91745af0|1783076124|C:/Users/u155880/Documents/cognate-priming/data/participants/participant_oxford_Apr2021.xlsx|t18775.3205096492s|f2d8c1582a80b449|15527|file|vector|||0||
+communications_lacre|stem|80e37e10c0771b30|1bf154f6c70f2753|4745aa592080ea1d|-1556210973|presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.docx*presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd|t18995.7867719624s|0f49e78da7793753|2292071|file|vector|||1.22||
+gaze_oxf_paths|stem|b2d4bda770cff4ec|d77c90ca1ab86b48|c793b87d5821f57c|100062445||t18995.7867722786s|fd91a1ccfb8901b1|147|rds|vector|||0||
+trials_path|stem|b7c18330e2e84f36|d2636bd855e68f09|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||0||
+report|stem|e9be1b47405429fc|8a25a318d96097c9|4745aa592080ea1d|-237041703|docs/03_design.md*docs/03_design.Rmd|t18995.7867732336s|2f66fc98afd0957b|631|file|vector|||0.11||
+vocabulary_oxf|stem|334965b8d5a9d82d|fdc87760469a8579|03f6fbb04aa16cca|-1845302331||t18995.7867752657s|d884270725a42d53|17579|rds|vector|||0.13||
+animacy|stem|8759294cc14e9f68|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t18995.7867753927s|e3a470ba8142984b|1269|rds|vector|||0||
+stimuli_english|stem|5641f766e95e17b0|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t18995.7867755889s|7dff3d66c21f3419|1907|rds|vector|||0.02||
+participants_oxf|stem|ce152c8135799004|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t18995.7867757621s|2bca963e40c13baf|529|rds|vector|||0||
+trials|stem|31e24d174e0d48cc|6b472b1da4faba8c|dd161b368f961177|1837658601||t18995.7867760968s|2dc4589c04eeaf2f|10269|rds|vector|||0.02||
+participants|stem|b9cee6b0629e453d|a7adc9fd1da59829|05362cb8aa6261f3|392525641||t18995.7867767779s|7b1c009adf8298d6|3806|rds|vector|||0.06||
+stimuli|stem|60449ee1b1cb831e|b5dd4a1585d193a4|3f54dcdcca295ae8|1139532200||t18995.7892156743s|1cb0d5b91ec8d8fe|18805|rds|vector|||210.72|Number of logged events 19|
+vocabulary|stem|c4e0b0f8d02242d6|63bdf301ff923b52|67c85b9f702e2b57|-1487046481||t18995.7892407017s|f0b6085cc192cd2f|232846|rds|vector|||2.1|Number of logged events 2|
+gaze_bcn|stem|891c154633f8ea98|c198e83fa39c9bef|433f99f09824c785|-2087868575||t18995.7897744755s|d4a4405241b0a72a|28598254|rds|vector|||39.76|NAs introduced by coercion|
+gaze_oxf|stem|ec8b580f94f007cb|02733ab116bf3938|f42bd1403a3c7ec1|249562404||t18995.7898283173s|d287c45f6890b684|15320026|rds|vector|||2.39||
+docs_stimuli|stem|71d4e7e748136e6d|8b924c9cb953be53|2ca9a71b8dd19ae9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t18995.7898757008s|827a7bb9919d70f1|783198|file|vector|||4.16||
+attrition|stem|92e7e9c66943b21f|6b60c955cee78acb|81a12af413c8bbba|-1403111462||t18995.7899853394s|3445fd4c4156afe4|29363|rds|vector|||9.33||
+attrition_counter|stem|43603c208f8c1574|14ad860550f825d7|81a12af413c8bbba|-1192657156||t18995.790089104s|dd5030482fef3ca7|29593|rds|vector|||8.94||
+docs_participants|stem|84e758fa6c66930a|2073afc881612b2d|92d17ff1a1a7dfbc|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t18995.7901120206s|8a5864c34dbf427e|142404|file|vector|||2.06|longer object length is not a multiple of shorter object length|
+gaze|stem|5bf206c120feb450|cadfd4a2d714e81a|4f9b2efe0a79b708|-1114821610||t18995.7902903131s|5a273457b4feb508|288532|rds|vector|||15.19|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
+docs_vocabulary|stem|0c809e7d9c04c257|a2a0169174a995a9|92d17ff1a1a7dfbc|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t18995.7903157101s|605fe898ac3b6c56|193356|file|vector|||2.25|Removed 95 rows containing missing values geom_point.|
+docs_attrition|stem|c56b6578cfca51cd|c36606e5bcaca2e6|7d2630352c186ede|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t18995.7906332622s|8e264abfebdc2ba3|1721083|file|vector|||28.38||
+model_datasets|stem|ca7191e03a5629d4|3773b7cb592f5857|15860cac36ad5b0b|1386906376||t18995.790647595s|9a7944e4a6bf8465|498164|rds|vector|||0||
+docs_analysis|stem|23643094946b2e54|84db6b24af326297|55391e828e524fea|-410177745|docs/04_analysis.md*docs/04_analysis.Rmd|t18995.790653635s|f7389620971bb8d5|17613|file|vector|||0.58||
+model_fits|stem|1832ccced04b09f4|b0a86216d3df9154|9af59fa5e09d97fd|-553083469||t18995.7911389662s|ab332e77b94835fa|1026741448|rds|vector|||6.7||
+epreds|stem|ee9b7e2599662d80|513305dad6df6b22|fd75de7b82a93d01|484658962||t18995.791892906s|a00bb624ba3d4e2d|723699|rds|vector|||63.73||
+emmeans_lp|stem|526f2407995f1e79|2ed15315ad323146|4e63ebe4ae735467|-2100666026||t18995.7928490407s|b64ec10517c08040|779|rds|vector|||82.59||
+docs_results_bcn|stem|c568c424ec33d301|aed0d33343dc32b7|178a1a9a25a6e207|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t18995.7938334434s|91fae0b8762a8215|1572484|file|vector|||85.32||
+posterior_draws|stem|4603ab4a9b0ba829|716c017cfaadf6ee|4f0fc75ccff7c7ec|-1530540741||t18995.7945286462s|b192ab5e71567a24|5546541|rds|vector|||59.22||
+docs_results|stem|d1db2b2c9f3dec28|8ee476851d5699bf|178a1a9a25a6e207|-1466068189|docs/06_results.md*docs/06_results.Rmd*docs/06_results_files|t18995.7962226666s|232826d696056288|1465757|file|vector|||146.59||

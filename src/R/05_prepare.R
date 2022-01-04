@@ -47,8 +47,8 @@ prepare_data <- function(
 			) %>% 
 			subset_by_window(
 				rezero = TRUE,
-				window_start_time = 0.3,
-				window_end_time = 1.8
+				window_start_time = 0,
+				window_end_time = 2
 			) %>% 
 			make_time_sequence_data(
 				time_bin_size = 0.1, 
