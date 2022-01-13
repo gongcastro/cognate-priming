@@ -16,6 +16,19 @@ make <- function() {
 	)
 }
 
+
+# load all built targets (and packages)
+tar_load_all <- function(){
+	invisible({
+		suppressMessages({
+			tar_load_globals()
+		})
+		tars <- tar_objects()
+		message("Loading targets: ", paste0(tars, collapse = ", "))
+		lapply(tars, tar_load_raw, envir = .GlobalEnv)
+	})
+}
+
 unmake <- function() {
 	path <- "Results/fit.rds"
 	tar_destroy(ask = FALSE)

@@ -92,8 +92,8 @@ participants %>%
 		position = position_jitter(width = 0.1, seed = 888)
 	) +
 	geom_boxplot(
-		aes(lp, vocab_size_l1, colour = lp, fill = lp),
-		width = 0.25, outlier.colour = NA, fill = "#0D1117",
+		aes(lp, vocab_size_l1, fill = lp),
+		width = 0.25, outlier.colour = NA,
 		position = position_dodge(width = 0.75), size = 1
 	) +
 	geom_text(

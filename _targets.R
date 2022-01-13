@@ -178,7 +178,9 @@ list(
 		)
 	),
 	
-	# fit models ----
+	
+	
+	
 	# see R/06_analysis.R for details on the fit_models() function
 	# this function takes a list of formulas and list of datasets and fits a model 
 	# that takes each formula-dataset pair at a time, and returns a named list of fits
@@ -186,64 +188,62 @@ list(
 		model_formulas,
 		list(
 			# this model includes all data and all predictors of interest
-			fit = bf(
-				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
-					(1 + time_bin_center*trial_type*age_group | participant) +
-					(1 + time_bin_center*trial_type*lp*age_group | target),
-				family = gaussian
-			),
+			# fit = bf(
+			# 	formula = logit_adjusted ~
+			# 		(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
+			# 		(1 + time_bin_center*trial_type*age_group | participant) +
+			# 		(1 + time_bin_center*trial_type*lp*age_group | target),
+			# 	family = gaussian
+			# ),
 			fit_bcn = bf(
 				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
-					(1 + time_bin_center*trial_type*age_group | participant) +
-					(1 + time_bin_center*trial_type*lp*age_group | target),
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+					(1 + trial_type*vocab_size_total_center | participant) +
+					(1 + trial_type*vocab_size_total_center | target),
 				family = gaussian
 			)
 		)
 	),
 	
-	# define the dataset corresponding to each model (same order as in previous target)
+	# fit models ----
 	tar_target(
-		model_datasets,
-		list(
-			fit = gaze,
-			fit_bcn = gaze %>% filter(location=="Barcelona")
+		fit,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+					(1 + trial_type*vocab_size_total_center | participant) +
+					(1 + trial_type*vocab_size_total_center | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = c(
+				prior(normal(0.5, 0.05), class = "Intercept"),
+				prior(normal(0, 0.05), class = "b"),
+				prior(normal(0.1, 0.05), class = "sigma"),
+				prior(normal(0.1, 0.05), class = "sd"),
+				prior(lkj(7), class = "cor")
+			),
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit.stan"),
+			file = here("results", "fit.rds")
+			
 		)
 	),
 	
-	# define model prior
-	tar_target(
-		model_prior,
-		c(
-			prior(normal(0, 1), class = "b"),
-			prior(exponential(2), class = "sigma"),
-			prior(exponential(2), class = "sd"),
-			prior(lkj(2), class = "cor")
-		)
-	),
-	
-	# fit models (stringent criteria)
-	tar_target(
-		model_fits,
-		fit_models(
-			formulas = model_formulas,
-			datasets = model_datasets, 
-			prior = model_prior,
-			model_paths = here("src", "stan", c("fit.stan", "fit_bcn.stan"))
-		)
-	),
 	
 	
 	# fit models
-	tar_target(posterior_draws, get_posterior_draws(model_fits)),
+	tar_target(posterior_draws, get_posterior_draws(fit)),
 	
 	# expected predictions
-	tar_target(epreds, get_epreds(model_fits, gaze = gaze)),
+	tar_target(epreds, get_epreds(fit, gaze = gaze)),
 	
 	# emmeans by LP
-	tar_target(emmeans_lp, get_emmeans(model_fits, by = "lp")),
-
+	tar_target(emmeans_lp, get_emmeans(fit, by = "lp")),
+	
 	# render docs
 	tar_render(docs_participants, "docs/00_participants.Rmd"),
 	tar_render(docs_stimuli, "docs/01_stimuli.Rmd"),
@@ -251,7 +251,7 @@ list(
 	tar_render(report, "docs/03_design.Rmd"),
 	tar_render(docs_analysis, "docs/04_analysis.Rmd"),
 	tar_render(docs_attrition, "docs/05_attrition.Rmd"),
-	tar_render(docs_results, "docs/06_results.Rmd"),
+	# tar_render(docs_results, "docs/06_results.Rmd"),
 	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd"),
 	
 	
