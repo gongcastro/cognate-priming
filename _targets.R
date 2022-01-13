@@ -25,7 +25,7 @@ tar_option_set(
 		# modelling
 		"eyetrackingR", "brms", "tidybayes", "emmeans", "mice", 
 		# data visualisation
-		"ggplot2", "shiny", "patchwork", "shiny",
+		"ggplot2", "shiny", "patchwork", "shiny", "ggsci",
 		# data reporting
 		"rmarkdown", "knitr", "papaja", "scales", "DiagrammeR", "gt",
 		# unit testing
@@ -178,36 +178,13 @@ list(
 		)
 	),
 	
-	
-	
-	
 	# see R/06_analysis.R for details on the fit_models() function
 	# this function takes a list of formulas and list of datasets and fits a model 
 	# that takes each formula-dataset pair at a time, and returns a named list of fits
-	tar_target(
-		model_formulas,
-		list(
-			# this model includes all data and all predictors of interest
-			# fit = bf(
-			# 	formula = logit_adjusted ~
-			# 		(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
-			# 		(1 + time_bin_center*trial_type*age_group | participant) +
-			# 		(1 + time_bin_center*trial_type*lp*age_group | target),
-			# 	family = gaussian
-			# ),
-			fit_bcn = bf(
-				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
-					(1 + trial_type*vocab_size_total_center | participant) +
-					(1 + trial_type*vocab_size_total_center | target),
-				family = gaussian
-			)
-		)
-	),
 	
 	# fit models ----
 	tar_target(
-		fit,
+		fit_prior,
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
@@ -225,25 +202,66 @@ list(
 				prior(lkj(7), class = "cor")
 			),
 			backend = "cmdstanr",
-			# sample_prior = "only",
+			sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
 			save_model = here("src", "stan", "fit.stan"),
-			file = here("results", "fit.rds")
+			file = here("results", "fit_prior.rds")
 			
 		)
 	),
-	
-	
-	
-	# fit models
-	tar_target(posterior_draws, get_posterior_draws(fit)),
-	
-	# expected predictions
-	tar_target(epreds, get_epreds(fit, gaze = gaze)),
-	
-	# emmeans by LP
-	tar_target(emmeans_lp, get_emmeans(fit, by = "lp")),
-	
+	tar_target(
+		fit_total,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+					(1 + trial_type*vocab_size_total_center | participant) +
+					(1 + trial_type*vocab_size_total_center | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = c(
+				prior(normal(0.5, 0.05), class = "Intercept"),
+				prior(normal(0, 0.05), class = "b"),
+				prior(normal(0.1, 0.05), class = "sigma"),
+				prior(normal(0.1, 0.05), class = "sd"),
+				prior(lkj(7), class = "cor")
+			),
+			backend = "cmdstanr",
+			sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_total.stan"),
+			file = here("results", "fit_total.rds")
+			
+		)
+	),
+	tar_target(
+		fit_l1,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
+					(1 + trial_type*vocab_size_l1_center | participant) +
+					(1 + trial_type*vocab_size_l1_center | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = c(
+				prior(normal(0.5, 0.05), class = "Intercept"),
+				prior(normal(0, 0.05), class = "b"),
+				prior(normal(0.1, 0.05), class = "sigma"),
+				prior(normal(0.1, 0.05), class = "sd"),
+				prior(lkj(7), class = "cor")
+			),
+			backend = "cmdstanr",
+			sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_l1.stan"),
+			file = here("results", "fit_l1.rds")
+			
+		)
+	),
+
 	# render docs
 	tar_render(docs_participants, "docs/00_participants.Rmd"),
 	tar_render(docs_stimuli, "docs/01_stimuli.Rmd"),
