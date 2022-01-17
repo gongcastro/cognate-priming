@@ -420,7 +420,7 @@ draws_sigma <- draws %>%
 ## Random effects
 
 
-```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, fig.width=5}
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, fig.height=4}
 
 corr_mat <- VarCorr(fit_total, summary = TRUE)$participant$cor 
 corr_names <- rownames(VarCorr(fit_total, summary = TRUE)$participant$cor)
@@ -462,18 +462,6 @@ post_cors_participant <- corr_data %>%
 	scale_x_discrete() +
 	coord_equal() +
 	theme(
-		panel.grid = element_blank(),
-		legend.position = c(1, 1),
-		legend.direction = "horizontal",
-		legend.key.height = unit(0.1, "cm"),
-		legend.key.width = unit(0.3, "cm"),
-		legend.justification = c(1, 1),
-		legend.title = element_blank(),
-		legend.text = element_text(size = 5),
-		axis.title.x = element_blank(),
-		axis.title.y = element_blank(),
-		axis.ticks = element_blank(),
-		axis.text.x = element_text(size = 6, angle = 90, hjust = 0, vjust = 1),
 		axis.text.y = element_text(size = 6, vjust = 1, hjust = 1)
 	)
 
@@ -534,8 +522,7 @@ post_cors_item <- corr_data %>%
 		axis.title.x = element_blank(),
 		axis.title.y = element_blank(),
 		axis.ticks = element_blank(),
-		axis.text.x = element_text(size = 7, angle = 90, hjust = 1, vjust = 1),
-		axis.text.y = element_text(size = 7, vjust = 0, hjust = 0)
+		axis.text.x = element_text(size = 7, angle = 90, hjust = 1, vjust = 1)
 	)
 
 ```
@@ -1024,7 +1011,7 @@ draws_sigma <- draws %>%
 ## Random effects
 
 
-```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4,fig.height=5}
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8,fig.height=4}
 
 corr_mat <- VarCorr(fit_l1, summary = TRUE)$participant$cor 
 corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$participant$cor)
@@ -1064,22 +1051,11 @@ post_cors_participant <- corr_data %>%
 		na.value = "white", limits = c(-0.4, 0.4)
 	) +
 	scale_x_discrete() +
-	coord_equal() +
+	coord_equal()  +
 	theme(
-		panel.grid = element_blank(),
-		legend.position = c(1, 1),
-		legend.direction = "horizontal",
-		legend.key.height = unit(0.1, "cm"),
-		legend.key.width = unit(0.3, "cm"),
-		legend.justification = c(1, 1),
-		legend.title = element_blank(),
-		legend.text = element_text(size = 5),
-		axis.title.x = element_blank(),
-		axis.title.y = element_blank(),
-		axis.ticks = element_blank(),
-		axis.text.x = element_text(size = 6, angle = 90, hjust = 0, vjust = 1),
-		axis.text.y = element_text(size = 6, vjust = 1, hjust = 1)
+		axis.text.y = element_text(size = 7)
 	)
+
 
 # correlations by item
 corr_mat <- VarCorr(fit_l1, summary = TRUE)$target$cor 
@@ -1138,8 +1114,8 @@ post_cors_item <- corr_data %>%
 		axis.title.x = element_blank(),
 		axis.title.y = element_blank(),
 		axis.ticks = element_blank(),
-		axis.text.x = element_text(size = 7, angle = 90, hjust = 1, vjust = 1),
-		axis.text.y = element_text(size = 7, vjust = 0, hjust = 0)
+		axis.text.x = element_text(size = 7, angle = 90, hjust = 1, vjust = 1)
+		
 	)
 
 ```
