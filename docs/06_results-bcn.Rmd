@@ -420,7 +420,7 @@ draws_sigma <- draws %>%
 ## Random effects
 
 
-```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, fig.width=8}
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, fig.width=5}
 
 corr_mat <- VarCorr(fit_total, summary = TRUE)$participant$cor 
 corr_names <- rownames(VarCorr(fit_total, summary = TRUE)$participant$cor)
@@ -514,7 +514,10 @@ post_cors_item <- corr_data %>%
 		na.value = "white", limits = c(-0.4, 0.4)
 	) +
 	scale_x_discrete() +
-	coord_equal() 
+	coord_equal()  +
+	theme(
+		axis.text.y = element_blank()
+	)
 
 
 (post_cors_participant | post_cors_item) &
@@ -1021,7 +1024,7 @@ draws_sigma <- draws %>%
 ## Random effects
 
 
-```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=5,fig.height=5}
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4,fig.height=5}
 
 corr_mat <- VarCorr(fit_l1, summary = TRUE)$participant$cor 
 corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$participant$cor)
@@ -1115,7 +1118,10 @@ post_cors_item <- corr_data %>%
 		na.value = "white", limits = c(-0.4, 0.4)
 	) +
 	scale_x_discrete() +
-	coord_equal() 
+	coord_equal() +
+	theme(
+		axis.text.y = element_blank()
+	)
 
 
 (post_cors_participant | post_cors_item) &
