@@ -33,9 +33,7 @@ options(
 
 # load objects
 tar_load_globals()
-tar_load(vocabulary)
-tar_load(attrition)
-tar_load(participants)
+tar_load_all()
 
 theme_set(theme_minimal()) # in utils.R
 
@@ -270,3 +268,333 @@ participants %>%
 	)
 
 ```
+
+
+# Results
+
+## Model comparison
+
+## Model outputs
+
+```{r fixed_effects_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+str_repl <- c(
+	
+	# 3-way interactions
+	"b_time_bin_center:trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab (total)",
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab (total)",
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_total_center" =
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab (total)",
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_total_center" =
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab (total)",
+	
+	# 2-way interactions
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (total)",
+	"b_time_bin_center:trial_typePrimeNCvs.C:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (total)",
+	
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_time_bin_center:trial_typePrimeNCvs.C:lpLPMonvs.Bil" = 
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (total)",
+	"b_time_bin_center:trial_typePrimeNCvs.C:vocab_size_total_center" =
+		"Trial type (C vs. NC) \u00d7 Vocab (total)",
+	
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" =
+		"Trial type (U vs. C+NC) \u00d7 Group",  
+	"b_time_bin_center:lpLPMonvs.Bil:vocab_size_total_center" =
+		"Group \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (total)",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:lpLPMonvs.Bil" =
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (total)",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",  
+	"b_Itime_bin_centerE2:lpLPMonvs.Bil:vocab_size_total_center" = 
+		"Group \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (total)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:lpLPMonvs.Bil" = 
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (total)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (total)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",  
+	"b_Itime_bin_centerE3:lpLPMonvs.Bil:vocab_size_total_center" = 
+		"Group \u00d7 Vocab (total)",
+	
+	
+	# main effects (linear)
+	"b_time_bin_center:trial_typePrimeUvs.CPNC" =
+		"Trial type (U vs. C+NC)",
+	"b_time_bin_center:trial_typePrimeNCvs.C" = 
+		"Trial type (C vs. NC)",
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC" = 
+		"Trial type (U vs. C+NC)",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C" = 
+		"Trial type (C vs. NC)",
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC" = 
+		"Trial type (U vs. C+NC)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C" = 
+		"Trial type (C vs. NC)",
+	
+	"b_time_bin_center:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	"b_Itime_bin_centerE2:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	"b_Itime_bin_centerE3:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	
+	"b_time_bin_center:vocab_size_total_center" = 
+		"Vocab. (total, +1 SD)",
+	"b_Itime_bin_centerE2:vocab_size_total_center" = 
+		"Vocab. (total, +1 SD)",
+	"b_Itime_bin_centerE3:vocab_size_total_center" = 
+		"Vocab. (total, +1 SD)",
+	
+	
+	# 3-way interaction linear effects
+	"b_trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_total_center" =
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab. (total, +1 SD)",
+	"b_trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_total_center" =
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab. (total, +1 SD)",
+	
+	# 2-way interaction linear effects
+	"b_trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_trial_typePrimeNCvs.C:lpLPMonvs.Bil" = 
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_trial_typePrimeUvs.CPNC:vocab_size_total_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab. (total, +1 SD)",
+	"b_trial_typePrimeNCvs.C:vocab_size_total_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab. (total, +1 SD)",
+	
+	
+	"b_lpLPMonvs.Bil:vocab_size_total_center" =
+		"Group \u00d7 Vocab. (total, +1 SD)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC" =
+		"Trial type (U vs. C+NC)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C" =
+		"Trial type (C vs. NC)",
+	
+	"b_Itime_bin_centerE3:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	
+	# main linear effects
+	"b_Intercept" = "Intercept",
+	"b_Itime_bin_centerE2" = "Time bin 2",
+	"b_Itime_bin_centerE3" = "Time bin 3",
+	"b_time_bin_center" = "Time bin",
+	"b_vocab_size_total_center" = "Vocab. (total, +1 SD)",
+	
+	"b_trial_typePrimeUvs.CPNC" = "Trial type (U vs. C+NC)",
+	"b_trial_typePrimeNCvs.C" = "Trial type (C vs. NC)",
+	"b_lpLPMonvs.Bil" = "Group (Mon. vs. Bil.)",
+	
+	# sigma
+	"sigma" = "Sigma"
+)
+
+
+
+draws <- gather_draws(fit_total, `b_.*`, `sigma`, regex = TRUE) %>% 
+	mutate(
+		.value = ifelse(.variable=="sigma", inv_logit(.value), .value),
+		.variable_name = str_replace_all(.variable, str_repl),
+		type = case_when(
+			str_detect(.variable, "E2") ~ "Quadratic time",
+			str_detect(.variable, "E3") ~ "Cubic time",
+			str_detect(.variable, "time_bin") ~ "Linear time",
+			str_detect(.variable, "sigma") ~ "Error",
+			TRUE ~ "Main effects"
+		) %>% 
+			factor(levels = c("Main effects", "Linear time", "Quadratic time", "Cubic time", "Error"), ordered = TRUE)
+	)
+
+draws %>% 
+	group_by(.variable, .variable_name, type) %>% 
+	mean_qi() %>% 
+	select(type, .variable_name, .value, .lower, .upper) %>% 
+	gt(rowname_col = ".variable", groupname_col = "type")  %>% 
+	fmt_percent(3) %>%
+	fmt_number(4:5, scale_by = 100) %>% 
+	cols_merge(c(".lower", ".upper"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		.variable_name = md("**Predictor**"),
+		.value = md("**Mean**"),
+		.lower = md("**95% CrI**")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_text(weight = "bold", style = "italic")
+		),
+		locations = list(
+			cells_row_groups()
+		)
+	) %>% 
+	tab_style(
+		style = list(
+			cell_text(weight = "bold")
+		),
+		locations = list(
+			cells_column_labels()
+		)
+	) %>% 
+	as_raw_html()
+```
+
+
+```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=5}
+
+draws_intercept <- draws %>% 
+	filter(str_detect(.variable, "Intercept")) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	geom_vline(xintercept = 0.5, colour = "black", linetype = "dashed") +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5,
+		color = "#FF6F00FF",
+		fill = "#FF6F00FF"
+	) +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		fill = "CrI", 
+		title = "Intercept",
+		alpha = "CrI"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent, limits = c(0, 1)) 
+
+
+draws_predictors <- draws %>% 
+	filter(str_detect(.variable, "Intercept|sigma|sd|time_bin", negate = TRUE)) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	geom_vline(xintercept = 0, colour = "black", linetype = "dashed") +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5, 
+		color = "#C71000FF", 
+		fill = "#C71000FF") +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		fill = "CrI", 
+		alpha = "CrI",
+		title = "Main effects"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent, limits = c(-0.2, 0.2)) 
+
+draws_time <- draws %>%
+	filter(str_detect(.variable, "time_bin")) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	facet_wrap(~type, scales = "free_x") +
+	geom_vline(xintercept = 0, colour = "black", linetype = "dashed") +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5, 
+		color = "#008EA0FF", 
+		fill = "#008EA0FF"
+	) +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		fill = "CrI", 
+		alpha = "CrI",
+		title = "Polynomial effects"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent) 
+
+
+draws_sigma <- draws %>% 
+	filter(str_detect(.variable, "sigma")) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5, 
+		color = "#8A4198FF", 
+		fill = "#8A4198FF"
+	) +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		alpha = "CrI",
+		fill = "CrI", 
+		title = "Error"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent, limits = c(0.92, 0.97)) 
+
+((draws_intercept / draws_sigma / guide_area()) | draws_predictors) /
+	draws_time + 
+	plot_layout(heights = c(0.5, 0.5)) &
+	guides(fill = "none", color = "none") &
+	theme(
+		panel.background = element_rect(fill = NA, colour = "grey"),
+		axis.text.y = element_text(size = 7),
+		axis.text.x = element_text(size = 7),
+		axis.title = element_blank(),
+		legend.position = c(1, 1.2),
+		legend.direction = "horizontal",
+		legend.justification = "right",
+		legend.key.size = unit(0.35, "cm"),
+		legend.text = element_text(size = 7),
+		legend.title = element_text(size = 7),
+		panel.grid.major.y = element_blank()
+	)
+
+```
+
+
+
+
+
+
+
+
+

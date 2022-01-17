@@ -228,7 +228,7 @@ list(
 				prior(lkj(7), class = "cor")
 			),
 			backend = "cmdstanr",
-			sample_prior = "only",
+			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
 			save_model = here("src", "stan", "fit_total.stan"),
 			file = here("results", "fit_total.rds")
@@ -254,15 +254,25 @@ list(
 				prior(lkj(7), class = "cor")
 			),
 			backend = "cmdstanr",
-			sample_prior = "only",
+			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
 			save_model = here("src", "stan", "fit_l1.stan"),
 			file = here("results", "fit_l1.rds")
 			
 		)
 	),
-
-	# render docs
+	
+	tar_target(
+		loos,
+		map(list(fit_total = fit_total, fit_l1 = fit_l1), loo_subsample)
+	),
+	
+	tar_target(
+		waics,
+		map(list(fit_total = fit_total, fit_l1 = fit_l1), waic)
+	),
+	
+	# # render docs
 	tar_render(docs_participants, "docs/00_participants.Rmd"),
 	tar_render(docs_stimuli, "docs/01_stimuli.Rmd"),
 	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd"),
@@ -270,11 +280,11 @@ list(
 	tar_render(docs_analysis, "docs/04_analysis.Rmd"),
 	tar_render(docs_attrition, "docs/05_attrition.Rmd"),
 	# tar_render(docs_results, "docs/06_results.Rmd"),
-	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd"),
-	
-	
+	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd")
+	# 
+	# 
 	# render presentations
-	tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd")
+	# tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd")
 	# tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
 	
 	# render manuscript

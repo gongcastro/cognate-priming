@@ -33,11 +33,7 @@ options(
 
 # load objects
 tar_load_globals()
-tar_load(participants)
-tar_load(attrition)
-tar_load(vocabulary)
-tar_load(gaze)
-tar_load(fit_total)
+tar_load_all()
 
 theme_set(theme_minimal()) # in utils.R
 
@@ -65,7 +61,39 @@ participants <- participants %>%
 ```
 
 
-#### Fixed effects
+# Model comparison
+
+```{model-comparison}
+
+waics %>% 
+	map("estimates") %>% 
+	map(function(x) as.data.frame(x) %>% rownames_to_column("variable")) %>% 
+	bind_rows(.id = "model") %>%
+	clean_names() %>% 
+	pivot_wider(names_from = variable, values_from = c(estimate, se)) %>% 
+	relocate(model, matches("estimate"), matches("elpd"), matches("_p_")) %>% 
+	gt() %>% 
+	fmt_number(-model) %>% 
+	tab_spanner("WAIC", matches("waic")) %>% 
+	tab_spanner(md("WAIC<sub>ELPD</sub>"), matches("elpd")) %>% 
+	tab_spanner(md("WAIC<sub>*p*</sub>"), matches("_p_")) %>% 
+	cols_label(
+		model = "Model",
+		estimate_elpd_waic = "Estimate",
+		estimate_waic = "Estimate",
+		estimate_p_waic = "Estimate",
+		se_elpd_waic = md("*SE*"),
+		se_waic = md("*SE*"),
+		se_p_waic = md("*SE*"),
+	)
+
+
+```
+
+
+# Model with total vocabulary
+
+## Fixed effects
 
 
 ```{r fixed_effects_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -322,11 +350,16 @@ draws_time <- draws %>%
 	ggplot(aes(.value, .variable_name)) +
 	facet_wrap(~type, scales = "free_x") +
 	geom_vline(xintercept = 0, colour = "black", linetype = "dashed") +
-	stat_slab(
-		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
-		size = 0.5, 
-		color = "#008EA0FF", 
-		fill = "#008EA0FF"
+	# stat_slab(
+	# 	aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+	# 	size = 0.5, 
+	# 	color = "#008EA0FF", 
+	# 	fill = "#008EA0FF"
+	# ) +
+	stat_pointinterval(
+		color = "#008EA0FF",
+		fill = "#008EA0FF",
+		point_size = 1.5
 	) +
 	labs(
 		x = "Value", 
@@ -382,7 +415,8 @@ draws_sigma <- draws %>%
 
 ```
 
-#### Random effects
+
+## Random effects
 
 
 ```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -503,9 +537,120 @@ post_cors_item <- corr_data %>%
 ```
 
 
-#### Marginal means {.tabset }
 
-##### Marginal to time course
+
+## Margin means
+
+### Prior predictions (before seeing the data)
+
+```{r gaze_time_prior, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(valid_participant) %>% 
+	count(lp, vocab_size_total_center)
+
+n <- expand_grid(
+	lp = c("Monolingual", "Bilingual"),
+	vocab_size_total_center = c(-1, 1),
+	trial_type = unique(gaze$trial_type),
+	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.1)
+)
+
+m <- epred_draws(object = fit_prior, newdata = n, ndraws = 50, re_formula = NA) %>% 
+	mutate(
+		.value = logit_to_prob(.epred),
+		vocab_size_total_center = ifelse(
+			vocab_size_total_center==-1, 
+			"Low vocabulary size (-1 SD)",
+			"High vocabulary size (+1 SD)"
+		)
+	)
+
+ggplot(m, aes(time_bin_center, .value)) +
+	facet_grid(fct_rev(lp)~vocab_size_total_center) +
+	geom_hline(yintercept = 0.5, colour = "black") +
+	geom_line(
+		aes(group = interaction(vocab_size_total_center, trial_type, lp, .draw),
+			colour = trial_type),
+		alpha = 0.5, size = 0.65
+	) +
+	
+	labs(x = "Time bin (100 ms)", y = "Expected posterior mean PTLT", colour = "Trial type",
+		 fill = "Trial type", shape = "Trial type", linetype = "Trial type") +
+	scale_color_futurama() +
+	scale_x_continuous(
+		breaks = min(gaze$time_bin_center):max(gaze$time_bin_center), 
+		labels = 1:20
+	) +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme_minimal() +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		axis.text.x = element_text(size = 7),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.x = element_blank(),
+		panel.background = element_rect(fill = "white", colour = NA),
+		plot.background = element_rect(fill = "white", colour = NA)
+	) 
+
+```
+
+
+### Posterior predictions (after seeing the data)
+
+```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+sample_size <- participants %>% 
+	filter(valid_participant) %>% 
+	count(lp, vocab_size_total_center)
+
+n <- expand_grid(
+	lp = c("Monolingual", "Bilingual"),
+	vocab_size_total_center = c(-1, 1),
+	trial_type = unique(gaze$trial_type),
+	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.1)
+)
+
+m <- epred_draws(object = fit_total, newdata = n, ndraws = 50, re_formula = NA) %>% 
+	mutate(
+		.value = logit_to_prob(.epred),
+		vocab_size_total_center = ifelse(
+			vocab_size_total_center==-1, 
+			"Low vocabulary size (-1 SD)",
+			"High vocabulary size (+1 SD)"
+		)
+	)
+
+ggplot(m, aes(time_bin_center, .value)) +
+	facet_grid(fct_rev(lp)~vocab_size_total_center) +
+	geom_hline(yintercept = 0.5, colour = "black") +
+	geom_line(
+		aes(group = interaction(vocab_size_total_center, trial_type, lp, .draw),
+			colour = trial_type),
+		alpha = 0.5, size = 0.65
+	) +
+	labs(x = "Time bin (100 ms)", y = "Expected posterior mean PTLT", colour = "Trial type",
+		 fill = "Trial type", shape = "Trial type", linetype = "Trial type") +
+	scale_color_futurama() +
+	scale_x_continuous(
+		breaks = min(gaze$time_bin_center):max(gaze$time_bin_center), 
+		labels = 1:20
+	) +
+	scale_y_continuous(limits = c(0, 1), labels = percent) + 
+	theme_minimal() +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		axis.text.x = element_text(size = 7),
+		panel.grid.major.x = element_blank(),
+		panel.grid.minor.x = element_blank(),
+		panel.background = element_rect(fill = "white", colour = NA),
+		plot.background = element_rect(fill = "white", colour = NA)
+	) 
+
+```
+
+
+## Marginal means {.tabset }
 
 ```{r gaze_marginal, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -545,52 +690,490 @@ ggplot(m_draws, aes(.value, trial_type, colour = trial_type, fill = trial_type))
 
 ```
 
-##### Time course
+
+# Model with L1 vocabulary
+
+
+## Fixed effects
+
+
+```{r fixed_effects_table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+str_repl <- c(
+	
+	# 3-way interactions
+	"b_time_bin_center:trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab (total)",
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab (L1)",
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_l1_center" =
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab (L1)",
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_l1_center" =
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab (L1)",
+	
+	# 2-way interactions
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (L1)",
+	"b_time_bin_center:trial_typePrimeNCvs.C:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (L1)",
+	
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_time_bin_center:trial_typePrimeNCvs.C:lpLPMonvs.Bil" = 
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (L1)",
+	"b_time_bin_center:trial_typePrimeNCvs.C:vocab_size_l1_center" =
+		"Trial type (C vs. NC) \u00d7 Vocab (L1)",
+	
+	"b_time_bin_center:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" =
+		"Trial type (U vs. C+NC) \u00d7 Group",  
+	"b_time_bin_center:lpLPMonvs.Bil:vocab_size_l1_center" =
+		"Group \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (L1)",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:lpLPMonvs.Bil" =
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (L1)",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",  
+	"b_Itime_bin_centerE2:lpLPMonvs.Bil:vocab_size_l1_center" = 
+		"Group \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (L1)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:lpLPMonvs.Bil" = 
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab (L1)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab (L1)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",  
+	"b_Itime_bin_centerE3:lpLPMonvs.Bil:vocab_size_l1_center" = 
+		"Group \u00d7 Vocab (L1)",
+	
+	
+	# main effects (linear)
+	"b_time_bin_center:trial_typePrimeUvs.CPNC" =
+		"Trial type (U vs. C+NC)",
+	"b_time_bin_center:trial_typePrimeNCvs.C" = 
+		"Trial type (C vs. NC)",
+	"b_Itime_bin_centerE2:trial_typePrimeUvs.CPNC" = 
+		"Trial type (U vs. C+NC)",
+	"b_Itime_bin_centerE2:trial_typePrimeNCvs.C" = 
+		"Trial type (C vs. NC)",
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC" = 
+		"Trial type (U vs. C+NC)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C" = 
+		"Trial type (C vs. NC)",
+	
+	"b_time_bin_center:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	"b_Itime_bin_centerE2:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	"b_Itime_bin_centerE3:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	
+	"b_time_bin_center:vocab_size_l1_center" = 
+		"Vocab. (L1, +1 SD)",
+	"b_Itime_bin_centerE2:vocab_size_l1_center" = 
+		"Vocab. (L1, +1 SD)",
+	"b_Itime_bin_centerE3:vocab_size_l1_center" = 
+		"Vocab. (L1, +1 SD)",
+	
+	
+	# 3-way interaction linear effects
+	"b_trial_typePrimeUvs.CPNC:lpLPMonvs.Bil:vocab_size_l1_center" =
+		"Trial type (U vs. C+NC) \u00d7 Group \u00d7 Vocab. (L1, +1 SD)",
+	"b_trial_typePrimeNCvs.C:lpLPMonvs.Bil:vocab_size_l1_center" =
+		"Trial type (C vs. NC) \u00d7 Group \u00d7 Vocab. (L1, +1 SD)",
+	
+	# 2-way interaction linear effects
+	"b_trial_typePrimeUvs.CPNC:lpLPMonvs.Bil" = 
+		"Trial type (U vs. C+NC) \u00d7 Group",
+	"b_trial_typePrimeNCvs.C:lpLPMonvs.Bil" = 
+		"Trial type (C vs. NC) \u00d7 Group",
+	
+	"b_trial_typePrimeUvs.CPNC:vocab_size_l1_center" = 
+		"Trial type (U vs. C+NC) \u00d7 Vocab. (L1, +1 SD)",
+	"b_trial_typePrimeNCvs.C:vocab_size_l1_center" = 
+		"Trial type (C vs. NC) \u00d7 Vocab. (L1, +1 SD)",
+	
+	
+	"b_lpLPMonvs.Bil:vocab_size_l1_center" =
+		"Group \u00d7 Vocab. (L1, +1 SD)",
+	
+	"b_Itime_bin_centerE3:trial_typePrimeUvs.CPNC" =
+		"Trial type (U vs. C+NC)",
+	"b_Itime_bin_centerE3:trial_typePrimeNCvs.C" =
+		"Trial type (C vs. NC)",
+	
+	"b_Itime_bin_centerE3:lpLPMonvs.Bil" = 
+		"Group (Mon. vs. Bil.)",
+	
+	# main linear effects
+	"b_Intercept" = "Intercept",
+	"b_Itime_bin_centerE2" = "Time bin 2",
+	"b_Itime_bin_centerE3" = "Time bin 3",
+	"b_time_bin_center" = "Time bin",
+	"b_vocab_size_l1_center" = "Vocab. (L1, +1 SD)",
+	
+	"b_trial_typePrimeUvs.CPNC" = "Trial type (U vs. C+NC)",
+	"b_trial_typePrimeNCvs.C" = "Trial type (C vs. NC)",
+	"b_lpLPMonvs.Bil" = "Group (Mon. vs. Bil.)",
+	
+	# sigma
+	"sigma" = "Sigma"
+)
+
+
+
+draws <- gather_draws(fit_l1, `b_.*`, `sigma`, regex = TRUE) %>% 
+	mutate(
+		.value = ifelse(.variable=="sigma", inv_logit(.value), .value),
+		.variable_name = str_replace_all(.variable, str_repl),
+		type = case_when(
+			str_detect(.variable, "E2") ~ "Quadratic time",
+			str_detect(.variable, "E3") ~ "Cubic time",
+			str_detect(.variable, "time_bin") ~ "Linear time",
+			str_detect(.variable, "sigma") ~ "Error",
+			TRUE ~ "Main effects"
+		) %>% 
+			factor(levels = c("Main effects", "Linear time", "Quadratic time", "Cubic time", "Error"), ordered = TRUE)
+	)
+
+draws %>% 
+	group_by(.variable, .variable_name, type) %>% 
+	mean_qi() %>% 
+	select(type, .variable_name, .value, .lower, .upper) %>% 
+	gt(rowname_col = ".variable", groupname_col = "type")  %>% 
+	fmt_percent(3) %>%
+	fmt_number(4:5, scale_by = 100) %>% 
+	cols_merge(c(".lower", ".upper"), pattern = "[{1}, {2}]") %>% 
+	cols_label(
+		.variable_name = md("**Predictor**"),
+		.value = md("**Mean**"),
+		.lower = md("**95% CrI**")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_text(weight = "bold", style = "italic")
+		),
+		locations = list(
+			cells_row_groups()
+		)
+	) %>% 
+	tab_style(
+		style = list(
+			cell_text(weight = "bold")
+		),
+		locations = list(
+			cells_column_labels()
+		)
+	) %>% 
+	as_raw_html()
+```
+
+
+```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=5}
+
+draws_intercept <- draws %>% 
+	filter(str_detect(.variable, "Intercept")) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	geom_vline(xintercept = 0.5, colour = "black", linetype = "dashed") +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5,
+		color = "#FF6F00FF",
+		fill = "#FF6F00FF"
+	) +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		fill = "CrI", 
+		title = "Intercept",
+		alpha = "CrI"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent, limits = c(0, 1)) 
+
+
+draws_predictors <- draws %>% 
+	filter(str_detect(.variable, "Intercept|sigma|sd|time_bin", negate = TRUE)) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	geom_vline(xintercept = 0, colour = "black", linetype = "dashed") +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5, 
+		color = "#C71000FF", 
+		fill = "#C71000FF") +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		fill = "CrI", 
+		alpha = "CrI",
+		title = "Main effects"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent, limits = c(-0.2, 0.2)) 
+
+draws_time <- draws %>%
+	filter(str_detect(.variable, "time_bin")) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	facet_wrap(~type, scales = "free_x") +
+	geom_vline(xintercept = 0, colour = "black", linetype = "dashed") +
+	# stat_slab(
+	# 	aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+	# 	size = 0.5, 
+	# 	color = "#008EA0FF", 
+	# 	fill = "#008EA0FF"
+	# ) +
+	stat_pointinterval(
+		color = "#008EA0FF",
+		fill = "#008EA0FF",
+		point_size = 1.5
+	) +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		fill = "CrI", 
+		alpha = "CrI",
+		title = "Polynomial effects"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent) 
+
+
+draws_sigma <- draws %>% 
+	filter(str_detect(.variable, "sigma")) %>% 
+	ggplot(aes(.value, .variable_name)) +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		size = 0.5, 
+		color = "#8A4198FF", 
+		fill = "#8A4198FF"
+	) +
+	labs(
+		x = "Value", 
+		y = "Variable", 
+		alpha = "CrI",
+		fill = "CrI", 
+		title = "Error"
+	) +
+	guides(fill = "none", color = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_fill_brewer(direction = -1, na.translate = FALSE) +
+	scale_x_continuous(labels = percent, limits = c(0.92, 0.97)) 
+
+((draws_intercept / draws_sigma / guide_area()) | draws_predictors) /
+	draws_time + 
+	plot_layout(heights = c(0.5, 0.5)) &
+	guides(fill = "none", color = "none") &
+	theme(
+		panel.background = element_rect(fill = NA, colour = "grey"),
+		axis.text.y = element_text(size = 7),
+		axis.text.x = element_text(size = 7),
+		axis.title = element_blank(),
+		legend.position = c(1, 1.2),
+		legend.direction = "horizontal",
+		legend.justification = "right",
+		legend.key.size = unit(0.35, "cm"),
+		legend.text = element_text(size = 7),
+		legend.title = element_text(size = 7),
+		panel.grid.major.y = element_blank()
+	)
+
+```
+
+
+## Random effects
+
+
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+corr_mat <- VarCorr(fit_l1, summary = TRUE)$participant$cor 
+corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$participant$cor)
+
+corr_mat <- corr_mat %>% 
+	as_tibble() %>% 
+	select(matches("Estimate")) %>% 
+	rename_all(str_remove, "Estimate.") %>% 
+	mutate(term1 = corr_names)
+
+corr_mat[lower.tri(corr_mat)] <- NA
+
+corr_data <- corr_mat %>% 
+	as.data.frame() %>% 
+	pivot_longer(-term1, names_to = "term2", values_to = ".value") %>% 
+	drop_na(.value)
+
+post_cors_participant <- corr_data %>% 
+	mutate_at(vars(term1, term2), ~paste0("b_", .)) %>% 
+	mutate_at(vars(term1, term2), str_replace_all, str_repl) %>% 
+	mutate(
+		.value_label = case_when(term1==term2 ~ NA_character_, TRUE ~ printnum(.value, gt1 = FALSE)),
+		.value = case_when(term1==term2 ~ NA_real_, TRUE ~ .value)
+	) %>% 
+	filter(term1 != "PTHN × Levenshtein", term2 != "Intercept") %>% 
+	ggplot(aes(fct_inorder(term1), fct_rev(fct_inorder(term2)), fill = .value)) +
+	geom_tile(na.rm = TRUE) +
+	geom_text(aes(label = .value_label), size = 3, na.rm = TRUE) +
+	labs(
+		x = "Term 1", 
+		y = "Term 2", 
+		fill = "Posterior\ncorrelation",
+		title = "By participant"
+	) +
+	scale_fill_gradient2(
+		low = "#04bf78", mid = "white", high = "#FFC20A", 
+		na.value = "white", limits = c(-0.4, 0.4)
+	) +
+	scale_x_discrete() +
+	coord_equal() +
+	theme(
+		panel.grid = element_blank(),
+		legend.position = c(1, 1),
+		legend.direction = "horizontal",
+		legend.key.height = unit(0.1, "cm"),
+		legend.key.width = unit(0.3, "cm"),
+		legend.justification = c(1, 1),
+		legend.title = element_blank(),
+		legend.text = element_text(size = 5),
+		axis.title.x = element_blank(),
+		axis.title.y = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_text(size = 6, angle = 90, hjust = 0, vjust = 1),
+		axis.text.y = element_text(size = 6, vjust = 1, hjust = 1)
+	)
+
+# correlations by item
+corr_mat <- VarCorr(fit_l1, summary = TRUE)$target$cor 
+corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$target$cor)
+
+corr_mat <- corr_mat %>% 
+	as_tibble() %>% 
+	select(matches("Estimate")) %>% 
+	rename_all(str_remove, "Estimate.") %>% 
+	mutate(term1 = corr_names)
+
+corr_mat[lower.tri(corr_mat)] <- NA
+
+corr_data <- corr_mat %>% 
+	as.data.frame() %>% 
+	pivot_longer(-term1, names_to = "term2", values_to = ".value") %>% 
+	drop_na(.value)
+
+post_cors_item <- corr_data %>% 
+	mutate_at(vars(term1, term2), ~paste0("b_", .)) %>% 
+	mutate_at(vars(term1, term2), str_replace_all, str_repl) %>% 
+	mutate(
+		.value_label = case_when(term1==term2 ~ NA_character_, TRUE ~ printnum(.value, gt1 = FALSE)),
+		.value = case_when(term1==term2 ~ NA_real_, TRUE ~ .value)
+	) %>% 
+	filter(term1 != "PTHN × Levenshtein", term2 != "Intercept") %>% 
+	ggplot(aes(fct_inorder(term1), fct_rev(fct_inorder(term2)), fill = .value)) +
+	geom_tile(na.rm = TRUE) +
+	geom_text(aes(label = .value_label), size = 3, na.rm = TRUE) +
+	labs(
+		x = "Term 1", y = "Term 2", fill = "Posterior\ncorrelation",
+		title = "By item"
+	) +
+	scale_fill_gradient2(
+		low = "#04bf78", mid = "white", high = "#FFC20A", 
+		na.value = "white", limits = c(-0.4, 0.4)
+	) +
+	scale_x_discrete() +
+	coord_equal() 
+
+
+(post_cors_participant | post_cors_item) &
+	plot_layout(guides = "collect") &
+	theme(
+		panel.grid = element_blank(),
+		legend.position = "top",
+		legend.direction = "horizontal",
+		legend.key.height = unit(0.1, "cm"),
+		legend.key.width = unit(0.3, "cm"),
+		legend.justification = c(1, 1),
+		legend.title = element_blank(),
+		legend.text = element_text(size = 5),
+		axis.title.x = element_blank(),
+		axis.title.y = element_blank(),
+		axis.ticks = element_blank(),
+		axis.text.x = element_text(size = 7, angle = 90, hjust = 1, vjust = 1),
+		axis.text.y = element_text(size = 7, vjust = 0, hjust = 0)
+	)
+
+```
+
+
+
+
+## Margin means
+
+### Posterior predictions (after seeing the data)
 
 ```{r gaze_time, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 sample_size <- participants %>% 
 	filter(valid_participant) %>% 
-	count(lp, vocab_size_total_center)
+	count(lp, vocab_size_l1_center)
 
 n <- expand_grid(
 	lp = c("Monolingual", "Bilingual"),
-	vocab_size_total_center = c(-1, 1),
+	vocab_size_l1_center = c(-1, 1),
 	trial_type = unique(gaze$trial_type),
 	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.1)
 )
 
-m <- epred_draws(object = fit_total, newdata = n, ndraws = 50, re_formula = NA) %>% 
+m <- epred_draws(object = fit_l1, newdata = n, ndraws = 50, re_formula = NA) %>% 
 	mutate(
 		.value = logit_to_prob(.epred),
-		vocab_size_total_center = ifelse(
-			vocab_size_total_center==-1, 
+		vocab_size_l1_center = ifelse(
+			vocab_size_l1_center==-1, 
 			"Low vocabulary size (-1 SD)",
 			"High vocabulary size (+1 SD)"
 		)
 	)
 
-# stat_summary(
-# 	aes(group = trial_type, colour = trial_type),
-# 	fun = mean, geom = "line", size = 1.25
-# ) +
-# stat_summary(
-# 	data = gaze, aes(
-# 		x = as.factor(time_bin_center), y = logit_to_prob(logit_adjusted), 
-# 		group = trial_type,
-# 		colour = trial_type
-# 	),
-# 	fun.data = mean_se, geom = "errorbar", size = 0.5, na.rm = TRUE,
-# 	position = position_dodge(width = 0.3), inherit.aes = FALSE
-# ) 
 ggplot(m, aes(time_bin_center, .value)) +
-	facet_grid(fct_rev(lp)~vocab_size_total_center) +
+	facet_grid(fct_rev(lp)~vocab_size_l1_center) +
 	geom_hline(yintercept = 0.5, colour = "black") +
 	geom_line(
-		aes(group = interaction(vocab_size_total_center, trial_type, lp, .draw),
+		aes(group = interaction(vocab_size_l1_center, trial_type, lp, .draw),
 			colour = trial_type),
 		alpha = 0.5, size = 0.65
 	) +
-	
 	labs(x = "Time bin (100 ms)", y = "Expected posterior mean PTLT", colour = "Trial type",
 		 fill = "Trial type", shape = "Trial type", linetype = "Trial type") +
 	scale_color_futurama() +
@@ -603,7 +1186,7 @@ ggplot(m, aes(time_bin_center, .value)) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
-		axis.text.x = element_text(size = 9),
+		axis.text.x = element_text(size = 7),
 		panel.grid.major.x = element_blank(),
 		panel.grid.minor.x = element_blank(),
 		panel.background = element_rect(fill = "white", colour = NA),
@@ -613,7 +1196,42 @@ ggplot(m, aes(time_bin_center, .value)) +
 ```
 
 
+## Marginal means {.tabset }
+
+```{r gaze_marginal, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+m <- emmeans(fit_l1, ~trial_type | lp, epred = TRUE) 
+
+m_draws <- gather_emmeans_draws(m) %>% 
+	as_tibble() %>% 
+	mutate_at(vars(.value), function(x) ifelse(x < 0, 0, x)) %>% 
+	mutate_at(vars(.value), function(x) ifelse(x > 1, 1, x))
+
+ggplot(m_draws, aes(.value, trial_type, colour = trial_type, fill = trial_type)) +
+	facet_wrap(~lp) +
+	stat_slab(
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		position = position_nudge(y = 0.05)
+	) +
+	stat_pointinterval(
+		color = "black",
+	) +
+	labs(
+		x = "Expected posterior mean PTLT", y = "Trial type",
+		colour = "Trial type", fill = "Trial type",
+		alpha = "CrI"
+	) +
+	guides(color = "none", fill = "none") +
+	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
+	scale_x_continuous(limits = c(0.5, 1), labels = percent)  +
+	theme(
+		axis.title.y = element_blank(),
+		legend.position = "right",
+		panel.grid.major.y = element_blank(),
+		panel.grid.minor.y = element_blank(),
+		panel.grid.minor.x = element_blank(),
+		panel.background = element_rect(fill = NA, colour = "grey")
+	)
 
 
-
-
+```

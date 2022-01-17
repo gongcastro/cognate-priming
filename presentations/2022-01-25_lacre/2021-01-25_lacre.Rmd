@@ -10,31 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r prepare, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
-library(gt)
-library(tibble)
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-library(tidybayes)
-library(stringr)
-library(forcats)
-library(targets)
-library(scales)
-library(here)
 
-source(here::here("R", "utils.R"))
-
-tar_load(participants)
-tar_load(attrition)
-tar_load(gaze)
-tar_load(model_fits)
-
-# withr::with_dir("../..", tar_load(participants))
-# withr::with_dir("../..", tar_load(attrition))
-# withr::with_dir("../..", tar_load(gaze))
-# withr::with_dir("../..", tar_load(model_fits))
-
-fit <- model_fits$fit
+tar_load_globals()
+tar_load_all()
 
 ```
 
@@ -159,8 +137,12 @@ We estimated our model using the Bayesian framework, under which we estimate the
 
 ## Results
 
+
+### Total vocabulary model
+
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-draws <- gather_draws(fit, `b_.*`, `sigma`, regex = TRUE)
+draws <- gather_draws(fit_total, `b_.*`, `sigma`, regex = TRUE)
 
 draws %>% 
 	filter(!str_detect(.variable, "time_bin|sigma")) %>% 
@@ -192,23 +174,24 @@ n <- expand_grid(
 	lp = c("Monolingual", "Bilingual"),
 	age_group = c("25 months"),
 	trial_type = unique(gaze$trial_type),
-	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.5)
+	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.5),
+	vocab_size_total_center = c(-1, 0, 1)
 )
 
-m <- epred_draws(object = fit, newdata = n, ndraws = 20, re_formula = NA) %>% 
+m <- epred_draws(object = fit_total, newdata = n, ndraws = 20, re_formula = NA) %>% 
 	mutate(.value = logit_to_prob(.epred))
 
 ggplot(m, aes(time_bin_center, .value)) +
-	facet_wrap(~fct_rev(lp)) +
+	facet_wrap(vocab_size_total_center ~ fct_rev(lp)) +
 	geom_line(aes(group = interaction(age_group, trial_type, lp, .draw),
 				  colour = trial_type),
 			  alpha = 0.15, size = 0.65) +
-	stat_summary(aes(group = trial_type, colour = trial_type),
-				 fun = mean, geom = "line", size = 1.25) +
-	stat_summary(data = gaze, aes(y = logit_to_prob(logit_adjusted), group = trial_type,
-								  colour = trial_type),
-				 fun.data = mean_se, geom = "errorbar", size = 0.5, na.rm = TRUE,
-				 position = position_dodge(width = 0.3)) +
+	# stat_summary(aes(group = trial_type, colour = trial_type),
+	# 			 fun = mean, geom = "line", size = 1.25) +
+	# stat_summary(data = gaze, aes(y = logit_to_prob(logit_adjusted), group = trial_type,
+	# 							  colour = trial_type),
+	# 			 fun.data = mean_se, geom = "errorbar", size = 0.5, na.rm = TRUE,
+	# 			 position = position_dodge(width = 0.3)) +
 	geom_text(data = sample_size, aes(x = min(gaze$time_bin_center), y = 0.95, label = paste0("N = ", n)),
 			  colour = "white", hjust = 0, size = 5) +
 	labs(x = "Time bin (100 ms)", y = "Expected posterior mean PTLT", colour = "Trial type",
