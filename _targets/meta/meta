@@ -61,4 +61,4 @@ get_multilex|function|2f97085430b3ed46||||||||||||||
 get_epreds|function|47352d260192df19||||||||||||||
 get_familiarity|function|b87071ee4e9600bb||||||||||||||
 get_stimuli|function|c388d729efc18a7d||||||||||||||
-docs_results_bcn|stem|568b5e8c7027fe8b|e0851b85b9d384c3|4745aa592080ea1d|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t19009.6272814144s|d1c9cee343dde9dc|4167868|file|vector|||57.98|Using alpha for a discrete variable is not advised.|
+docs_results_bcn|stem|f1b58c77e9e0a1a5|e0851b85b9d384c3|4745aa592080ea1d|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t19009.6350987278s|2dc728dea6f638ec|4276598|file|vector|||58.48|Using alpha for a discrete variable is not advised.|

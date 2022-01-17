@@ -420,7 +420,7 @@ draws_sigma <- draws %>%
 ## Random effects
 
 
-```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, fig.width=8}
 
 corr_mat <- VarCorr(fit_total, summary = TRUE)$participant$cor 
 corr_names <- rownames(VarCorr(fit_total, summary = TRUE)$participant$cor)
@@ -901,7 +901,7 @@ draws %>%
 ```
 
 
-```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=5}
+```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
 
 draws_intercept <- draws %>% 
 	filter(str_detect(.variable, "Intercept")) %>% 
@@ -1021,7 +1021,7 @@ draws_sigma <- draws %>%
 ## Random effects
 
 
-```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=5,fig.height=5}
 
 corr_mat <- VarCorr(fit_l1, summary = TRUE)$participant$cor 
 corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$participant$cor)
