@@ -30,6 +30,10 @@ loos|stem|443283979daed722|914b393752ef62ff|b4784afc60e499cd|-277576917||t19009.
 waics|stem|3660477179b8a8bc|f2cb40a258f5a44a|2c9d68f70cab26de|723257104||t19009.4748217235s|e93b10e805e9ce66|1715219|rds|vector|||121.02||
 report|stem|8fac4c0d3f6c9029|8a25a318d96097c9|4745aa592080ea1d|-237041703|docs/03_design.md*docs/03_design.Rmd|t19009.6212908479s|2f66fc98afd0957b|631|file|vector|||3.61||
 docs_results|stem||8ee476851d5699bf|466bad35eb6be1f0|-1466068189||t19009.6225516458s||0|file|vector|||0.36||object model_fits not found
+docs_vocabulary|stem|6f1a9fc2df4c0c1d|35713dbdeaf62dc0|4745aa592080ea1d|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t19009.6221328917s|07758761562987cc|98533|file|vector|||18.2|Removed 19 rows containing missing values stat_slabinterval.|
+docs_stimuli|stem|18e7d452ea2f1b48|8b924c9cb953be53|2ca9a71b8dd19ae9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t19009.6221817176s|47a84b087ce00cd9|9241|file|vector|||4.1||
+docs_participants|stem|410f9cf9ff74fdba|2073afc881612b2d|f046d5f007e0b05f|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t19009.6225458651s|bf21c1b7e227f2dd|36876|file|vector|||1.8|longer object length is not a multiple of shorter object length|
+docs_attrition|stem|bbb74137a55ff6ee|c36606e5bcaca2e6|9cd0d08afb244b68|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t19009.6225149244s|c7377c21feb031d9|1087911|file|vector|||29.58||
 get_gaze_raw|function|5c00ba772bd07556||||||||||||||
 prop_adj|function|8f984a7e77cc1c9c||||||||||||||
 get_credentials|function|3929802812762e5e||||||||||||||
@@ -57,8 +61,4 @@ get_multilex|function|2f97085430b3ed46||||||||||||||
 get_epreds|function|47352d260192df19||||||||||||||
 get_familiarity|function|b87071ee4e9600bb||||||||||||||
 get_stimuli|function|c388d729efc18a7d||||||||||||||
-docs_results_bcn|stem|b2f5509ca8ad47a6|e0851b85b9d384c3|4745aa592080ea1d|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t19009.6219182937s|864b95d39732108c|187552|file|vector|||54.68|Using alpha for a discrete variable is not advised.|
-docs_vocabulary|stem|6f1a9fc2df4c0c1d|35713dbdeaf62dc0|4745aa592080ea1d|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t19009.6221328917s|07758761562987cc|98533|file|vector|||18.2|Removed 19 rows containing missing values stat_slabinterval.|
-docs_stimuli|stem|18e7d452ea2f1b48|8b924c9cb953be53|2ca9a71b8dd19ae9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t19009.6221817176s|47a84b087ce00cd9|9241|file|vector|||4.1||
-docs_participants|stem|410f9cf9ff74fdba|2073afc881612b2d|f046d5f007e0b05f|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t19009.6225458651s|bf21c1b7e227f2dd|36876|file|vector|||1.8|longer object length is not a multiple of shorter object length|
-docs_attrition|stem|bbb74137a55ff6ee|c36606e5bcaca2e6|9cd0d08afb244b68|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t19009.6225149244s|c7377c21feb031d9|1087911|file|vector|||29.58||
+docs_results_bcn|stem|568b5e8c7027fe8b|e0851b85b9d384c3|4745aa592080ea1d|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t19009.6272814144s|d1c9cee343dde9dc|4167868|file|vector|||57.98|Using alpha for a discrete variable is not advised.|

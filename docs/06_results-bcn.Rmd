@@ -63,7 +63,7 @@ participants <- participants %>%
 
 # Model comparison
 
-```{model-comparison}
+```{r model-comparison, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
 waics %>% 
 	map("estimates") %>% 
@@ -85,7 +85,8 @@ waics %>%
 		se_elpd_waic = md("*SE*"),
 		se_waic = md("*SE*"),
 		se_p_waic = md("*SE*"),
-	)
+	) %>% 
+	as_raw_html()
 
 
 ```
@@ -299,7 +300,7 @@ draws %>%
 ```
 
 
-```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=5}
+```{r main_effects_plot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
 
 draws_intercept <- draws %>% 
 	filter(str_detect(.variable, "Intercept")) %>% 
