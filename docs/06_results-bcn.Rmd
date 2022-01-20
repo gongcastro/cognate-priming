@@ -65,13 +65,14 @@ participants <- participants %>%
 
 ```{r model-comparison, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-waics %>% 
+model_comparison <- waics_l1 %>% 
 	map("estimates") %>% 
 	map(function(x) as.data.frame(x) %>% rownames_to_column("variable")) %>% 
 	bind_rows(.id = "model") %>%
 	clean_names() %>% 
 	pivot_wider(names_from = variable, values_from = c(estimate, se)) %>% 
 	relocate(model, matches("estimate"), matches("elpd"), matches("_p_")) %>% 
+	mutate(model = str_replace_all(model, c("fit_l1_4" = "L1 vocab.", "fit_total_4" = "Total vocab."))) %>% 
 	gt() %>% 
 	fmt_number(-model) %>% 
 	tab_spanner("WAIC", matches("waic")) %>% 
@@ -86,7 +87,19 @@ waics %>%
 		se_waic = md("*SE*"),
 		se_p_waic = md("*SE*"),
 	) %>% 
-	as_raw_html()
+	tab_style(
+		cell_text(weight = "bold"),
+		cells_column_spanners()
+	) %>% 
+	tab_style(
+		cell_text(style = "italic"),
+		cells_column_labels()
+	)
+
+gtsave(model_comparison, here("img", "model_comparison.png"))
+
+
+as_raw_html(model_comparison)
 
 
 ```
@@ -253,7 +266,7 @@ str_repl <- c(
 
 
 
-draws <- gather_draws(fit_total, `b_.*`, `sigma`, regex = TRUE) %>% 
+draws <- gather_draws(fit_total_4, `b_.*`, `sigma`, regex = TRUE) %>% 
 	mutate(
 		.value = ifelse(.variable=="sigma", inv_logit(.value), .value),
 		.variable_name = str_replace_all(.variable, str_repl),
@@ -307,7 +320,7 @@ draws_intercept <- draws %>%
 	ggplot(aes(.value, .variable_name)) +
 	geom_vline(xintercept = 0.5, colour = "black", linetype = "dashed") +
 	stat_slab(
-		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
+		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(0.95, 0.8, 0.5), labels = percent_format()))),
 		size = 0.5,
 		color = "#FF6F00FF",
 		fill = "#FF6F00FF"
@@ -322,7 +335,10 @@ draws_intercept <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent, limits = c(0, 1)) 
+	scale_x_continuous(labels = percent, limits = c(0, 1)) +
+	theme(
+		axis.title.y = element_blank()
+	)
 
 
 draws_predictors <- draws %>% 
@@ -344,7 +360,10 @@ draws_predictors <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent, limits = c(-0.2, 0.2)) 
+	scale_x_continuous(labels = percent, limits = c(-0.2, 0.2)) +
+	theme(
+		axis.title.y = element_blank()
+	)
 
 draws_time <- draws %>%
 	filter(str_detect(.variable, "time_bin")) %>% 
@@ -372,7 +391,10 @@ draws_time <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent) 
+	scale_x_continuous(labels = percent) +
+	theme(
+		axis.title.y = element_blank()
+	)
 
 
 draws_sigma <- draws %>% 
@@ -394,7 +416,10 @@ draws_sigma <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent, limits = c(0.92, 0.97)) 
+	scale_x_continuous(labels = percent, limits = c(0.92, 0.97)) +
+	theme(
+		axis.title.y = element_blank()
+	) 
 
 ((draws_intercept / draws_sigma / guide_area()) | draws_predictors) /
 	draws_time + 
@@ -422,8 +447,8 @@ draws_sigma <- draws %>%
 
 ```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8, fig.height=4}
 
-corr_mat <- VarCorr(fit_total, summary = TRUE)$participant$cor 
-corr_names <- rownames(VarCorr(fit_total, summary = TRUE)$participant$cor)
+corr_mat <- VarCorr(fit_total_4, summary = TRUE)$participant$cor 
+corr_names <- rownames(VarCorr(fit_total_4, summary = TRUE)$participant$cor)
 
 corr_mat <- corr_mat %>% 
 	as_tibble() %>% 
@@ -466,8 +491,8 @@ post_cors_participant <- corr_data %>%
 	)
 
 # correlations by item
-corr_mat <- VarCorr(fit_total, summary = TRUE)$target$cor 
-corr_names <- rownames(VarCorr(fit_total, summary = TRUE)$target$cor)
+corr_mat <- VarCorr(fit_total_4, summary = TRUE)$target$cor 
+corr_names <- rownames(VarCorr(fit_total_4, summary = TRUE)$target$cor)
 
 corr_mat <- corr_mat %>% 
 	as_tibble() %>% 
@@ -546,7 +571,7 @@ n <- expand_grid(
 	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.1)
 )
 
-m <- epred_draws(object = fit_prior, newdata = n, ndraws = 50, re_formula = NA) %>% 
+m <- epred_draws(object = fit_prior_l1_prior, newdata = n, ndraws = 50, re_formula = NA) %>% 
 	mutate(
 		.value = logit_to_prob(.epred),
 		vocab_size_total_center = ifelse(
@@ -601,7 +626,7 @@ n <- expand_grid(
 	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.1)
 )
 
-m <- epred_draws(object = fit_total, newdata = n, ndraws = 50, re_formula = NA) %>% 
+m <- epred_draws(object = fit_total_4, newdata = n, ndraws = 50, re_formula = NA) %>% 
 	mutate(
 		.value = logit_to_prob(.epred),
 		vocab_size_total_center = ifelse(
@@ -645,7 +670,7 @@ ggplot(m, aes(time_bin_center, .value)) +
 
 ```{r gaze_marginal, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-m <- emmeans(fit_total, ~trial_type | lp, epred = TRUE) 
+m <- emmeans(fit_total_4, ~trial_type | lp, epred = TRUE) 
 
 m_draws <- gather_emmeans_draws(m) %>% 
 	as_tibble() %>% 
@@ -844,7 +869,7 @@ str_repl <- c(
 
 
 
-draws <- gather_draws(fit_l1, `b_.*`, `sigma`, regex = TRUE) %>% 
+draws <- gather_draws(fit_l1_4, `b_.*`, `sigma`, regex = TRUE) %>% 
 	mutate(
 		.value = ifelse(.variable=="sigma", inv_logit(.value), .value),
 		.variable_name = str_replace_all(.variable, str_repl),
@@ -913,8 +938,12 @@ draws_intercept <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent, limits = c(0, 1)) 
+	scale_x_continuous(labels = percent, limits = c(0, 1)) +
+	theme(
+		panel.grid.major.y = element_blank()
+	)
 
+ggsave(here("img", "posterior_intercept_l1.png"), draws_intercept, height = 2, width = 7)
 
 draws_predictors <- draws %>% 
 	filter(str_detect(.variable, "Intercept|sigma|sd|time_bin", negate = TRUE)) %>% 
@@ -924,7 +953,8 @@ draws_predictors <- draws %>%
 		aes(alpha = stat(cut_cdf_qi(cdf, .width = c(.95, .8, .5), labels = percent_format()))),
 		size = 0.5, 
 		color = "#C71000FF", 
-		fill = "#C71000FF") +
+		fill = "#C71000FF"
+	) +
 	labs(
 		x = "Value", 
 		y = "Variable", 
@@ -935,7 +965,13 @@ draws_predictors <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent, limits = c(-0.2, 0.2)) 
+	scale_x_continuous(labels = percent, limits = c(-0.2, 0.2)) +
+	theme(
+		panel.grid.major.y = element_blank()
+	)
+
+ggsave(here("img", "posterior_predictors_l1.png"), draws_predictors, height = 7, width = 7)
+
 
 draws_time <- draws %>%
 	filter(str_detect(.variable, "time_bin")) %>% 
@@ -963,7 +999,14 @@ draws_time <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent) 
+	scale_x_continuous(labels = percent) +
+	theme(
+		panel.grid.major.y = element_blank(),
+		panel.border = element_rect(fill = NA, colour = "grey"),
+		axis.title = element_blank()
+	)
+
+ggsave(here("img", "posterior_poly_l1.png"), draws_time, height = 7, width = 9)
 
 
 draws_sigma <- draws %>% 
@@ -985,7 +1028,13 @@ draws_sigma <- draws %>%
 	guides(fill = "none", color = "none") +
 	scale_alpha_discrete(range = c(0.8, 0.2), na.translate = FALSE) +
 	scale_fill_brewer(direction = -1, na.translate = FALSE) +
-	scale_x_continuous(labels = percent, limits = c(0.92, 0.97)) 
+	scale_x_continuous(labels = percent, limits = c(0.92, 0.96)) +
+	theme(
+		panel.grid.major.y = element_blank()
+	)
+
+ggsave(here("img", "posterior_sigma_l1.png"), draws_sigma, height = 2, width = 7)
+
 
 ((draws_intercept / draws_sigma / guide_area()) | draws_predictors) /
 	draws_time + 
@@ -1013,8 +1062,8 @@ draws_sigma <- draws %>%
 
 ```{r random_effects_participant, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=8,fig.height=4}
 
-corr_mat <- VarCorr(fit_l1, summary = TRUE)$participant$cor 
-corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$participant$cor)
+corr_mat <- VarCorr(fit_l1_4, summary = TRUE)$participant$cor 
+corr_names <- rownames(VarCorr(fit_l1_4, summary = TRUE)$participant$cor)
 
 corr_mat <- corr_mat %>% 
 	as_tibble() %>% 
@@ -1058,8 +1107,8 @@ post_cors_participant <- corr_data %>%
 
 
 # correlations by item
-corr_mat <- VarCorr(fit_l1, summary = TRUE)$target$cor 
-corr_names <- rownames(VarCorr(fit_l1, summary = TRUE)$target$cor)
+corr_mat <- VarCorr(fit_l1_4, summary = TRUE)$target$cor 
+corr_names <- rownames(VarCorr(fit_l1_4, summary = TRUE)$target$cor)
 
 corr_mat <- corr_mat %>% 
 	as_tibble() %>% 
@@ -1139,7 +1188,7 @@ n <- expand_grid(
 	time_bin_center = seq(min(gaze$time_bin_center), max(gaze$time_bin_center), 0.1)
 )
 
-m <- epred_draws(object = fit_l1, newdata = n, ndraws = 50, re_formula = NA) %>% 
+m <- epred_draws(object = fit_l1_4, newdata = n, ndraws = 50, re_formula = NA) %>% 
 	mutate(
 		.value = logit_to_prob(.epred),
 		vocab_size_l1_center = ifelse(
@@ -1176,6 +1225,8 @@ ggplot(m, aes(time_bin_center, .value)) +
 		plot.background = element_rect(fill = "white", colour = NA)
 	) 
 
+ggsave(here("img", "epreds_l1.pdf"), dpi = 1000)
+
 ```
 
 
@@ -1183,7 +1234,7 @@ ggplot(m, aes(time_bin_center, .value)) +
 
 ```{r gaze_marginal, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-m <- emmeans(fit_l1, ~trial_type | lp, epred = TRUE) 
+m <- emmeans(fit_l1_4, ~trial_type | lp, epred = TRUE) 
 
 m_draws <- gather_emmeans_draws(m) %>% 
 	as_tibble() %>% 

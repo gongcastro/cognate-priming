@@ -17,14 +17,7 @@ knitr::opts_chunk$set(
 	dpi = 800
 )
 
-tar_load_globals()
-tar_load(participants)
-tar_load(gaze)
-tar_load(attrition)
-tar_load(vocabulary)
-tar_load(model_fits)
-tar_load(epreds)
-tar_load(emmeans_lp)
+tar_load_all()
 
 theme_set(theme_custom())
 

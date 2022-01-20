@@ -182,9 +182,21 @@ list(
 	# this function takes a list of formulas and list of datasets and fits a model 
 	# that takes each formula-dataset pair at a time, and returns a named list of fits
 	
+	# set model prior
+	tar_target(
+		model_prior,
+		c(
+			prior(normal(0.5, 0.05), class = "Intercept"),
+			prior(normal(0, 0.05), class = "b"),
+			prior(normal(0.1, 0.05), class = "sigma"),
+			prior(normal(0.1, 0.05), class = "sd"),
+			prior(lkj(7), class = "cor")
+		)
+	),
+	
 	# fit models ----
 	tar_target(
-		fit_prior,
+		fit_prior_l1_prior,
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
@@ -194,23 +206,120 @@ list(
 				family = gaussian
 			), 
 			data = filter(gaze, location=="Barcelona"), 
-			prior = c(
-				prior(normal(0.5, 0.05), class = "Intercept"),
-				prior(normal(0, 0.05), class = "b"),
-				prior(normal(0.1, 0.05), class = "sigma"),
-				prior(normal(0.1, 0.05), class = "sd"),
-				prior(lkj(7), class = "cor")
-			),
+			prior = model_prior,
 			backend = "cmdstanr",
 			sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit.stan"),
-			file = here("results", "fit_prior.rds")
+			save_model = here("src", "stan", "fit_l1_prior.stan"),
+			file = here("results", "fit_prior_l1_prior.rds")
 			
 		)
 	),
+	
 	tar_target(
-		fit_total,
+		fit_l1_4,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+					(1 + trial_type*vocab_size_total_center | participant) +
+					(1 + trial_type*vocab_size_total_center | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = model_prior,
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_l1_4.stan"),
+			file = here("results", "fit_l1_4.rds")
+			
+		)
+	),
+	
+	tar_target(
+		fit_l1_3,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
+					(1 + trial_type | participant) +
+					(1 + trial_type | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = model_prior,
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_l1_3.stan"),
+			file = here("results", "fit_l1_3.rds")
+		)
+	),
+	
+	
+	tar_target(
+		fit_l1_2,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
+					(1 + trial_type | participant) +
+					(1 + trial_type | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = model_prior,
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_l1_2.stan"),
+			file = here("results", "fit_l1_2.rds")
+		)
+	),
+	
+	tar_target(
+		fit_l1_1,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
+					(1 + trial_type | participant) +
+					(1 + trial_type | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = model_prior,
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_l1_1.stan"),
+			file = here("results", "fit_l1_1.rds")
+		)
+	),
+	
+	tar_target(
+		fit_l1_0,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) +
+					(1 | participant) +
+					(1 | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = filter(model_prior, class!="cor"),
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_l1_0.stan"),
+			file = here("results", "fit_l1_0.rds")
+		)
+	),
+	
+	tar_target(
+		fit_total_4,
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
@@ -230,62 +339,32 @@ list(
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_total.stan"),
-			file = here("results", "fit_total.rds")
-			
-		)
-	),
-	tar_target(
-		fit_l1,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
-					(1 + trial_type*vocab_size_l1_center | participant) +
-					(1 + trial_type*vocab_size_l1_center | target),
-				family = gaussian
-			), 
-			data = filter(gaze, location=="Barcelona"), 
-			prior = c(
-				prior(normal(0.5, 0.05), class = "Intercept"),
-				prior(normal(0, 0.05), class = "b"),
-				prior(normal(0.1, 0.05), class = "sigma"),
-				prior(normal(0.1, 0.05), class = "sd"),
-				prior(lkj(7), class = "cor")
-			),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1.stan"),
-			file = here("results", "fit_l1.rds")
+			save_model = here("src", "stan", "fit_total_4.stan"),
+			file = here("results", "fit_total_4.rds")
 			
 		)
 	),
 	
-	tar_target(
-		loos,
-		map(list(fit_total = fit_total, fit_l1 = fit_l1), loo_subsample)
-	),
+	tar_target(model_fits_l1, lst(fit_l1_0, fit_l1_1, fit_l1_2, fit_l1_3, fit_l1_4)),
 	
-	tar_target(
-		waics,
-		map(list(fit_total = fit_total, fit_l1 = fit_l1), waic)
-	),
 	
-	# # render docs
-	tar_render(docs_participants, "docs/00_participants.Rmd"),
-	tar_render(docs_stimuli, "docs/01_stimuli.Rmd"),
-	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd"),
-	tar_render(report, "docs/03_design.Rmd"),
-	tar_render(docs_analysis, "docs/04_analysis.Rmd"),
-	tar_render(docs_attrition, "docs/05_attrition.Rmd"),
+	tar_target(waics_l1, map(model_fits_l1, waic)),
+	
+	# # # render docs
+	tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
+	tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
+	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
+	tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
+	tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
+	tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
 	# tar_render(docs_results, "docs/06_results.Rmd"),
-	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd")
+	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd", priority = 0)
 	# 
+	# # render presentations
+	# tar_render(communications_lacre_abstract, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd", priority = 0),
+	# tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre.Rmd", priority = 0)
 	# 
-	# render presentations
-	# tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd")
-	# tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
+	# # tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
 	
 	# render manuscript
 )

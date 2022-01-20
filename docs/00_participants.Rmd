@@ -75,7 +75,7 @@ participants <- participants %>%
 # Summary
 
 ```{r participants_summary_tab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
-participants %>% 
+participants_tab <- participants %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>% 
 	filter(valid_participant) %>% 
 	drop_na(valid_participant) %>% 
@@ -87,8 +87,11 @@ participants %>%
 		`21 months` = md("**21 months**"),
 		`25 months` = md("**25 months**"),
 		`30 months` = md("**30 months**")
-	) %>% 
-	as_raw_html()
+	)
+
+
+gtsave(participants_tab, here("img", "participants_tab.png"))
+as_raw_html(participants_tab)
 ```
 
 ```{r participants_summary_tab_language, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}

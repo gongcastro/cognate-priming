@@ -72,11 +72,15 @@ This figure represents the vocabulary size in the dominant language of participa
 
 ```{r vocabulary_l1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
 sample_size <- participants %>% 
-	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	filter(
+		participant %in% fit_l1_4$data$participant
+	) %>% 
 	count(age_group, location)
 
 sample_size_lp <- participants %>% 
-	filter(valid_participant, !is.na(vocab_size_l1)) %>% 
+	filter(
+		participant %in% fit_l1_4$data$participant
+	) %>% 
 	count(age_group, lp, location) %>% 
 	mutate(
 		age_group = case_when(
@@ -118,8 +122,8 @@ participants %>%
 	) +
 	labs(
 		y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group",
-		title = "Total vocabulary size",
-		subtitle = "Percentage of words in L1+L2 reported to be understood from the vocabulary checklist"
+		title = "L1 vocabulary size",
+		subtitle = "Percentage of words in L1 reported to be understood from the vocabulary checklist"
 	) +
 	guides(colour = "none") +
 	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
@@ -132,6 +136,8 @@ participants %>%
 		axis.text = element_text(size = 9)
 	)
 
+ggsave(here("img", "vocab_l1.png"))
+
 ```
 
 
@@ -139,11 +145,11 @@ participants %>%
 
 ```{r vocabulary_total, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
 sample_size <- participants %>% 
-	filter(valid_participant, !is.na(vocab_size_total)) %>% 
+	filter(participant %in% fit_total_4$data$participant) %>% 
 	count(age_group, location)
 
 sample_size_lp <- participants %>% 
-	filter(valid_participant, !is.na(vocab_size_total)) %>% 
+	filter(participant %in% fit_total_4$data$participant) %>% 
 	count(age_group, lp, location) %>% 
 	mutate(
 		age_group = case_when(
@@ -184,9 +190,9 @@ participants %>%
 		show.legend = FALSE, position = position_dodge(width = 2)
 	) +
 	labs(
-		y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group",
-		title = "L1 vocabulary size",
-		subtitle = "Percentage of words in L1 reported to be understood from the vocabulary checklist"
+		y = "Receptive vocabulary (total)", colour = "Group", fill = "Group",
+		title = "Total vocabulary size",
+		subtitle = "Percentage of words in L1+L2 reported to be understood from the vocabulary checklist"
 	) +
 	guides(colour = "none") +
 	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
@@ -199,6 +205,7 @@ participants %>%
 		axis.text = element_text(size = 9)
 	)
 
+ggsave(here("img", "vocab_total.png"))
 ```
 
 
@@ -432,7 +439,7 @@ str_repl <- c(
 
 
 
-draws <- gather_draws(fit_total, `b_.*`, `sigma`, regex = TRUE) %>% 
+draws <- gather_draws(fit_total_4, `b_.*`, `sigma`, regex = TRUE) %>% 
 	mutate(
 		.value = ifelse(.variable=="sigma", inv_logit(.value), .value),
 		.variable_name = str_replace_all(.variable, str_repl),

@@ -1,6 +1,6 @@
 Analysis
 ================
-Updated: 15/01/2022
+Updated: 20/01/2022
 
 # Gaze data
 
@@ -14,8 +14,7 @@ non-cognate, and unrelated).
 
 ## Workflow
 
-<div id="htmlwidget-5c6a0ab831a99a6c92cb" style="width:80%;height:500px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-5c6a0ab831a99a6c92cb">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle, fontname = \"Arial\"]        \n  rec1 [label = \"Merge Barcelona and Oxford data\"]\n  rec2 [label = \"Impute missing/invalid samples (pending)\"]\n  rec2 [label = \"Extract fixations (pending)\"]\n  rec3 [label = \"For each sample, evaluate if gaze is in target or distractor\"]\n  rec4 [label = \"Divide each trial into 100 ms time bins\"]\n  rec5 [label = \"Aggregate samples from the same time bin and calculate\nthe number of valid samples in target, distractor, or none\"]\n  rec6 [label = \"Exclude time bins 1-3 (pending)\"]\n  rec7 [label = \"Apply trial-level inclusion criteria\"]\n  rec8 [label = \"Apply participant-level inclusion criteria\"]\n\n  \n  # edge definitions with the node IDs\n  rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6 -> rec7 -> rec8\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<img src="04_analysis_files/figure-gfm/workflow_preprocessing-1.png" width="80%" />
 
 ## Inclusion criteria
 
