@@ -196,11 +196,11 @@ list(
 	
 	# fit models ----
 	tar_target(
-		fit_prior_l1_prior,
+		fit_l1_prior,
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
 					(1 + trial_type*vocab_size_total_center | participant) +
 					(1 + trial_type*vocab_size_total_center | target),
 				family = gaussian
@@ -242,9 +242,9 @@ list(
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
-					(1 + trial_type | participant) +
-					(1 + trial_type | target),
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp+vocab_size_total_center +
+					(1 + trial_type + vocab_size_total_center | participant) +
+					(1 + trial_type + vocab_size_total_center| target),
 				family = gaussian
 			), 
 			data = filter(gaze, location=="Barcelona"), 
@@ -315,6 +315,27 @@ list(
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
 			save_model = here("src", "stan", "fit_l1_0.stan"),
 			file = here("results", "fit_l1_0.rds")
+		)
+	),
+	
+	tar_target(
+		fit_total_prior,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+					(1 + trial_type*vocab_size_total_center | participant) +
+					(1 + trial_type*vocab_size_total_center | target),
+				family = gaussian
+			), 
+			data = filter(gaze, location=="Barcelona"), 
+			prior = model_prior,
+			backend = "cmdstanr",
+			sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("src", "stan", "fit_total_prior.stan"),
+			file = here("results", "fit_prior_total_prior.rds")
+			
 		)
 	),
 	

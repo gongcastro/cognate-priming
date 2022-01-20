@@ -29,13 +29,17 @@ fit_l1_0|stem|b2d7c74e1314b10b|452f9b32f102df3d|9d9659f0caff4863|-585849526||t19
 fit_l1_1|stem|e9b64983af56f5b8|9e3d8d36a53c80ff|0b31a8b576c70c40|-29792373||t19011.2079489614s|550ee97cad99fa13|41663517|rds|vector|||35035.38|Rows containing NAs were excluded from the model.|
 fit_l1_2|stem|a43b227a439575e4|ce180ec1e2dbf846|aa8fdf53a1568e46|-293844975||t19011.652222857s|9c1df85aca5e3eef|42016431|rds|vector|||38384.38|Rows containing NAs were excluded from the model.|
 fit_total_4|stem|82cf4eb3a516f9be|4972bc405e59e295|b46829e5b6d35bcf|1387719835||t19011.6522574661s|6f07e7401e72ba84|66971480|rds|vector|||0.47||
-fit_l1_3|stem|5e5d07578a30168e|17469c8eb9d90e75|aa8fdf53a1568e46|-371278122||t19012.0931745036s|1ec4337c7686d2ba|42016427|rds|vector|||38094.87|Rows containing NAs were excluded from the model.|
 fit_l1_4|stem|8cbb987e2254d2db|384d2b55d10e87fb|a67e911ecc476801|-869760150||t19012.0932086587s|807907960ee3caf4|66602741|rds|vector|||0.47||
-model_fits_l1|stem|a3ad0c438fc1df5e|ec3fc59569adb7e2|2160c8e2096a0bf1|1141228285||t19012.0932978604s|1a37f04b11741af8|201748087|rds|vector|||0.02||
-waics_l1|stem|da62eb4ae4afb70d|924fbe1fcda17770|41502123c314f21e|526415742||t19012.0994004477s|50b94a8e2af2f60d|7412608|rds|vector|||526.27||
 docs_design|stem|48be5dfed81099d5|8a25a318d96097c9|4745aa592080ea1d|-874547757|docs/03_design.md*docs/03_design.Rmd|t19012.343454624s|2f66fc98afd0957b|631|file|vector|||3.94||
 docs_results_bcn|stem|55c101b771145bf7|e0851b85b9d384c3|4745aa592080ea1d|-2080809102|docs/06_results-bcn.md*docs/06_results-bcn.Rmd*docs/06_results-bcn_files|t19012.3540293655s|d836be0bb1a887b9|209113|file|vector|||65.22|Using alpha for a discrete variable is not advised.|
 docs_results|stem||8ee476851d5699bf|466bad35eb6be1f0|-1466068189||t19012.3573016676s||0|file|vector|||0.38||object model_fits not found
+docs_vocabulary|stem|65af6bda242ecc01|35713dbdeaf62dc0|4745aa592080ea1d|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t19012.3568598668s|6f037d71e9ac16e9|98639|file|vector|||26.29|Removed 19 rows containing missing values stat_slabinterval.|
+docs_stimuli|stem|a9e92d70a3d7324d|8b924c9cb953be53|2ca9a71b8dd19ae9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t19012.3569091941s|47a84b087ce00cd9|9241|file|vector|||4.12||
+docs_attrition|stem|f2fcbd13896f3f42|c36606e5bcaca2e6|9cd0d08afb244b68|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t19012.3572437672s|c7377c21feb031d9|1087911|file|vector|||29.69||
+docs_participants|stem|26f023f153ca5e18|2073afc881612b2d|f046d5f007e0b05f|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t19012.3572957105s|6a910a73d0f4a877|37067|file|vector|||3.61|longer object length is not a multiple of shorter object length|
+docs_analysis|stem|ad08eed09eb1cf53|84db6b24af326297|5ab5de6475b85a6d|-410177745|docs/04_analysis.md*docs/04_analysis.Rmd*docs/04_analysis_files|t19012.3577342342s|2c68cb53f6502948|16568|file|vector|||6.59||
+fit_l1_prior|stem|8543988dd86c72f8|37a000282478472f|3e779981abed8cfd|-1990287663||t19012.3622733543s|ab6ccafb8d56ee22|70711984|rds|vector|||3.56||
+fit_total_prior|stem|3e678626c67f5175|7ac47efa435c49da|a67e911ecc476801|1062832789||t19012.3628423821s|deceeab086a10233|70711900|rds|vector|||46.53|Rows containing NAs were excluded from the model.|
 get_gaze_raw|function|5c00ba772bd07556||||||||||||||
 prop_adj|function|8f984a7e77cc1c9c||||||||||||||
 get_credentials|function|3929802812762e5e||||||||||||||
@@ -63,8 +67,6 @@ get_multilex|function|2f97085430b3ed46||||||||||||||
 get_epreds|function|47352d260192df19||||||||||||||
 get_familiarity|function|b87071ee4e9600bb||||||||||||||
 get_stimuli|function|c388d729efc18a7d||||||||||||||
-docs_vocabulary|stem|65af6bda242ecc01|35713dbdeaf62dc0|4745aa592080ea1d|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t19012.3568598668s|6f037d71e9ac16e9|98639|file|vector|||26.29|Removed 19 rows containing missing values stat_slabinterval.|
-docs_stimuli|stem|a9e92d70a3d7324d|8b924c9cb953be53|2ca9a71b8dd19ae9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t19012.3569091941s|47a84b087ce00cd9|9241|file|vector|||4.12||
-docs_attrition|stem|f2fcbd13896f3f42|c36606e5bcaca2e6|9cd0d08afb244b68|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t19012.3572437672s|c7377c21feb031d9|1087911|file|vector|||29.69||
-docs_participants|stem|26f023f153ca5e18|2073afc881612b2d|f046d5f007e0b05f|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t19012.3572957105s|6a910a73d0f4a877|37067|file|vector|||3.61|longer object length is not a multiple of shorter object length|
-docs_analysis|stem|ad08eed09eb1cf53|84db6b24af326297|5ab5de6475b85a6d|-410177745|docs/04_analysis.md*docs/04_analysis.Rmd*docs/04_analysis_files|t19012.3577342342s|e9cf9e38558549b1|36829|file|vector|||6.59||
+fit_l1_3|stem|ac724da64415ee7a|04aa720e435eebf5|a67e911ecc476801|-371278122||t19012.6364511595s|c3abb19f295c1215|43290393|rds|vector|||22796.94|Rows containing NAs were excluded from the model.|
+model_fits_l1|stem|3eeb33c1a68ae364|ec3fc59569adb7e2|ca44b8889c8184fd|1141228285||t19012.6365580167s|24db5e9d020dac62|203025994|rds|vector|||0.01||
+waics_l1|stem|3dcdcf41b798b487|924fbe1fcda17770|b27899bf49cee5ae|526415742||t19012.6417947823s|e7126f6bb0f7a817|6642456|rds|vector|||451.17||
