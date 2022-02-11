@@ -1,6 +1,8 @@
-source("renv/activate.R")
+# source("renv/activate.R")
 
-if ("targets" %in% installed.packages()) library(targets)
+if ("targets" %in% utils::installed.packages()) library(targets)
+
+source("src/utils.R")
 
 library(targets)
 
@@ -30,7 +32,7 @@ tar_load_all <- function(){
 }
 
 unmake <- function() {
-	path <- "Results/fit.rds"
+	path <- "results/fit.rds"
 	tar_destroy(ask = FALSE)
 	if (file.exists(path)) {
 		file.remove(path)

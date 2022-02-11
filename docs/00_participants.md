@@ -1,17 +1,17 @@
 Participants
 ================
-Updated: 20/01/2022
+Updated: 28/01/2022
 
--   We collected data from 202 participants 79 were tested in Oxford,
-    and 123 were tested in Barcelona.
+-   We collected data from 203 participants 79 were tested in Oxford,
+    and 124 were tested in Barcelona.
 -   After applying trial- ad participant-level exclusion criteria, the
     sample comprise data from 172 (63 tested in Oxford, and 110 tested
     in Barcelona), and were included in our analyses.
 -   78 participants in the final sample were longitudinal (tested in at
     least one age group). 0 longitudinal participants were tested in
     Oxford and 78 were tested in Barcelona.
--   From the longitudinal participants, 17 were tested at two age
-    groups, and 17were tested at three age groups.
+-   From the longitudinal participants, 18 were tested at two age
+    groups, and 18were tested at three age groups.
 
 # Summary
 

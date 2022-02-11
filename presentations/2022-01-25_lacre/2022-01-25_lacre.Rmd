@@ -288,7 +288,7 @@ We estimated our model using the Bayesian framework, under which we estimate the
 
 ```{r model-comparison, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-waics %>% 
+waics_l1 %>% 
 	map("estimates") %>% 
 	map(function(x) as.data.frame(x) %>% rownames_to_column("variable")) %>% 
 	bind_rows(.id = "model") %>%

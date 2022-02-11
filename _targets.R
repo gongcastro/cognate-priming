@@ -2,15 +2,15 @@ library(targets)
 library(tarchetypes)
 
 # load functions
-source("src/R/utils.R")
-source("src/R/00_stimuli.R")
-source("src/R/01_participants.R")
-source("src/R/02_vocabulary.R")
-source("src/R/03_gaze_bcn.R")
-source("src/R/03_gaze_oxf.R")
-source("src/R/04_attrition.R")
-source("src/R/05_prepare.R")
-source("src/R/06_analysis.R")
+source("src/utils.R")
+source("scripts/R/00_stimuli.R")
+source("scripts/R/01_participants.R")
+source("scripts/R/02_vocabulary.R")
+source("scripts/R/03_gaze_bcn.R")
+source("scripts/R/03_gaze_oxf.R")
+source("scripts/R/04_attrition.R")
+source("scripts/R/05_prepare.R")
+source("scripts/R/06_analysis.R")
 
 # load packages ----
 tar_option_set(
@@ -201,16 +201,18 @@ list(
 			formula = bf(
 				formula = logit_adjusted ~
 					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
-					(1 + trial_type*vocab_size_total_center | participant) +
-					(1 + trial_type*vocab_size_total_center | target),
+					(1 + trial_type*vocab_size_l1_center | participant) +
+					(1 + trial_type*vocab_size_l1_center | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_l1_center),
 			prior = model_prior,
 			backend = "cmdstanr",
 			sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1_prior.stan"),
+			save_model = here("scripts", "stan", "fit_l1_prior.stan"),
 			file = here("results", "fit_prior_l1_prior.rds")
 			
 		)
@@ -221,17 +223,19 @@ list(
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
-					(1 + trial_type*vocab_size_total_center | participant) +
-					(1 + trial_type*vocab_size_total_center | target),
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
+					(1 + trial_type*vocab_size_l1_center | participant) +
+					(1 + trial_type*vocab_size_l1_center | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_l1_center),
 			prior = model_prior,
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1_4.stan"),
+			save_model = here("scripts", "stan", "fit_l1_4.stan"),
 			file = here("results", "fit_l1_4.rds")
 			
 		)
@@ -242,17 +246,19 @@ list(
 		brm(
 			formula = bf(
 				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp+vocab_size_total_center +
-					(1 + trial_type + vocab_size_total_center | participant) +
-					(1 + trial_type + vocab_size_total_center| target),
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp+vocab_size_l1_center +
+					(1 + trial_type + vocab_size_l1_center | participant) +
+					(1 + trial_type + vocab_size_l1_center| target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_l1_center),
 			prior = model_prior,
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1_3.stan"),
+			save_model = here("scripts", "stan", "fit_l1_3.stan"),
 			file = here("results", "fit_l1_3.rds")
 		)
 	),
@@ -268,12 +274,14 @@ list(
 					(1 + trial_type | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_l1_center),
 			prior = model_prior,
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1_2.stan"),
+			save_model = here("scripts", "stan", "fit_l1_2.stan"),
 			file = here("results", "fit_l1_2.rds")
 		)
 	),
@@ -288,12 +296,14 @@ list(
 					(1 + trial_type | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_l1_center),
 			prior = model_prior,
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1_1.stan"),
+			save_model = here("scripts", "stan", "fit_l1_1.stan"),
 			file = here("results", "fit_l1_1.rds")
 		)
 	),
@@ -308,12 +318,14 @@ list(
 					(1 | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_l1_center),
 			prior = filter(model_prior, class!="cor"),
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_l1_0.stan"),
+			save_model = here("scripts", "stan", "fit_l1_0.stan"),
 			file = here("results", "fit_l1_0.rds")
 		)
 	),
@@ -328,12 +340,14 @@ list(
 					(1 + trial_type*vocab_size_total_center | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_total_center),
 			prior = model_prior,
 			backend = "cmdstanr",
 			sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_total_prior.stan"),
+			save_model = here("scripts", "stan", "fit_total_prior.stan"),
 			file = here("results", "fit_prior_total_prior.rds")
 			
 		)
@@ -349,7 +363,9 @@ list(
 					(1 + trial_type*vocab_size_total_center | target),
 				family = gaussian
 			), 
-			data = filter(gaze, location=="Barcelona"), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_total_center),
 			prior = c(
 				prior(normal(0.5, 0.05), class = "Intercept"),
 				prior(normal(0, 0.05), class = "b"),
@@ -360,33 +376,146 @@ list(
 			backend = "cmdstanr",
 			# sample_prior = "only",
 			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
-			save_model = here("src", "stan", "fit_total_4.stan"),
+			save_model = here("scripts", "stan", "fit_total_4.stan"),
 			file = here("results", "fit_total_4.rds")
 			
 		)
 	),
 	
+	tar_target(
+		fit_total_3,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp+vocab_size_total_center +
+					(1 + trial_type + vocab_size_l1_center | participant) +
+					(1 + trial_type + vocab_size_l1_center| target),
+				family = gaussian
+			), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_total_center),
+			prior = c(
+				prior(normal(0.5, 0.05), class = "Intercept"),
+				prior(normal(0, 0.05), class = "b"),
+				prior(normal(0.1, 0.05), class = "sigma"),
+				prior(normal(0.1, 0.05), class = "sd"),
+				prior(lkj(7), class = "cor")
+			),
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("scripts", "stan", "fit_total_3.stan"),
+			file = here("results", "fit_total_3.rds")
+			
+		)
+	),
+	
+	tar_target(
+		fit_total_2,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
+					(1 + trial_type | participant) +
+					(1 + trial_type | target),
+				family = gaussian
+			), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_total_center),
+			prior = c(
+				prior(normal(0.5, 0.05), class = "Intercept"),
+				prior(normal(0, 0.05), class = "b"),
+				prior(normal(0.1, 0.05), class = "sigma"),
+				prior(normal(0.1, 0.05), class = "sd"),
+				prior(lkj(7), class = "cor")
+			),
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("scripts", "stan", "fit_total_2.stan"),
+			file = here("results", "fit_total_2.rds")
+			
+		)
+	),
+	
+	tar_target(
+		fit_total_1,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
+					(1 + trial_type | participant) +
+					(1 + trial_type | target),
+				family = gaussian
+			), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_total_center), 
+			prior = c(
+				prior(normal(0.5, 0.05), class = "Intercept"),
+				prior(normal(0, 0.05), class = "b"),
+				prior(normal(0.1, 0.05), class = "sigma"),
+				prior(normal(0.1, 0.05), class = "sd"),
+				prior(lkj(7), class = "cor")
+			),
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("scripts", "stan", "fit_total_1.stan"),
+			file = here("results", "fit_total_1.rds")
+			
+		)
+	),
+	
+	
+	tar_target(
+		fit_total_0,
+		brm(
+			formula = bf(
+				formula = logit_adjusted ~
+					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) +
+					(1 | participant) +
+					(1 | target),
+				family = gaussian
+			), 
+			data = gaze %>% 
+				filter(location=="Barcelona") %>% 
+				drop_na(vocab_size_total_center), 
+			prior = filter(model_prior, class!="cor"),
+			backend = "cmdstanr",
+			# sample_prior = "only",
+			init = 0, iter = 2000, chains = 4, seed = 888, cores = 4,
+			save_model = here("scripts", "stan", "fit_l1_0.stan"),
+			file = here("results", "fit_l1_0.rds")
+		)
+	),
+	
 	tar_target(model_fits_l1, lst(fit_l1_0, fit_l1_1, fit_l1_2, fit_l1_3, fit_l1_4)),
+	tar_target(model_fits_total, lst(fit_total_0, fit_total_1, fit_total_2, fit_total_3, fit_total_4)),
 	
+	tar_target(waics_l1, map(model_fits_l1, waic) %>% saveRDS("results/waics_l1.rds")),
+	tar_target(loos_l1, map(model_fits_l1, loo) %>% saveRDS("results/loos_l1.rds")),
 	
-	tar_target(waics_l1, map(model_fits_l1, waic)),
+	tar_target(waics_total, map(model_fits_total, waic) %>% saveRDS("results/waics_total.rds")),
+	tar_target(loos_total, map(model_fits_total, loo) %>% saveRDS("results/loos_total.rds"))
 	
-	# # # render docs
-	tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
-	tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
-	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
-	tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
-	tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
-	tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
-	# tar_render(docs_results, "docs/06_results.Rmd"),
-	tar_render(docs_results_bcn, "docs/06_results-bcn.Rmd", priority = 0)
-	# 
+	# # render docs
+	# tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
+	# tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
+	# tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
+	# tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
+	# tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
+	# tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
+	# tar_render(docs_results, "docs/06_results.Rmd")
+	#
 	# # render presentations
 	# tar_render(communications_lacre_abstract, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd", priority = 0),
 	# tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre.Rmd", priority = 0)
-	# 
+	#
 	# # tar_render(communications_icis, "presentations/2022-07-07_icis/2022-07-07_icis-abstract.Rmd")
-	
+
 	# render manuscript
 )
 
