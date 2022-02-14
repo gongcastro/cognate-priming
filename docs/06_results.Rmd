@@ -65,50 +65,50 @@ participants <- participants %>%
 
 ```{r model-comparison, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-model_comparison <- waics_l1 %>% 
-	map("estimates") %>% 
-	map(function(x) rownames_to_column(as.data.frame(x), "variable")) %>% 
-	bind_rows(.id = "model") %>%
-	clean_names() %>% 
-	pivot_wider(names_from = variable, values_from = c(estimate, se)) %>% 
-	relocate(model, matches("estimate"), matches("elpd"), matches("_p_")) %>% 
-	mutate(
-		model = c(
-			"Intercept",
-			"... + Trial type",
-			"... + Group \u00d7Trial type\u00d7Group",
-			"... + Vocab. + Trial type\u00d7Vocab. + Group\u00d7Vocab.",
-			"... + Trial type\u00d7Vocab. + Group\u00d7Vocab. + Trial type\u00d7Group\u00d7Vocab."
-		)
-	) %>% 
-	gt() %>% 
-	fmt_number(-model) %>% 
-	tab_spanner("WAIC", matches("waic")) %>% 
-	tab_spanner(md("WAIC<sub>ELPD</sub>"), matches("elpd")) %>% 
-	tab_spanner(md("WAIC<sub>*p*</sub>"), matches("_p_")) %>% 
-	cols_label(
-		model = "Model",
-		estimate_elpd_waic = "Estimate",
-		estimate_waic = "Estimate",
-		estimate_p_waic = "Estimate",
-		se_elpd_waic = md("*SE*"),
-		se_waic = md("*SE*"),
-		se_p_waic = md("*SE*"),
-	) %>% 
-	cols_align("right", "model") %>% 
-	tab_style(
-		cell_text(weight = "bold"),
-		cells_column_spanners()
-	) %>% 
-	tab_style(
-		cell_text(style = "italic"),
-		cells_column_labels()
-	)
-
-gtsave(model_comparison, here("img", "model_comparison.png"))
-
-
-as_raw_html(model_comparison)
+# model_comparison <- waics_l1 %>% 
+# 	map("estimates") %>% 
+# 	map(function(x) rownames_to_column(as.data.frame(x), "variable")) %>% 
+# 	bind_rows(.id = "model") %>%
+# 	clean_names() 
+# 	pivot_wider(names_from = variable, values_from = c(estimate, se)) %>% 
+# 	relocate(model, matches("estimate"), matches("elpd"), matches("_p_")) %>% 
+# 	mutate(
+# 		model = c(
+# 			"Intercept",
+# 			"... + Trial type",
+# 			"... + Group \u00d7Trial type\u00d7Group",
+# 			"... + Vocab. + Trial type\u00d7Vocab. + Group\u00d7Vocab.",
+# 			"... + Trial type\u00d7Vocab. + Group\u00d7Vocab. + Trial type\u00d7Group\u00d7Vocab."
+# 		)
+# 	) %>% 
+# 	gt() %>% 
+# 	fmt_number(-model) %>% 
+# 	tab_spanner("WAIC", matches("waic")) %>% 
+# 	tab_spanner(md("WAIC<sub>ELPD</sub>"), matches("elpd")) %>% 
+# 	tab_spanner(md("WAIC<sub>*p*</sub>"), matches("_p_")) %>% 
+# 	cols_label(
+# 		model = "Model",
+# 		estimate_elpd_waic = "Estimate",
+# 		estimate_waic = "Estimate",
+# 		estimate_p_waic = "Estimate",
+# 		se_elpd_waic = md("*SE*"),
+# 		se_waic = md("*SE*"),
+# 		se_p_waic = md("*SE*"),
+# 	) %>% 
+# 	cols_align("right", "model") %>% 
+# 	tab_style(
+# 		cell_text(weight = "bold"),
+# 		cells_column_spanners()
+# 	) %>% 
+# 	tab_style(
+# 		cell_text(style = "italic"),
+# 		cells_column_labels()
+# 	)
+# 
+# gtsave(model_comparison, here("img", "model_comparison.png"))
+# 
+# 
+# as_raw_html(model_comparison)
 
 
 ```
@@ -303,20 +303,8 @@ draws %>%
 		.lower = md("**95% CrI**")
 	) %>% 
 	tab_style(
-		style = list(
-			cell_text(weight = "bold", style = "italic")
-		),
-		locations = list(
-			cells_row_groups()
-		)
-	) %>% 
-	tab_style(
-		style = list(
-			cell_text(weight = "bold")
-		),
-		locations = list(
-			cells_column_labels()
-		)
+		cell_text(weight = "bold", style = "italic"),
+		cells_row_groups()
 	) %>% 
 	as_raw_html()
 ```
@@ -916,21 +904,9 @@ draws %>%
 		.lower = md("**95% CrI**")
 	) %>% 
 	tab_style(
-		style = list(
-			cell_text(weight = "bold", style = "italic")
-		),
-		locations = list(
-			cells_row_groups()
-		)
-	) %>% 
-	tab_style(
-		style = list(
-			cell_text(weight = "bold")
-		),
-		locations = list(
-			cells_column_labels()
-		)
-	) %>% 
+		cell_text(weight = "bold", style = "italic"),
+		cells_row_groups()
+	) %>%
 	as_raw_html()
 ```
 

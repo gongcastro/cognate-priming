@@ -186,8 +186,8 @@ animacy %>%
 	filter(role=="Prime") %>% 
 	ggplot(aes(trial_type, n, fill = is_animate, colour = is_animate)) +
 	facet_wrap(location~test_language, ncol = 4) +
-	geom_col(position = position_fill(), colour = "#0D1117") +
-	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
+	geom_col(position = position_fill()) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	labs(title = "Prime", x = "Trial type", y = "# trials", colour = "Animacy", fill = "Animacy") +
 	scale_y_continuous(labels = percent) +
 	coord_flip() + 
@@ -199,8 +199,8 @@ animacy %>%
 	filter(role=="Target") %>% 
 	ggplot(aes(trial_type, n, fill = is_animate, colour = is_animate)) +
 	facet_wrap(location~test_language, ncol = 4) +
-	geom_col(position = position_fill(), colour = "#0D1117") +
-	geom_vline(xintercept = 0.5, size = 1, colour = "grey") +
+	geom_col(position = position_fill()) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
 	labs(title = "Target", x = "Trial type", y = "# trials", colour = "Animacy", fill = "Animacy") +
 	scale_y_continuous(labels = percent) +
 	coord_flip() +
@@ -231,7 +231,7 @@ stimuli %>%
 	count(trial_type, test_language, location, role, category) %>% 
 	ggplot(aes(n, trial_type, colour = category, fill = category, order = n)) +
 	facet_wrap(role~location~test_language) +
-	geom_col(position = position_fill(), colour = "#0D1117", size = 1) +
+	geom_col(position = position_fill(), colour = "white") +
 	labs(x = "% of trials", y = "Trial type",
 		 colour = "Trial type", fill = "Trial type") +
 	scale_x_continuous(labels = percent) +
