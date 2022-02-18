@@ -17,7 +17,7 @@ get_gaze_bcn <- function(
 		# import gaze data ----
 		raw <- map(file_paths, get_gaze_raw) %>% 
 			# merge all data sets assigning them their file name
-			set_names(list.files(here("Data", "Gaze", "Barcelona")))  %>% 
+			set_names(list.files(here("data", "gaze", "barcelona")))  %>% 
 			bind_rows(.id = "filename") %>% 
 			as_tibble() %>%
 			# restart timestamps at each trial phase change, and express in seconds

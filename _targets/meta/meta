@@ -1,46 +1,4 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-vocabulary_oxf_path|stem|0579ba88e27dab75|8814c1ca438adb0e|4e3739ef91745af0|-668526201||t19037.6119863854s|044b6a5ab253dca2|133|rds|vector|||4.39||
-model_prior|stem|01e1fb3de3a611ea|bc70ee1fe65934a1|6cb9bda0106c31fd|-1420164522||t19037.6119867551s|f1fb2b251ddae673|259|rds|vector|||0.01||
-trials_path|stem|b7c18330e2e84f36|d2636bd855e68f09|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||0||
-stimuli_english_path|stem|335ef2db989e45ff|e723bd887b23f955|4e3739ef91745af0|1083985607|C:/Users/u155880/Documents/cognate-priming/data/stimuli/stimuli_english.xlsx|t18827.6414678027s|d0dd821f0a171cc2|25192|file|vector|||0||
-participants_bcn|stem|f1ac2ed725f078cd|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t19037.6120183787s|b580051ea7239281|9248|rds|vector|||2.71||
-credentials|stem|e082e149348ab808|a30b3b1477599b55|1a61d5b1ca062127|-1444300154||t19037.6120245451s|97452b5a3d70b0b8|49|rds|vector|||0.53||
-gaze_oxf_paths|stem|b2d4bda770cff4ec|d77c90ca1ab86b48|c793b87d5821f57c|100062445||t19037.6120246378s|fd91a1ccfb8901b1|147|rds|vector|||0||
-participants_oxf_path|stem|dbba5a019a277bad|b380715ad411fa9f|4e3739ef91745af0|1783076124|C:/Users/u155880/Documents/cognate-priming/data/participants/participant_oxford_Apr2021.xlsx|t18775.3205096492s|f2d8c1582a80b449|15527|file|vector|||0||
-multilex_data|stem|a6f3e221ea87dc33|079ee1fe4463b160|a262c5cfdb519242|1096876832||t19037.6124613988s|4258f92868fad5bb|1462341|rds|vector|||34.91||
-gaze_bcn_paths|stem|bc5974171325dfbb|8686c6870b75a6dc|c793b87d5821f57c|1662764019||t19037.6124615373s|8a59eb76afd83644|1401|rds|vector|||0||
-animacy_path|stem|9e7fed753174471b|1767f15b48abc1b8|4e3739ef91745af0|1222557669|C:/Users/u155880/Documents/cognate-priming/data/stimuli/animacy.csv|t18834.3807950083s|e981a64a5ae107f1|3896|file|vector|||0||
-vocabulary_oxf|stem|334965b8d5a9d82d|fdc87760469a8579|03f6fbb04aa16cca|-1845302331||t19037.6124629286s|d884270725a42d53|17579|rds|vector|||0.11||
-trials|stem|31e24d174e0d48cc|6b472b1da4faba8c|dd161b368f961177|1837658601||t19037.6124632749s|2dc4589c04eeaf2f|10269|rds|vector|||0.02||
-stimuli_english|stem|5641f766e95e17b0|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t19037.612463483s|7dff3d66c21f3419|1907|rds|vector|||0||
-participants_oxf|stem|ce152c8135799004|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t19037.6124636562s|2bca963e40c13baf|529|rds|vector|||0||
-animacy|stem|8759294cc14e9f68|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t19037.6124637601s|e3a470ba8142984b|1269|rds|vector|||0||
-participants|stem|34339be6373cc6de|a7adc9fd1da59829|65a0f6c1a4d75c92|392525641||t19037.6124643949s|865c31487809832f|4114|rds|vector|||0.05||
-stimuli|stem|713ed9123e2a0800|b5dd4a1585d193a4|a39517d2ecbc0cee|1139532200||t19037.6132742381s|399d93b0f72b6e7e|18789|rds|vector|||69.96|Number of logged events 19|
-vocabulary|stem|29f90e98058e99a1|63bdf301ff923b52|afde6a7bdff0f0a1|-1487046481||t19037.6133040747s|40ff67208667c6f1|244462|rds|vector|||2.5|Number of logged events 2|
-gaze_oxf|stem|686d3abb3d9815d1|02733ab116bf3938|0bed6c634546bf02|249562404||t19037.6133612024s|29405c1b37ca75c3|15320042|rds|vector|||2.75||
-gaze_bcn|stem|a9ba66f7dbdd0f45|c198e83fa39c9bef|5851b010e10148e2|-2087868575||t19037.6174900445s|c3644ad112a50b70|31523670|rds|vector|||36.2|NAs introduced by coercion|
-attrition|stem|b50278aac894dacd|6b60c955cee78acb|3bf40c481a057ca4|-1403111462||t19037.6176269704s|b169d193a5c4dc2f|31263|rds|vector|||10.44||
-attrition_counter|stem|21e80d6778571e7b|14ad860550f825d7|3bf40c481a057ca4|-1192657156||t19037.617739367s|919047e9fd8f8896|31536|rds|vector|||9.68||
-gaze|stem|09780361a3fab832|cadfd4a2d714e81a|4d40ffe452005801|-1114821610||t19037.6179335711s|d2b2f4ad7a45181d|155314|rds|vector|||16.68|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
-fit_l1_prior|stem|d400e5d0cf3f95e1|0a17db08b60c1159|22117c143a97be6b|-1990287663||t19037.6179673201s|e8d025e1f6a92cbc|70042275|rds|vector|||0.47||
-fit_total_prior|stem|aa39d8bcc997f2a8|c9f254dd90bc066a|c1668fa5b8d0aef7|1062832789||t19037.6180033984s|221c23c68a1907de|70548413|rds|vector|||0.45||
-fit_l1_0|stem|9bc994ad8506c164|5c6d35cc6435290d|76361050a3b3f543|-585849526||t19037.618011358s|303e1ff77cbab5ea|7154003|rds|vector|||0.1||
-fit_l1_1|stem|b9c65b1e604971ad|02aebbb434c19e84|b96f424d0cc7944b|-29792373||t19037.6180286993s|254aa51e75ea93be|31404364|rds|vector|||0.25||
-fit_l1_2|stem|562258f7092d71a7|e601939be8272ecc|22117c143a97be6b|-293844975||t19037.6180473645s|ca4975d26a6990b7|31764089|rds|vector|||0.25||
-fit_l1_3|stem|c40ed9083667ee44|eda0305068b57a1d|22117c143a97be6b|-371278122||t19037.618071098s|3c472a9e23d764dd|42895147|rds|vector|||0.32||
-fit_l1_4|stem|e9b1535369157651|0b7dae4a5550554b|22117c143a97be6b|-869760150||t19037.6181059851s|70e20f78080582f0|66453661|rds|vector|||0.47||
-fit_total_0|stem|9bc994ad8506c164|c18713e80cd0a05e|c2b930746274ee84|400520941||t19037.6181142288s|303e1ff77cbab5ea|7154003|rds|vector|||0.08||
-fit_total_1|stem|49a6eed65575317d|aab5482cf99483f8|aa945895a812a9aa|-1507060856||t19037.6181315413s|9537205db9ad574c|31648002|rds|vector|||0.25||
-fit_total_2|stem|750a7d016dfe241c|43dc045fe8d02741|3cb20d169ba1bf6c|-66863306||t19037.6181498118s|9b00d25a18606b72|32006070|rds|vector|||0.26||
-fit_total_3|stem|83ffa3ceeb719b3c|358a9ff237028b86|fb966d266a07b601|179985571||t19037.6181743999s|354209110d5da2f1|42897164|rds|vector|||0.33||
-fit_total_4|stem|ad21db9e7b348ba1|62aef30ddde12092|3cb20d169ba1bf6c|1387719835||t19037.6182092747s|c2de3cddf4352b11|66794468|rds|vector|||0.47||
-model_fits_l1|stem|8c1160402dc063f2|ec3fc59569adb7e2|425b77ec58fcfd45|1141228285||t19037.6182900532s|aa6a9475b365f54a|179662025|rds|vector|||0||
-model_fits_total|stem|ceb1bff1c57fee12|36ba2054b2f549cb|f9457ee388083e8c|1494225329||t19037.6183833449s|68f2002c47914e88|180485156|rds|vector|||0||
-waics_l1|stem|0bf25546ff171d55|15eb5814e30b3661|2b59298c4365f045|526415742||t19037.621611581s|3bd8f66805fd112b|45|rds|vector|||278.39||
-loos_l1|stem|0bf25546ff171d55|0fbb5f62adf53726|7c075d1110fc8923|-1023746475||t19037.6288158674s|3bd8f66805fd112b|45|rds|vector|||622.44||
-waics_total|stem|0bf25546ff171d55|3787c809a40aa45c|63c757ec71016264|-1548095032||t19037.632086147s|3bd8f66805fd112b|45|rds|vector|||282.53||
-loos_total|stem|0bf25546ff171d55|b5d6d2f8adea780f|f7070af8c5cc249e|220279394||t19037.6394575506s|3bd8f66805fd112b|45|rds|vector|||636.87||
 get_gaze_raw|function|5c00ba772bd07556||||||||||||||
 prop_adj|function|8f984a7e77cc1c9c||||||||||||||
 get_credentials|function|b549283dee2735af||||||||||||||
@@ -50,7 +8,7 @@ get_frequency_childes|function|650395602003714d||||||||||||||
 theme_custom|function|de8f038eec8f5184||||||||||||||
 tar_load_all|function|8a8f0635e399c78c||||||||||||||
 unmake|function|f6dded80c5be7e93||||||||||||||
-get_attrition|function|11cdd0ff8e3d8994||||||||||||||
+get_attrition|function|a20b2ff8c42defbc||||||||||||||
 logit_to_prob|function|3d1dabf81e9fffb5||||||||||||||
 get_emmeans|function|84fc811b2a558bb3||||||||||||||
 get_gaze_oxf|function|e06ea734ae3fcec8||||||||||||||
@@ -60,18 +18,70 @@ prepare_data|function|5306881bc8c93c36||||||||||||||
 fit_models|function|88fd3e3d9951d368||||||||||||||
 prop_adj_ci|function|3332254173832f76||||||||||||||
 get_participants|function|22de91089f573add||||||||||||||
-get_vocabulary|function|e98017cea9dce0cc||||||||||||||
+get_vocabulary|function|ad0679376ade2c51||||||||||||||
 make|function|f28981ef8d49ed67||||||||||||||
-get_gaze_bcn|function|e71a0a586a0b5e0f||||||||||||||
+get_gaze_bcn|function|734d36a712354379||||||||||||||
 prop_adj_se|function|ea05d30982a97289||||||||||||||
 get_multilex|function|fd8d6ac6e8b965df||||||||||||||
 get_epreds|function|47352d260192df19||||||||||||||
 get_familiarity|function|b87071ee4e9600bb||||||||||||||
 get_stimuli|function|6b8c2d88e04199b7||||||||||||||
-docs_results|stem|bc6283f62cf098c1|317522eb126bcb0a|4745aa592080ea1d|-1466068189|docs/06_results.md*docs/06_results.Rmd*docs/06_results_files|t19037.6630773708s|1ad0dd42dfc5a03a|4292874|file|vector|||174.08|Using alpha for a discrete variable is not advised.|
-docs_vocabulary|stem|085a2c706d1e4e5f|35713dbdeaf62dc0|4745aa592080ea1d|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t19037.663272598s|bf1eef30fee36a9b|756044|file|vector|||16.56|Removed 83 rows containing missing values geom_point.|
-docs_design|stem|ada4ab97779d461b|8a25a318d96097c9|4745aa592080ea1d|-874547757|docs/03_design.md*docs/03_design.Rmd|t19037.6632748601s|2f66fc98afd0957b|631|file|vector|||0.09||
-docs_stimuli|stem|4fe651fccf8fd6db|8b924c9cb953be53|adde40d8cafed1e9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t19037.6633221702s|296fbe4c535cd588|774583|file|vector|||4.13||
-docs_participants|stem|ee5acee21bc3fa4f|2073afc881612b2d|db1d3f2ee75bcf67|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t19037.6633663996s|05a3d6ea7547d4bd|165701|file|vector|||3.72|longer object length is not a multiple of shorter object length|
-docs_attrition|stem|e4096b918867257e|c36606e5bcaca2e6|402d90f7a09ca656|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t19037.6637310752s|e508e24554d48424|1741889|file|vector|||32.36||
-docs_analysis|stem|d652c6f9e4ed3f63|84db6b24af326297|ff29dd52c7b75f7e|-410177745|docs/04_analysis.md*docs/04_analysis.Rmd*docs/04_analysis_files|t19037.6637792447s|54b3d8dc5f66dc02|36907|file|vector|||3.22||
+vocabulary_oxf_path|stem|0579ba88e27dab75|8814c1ca438adb0e|4e3739ef91745af0|-668526201||t19038.7064756488s|044b6a5ab253dca2|133|rds|vector|||2.48||
+model_prior|stem|01e1fb3de3a611ea|bc70ee1fe65934a1|6cb9bda0106c31fd|-1420164522||t19038.7064760104s|f1fb2b251ddae673|259|rds|vector|||0||
+trials_path|stem|b7c18330e2e84f36|d2636bd855e68f09|4e3739ef91745af0|-1878640110|C:/Users/u155880/Documents/cognate-priming/stimuli/stimuli.xlsx|t18807.6292570758s|970933f4e38fcd53|76610|file|vector|||0||
+stimuli_english_path|stem|335ef2db989e45ff|e723bd887b23f955|4e3739ef91745af0|1083985607|C:/Users/u155880/Documents/cognate-priming/data/stimuli/stimuli_english.xlsx|t18827.6414678027s|d0dd821f0a171cc2|25192|file|vector|||0||
+participants_bcn|stem|ec2252a3a6738a1b|4d4c27b54e8c5e0f|06938ea0643650b0|1164536025||t19038.7065042533s|a9f15dde149cea04|9256|rds|vector|||2.43||
+credentials|stem|e082e149348ab808|a30b3b1477599b55|1a61d5b1ca062127|-1444300154||t19038.7065089199s|97452b5a3d70b0b8|49|rds|vector|||0.39||
+gaze_oxf_paths|stem|b2d4bda770cff4ec|d77c90ca1ab86b48|c793b87d5821f57c|100062445||t19038.7065091007s|fd91a1ccfb8901b1|147|rds|vector|||0||
+participants_oxf_path|stem|dbba5a019a277bad|b380715ad411fa9f|4e3739ef91745af0|1783076124|C:/Users/u155880/Documents/cognate-priming/data/participants/participant_oxford_Apr2021.xlsx|t18775.3205096492s|f2d8c1582a80b449|15527|file|vector|||0||
+multilex_data|stem|d155b557b7e7cbeb|079ee1fe4463b160|a262c5cfdb519242|1096876832||t19038.7069154511s|780450808bfb354c|1462357|rds|vector|||32.3||
+gaze_bcn_paths|stem|bc5974171325dfbb|8686c6870b75a6dc|c793b87d5821f57c|1662764019||t19038.7069156319s|8a59eb76afd83644|1401|rds|vector|||0||
+animacy_path|stem|9e7fed753174471b|1767f15b48abc1b8|4e3739ef91745af0|1222557669|C:/Users/u155880/Documents/cognate-priming/data/stimuli/animacy.csv|t18834.3807950083s|e981a64a5ae107f1|3896|file|vector|||0||
+vocabulary_oxf|stem|334965b8d5a9d82d|fdc87760469a8579|03f6fbb04aa16cca|-1845302331||t19038.7069170207s|d884270725a42d53|17579|rds|vector|||0.09||
+trials|stem|31e24d174e0d48cc|6b472b1da4faba8c|dd161b368f961177|1837658601||t19038.7069173666s|2dc4589c04eeaf2f|10269|rds|vector|||0.02||
+stimuli_english|stem|5641f766e95e17b0|9e6b9e1895d407ed|45fe86620ae359ab|-1207190692||t19038.7069175744s|7dff3d66c21f3419|1907|rds|vector|||0||
+participants_oxf|stem|ce152c8135799004|c94d76623fbe1aa2|3e7524a70f82b1dd|-741339737||t19038.706917736s|2bca963e40c13baf|529|rds|vector|||0||
+animacy|stem|8759294cc14e9f68|dd29fed0246ca8ef|b4ac1582c4d8673b|505905828||t19038.7069178168s|e3a470ba8142984b|1269|rds|vector|||0||
+participants|stem|34339be6373cc6de|a7adc9fd1da59829|0e6d1e6ef832c592|392525641||t19038.7069184747s|865c31487809832f|4114|rds|vector|||0.04||
+stimuli|stem|713ed9123e2a0800|b5dd4a1585d193a4|7e4d18645722b27a|1139532200||t19038.7074424303s|399d93b0f72b6e7e|18789|rds|vector|||45.25|Number of logged events 19|
+vocabulary|stem|4f57241fa4b4c34f|8cbc8e636285b90a|0348be199e538d3f|-1487046481||t19038.7074540352s|6f56602a8e574e46|5684|rds|vector|||1|Number of logged events 27|
+gaze_oxf|stem|707d6d14838bb333|02733ab116bf3938|0bed6c634546bf02|249562404||t19038.7075115302s|cf553a815098f10c|15320036|rds|vector|||2.82||
+gaze_bcn|stem|9621d227d0236fa2|c198e83fa39c9bef|88339c1405eedd06|-2087868575||t19038.7079673088s|0c21a2dbb2a52f08|31523617|rds|vector|||32.52|NAs introduced by coercion|
+attrition|stem|6519b432792e2d9c|6b60c955cee78acb|ac2db6f3987fb31a|-1403111462||t19038.7080037273s|390ea0969b8339cc|31001|rds|vector|||3.06||
+attrition_counter|stem|6519b432792e2d9c|14ad860550f825d7|ac2db6f3987fb31a|-1192657156||t19038.7080301864s|390ea0969b8339cc|31001|rds|vector|||2.25||
+gaze|stem|47a2dae5c298eb0a|cadfd4a2d714e81a|20e6ca50d1d1fa0c|-1114821610||t19038.7082234987s|888fecea170ca4f6|156339|rds|vector|||16.61|summarise_ was deprecated in dplyr 0.7.0.Please use summarise instead.This warning is displayed once every 8 hours.Call lifecyclelast_warnings to see where this warning was generated.|
+fit_l1_prior|stem|d710a98ed871b468|0a17db08b60c1159|71f4fe5d8888c84c|-1990287663||t19038.708900951s|fe05b07a85d2837b|101055992|rds|vector|||55.03|Rows containing NAs were excluded from the model.|
+fit_total_prior|stem|6c118f555bffff55|c9f254dd90bc066a|c282e2a1444a63f2|1062832789||t19038.7092763986s|8fc852606fd3ec3d|101055512|rds|vector|||28.64|Rows containing NAs were excluded from the model.|
+fit_l1_0|stem|da14e120bca6b171|5c6d35cc6435290d|055ba0fd98ebcdc0|-585849526||t19038.8552339687s|315acdd64308ad23|10417114|rds|vector|||12610.53|Rows containing NAs were excluded from the model.|
+fit_l1_1|stem|a128243999cece0f|02aebbb434c19e84|467421f66f523255|-29792373||t19039.3085152328s|c465508830d2fe4a|45889931|rds|vector|||39161.94|Rows containing NAs were excluded from the model.|
+get_gaze_raw|function|5c00ba772bd07556
+prop_adj|function|8f984a7e77cc1c9c
+get_credentials|function|b549283dee2735af
+get_posterior_draws|function|7053611033f60e2c
+get_frequency_subtlex|function|e8f85486de16a355
+get_frequency_childes|function|650395602003714d
+theme_custom|function|de8f038eec8f5184
+tar_load_all|function|8a8f0635e399c78c
+unmake|function|f6dded80c5be7e93
+get_attrition|function|a20b2ff8c42defbc
+logit_to_prob|function|3d1dabf81e9fffb5
+get_emmeans|function|84fc811b2a558bb3
+get_gaze_oxf|function|e06ea734ae3fcec8
+theme_github|function|4fd11f3888ebdee7
+inv_logit|function|3d1dabf81e9fffb5
+prepare_data|function|5306881bc8c93c36
+fit_models|function|88fd3e3d9951d368
+prop_adj_ci|function|3332254173832f76
+get_participants|function|81adca869eb9ed49
+get_vocabulary|function|ad0679376ade2c51
+make|function|f28981ef8d49ed67
+get_gaze_bcn|function|734d36a712354379
+prop_adj_se|function|ea05d30982a97289
+get_multilex|function|fd8d6ac6e8b965df
+get_epreds|function|47352d260192df19
+get_familiarity|function|b87071ee4e9600bb
+get_stimuli|function|6b8c2d88e04199b7
+participants|stem|34339be6373cc6de|a7adc9fd1da59829|2425b21edd32f377|392525641||t19039.5019541819s|865c31487809832f|4114|rds|vector|||6.03||
+fit_l1_2|stem|172f81fc7034ee94|e601939be8272ecc|71f4fe5d8888c84c|-293844975||t19040.1170940401s|d4a921a8034b428c|46261879|rds|vector|||69861.19|Rows containing NAs were excluded from the model.|
+fit_l1_2|stem|d2a3715d2721728a|e601939be8272ecc|71f4fe5d8888c84c|-293844975||t19040.4860583399s|9076fd0e2f9addf7|46261900|rds|vector|||85026.44|Rows containing NAs were excluded from the model.|
+fit_l1_3|stem|cae1cea07d371b2d|eda0305068b57a1d|71f4fe5d8888c84c|-371278122||t19041.4092090831s|79b18ddb6cdb72a3|62269633|rds|vector|||111636.39|Rows containing NAs were excluded from the model.|

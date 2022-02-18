@@ -53,6 +53,8 @@ get_participants <- function(
 		
 	})
 	
+	saveRDS(participants, "data/participants.rds")
+	
 	return(participants)
 	
 }

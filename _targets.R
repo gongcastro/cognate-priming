@@ -106,7 +106,6 @@ list(
 			participants = participants, 
 			update = FALSE,
 			type = "understands",
-			impute = TRUE,
 			vocabulary_oxf = vocabulary_oxf,
 			multilex_data = multilex_data
 		)
@@ -114,13 +113,7 @@ list(
 	
 	# gaze data (Barcelona) ----
 	# define file paths
-	tar_target(
-		gaze_bcn_paths,
-		list.files(
-			here("data", "gaze", "barcelona"),
-			full.names = TRUE
-		)
-	),
+	tar_target(gaze_bcn_paths, list.files(here("data", "gaze", "barcelona"), full.names = TRUE)),
 	
 	# import data
 	# see R/03_gaze_bcn.R and utils.R for details on this function
@@ -499,16 +492,16 @@ list(
 	tar_target(loos_l1, map(model_fits_l1, loo) %>% saveRDS("results/loos_l1.rds")),
 	
 	tar_target(waics_total, map(model_fits_total, waic) %>% saveRDS("results/waics_total.rds")),
-	tar_target(loos_total, map(model_fits_total, loo) %>% saveRDS("results/loos_total.rds")),
-	
-	# # render docs
-	tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
-	tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
-	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
-	tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
-	tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
-	tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
-	tar_render(docs_results, "docs/06_results.Rmd")
+	tar_target(loos_total, map(model_fits_total, loo) %>% saveRDS("results/loos_total.rds"))
+	# 
+	# # # render docs
+	# tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
+	# tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
+	# tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
+	# tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
+	# tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
+	# tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
+	# tar_render(docs_results, "docs/06_results.Rmd")
 	#
 	# # render presentations
 	# tar_render(communications_lacre_abstract, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd", priority = 0),

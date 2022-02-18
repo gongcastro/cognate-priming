@@ -44,7 +44,6 @@ attrition <- attrition %>%
 	mutate(
 		valid_gaze = valid_gaze_prime & valid_gaze_target,
 		valid_status = case_when(
-			!valid_vocab ~ "Invalid vocabulary",
 			!valid_gaze ~ "Invalid gaze",
 			!valid_participant ~ "Invalid participant",
 			TRUE ~ "Valid"
@@ -190,7 +189,6 @@ attrition %>%
 	summarise(
 		valid = mean(valid_trial),
 		invalid_gaze = mean(!valid_gaze),
-		invalid_vocab = mean(!valid_vocab),
 		.groups = "drop"
 	) %>% 
 	relocate(participant) %>% 
@@ -203,10 +201,9 @@ attrition %>%
 		age_group = "Age",
 		valid_participant = "Valid participant",
 		valid = "Valid trials (%)",
-		invalid_gaze = "Gaze (%)",
-		invalid_vocab = "Vocabulary (%)"
+		invalid_gaze = "Gaze (%)"
 	) %>% 
-	fmt_percent(c("valid", "invalid_gaze", "invalid_vocab")) %>% 
+	fmt_percent(c("valid", "invalid_gaze")) %>% 
 	as_raw_html()
 ```
 

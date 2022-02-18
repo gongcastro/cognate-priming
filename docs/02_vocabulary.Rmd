@@ -41,7 +41,6 @@ attrition <- attrition %>%
 	mutate(
 		valid_gaze = valid_gaze_prime & valid_gaze_target,
 		valid_status = case_when(
-			!valid_vocab ~ "Invalid vocabulary",
 			!valid_gaze ~ "Invalid gaze",
 			!valid_participant ~ "Invalid participant",
 			TRUE ~ "Valid"
@@ -52,7 +51,7 @@ participants <- participants %>%
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(participant) %>% 
 	left_join(vocabulary) %>% 
-	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1]) %>% 
+	mutate(is_imputed = ifelse(is_imputed, "Imputed", "Observed")) %>% 
 	filter(location=="Barcelona")
 ```
 
@@ -72,9 +71,7 @@ This figure represents the vocabulary size in the dominant language of participa
 
 ```{r vocabulary_l1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
 sample_size <- participants %>% 
-	filter(
-		participant %in% fit_l1_4$data$participant
-	) %>% 
+	filter(participant %in% fit_l1_4$data$participant) %>% 
 	count(age_group, location)
 
 sample_size_lp <- participants %>% 
@@ -104,33 +101,43 @@ participants %>%
 	ggplot() +
 	facet_wrap(~age_group, scales = "free_x") +
 	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
-	stat_pointinterval(
-		aes(lp, vocab_size_l1, group = lp),
-		position = position_nudge(x = 0.2),
-		.width = c(0.95, 0.89, 0.50),
-		point_size = 3
+	geom_boxplot(
+		aes(lp, vocab_size_l1, colour = is_imputed),
+		position = position_dodge(width = 1),
+		width = 0.25,
+		size = 1
 	) +
 	geom_point(
-		aes(lp, vocab_size_l1, color = lp),
-		shape = 1, size = 3, stroke = 1.5, alpha = 0.75,
+		aes(lp, vocab_size_l1, color = is_imputed),
+		size = 1,
+		alpha = 0.75,
 		position = position_jitter(width = 0.1, seed = 888)
 	) +
 	geom_text(
 		data = sample_size_lp,
-		aes(x = 1.5, y = 0, label = paste0("N = ", n), group = lp),
-		show.legend = FALSE, position = position_dodge(width = 2)
+		aes(
+			x = 1.5,
+			y = 0, 
+			label = paste0("N = ", n),
+			group = lp
+		),
+		colour = "black",
+		show.legend = FALSE, 
+		position = position_dodge(width = 2)
 	) +
 	labs(
-		y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group",
+		y = "Receptive vocabulary (L1)", 
+		colour = "Imputed", 
+		fill = "Imputed",
 		title = "L1 vocabulary size",
 		subtitle = "Percentage of words in L1 reported to be understood from the vocabulary checklist"
 	) +
-	guides(colour = "none") +
 	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
 	scale_y_continuous(limits = c(0, 1), labels = percent) +
 	theme(
 		legend.title = element_blank(),
 		legend.position = "top",
+		panel.border = element_rect(fill = NA, colour = "grey", size = 1),
 		panel.grid.major.x = element_blank(),
 		axis.title.x = element_blank(),
 		axis.text = element_text(size = 9)
@@ -173,28 +180,35 @@ participants %>%
 	ggplot() +
 	facet_wrap(~age_group, scales = "free_x") +
 	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
-	stat_pointinterval(
-		aes(lp, vocab_size_total, group = lp),
-		position = position_nudge(x = 0.2),
-		.width = c(0.95, 0.89, 0.50),
-		point_size = 3
+	geom_boxplot(
+		aes(lp, vocab_size_l1, colour = is_imputed),
+		position = position_dodge(width = 1),
+		width = 0.25,
+		size = 1
 	) +
 	geom_point(
-		aes(lp, vocab_size_total, color = lp),
-		shape = 1, size = 3, stroke = 1.5, alpha = 0.75,
+		aes(lp, vocab_size_l1, color = is_imputed),
+		size = 1,
+		alpha = 0.75,
 		position = position_jitter(width = 0.1, seed = 888)
 	) +
 	geom_text(
 		data = sample_size_lp,
-		aes(x = 1.5, y = 0, label = paste0("N = ", n), group = lp),
-		show.legend = FALSE, position = position_dodge(width = 2)
+		aes(
+			x = 1.5,
+			y = 0, 
+			label = paste0("N = ", n),
+			group = lp
+		),
+		colour = "black",
+		show.legend = FALSE, 
+		position = position_dodge(width = 2)
 	) +
 	labs(
 		y = "Receptive vocabulary (total)", colour = "Group", fill = "Group",
 		title = "Total vocabulary size",
 		subtitle = "Percentage of words in L1+L2 reported to be understood from the vocabulary checklist"
 	) +
-	guides(colour = "none") +
 	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
 	scale_y_continuous(limits = c(0, 1), labels = percent) +
 	theme(
@@ -242,28 +256,35 @@ participants %>%
 	ggplot() +
 	facet_wrap(~age_group, scales = "free_x") +
 	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
-	stat_pointinterval(
-		aes(lp, vocab_size_conceptual, group = lp),
-		position = position_nudge(x = 0.2),
-		.width = c(0.95, 0.89, 0.50),
-		point_size = 3
+		geom_boxplot(
+		aes(lp, vocab_size_l1, colour = is_imputed),
+		position = position_dodge(width = 1),
+		width = 0.25,
+		size = 1
 	) +
 	geom_point(
-		aes(lp, vocab_size_conceptual, color = lp),
-		shape = 1, size = 3, stroke = 1.5, alpha = 0.75,
+		aes(lp, vocab_size_l1, color = is_imputed),
+		size = 1,
+		alpha = 0.75,
 		position = position_jitter(width = 0.1, seed = 888)
 	) +
 	geom_text(
 		data = sample_size_lp,
-		aes(x = 1.5, y = 0, label = paste0("N = ", n), group = lp),
-		show.legend = FALSE, position = position_dodge(width = 2)
+		aes(
+			x = 1.5,
+			y = 0, 
+			label = paste0("N = ", n),
+			group = lp
+		),
+		colour = "black",
+		show.legend = FALSE, 
+		position = position_dodge(width = 2)
 	) +
 	labs(
 		y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group",
 		title = "Conceptual vocabulary size",
 		subtitle = "Percentage of lexicalised concepts reported to be understood from the vocabulary checklist"
 	) +
-	guides(colour = "none") +
 	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
 	scale_y_continuous(limits = c(0, 1), labels = percent) +
 	theme(
