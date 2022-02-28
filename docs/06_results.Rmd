@@ -41,7 +41,6 @@ attrition <- attrition %>%
 	mutate(
 		valid_gaze = valid_gaze_prime & valid_gaze_target,
 		valid_status = case_when(
-			!valid_vocab ~ "Invalid vocabulary",
 			!valid_gaze ~ "Invalid gaze",
 			!valid_participant ~ "Invalid participant",
 			TRUE ~ "Valid"
