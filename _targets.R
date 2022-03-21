@@ -704,16 +704,16 @@ list(
 		model_fits_total %>% 
 			map(loo) %>% 
 			saveRDS("results/loos_total.rds")
-	)
+	),
 	
-	# # render docs
-	# tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
-	# tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
-	# tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
-	# tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
-	# tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
-	# tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
-	# tar_render(docs_results, "docs/06_results.Rmd")
+	# render docs
+	tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
+	tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
+	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
+	tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
+	tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
+	tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
+	tar_render(docs_results, "docs/06_results.Rmd")
 	#
 	# # render presentations
 	# tar_render(communications_lacre_abstract, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd", priority = 0),

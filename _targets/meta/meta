@@ -68,3 +68,10 @@ get_multilex|function|fd8d6ac6e8b965df||||||||||||||
 get_epreds|function|47352d260192df19||||||||||||||
 get_familiarity|function|b87071ee4e9600bb||||||||||||||
 get_stimuli|function|6b8c2d88e04199b7||||||||||||||
+docs_results|stem|13a5420a0762e4b9|317522eb126bcb0a|4745aa592080ea1d|-1466068189|docs/06_results.md*docs/06_results.Rmd*docs/06_results_files|t19072.6009691671s|333c9f99c0e14e72|4052105|file|vector|||190.78|Using alpha for a discrete variable is not advised.|
+docs_vocabulary|stem|3208bf185ea6ae09|35713dbdeaf62dc0|4745aa592080ea1d|-1385218253|docs/02_vocabulary.md*docs/02_vocabulary.Rmd*docs/02_vocabulary_files|t19072.6012038674s|d5f892ec66898617|650752|file|vector|||19.86||
+docs_design|stem|b466892143e9ed0e|8a25a318d96097c9|4745aa592080ea1d|-874547757|docs/03_design.md*docs/03_design.Rmd|t19072.6012057367s|2f66fc98afd0957b|631|file|vector|||0.09||
+docs_stimuli|stem|5575d87b47c89c1a|8b924c9cb953be53|adde40d8cafed1e9|1723327615|docs/01_stimuli.md*docs/01_stimuli.Rmd*docs/01_stimuli_files|t19072.6012532133s|296fbe4c535cd588|774583|file|vector|||4.13||
+docs_participants|stem|109ee58dc7ec1ecf|2073afc881612b2d|214a45453ddcb114|-1547439632|docs/00_participants.md*docs/00_participants.Rmd*docs/00_participants_files|t19072.60129921s|96d9c5209b08e31e|166400|file|vector|||3.87|longer object length is not a multiple of shorter object length|
+docs_attrition|stem|2fe7103f39eb99e1|c36606e5bcaca2e6|ddc05762b6ca1a4f|-880061545|docs/05_attrition.md*docs/05_attrition.Rmd*docs/05_attrition_files|t19072.6016496726s|87d8d5c1156c9ab8|1687161|file|vector|||31.06||
+docs_analysis|stem|a790bfbb85733e69|84db6b24af326297|29916ff4ae8302bb|-410177745|docs/04_analysis.md*docs/04_analysis.Rmd*docs/04_analysis_files|t19072.6016972876s|54b3d8dc5f66dc02|36907|file|vector|||3.23||
