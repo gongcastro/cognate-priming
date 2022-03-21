@@ -714,7 +714,7 @@ list(
 	tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
 	tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
 	tar_render(docs_results, "docs/06_results.Rmd")
-	#
+
 	# # render presentations
 	# tar_render(communications_lacre_abstract, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd", priority = 0),
 	# tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre.Rmd", priority = 0)

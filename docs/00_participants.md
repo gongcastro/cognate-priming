@@ -2,8 +2,8 @@ Participants
 ================
 Updated: 21/03/2022
 
--   We collected data from 231 participants 79 were tested in Oxford,
-    and 152 were tested in Barcelona.
+-   We collected data from 232 participants 79 were tested in Oxford,
+    and 153 were tested in Barcelona.
 -   After applying trial- ad participant-level exclusion criteria, the
     sample comprise data from 191 (63 tested in Oxford, and 129 tested
     in Barcelona), and were included in our analyses.
