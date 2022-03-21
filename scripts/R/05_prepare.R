@@ -9,26 +9,54 @@ prepare_data <- function(
 	attrition # attrition dataset , get_attrition output
 ){
 	suppressMessages({
-		participants <- mutate(participants, participant_unique = as.character(row_number()))
+		participants <- participants %>% 
+			mutate(participant_unique = as.character(row_number())
+			)
 		
-		vocabulary <- mutate(
-			vocabulary,
-			vocab_size_total_center = scale(vocab_size_total)[,1],
-			vocab_size_l1_center = scale(vocab_size_l1)[,1],
-			vocab_size_conceptual_center = scale(vocab_size_conceptual)[,1]
-		) 
+		vocabulary <- vocabulary %>% 
+			mutate(
+				vocab_size_total_center = scale(vocab_size_total)[,1],
+				vocab_size_l1_center = scale(vocab_size_l1)[,1],
+				vocab_size_conceptual_center = scale(vocab_size_conceptual)[,1]
+			) 
 		
-		clean <- list(Barcelona = gaze_bcn, Oxford = gaze_oxf) %>% 
+		clean <- list(
+			Barcelona = gaze_bcn,
+			Oxford = gaze_oxf
+		) %>% 
 			bind_rows(.id = "location") %>% 
 			# to avoid issues with column names
 			rename(time_stamp = time) %>% 
 			left_join(attrition) %>% 
 			left_join(vocabulary) %>% 
-			filter(phase=="Target-Distractor", valid_trial, valid_participant) %>% 
+			filter(
+				phase=="Target-Distractor",
+				valid_trial,
+				valid_participant
+			) %>% 
 			select(
-				participant, date_test, lp, location, list, age_group, trial, test_language, phase,
-				time_stamp, x, y, valid_sample, trial_type, target_location, aoi_target, aoi_distractor, prime, target,
-				vocab_size_total, vocab_size_l1, vocab_size_conceptual
+				participant,
+				date_test, 
+				lp, 
+				location, 
+				list, 
+				age_group,
+				trial, 
+				test_language, 
+				phase,
+				time_stamp, 
+				x,
+				y, 
+				valid_sample,
+				trial_type, 
+				target_location, 
+				aoi_target, 
+				aoi_distractor, 
+				prime, 
+				target,
+				vocab_size_total,
+				vocab_size_l1,
+				vocab_size_conceptual
 			) %>% 
 			drop_na(trial) %>% 
 			left_join(participants)
@@ -52,15 +80,37 @@ prepare_data <- function(
 			) %>% 
 			make_time_sequence_data(
 				time_bin_size = 0.1, 
-				predictor_columns = c("test_language", "location", "trial_type", "age_group", "lp"),
+				predictor_columns = c(
+					"test_language",
+					"location", 
+					"trial_type",
+					"age_group",
+					"lp"
+				),
 				aois = "aoi_target"
 			) %>% 
 			as_tibble() %>% 
 			# add previous ID to link longitudinal participants
-			left_join(distinct(participants, participant, participant_unique)) %>% 
+			left_join(
+				distinct(
+					participants, 
+					participant, 
+					participant_unique
+				)
+			) %>% 
 			left_join(vocabulary) %>%  
 			clean_names() %>% 
-			mutate_at(vars(age_group, lp, location, prime, target, trial, trial_type), as.factor) %>% 
+			mutate_at(
+				vars(
+					age_group, 
+					lp, 
+					location,
+					prime,
+					target,
+					trial, 
+					trial_type
+				),
+				as.factor) %>% 
 			mutate(
 				time_bin_center = scale(time_bin, scale = FALSE)[, 1],
 				vocab_size_l1_center = scale(vocab_size_l1_center)[, 1],
@@ -68,17 +118,33 @@ prepare_data <- function(
 				vocab_size_conceptual_center = scale(vocab_size_conceptual)[, 1]
 			) %>% 
 			select(
-				participant, location, age_group, lp,
-				vocab_size_total_center, vocab_size_l1_center, vocab_size_conceptual_center,
-				prime, target, trial, trial_type,
-				time_bin_center, prop, logit_adjusted
+				participant, 
+				location, 
+				age_group,
+				lp,
+				vocab_size_total_center,
+				vocab_size_l1_center, 
+				vocab_size_conceptual_center,
+				prime, 
+				target, 
+				trial, 
+				trial_type,
+				time_bin_center, 
+				prop, 
+				logit_adjusted
 			) 
 		
 		# set a prior contrasts and orthogonal polynomials
 		contrasts(gaze$lp) <- c(0.5, -0.5)
 		colnames(attr(gaze$lp, "contrasts")) <-  c("LP (Mon vs. Bil)")
-		contrasts(gaze$trial_type) <- cbind("Prime (U vs. C+NC)" = c(0.25, 0.25, -0.5), "Prime (NC vs. C)" = c(0.5, -0.5, 0))
-		contrasts(gaze$age_group) <- cbind("Age (21 vs. 25)" = c(-0.5, 0.5, 0), "Age (25 vs. 30)" = c(0, -0.5, 0.5))
+		contrasts(gaze$trial_type) <- cbind(
+			"Prime (U vs. C+NC)" = c(0.25, 0.25, -0.5),
+			"Prime (NC vs. C)" = c(0.5, -0.5, 0)
+		)
+		contrasts(gaze$age_group) <- cbind(
+			"Age (21 vs. 25)" = c(-0.5, 0.5, 0),
+			"Age (25 vs. 30)" = c(0, -0.5, 0.5)
+		)
 		contrasts(gaze$location) <- c(0.5, -0.5)
 		colnames(attr(gaze$location, "contrasts")) <-  c("Location (BCN vs. OXF)")
 	})

@@ -12,17 +12,30 @@ get_attrition <- function(
 ){
 	suppressWarnings({
 		# merge Barcelona and Oxford gaze data
-		gaze <- list(Barcelona = gaze_bcn, Oxford = gaze_oxf) %>% 
+		gaze <- list(
+			Barcelona = gaze_bcn, 
+			Oxford = gaze_oxf
+		) %>% 
 			bind_rows(.id = "location") %>% 
 			# to avoid issues with column names
 			rename(time_stamp = time)
 		
-		processed <- reduce(list(participants, vocabulary, gaze), left_join)
+		processed <- list(
+			participants, 
+			vocabulary, 
+			gaze
+		) %>% 
+			reduce(left_join)
 		
 		# evaluate inclusion criteria ----
 		# valid gaze
 		valid_gaze <- processed %>% 
-			group_by(participant, age_group, trial_type, trial) %>% 
+			group_by(
+				participant, 
+				age_group,
+				trial_type,
+				trial
+			) %>% 
 			summarise(
 				# proportion of prime looking time during prime phase
 				valid_looking_prime = sum(aoi_prime[phase=="Prime"], na.rm = TRUE)*(1000/120),
@@ -51,7 +64,14 @@ get_attrition <- function(
 				# trial meets all gaze criteria
 				valid_gaze = (valid_gaze_prime & valid_gaze_target & valid_gaze_distractor)
 			) %>% 
-			mutate_at(vars(starts_with("valid_")), ~ifelse(is.na(.), FALSE, .))
+			mutate_at(
+				vars(starts_with("valid_")),
+				~ifelse(
+					is.na(.),
+					FALSE, 
+					.
+				)
+			)
 		# 
 		# # evaluate vocabulary
 		# valid_vocabulary <- processed %>%
@@ -73,8 +93,14 @@ get_attrition <- function(
 				valid_trial = valid_gaze_prime & valid_gaze_target & valid_gaze_distractor
 			) %>% 
 			select(
-				participant, age_group, trial_type, trial,
-				valid_gaze_prime, valid_gaze_target, valid_gaze_distractor, valid_trial
+				participant, 
+				age_group,
+				trial_type, 
+				trial,
+				valid_gaze_prime,
+				valid_gaze_target,
+				valid_gaze_distractor, 
+				valid_trial
 			)
 		
 		# valid counterbalancing
@@ -115,7 +141,11 @@ get_attrition <- function(
 		
 		# valid participants
 		valid_participants <- valid_trials %>% 
-			group_by(participant, age_group, trial_type) %>% 
+			group_by(
+				participant,
+				age_group,
+				trial_type
+			) %>% 
 			summarise(
 				# number of valid trials by participant, age group and trial type
 				valid_trial_sum = sum(valid_trial, na.rm = TRUE),
@@ -128,7 +158,7 @@ get_attrition <- function(
 				-trial_n, 
 				names_from = trial_type, 
 				values_from = valid_trial_sum
-				) %>% 
+			) %>% 
 			# rename columns
 			clean_names() %>% 
 			mutate(
@@ -143,12 +173,27 @@ get_attrition <- function(
 			)
 		
 		# attrition ----
-		attrition <- reduce(list(processed, valid_trials, valid_participants), left_join) %>% 
+		attrition <- list(processed,
+						  valid_trials,
+						  valid_participants) %>% 
+			reduce(left_join) %>% 
 			distinct(
-				participant, age_group, lp, location, test_language, list,
-				prime, target, distractor, trial, trial_type,
-				valid_gaze_prime, valid_gaze_target, valid_gaze_distractor,
-				valid_trial, valid_participant
+				participant, 
+				age_group, 
+				lp, 
+				location,
+				test_language, 
+				list,
+				prime, 
+				target,
+				distractor,
+				trial, 
+				trial_type,
+				valid_gaze_prime, 
+				valid_gaze_target,
+				valid_gaze_distractor,
+				valid_trial,
+				valid_participant
 			)
 		
 		return(attrition)
