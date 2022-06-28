@@ -20,9 +20,9 @@ knitr::opts_chunk$set(
 options(
 	knitr.kable.NA = '-',
 	knitr.duplicate.label = "allow",
-	ggplot2.discrete.fill = ggsci::pal_futurama()(7),
-	ggplot2.discrete.slab_color = ggsci::pal_futurama()(7),
-	ggplot2.discrete.colour = ggsci::pal_futurama()(7)
+	ggplot2.discrete.fill = ggsci::pal_d3()(4),
+	ggplot2.discrete.slab_color = ggsci::pal_d3()(4),
+	ggplot2.discrete.colour = ggsci::pal_d3()(4)
 )
 
 
@@ -51,8 +51,8 @@ participants <- participants %>%
 	left_join(distinct(attrition, participant, age_group, valid_participant)) %>% 
 	drop_na(participant) %>% 
 	left_join(vocabulary) %>% 
-	mutate(is_imputed = ifelse(is_imputed, "Imputed", "Observed")) %>% 
-	filter(location=="Barcelona")
+	mutate(is_imputed = ifelse(is_imputed, "Imputed", "Observed")) 
+
 ```
 
 
@@ -71,14 +71,14 @@ This figure represents the vocabulary size in the dominant language of participa
 
 ```{r vocabulary_l1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
 sample_size <- participants %>% 
-	filter(participant %in% fit_l1_4$data$participant) %>% 
-	count(age_group, location)
+	filter(participant %in% fit_3$data$participant) %>% 
+	count(age_group)
 
 sample_size_lp <- participants %>% 
 	filter(
-		participant %in% fit_l1_4$data$participant
+		participant %in% fit_3$data$participant
 	) %>% 
-	count(age_group, lp, location) %>% 
+	count(age_group, lp) %>% 
 	mutate(
 		age_group = case_when(
 			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
@@ -99,19 +99,38 @@ participants %>%
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
 	ggplot() +
+	aes(
+		lp, 
+		vocab_size_l1,
+		colour = lp,
+		fill = lp
+	) +
 	facet_wrap(~age_group, scales = "free_x") +
 	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
+	stat_slab(
+		aes(side = ifelse(lp=="Monolingual", "left", "right")),
+		colour = "white",
+		alpha = 0.5
+	) +
 	geom_boxplot(
-		aes(lp, vocab_size_l1, colour = is_imputed),
 		position = position_dodge(width = 1),
-		width = 0.25,
-		size = 1
+		width = 0.15,
+		size = 1,
+		colour = "black",
+		fill = "white",
+		outlier.colour = NA
 	) +
 	geom_point(
-		aes(lp, vocab_size_l1, color = is_imputed),
-		size = 1,
+		aes(lp, vocab_size_l1),
+		size = 2,
+		shape = 1,
+		stroke = 1,
 		alpha = 0.75,
-		position = position_jitter(width = 0.1, seed = 888)
+		position = position_jitterdodge(
+			jitter.width = 0.8, 
+			seed = 888, 
+			dodge.width = 0.5
+		)
 	) +
 	geom_text(
 		data = sample_size_lp,
@@ -123,7 +142,8 @@ participants %>%
 		),
 		colour = "black",
 		show.legend = FALSE, 
-		position = position_dodge(width = 2)
+		position = position_dodge(width = 2),
+		inherit.aes = FALSE
 	) +
 	labs(
 		y = "Receptive vocabulary (L1)", 
@@ -132,12 +152,14 @@ participants %>%
 		title = "L1 vocabulary size",
 		subtitle = "Percentage of words in L1 reported to be understood from the vocabulary checklist"
 	) +
-	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
-	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	scale_y_continuous(
+		limits = c(0, 1),
+		labels = percent
+	) +
+	theme_custom() +
 	theme(
 		legend.title = element_blank(),
-		legend.position = "top",
-		panel.border = element_rect(fill = NA, colour = "grey", size = 1),
+		legend.position = "none",
 		panel.grid.major.x = element_blank(),
 		axis.title.x = element_blank(),
 		axis.text = element_text(size = 9)
@@ -151,20 +173,6 @@ ggsave(here("img", "vocab_l1.png"))
 # Total vocabulary
 
 ```{r vocabulary_total, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-sample_size <- participants %>% 
-	filter(participant %in% fit_total_4$data$participant) %>% 
-	count(age_group, location)
-
-sample_size_lp <- participants %>% 
-	filter(participant %in% fit_total_4$data$participant) %>% 
-	count(age_group, lp, location) %>% 
-	mutate(
-		age_group = case_when(
-			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
-			age_group=="25 months" ~ paste0(age_group, " (N = ", sample_size$n[2], ")"),
-			age_group=="30 months" ~ paste0(age_group, " (N = ", sample_size$n[3], ")")
-		)
-	) 
 
 # vocabulary
 participants %>% 
@@ -178,19 +186,38 @@ participants %>%
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
 	ggplot() +
+	aes(
+		lp, 
+		vocab_size_total,
+		colour = lp,
+		fill = lp
+	) +
 	facet_wrap(~age_group, scales = "free_x") +
 	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
+	stat_slab(
+		aes(side = ifelse(lp=="Monolingual", "left", "right")),
+		colour = "white",
+		alpha = 0.5
+	) +
 	geom_boxplot(
-		aes(lp, vocab_size_l1, colour = is_imputed),
 		position = position_dodge(width = 1),
-		width = 0.25,
-		size = 1
+		width = 0.15,
+		size = 1,
+		colour = "black",
+		fill = "white",
+		outlier.colour = NA
 	) +
 	geom_point(
-		aes(lp, vocab_size_l1, color = is_imputed),
-		size = 1,
+		aes(lp, vocab_size_total),
+		size = 2,
+		shape = 1,
+		stroke = 1,
 		alpha = 0.75,
-		position = position_jitter(width = 0.1, seed = 888)
+		position = position_jitterdodge(
+			jitter.width = 0.8, 
+			seed = 888, 
+			dodge.width = 0.5
+		)
 	) +
 	geom_text(
 		data = sample_size_lp,
@@ -202,7 +229,8 @@ participants %>%
 		),
 		colour = "black",
 		show.legend = FALSE, 
-		position = position_dodge(width = 2)
+		position = position_dodge(width = 2),
+		inherit.aes = FALSE
 	) +
 	labs(
 		y = "Receptive vocabulary (total)", colour = "Group", fill = "Group",
@@ -211,9 +239,10 @@ participants %>%
 	) +
 	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
 	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme_custom() +
 	theme(
 		legend.title = element_blank(),
-		legend.position = "top",
+		legend.position = "none",
 		panel.grid.major.x = element_blank(),
 		axis.title.x = element_blank(),
 		axis.text = element_text(size = 9)
@@ -227,20 +256,6 @@ ggsave(here("img", "vocab_total.png"))
 
 
 ```{r vocabulary_conceptual, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4}
-sample_size <- participants %>% 
-	filter(valid_participant, !is.na(vocab_size_conceptual)) %>% 
-	count(age_group, location)
-
-sample_size_lp <- participants %>% 
-	filter(valid_participant, !is.na(vocab_size_total)) %>% 
-	count(age_group, lp, location) %>% 
-	mutate(
-		age_group = case_when(
-			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
-			age_group=="25 months" ~ paste0(age_group, " (N = ", sample_size$n[2], ")"),
-			age_group=="30 months" ~ paste0(age_group, " (N = ", sample_size$n[3], ")")
-		)
-	) 
 
 # vocabulary
 participants %>% 
@@ -254,19 +269,38 @@ participants %>%
 	drop_na(lp) %>%
 	filter(valid_participant) %>% 
 	ggplot() +
+	aes(
+		lp, 
+		vocab_size_conceptual,
+		colour = lp,
+		fill = lp
+	) +
 	facet_wrap(~age_group, scales = "free_x") +
 	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
-		geom_boxplot(
-		aes(lp, vocab_size_l1, colour = is_imputed),
+	stat_slab(
+		aes(side = ifelse(lp=="Monolingual", "left", "right")),
+		colour = "white",
+		alpha = 0.5
+	) +
+	geom_boxplot(
 		position = position_dodge(width = 1),
-		width = 0.25,
-		size = 1
+		width = 0.15,
+		size = 1,
+		colour = "black",
+		fill = "white",
+		outlier.colour = NA
 	) +
 	geom_point(
-		aes(lp, vocab_size_l1, color = is_imputed),
-		size = 1,
+		aes(lp, vocab_size_conceptual),
+		size = 2,
+		shape = 1,
+		stroke = 1,
 		alpha = 0.75,
-		position = position_jitter(width = 0.1, seed = 888)
+		position = position_jitterdodge(
+			jitter.width = 0.8, 
+			seed = 888, 
+			dodge.width = 0.5
+		)
 	) +
 	geom_text(
 		data = sample_size_lp,
@@ -278,22 +312,33 @@ participants %>%
 		),
 		colour = "black",
 		show.legend = FALSE, 
-		position = position_dodge(width = 2)
+		position = position_dodge(width = 2),
+		inherit.aes = FALSE
 	) +
 	labs(
-		y = "Receptive vocabulary (L1)", colour = "Group", fill = "Group",
+		y = "Conceptual vocabulary", 
+		x = "Group",
+		fill = "Group",
+		colour = "Group",
 		title = "Conceptual vocabulary size",
 		subtitle = "Percentage of lexicalised concepts reported to be understood from the vocabulary checklist"
 	) +
-	scale_color_manual(aesthetics = "slab_color", values = pal_futurama()(2)) +
-	scale_y_continuous(limits = c(0, 1), labels = percent) +
+
+	scale_y_continuous(
+		limits = c(0, 1), 
+		labels = percent
+	) +
+	theme_custom() +
 	theme(
 		legend.title = element_blank(),
-		legend.position = "top",
+		legend.position = "none",
 		panel.grid.major.x = element_blank(),
 		axis.title.x = element_blank(),
 		axis.text = element_text(size = 9)
 	)
+
+ggsave(here("img", "vocab_conceptual.png"))
+
 
 ```
 

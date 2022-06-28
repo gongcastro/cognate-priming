@@ -1,36 +1,93 @@
 library(targets)
 library(tarchetypes)
 
-# load functions
-source("src/utils.R")
-source("scripts/R/00_stimuli.R")
-source("scripts/R/01_participants.R")
-source("scripts/R/02_vocabulary.R")
-source("scripts/R/03_gaze_bcn.R")
-source("scripts/R/03_gaze_oxf.R")
-source("scripts/R/04_attrition.R")
-source("scripts/R/05_prepare.R")
-source("scripts/R/06_analysis.R")
+# load functions ----
+source("R/utils.R")
+source("R/00_stimuli.R")
+source("R/01_participants.R")
+source("R/02_vocabulary.R")
+source("R/03_gaze.R")
+source("R/04_attrition.R")
+source("R/05_prepare.R")
+source("R/06_analysis.R")
+
+# load tests ----
+source("tests/testthat/test-stimuli.R")
+source("tests/testthat/test-participants.R")
+source("tests/testthat/test-vocabulary.R")
+source("tests/testthat/test-gaze_raw.R")
+source("tests/testthat/test-gaze_imputed.R")
+source("tests/testthat/test-attrition.R")
+source("tests/testthat/test-gaze.R")
+
 
 # load packages ----
 tar_option_set(
 	packages = c(
 		# project utils
-		"targets", "tarchetypes", "here",
+		"arrow",
+		"clustermq",
+		"DiagrammeR",
+		
+	 
+		"here",
+		"conflicted",
+		"usethis",
+		"testthat",
+		"lazyeval",
 		# data manipulation
-		"dplyr", "tidyr", "purrr", "stringr", "tibble", "forcats", 
-		"lubridate", "data.table", "janitor",
+		"dplyr",
+		"tidyr",
+		"purrr", 
+		"stringr",
+		"tibble",
+		"forcats", 
+		"lubridate", 
 		# data retrieval
-		"readxl", "janitor", "childesr", "multilex", "keyring", "googlesheets4", "httr",
+		"janitor",
+		"childesr",
+		"multilex", 
+		"keyring",
+		"googlesheets4",
+		"httr",
 		# modelling
-		"eyetrackingR", "brms", "tidybayes", "emmeans", "mice", 
+		"eyetrackingR",
+		"brms",
+		"tidybayes", 
+		"emmeans",
+		"mice",
 		# data visualisation
-		"ggplot2", "shiny", "patchwork", "shiny", "ggsci",
+		"ggplot2", 
+		"shiny", 
+		"patchwork",
+		"shiny",
+		"ggsci",
 		# data reporting
-		"rmarkdown", "knitr", "papaja", "scales", "DiagrammeR", "gt",
+		"knitr", 
+		"papaja",
+		"gt",
 		# unit testing
-		"testthat"
+		"readxl", 
+		"rmarkdown", 
+		"scales", 
+		"shiny",
+		"testthat",
+		"targets",
+		"tarchetypes",
+		"tidytext",
+		"zoo"
+		
 	)
+)
+
+
+
+# set params ----
+options(
+	mc.cores = 2,
+	brms.backend = "cmdstanr",
+	knitr.duplicate.label = "allow",
+	clustermq.scheduler = "multiprocess"
 )
 
 
@@ -49,12 +106,30 @@ tar_option_set(
 
 list(
 	
+	tar_target(
+		resolve_conficts,
+		{
+			# resolve namespace conflicts ----
+			conflict_prefer("last_warnings", "rlang")
+			conflict_prefer("filter", "dplyr")
+			conflict_prefer("between", "dplyr")
+			conflict_prefer("timestamp", "utils")
+			conflict_prefer("ar", "brms")
+			conflict_prefer("chisq.test", "stats")
+			conflict_prefer("discard", "scales")
+			conflict_prefer("duration", "lubridate")
+			conflict_prefer("fisher.test", "stats")
+			conflict_prefer("lag", "dplyr")
+		}
+	),
+	
 	# get multilex data (Barcelona vocabulary data) ----
 	# log into multilex
 	tar_target(
 		credentials, 
 		get_credentials()
-	), # see src/R/utils.R
+	), # see R/utils.R
+	
 	# this returns a list with all necessary data
 	tar_target(
 		multilex_data, 
@@ -65,107 +140,88 @@ list(
 	), 
 	
 	# stimuli ----
-	# define file paths
-	tar_target(
-		trials_path, 
-		here("stimuli", "stimuli.xlsx"),
-		format = "file"
-	), # trial list,
-	tar_target(
-		stimuli_english_path,
-		here("data", "stimuli", "stimuli_english.xlsx"),
-		format = "file"
-	), # stimuli info for English version
-	tar_target(
-		animacy_path, 
-		here("data", "stimuli", "animacy.csv"),
-		format = "file"
-	), # animacy of stimuli (hand coded)
-	
 	# import data
 	tar_target(
 		trials, 
-		read_xlsx(trials_path)
-	),
-	tar_target(
-		stimuli_english,
-		read_xlsx(stimuli_english_path, na = "NA")
+		read_xlsx(here("stimuli", "stimuli.xlsx"))
 	),
 	tar_target(
 		animacy, 
-		read.csv(animacy_path)
+		here("data", "stimuli", "animacy.csv") %>% 
+			read.csv() %>% 
+			as_tibble() %>% 
+			mutate(is_animate = as.logical(is_animate)) %>% 
+			filter(test_language %in% c("Catalan", "Spanish"))
 	),
-	
+	tar_target(
+		familiarity, 
+		get_familiarity(
+			tokens = unique(unlist(distinct(trials, prime_cdi, target_cdi))),
+			type = "understands", # defined in arguments
+			update = update, # defined in arguments
+			multilex_data = multilex_data # defined in arguments
+		)
+	),
+	tar_target(
+		childes,
+		get_childes_corpora(
+			token = unique(unlist(distinct(trials, prime, target))),
+			languages = c("cat", "spa")
+		)
+	),
+	tar_target(
+		frequency_childes,
+		get_frequency_childes(
+			childes,
+			token = unique(unlist(distinct(trials, prime, target)))
+		)
+	),
+	tar_target(
+		frequency_subtlex,
+		get_frequency_subtlex(
+			token = unique(unlist(distinct(trials, prime, target)))
+		) 
+	),
+	tar_target(
+		semantic_category,
+		multilex_data$pool %>% # defined in arguments
+			select(word = item, language, category) %>%
+			rename(test_language = language)
+	),
 	# join all stimuli datasets into a single object
 	# see src/R/00_stimuli.R for details on this function
 	tar_target(
 		stimuli, 
 		get_stimuli(
 			trials = trials,
-			animacy_data = animacy, 
-			oxford_data = stimuli_english,
-			multilex_data = multilex_data
+			familiarity = familiarity,
+			frequency_childes = frequency_childes,
+			frequency_subtlex = frequency_subtlex,
+			semantic_category = semantic_category,
+			animacy = animacy, 
+			
 		)
-	), # see src/R/utils.R
+	), 
+	tar_target(
+		stimuli_test,
+		test_stimuli(stimuli) 
+	),
 	
 	# participants ----
-	# define Oxford file paths
-	tar_target(
-		participants_oxf_path,
-		here("data", "participants", "participant_oxford_Apr2021.xlsx"),
-		format = "file"
-	),
-	# import Oxford data
-	tar_target(
-		participants_oxf, 
-		read_xlsx(participants_oxf_path, na = "NA")
-	),
-	# import Barcelona data from Google Sheets
-	# in the future, this will be a local CSV
-	tar_target(
-		participants_bcn, 
-		range_read(
-			ss = "1JkhN4iBh3bi6PSReGGk9jSrVgDhZNOUmve6vNS2eEqE",
-			sheet = "barcelona", 
-			na = ""
-		)
-	),
+	
 	# join datasets
 	# see R/01_participants.R for details on this function
 	tar_target(
 		participants, 
-		get_participants(
-			participants_bcn, 
-			participants_oxf
-		)
+		get_participants()
 	),
+	tar_target(
+		participants_test,
+		test_participants(participants)
+	),
+	
 	# vocabulary ----
-	# define Oxford file path
-	tar_target(
-		vocabulary_oxf_path, 
-		here("data", "vocabulary", "vocabulary_oxford_Apr2021.xlsx")
-	),
-	# import Oxford data
-	tar_target(
-		vocabulary_oxf,
-		vocabulary_oxf_path %>% 
-			# get sheets names
-			excel_sheets() %>%
-			# read all sheets into a list
-			map(
-				~read_xlsx(
-					vocabulary_oxf_path,
-					sheet = .,
-					na = c("", "NA", "?", "x")
-				)
-			) %>%
-			# name each sheet
-			set_names(excel_sheets(vocabulary_oxf_path)) %>%
-			# join sheets into a data frame
-			#new variable (version) identifies each sheet
-			bind_rows(.id = "version")
-	),
-	# join all vocabulary datasets
+	
 	tar_target(
 		vocabulary,
 		# see R/02_vocabulary.R for details on this function
@@ -173,49 +229,56 @@ list(
 			participants = participants, 
 			update = FALSE,
 			type = "understands",
-			vocabulary_oxf = vocabulary_oxf,
 			multilex_data = multilex_data
 		)
 	),
-	
-	# gaze data (Barcelona) ----
-	# define file paths
 	tar_target(
-		gaze_bcn_paths, 
-		list.files(
-			here("data", "gaze", "barcelona"),
-			full.names = TRUE
+		vocabulary_test,
+		test_vocabulary(vocabulary)
+	),
+	
+	# gaze data ----
+	tar_target(
+		gaze_files,
+		get_gaze_files()
+	),
+	
+	tar_target(
+		aoi_coords,
+		list(
+			center = c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790),
+			left = c(xmin = 180, xmax = 680, ymin = 290, ymax = 790),
+			right = c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790)
 		)
 	),
 	
 	# import data
 	# see R/03_gaze_bcn.R and utils.R for details on this function
 	tar_target(
-		gaze_bcn, 
-		get_gaze_bcn(
-			file_paths = gaze_bcn_paths,
+		gaze_raw, 
+		get_gaze_raw(
 			participants = participants,
-			stimuli = stimuli
+			stimuli = stimuli,
+			aoi_coords = aoi_coords
 		)
 	),
-	
-	# gaze data (Oxford) ----
-	# define file paths
 	tar_target(
-		gaze_oxf_paths, 
-		list.files(
-			here("data", "gaze", "oxford"), 
-			full.names = TRUE
-		)
+		gaze_raw_test,
+		test_gaze_raw(gaze_raw)
 	),
-	# import data
-	# see R/03_gaze_oxf.R for details on this function
 	tar_target(
-		gaze_oxf, 
-		get_gaze_oxf(
-			file_paths = gaze_oxf_paths,
-			participants = participants,
-			stimuli = stimuli
+		gaze_imputed, 
+		impute_gaze(gaze_raw)
+	),
+	tar_target(
+		gaze_imputed_test,
+		test_gaze_imputed(gaze_imputed)
+	),
+	tar_target(
+		gaze_plots,
+		make_plots_gaze_raw(
+			gaze_imputed,
+			aoi_coords
 		)
 	),
 	
@@ -226,42 +289,63 @@ list(
 		get_attrition(
 			participants = participants,
 			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 250, target = 250, distractor = 0),
-			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0),
+			stimuli = stimuli,
+			aoi_coords = aoi_coords,
+			gaze_imputed = gaze_imputed,
+			looking_threshold = c(
+				prime = 0.25,
+				target = 0.25,
+				distractor = 0
+			),
+			missing_trials_threshold = c(
+				cognate = 2, 
+				non_cognate = 2,
+				unrelated = 2
+			),
 			filter_vocabulary = NULL,
 			filter_counterbalancing = FALSE
 		)
 	),
 	tar_target(
-		attrition_counter,
-		get_attrition(
-			participants = participants,
-			vocabulary = vocabulary,
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
-			looking_threshold = c(prime = 250, target = 250, distractor = 0), # minimum looking time
-			missing_trials_threshold = c(cognate = 0, noncognate = 0, unrelated = 0), # minimum n trials in each condition
-			filter_counterbalancing = TRUE,
-			filter_vocabulary = NULL
+		attrition_test,
+		test_attrition(
+			attrition,
+			missing_trials_threshold = c(
+				cognate = 2, 
+				non_cognate = 2, 
+				unrelated = 2
+			)
 		)
 	),
+	
 	# prepare data for analysis ----
 	# see R/05_prepare.R for details on the get_prepared() function
 	# this function returns an analysis ready dataset, with all necessary (transformed/coded) variables
-	# data aggregation and time window definition is performed using the eyetrackingR package
-	# stringent version
 	tar_target(
 		gaze,
 		prepare_data(
-			gaze_bcn = gaze_bcn,
-			gaze_oxf = gaze_oxf,
+			gaze_imputed = gaze_imputed,
 			participants = participants,
 			stimuli = stimuli, 
 			vocabulary = vocabulary,
-			attrition = attrition
-		)
+			attrition = attrition,
+			aoi_coords = aoi_coords
+		) %>% 
+			filter(
+				participant %in% unique(.$participant)[1:20]
+			)
+	),
+	tar_target(
+		gaze_test,
+		test_gaze(gaze)
+	),
+	tar_target(
+		gaze_aggregated,
+		aggregate_data(gaze)
+	),
+	tar_target(
+		gaze_processed_plots,
+		make_plots_gaze_processed(gaze)
 	),
 	
 	# see R/06_analysis.R for details on the fit_models() function
@@ -270,451 +354,250 @@ list(
 	
 	# set model prior
 	tar_target(
+		model_prior_agg,
+		c(
+			prior(normal(0, 0.1), class = "Intercept"),
+			prior(normal(0, 0.1), class = "b"),
+			prior(exponential(4), class = "sigma"),
+			prior(exponential(4), class = "sd"),
+			prior(lkj(5), class = "cor")
+		)
+	),
+	
+	# fit aggregated  models ----
+	tar_target(
+		fit_agg_0,
+		{
+			brm(
+				logit ~ 1 + (1 | participant),
+				prior = model_prior_agg[-c(2, 5),],
+				data = gaze_aggregated,
+				iter = 2000, chains = 2, seed = 888,
+				save_model = here("stan", "fit_agg_0.stan")
+			)
+		}
+	),
+	tar_target(
+		fit_agg_1,
+		brm(
+			logit ~ 1 + trial_type + (1 + trial_type | participant),
+			prior = model_prior_agg,
+			data = gaze_aggregated,
+			iter = 2000, chains = 2, seed = 888,
+			save_model = here("stan", "fit_agg_1.stan")
+		)
+	),
+	tar_target(
+		fit_agg_2,
+		brm(
+			logit ~ 1 + trial_type*lp + (1 + trial_type | participant),
+			prior = model_prior,
+			data = gaze_aggregated,
+			iter = 2000, chains = 2, seed = 888,
+			save_model = here("stan", "fit_agg_2.stan")
+		)
+	),
+	tar_target(
+		fit_agg_3,
+		brm(
+			logit ~ 1 + trial_type*lp*age_group + (1 + trial_type*age_group | participant),
+			prior = model_prior_agg,
+			data = gaze_aggregated,
+			iter = 2000, chains = 2, seed = 888,
+			save_model = here("stan", "fit_agg_3.stan")
+		)
+	),
+	tar_target(
+		fit_agg_4,
+		brm(
+			logit ~ 1 + trial_type*lp*vocab_size_total_center + (1 + trial_type*vocab_size_total_center | participant),
+			prior = model_prior_agg,
+			data = gaze_aggregated,
+			iter = 2000, chains = 2, seed = 888,
+			save_model = here("stan", "fit_agg_4.stan")
+		)
+	),
+	tar_target(
+		fit_agg_5,
+		brm(
+			logit ~ 1 + trial_type*lp*vocab_size_l1_center + (1 + trial_type*vocab_size_l1_center | participant),
+			prior = model_prior_agg,
+			data = gaze_aggregated,
+			iter = 2000, chains = 2, seed = 888,
+			save_model = here("stan", "fit_agg_5.stan")
+		)
+	),
+	
+	# compare aggregated models
+	tar_target(
+		model_fits_agg,
+		lst(
+			fit_agg_0,
+			fit_agg_1,
+			fit_agg_2,
+			fit_agg_3,
+			fit_agg_4,
+			fit_agg_5
+		)
+	),
+	
+	tar_target(
+		loos_agg,
+		loo_compare(map(model_fits_agg, loo))
+	),
+	
+	# fit growth curve analysis models ----
+	
+	# set model prior
+	tar_target(
 		model_prior,
 		c(
-			prior(normal(0.5, 0.05), class = "Intercept"),
-			prior(normal(0, 0.05), class = "b"),
-			prior(normal(0.1, 0.05), class = "sigma"),
-			prior(normal(0.1, 0.05), class = "sd"),
-			prior(lkj(7), class = "cor")
+			prior(normal(0, 0.1), class = "Intercept"),
+			prior(normal(0, 0.1), class = "b"),
+			prior(exponential(4), class = "sigma"),
+			prior(exponential(4), class = "sd"),
+			prior(lkj(5), class = "cor")
 		)
 	),
 	
-	# fit models ----
 	tar_target(
-		fit_l1_prior,
+		fit_0,
 		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) +
-					 	I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
-					(1 + trial_type*vocab_size_l1_center | participant) +
-					(1 + trial_type*vocab_size_l1_center | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_l1_center),
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) +
+				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) | participant),
 			prior = model_prior,
-			backend = "cmdstanr",
-			sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4, 
-			seed = 888,
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_prior.stan"),
-			file = here("results", "fit_prior_l1_prior.rds")
-			
+			data = gaze,
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_0.stan")
 		)
 	),
-	
 	tar_target(
-		fit_l1_4,
+		fit_1,
 		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center +
-							I(time_bin_center^2) +
-							I(time_bin_center^3)
-					)*trial_type*lp*vocab_size_l1_center +
-					(1 + trial_type*vocab_size_l1_center | participant) +
-					(1 + trial_type*vocab_size_l1_center | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_l1_center),
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
+				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
 			prior = model_prior,
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4, 
-			seed = 888, 
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_4.stan"),
-			file = here("results", "fit_l1_4.rds")
+			data = gaze,
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_1.stan")
 		)
 	),
-	
 	tar_target(
-		fit_l1_3,
+		fit_2,
 		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center + 
-							I(time_bin_center^2) + 
-							I(time_bin_center^3)
-					)*trial_type*lp +
-					vocab_size_l1_center +
-					(1 + trial_type + vocab_size_l1_center | participant) +
-					(1 + trial_type + vocab_size_l1_center| target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_l1_center),
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
+				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
 			prior = model_prior,
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4, 
-			seed = 888, 
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_3.stan"),
-			file = here("results", "fit_l1_3.rds")
+			data = gaze,
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_2.stan")
 		)
 	),
-	
-	
 	tar_target(
-		fit_l1_2,
+		fit_3,
 		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center + 
-							I(time_bin_center^2) +
-							I(time_bin_center^3)
-					)*trial_type*lp +
-					(1 + trial_type | participant) +
-					(1 + trial_type | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_l1_center),
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
+				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group | participant),
 			prior = model_prior,
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000, 
-			chains = 4, 
-			seed = 888,
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_2.stan"),
-			file = here("results", "fit_l1_2.rds")
+			data = gaze,
+			sample_prior = "yes",
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_3.stan"),
+			fit = here("results", "fit_3.rds")
 		)
-	),
+	)
+	# tar_target(
+	# 	fit_1,
+	# 	brm(
+	# 		logit ~
+	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
+	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
+	# 		prior = model_prior,
+	# 		data = gaze,
+	# 		iter = 2000, chains = 2, seed = 888,
+	# 		save_model = here("stan", "fit_1.stan")
+	# 	)
+	# ),
+	# tar_target(
+	# 	fit_2,
+	# 	brm(
+	# 		logit ~ 
+	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
+	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
+	# 		prior = model_prior,
+	# 		data = gaze,
+	# 		iter = 2000, chains = 2, seed = 888,
+	# 		save_model = here("stan", "fit_2.stan")
+	# 	)
+	# ),
+	# tar_target(
+	# 	fit_3,
+	# 	brm(
+	# 		logit ~ 
+	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group +
+	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group | participant),
+	# 		prior = model_prior,
+	# 		data = gaze,
+	# 		iter = 2000, chains = 2, seed = 888,
+	# 		save_model = here("stan", "fit_3.stan")
+	# 	)
+	# ),
+	# tar_target(
+	# 	fit_4,
+	# 	brm(
+	# 		logit ~ 
+	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center +
+	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center | participant),
+	# 		prior = model_prior,
+	# 		data = gaze,
+	# 		iter = 2000, chains = 2, seed = 888,
+	# 		save_model = here("stan", "fit_4.stan")
+	# 	)
+	# ),
+	# tar_target(
+	# 	fit_5,
+	# 	brm(
+	# 		logit ~ 
+	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center +
+	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center | participant),
+	# 		prior = model_prior,
+	# 		data = gaze,
+	# 		iter = 2000, chains = 2, seed = 888,
+	# 		save_model = here("stan", "fit_5.stan")
+	# 	)
+	# ),
 	
-	tar_target(
-		fit_l1_1,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center +
-							I(time_bin_center^2) +
-							I(time_bin_center^3)
-					)*trial_type +
-					(1 + trial_type | participant) +
-					(1 + trial_type | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_l1_center),
-			prior = model_prior,
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4, 
-			seed = 888,
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_1.stan"),
-			file = here("results", "fit_l1_1.rds")
-		)
-	),
-	
-	tar_target(
-		fit_l1_0,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center + 
-							I(time_bin_center^2) +
-							I(time_bin_center^3)
-					) +
-					(1 | participant) +
-					(1 | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_l1_center),
-			prior = filter(model_prior, class!="cor"),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000, 
-			chains = 4, 
-			seed = 888,
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_0.stan"),
-			file = here("results", "fit_l1_0.rds")
-		)
-	),
-	
-	tar_target(
-		fit_total_prior,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center +
-							I(time_bin_center^2) +
-							I(time_bin_center^3)
-					)*trial_type*lp*vocab_size_total_center +
-					(1 + trial_type*vocab_size_total_center | participant) +
-					(1 + trial_type*vocab_size_total_center | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_total_center),
-			prior = model_prior,
-			backend = "cmdstanr",
-			sample_prior = "only",
-			init = 0, 
-			iter = 2000, 
-			chains = 4, 
-			seed = 888, 
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_total_prior.stan"),
-			file = here("results", "fit_prior_total_prior.rds")
-		)
-	),
-	
-	tar_target(
-		fit_total_4,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center +
-							I(time_bin_center^2) + 
-							I(time_bin_center^3)
-					)*trial_type*lp*vocab_size_total_center +
-					(1 + trial_type*vocab_size_total_center | participant) +
-					(1 + trial_type*vocab_size_total_center | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_total_center),
-			prior = c(
-				prior(normal(0.5, 0.05), class = "Intercept"),
-				prior(normal(0, 0.05), class = "b"),
-				prior(normal(0.1, 0.05), class = "sigma"),
-				prior(normal(0.1, 0.05), class = "sd"),
-				prior(lkj(7), class = "cor")
-			),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4, 
-			seed = 888, 
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_total_4.stan"),
-			file = here("results", "fit_total_4.rds")
-			
-		)
-	),
-	
-	tar_target(
-		fit_total_3,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center +
-							I(time_bin_center^2) + 
-							I(time_bin_center^3)
-					)*trial_type*lp+vocab_size_total_center +
-					(1 + trial_type + vocab_size_l1_center | participant) +
-					(1 + trial_type + vocab_size_l1_center| target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_total_center),
-			prior = c(
-				prior(normal(0.5, 0.05), class = "Intercept"),
-				prior(normal(0, 0.05), class = "b"),
-				prior(normal(0.1, 0.05), class = "sigma"),
-				prior(normal(0.1, 0.05), class = "sd"),
-				prior(lkj(7), class = "cor")
-			),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4,
-			seed = 888, 
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_total_3.stan"),
-			file = here("results", "fit_total_3.rds")
-		)
-	),
-	
-	tar_target(
-		fit_total_2,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
-					(1 + trial_type | participant) +
-					(1 + trial_type | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_total_center),
-			prior = c(
-				prior(normal(0.5, 0.05), class = "Intercept"),
-				prior(normal(0, 0.05), class = "b"),
-				prior(normal(0.1, 0.05), class = "sigma"),
-				prior(normal(0.1, 0.05), class = "sd"),
-				prior(lkj(7), class = "cor")
-			),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0,
-			iter = 2000,
-			chains = 4, 
-			seed = 888,
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_total_2.stan"),
-			file = here("results", "fit_total_2.rds")
-		)
-	),
-	
-	tar_target(
-		fit_total_1,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
-					(1 + trial_type | participant) +
-					(1 + trial_type | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_total_center), 
-			prior = c(
-				prior(normal(0.5, 0.05), class = "Intercept"),
-				prior(normal(0, 0.05), class = "b"),
-				prior(normal(0.1, 0.05), class = "sigma"),
-				prior(normal(0.1, 0.05), class = "sd"),
-				prior(lkj(7), class = "cor")
-			),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000,
-			chains = 4,
-			seed = 888, 
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_total_1.stan"),
-			file = here("results", "fit_total_1.rds")
-		)
-	),
-	
-	
-	tar_target(
-		fit_total_0,
-		brm(
-			formula = bf(
-				formula = logit_adjusted ~
-					(
-						time_bin_center + 
-							I(time_bin_center^2) +
-							I(time_bin_center^3)
-					) +
-					(1 | participant) +
-					(1 | target),
-				family = gaussian
-			), 
-			data = gaze %>% 
-				filter(location=="Barcelona") %>% 
-				drop_na(vocab_size_total_center), 
-			prior = filter(model_prior, class!="cor"),
-			backend = "cmdstanr",
-			# sample_prior = "only",
-			init = 0, 
-			iter = 2000, 
-			chains = 4,
-			seed = 888,
-			cores = 4,
-			save_model = here("scripts", "stan", "fit_l1_0.stan"),
-			file = here("results", "fit_l1_0.rds")
-		)
-	),
-	
-	tar_target(
-		model_fits_l1, 
-		lst(
-			fit_l1_0, 
-			fit_l1_1, 
-			fit_l1_2, 
-			fit_l1_3, 
-			fit_l1_4
-		)
-	),
-	tar_target(
-		model_fits_total, 
-		lst(
-			fit_total_0, 
-			fit_total_1, 
-			fit_total_2, 
-			fit_total_3, 
-			fit_total_4
-		)
-	),
-	
-	tar_target(
-		waics_l1,
-		model_fits_l1 %>% 
-			map(waic) %>% 
-			saveRDS("results/waics_l1.rds")
-	),
-	tar_target(
-		loos_l1, 
-		model_fits_l1 %>% 
-			map(loo) %>%
-			saveRDS("results/loos_l1.rds")
-	),
-	
-	tar_target(
-		waics_total, 
-		model_fits_total %>% 
-			map(waic) %>% 
-			saveRDS("results/waics_total.rds")
-	),
-	tar_target(
-		loos_total,
-		model_fits_total %>% 
-			map(loo) %>% 
-			saveRDS("results/loos_total.rds")
-	),
+	# compare aggregated models
+	# tar_target(
+	# 	model_fits_agg,
+	# 	lst(
+	# 		fit_agg_0,
+	# 		fit_agg_1,
+	# 		fit_agg_2,
+	# 		fit_agg_3,
+	# 		fit_agg_4,
+	# 		fit_agg_5
+	# 	)
+	# ),
+	# 
+	# tar_target(
+	# 	loos_agg,
+	# 	loo_compare(map(model_fits_agg, loo))
+	# )
 	
 	# render docs
-	tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
-	tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
-	tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
-	tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
-	tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
-	tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
-	tar_render(docs_results, "docs/06_results.Rmd")
-
+	# tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),
+	# tar_render(docs_stimuli, "docs/01_stimuli.Rmd", priority = 0),
+	# tar_render(docs_vocabulary, "docs/02_vocabulary.Rmd", priority = 0),
+	# tar_render(docs_design, "docs/03_design.Rmd", priority = 0),
+	# tar_render(docs_analysis, "docs/04_analysis.Rmd", priority = 0),
+	# tar_render(docs_attrition, "docs/05_attrition.Rmd", priority = 0),
+	# tar_render(docs_results, "docs/06_results.Rmd")
+	
 	# # render presentations
 	# tar_render(communications_lacre_abstract, "presentations/2022-01-25_lacre/2022-01-25_lacre-abstract.Rmd", priority = 0),
 	# tar_render(communications_lacre, "presentations/2022-01-25_lacre/2022-01-25_lacre.Rmd", priority = 0)

@@ -76,39 +76,82 @@ participants <- participants %>%
 ```{r participants_summary_tab, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 participants_tab <- participants %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>% 
-	filter(valid_participant) %>% 
 	drop_na(valid_participant) %>% 
-	count(location, age_group, lp) %>% 
-	pivot_wider(names_from = "age_group", values_from = c("n"), values_fill = 0) %>% 
-	gt(groupname_col = "location") %>% 
+	count(age_group, lp, valid_participant) %>% 
+	pivot_wider(
+		names_from = c("age_group", "valid_participant"),
+		values_from = c("n"), 
+		values_fill = 0
+	) %>% 
+	mutate(
+		`21 months` = paste0(`21 months_TRUE`, " (", `21 months_FALSE`, ")"),
+		`25 months` = paste0(`25 months_TRUE`, " (", `25 months_FALSE`, ")"),
+		`30 months` = paste0(`30 months_TRUE`, " (", `30 months_FALSE`, ")")
+		
+	) %>% 
+	select(-c(ends_with("TRUE"), ends_with("FALSE"))) %>% 
+	gt() %>% 
+	tab_header(
+		title = "Testing sessions",
+		subtitle = "Invalid testing sessions are shown between parentheses"
+	) %>%
 	cols_label(
-		lp = md("**Language profile**"),
+		lp = "",
 		`21 months` = md("**21 months**"),
 		`25 months` = md("**25 months**"),
 		`30 months` = md("**30 months**")
+	) %>% 
+	tab_style(
+		style = list(
+			cell_text(weight = "bold"),
+			cell_fill("grey82")
+		),
+		locations = list(
+			cells_row_groups()
+		)
 	)
-
 
 gtsave(participants_tab, here("img", "participants_tab.png"))
 as_raw_html(participants_tab)
 ```
 
 ```{r participants_summary_tab_language, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
-participants %>% 
+participants_tab <- participants %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>% 
-	filter(valid_participant) %>% 
 	drop_na(valid_participant) %>% 
-	count(location, age_group, lp, test_language) %>% 
-	pivot_wider(names_from = "age_group", values_from = c("n"), values_fill = 0) %>% 
-	gt(groupname_col = "location") %>% 
+	count(age_group, lp, test_language, valid_participant) %>% 
+	pivot_wider(
+		names_from = c("age_group", "valid_participant"),
+		values_from = c("n"), 
+		values_fill = 0
+	) %>% 
+	mutate(
+		`21 months` = paste0(`21 months_TRUE`, " (", `21 months_FALSE`, ")"),
+		`25 months` = paste0(`25 months_TRUE`, " (", `25 months_FALSE`, ")"),
+		`30 months` = paste0(`30 months_TRUE`, " (", `30 months_FALSE`, ")")
+		
+	) %>% 
+	select(-c(ends_with("TRUE"), ends_with("FALSE"))) %>% 
+	gt(groupname_col = "lp") %>% 
 	cols_label(
 		lp = md("**Language profile**"),
-		test_language = md("**Language**"),
+		test_language = "",
 		`21 months` = md("**21 months**"),
 		`25 months` = md("**25 months**"),
 		`30 months` = md("**30 months**")
 	) %>% 
-	as_raw_html()
+	tab_style(
+		style = list(
+			cell_text(weight = "bold"),
+			cell_fill("grey82")
+		),
+		locations = list(
+			cells_row_groups()
+		)
+	)
+
+gtsave(participants_tab, here("img", "participants_tab.png"))
+as_raw_html(participants_tab)
 ```
 
 
@@ -117,13 +160,13 @@ participants %>%
 	left_join(distinct(attrition, participant, valid_participant)) %>% 
 	filter(valid_participant) %>% 
 	drop_na(valid_participant) %>% 
-	ggplot(aes(lp, fill = as.factor(test_language))) +
-	facet_grid(location~age_group, scales = "free") +
+	ggplot(aes(lp, fill = as.factor(lp))) +
+	facet_grid(~age_group, scales = "free") +
 	geom_bar(colour = NA) +
 	geom_hline(yintercept = 24, linetype = "dashed", colour = "black") +
 	labs(x = "Group", y = "Sample size", fill = "Test language") +
 	theme(
-		legend.position = "top",
+		legend.position = "none",
 		axis.title.x = element_blank(),
 		axis.text = element_text(size = 10),
 		axis.title.y = element_text(angle = 90),
@@ -141,21 +184,49 @@ We collected data from `r sum(duplicated(participants$participant))` longitudina
 participants %>% 
 	left_join(distinct(attrition, participant, valid_participant)) %>%
 	filter(valid_participant) %>% 
-	mutate(age_group = str_remove(age_group, " months")) %>%
-	ggplot(aes(age_group, participant, colour = lp)) +
-	facet_grid(~location, scales = "free") +
-	geom_line(aes(group = interaction(lp, participant))) +
-	geom_point(size = 2) +
-	labs(x = "Age (months)", y = "Exposure to 2nd language", fill = "Lang. Pofile") +
+	count(participant, age_group) %>% 
+	pivot_wider(
+		id_cols = participant,
+		names_from = age_group,
+		values_from = n,
+		values_fill = 0
+	) %>% 
+	pivot_longer(
+		2:4,
+		names_to = "age_group",
+		values_to = "n"
+	) %>% 
+	ggplot() +
+	aes(
+		age_group,
+		participant,
+		fill = as.factor(n)
+	) + 
+	geom_tile(
+		colour = "white"
+	) +
+	labs(
+		x = "Age (months)", 
+		y = "Exposure to 2nd language", 
+		fill = "Lang. Pofile"
+	) +
+	scale_fill_manual(values = c("white", pal_d3()(2)[2])) +
 	theme(
 		legend.position = "top",
 		legend.title = element_blank(),
 		panel.grid = element_blank(),
 		axis.text = element_text(size = 10),
 		axis.title.y = element_blank(),
-		axis.text.y = element_blank(),
+		axis.text.y = element_text(size = 7),
 		axis.ticks.y = element_blank()
 	)
+
+ggsave(
+	here("img", "participants_longitudinal.png"),
+	height = 15,
+	width = 1.5
+)
+
 ```
 
 

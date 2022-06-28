@@ -33,7 +33,7 @@ options(
 tar_load_globals()
 tar_load(gaze)
 
-theme_set(theme_minimal()) # in utils.R
+theme_set(theme_custom()) # in utils.R
 ```
 
 
