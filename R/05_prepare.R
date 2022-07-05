@@ -6,7 +6,8 @@ prepare_data <- function(
 		stimuli, # stimuli dataset, get_stimuli output
 		vocabulary, # vocabulary dataset, get_vocabulary output
 		attrition, # attrition dataset , get_attrition output
-		aoi_coords
+		aoi_coords,
+		time_subset = c(0, 2) # subset time (s)
 ){
 	suppressMessages({
 		
@@ -60,6 +61,7 @@ prepare_data <- function(
 		
 		# to eyetrackingR format
 		gaze <- clean %>% 
+			filter(between(time, time_subset[1], time_subset[2])) %>% 
 			group_by(participant, age_group, lp, trial) %>%
 			mutate(time_bin = as.integer(cut_interval(time, length = 0.1, labels = FALSE))) %>% 
 			ungroup() %>% 

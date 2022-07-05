@@ -18,11 +18,12 @@ knitr::opts_chunk$set(
 	dpi = 300,
 	dev.args = list(png = list(type = "cairo"))
 )
+
 options(
 	knitr.kable.NA = '-',
 	knitr.duplicate.label = "allow",
-	ggplot2.discrete.fill = ggsci::pal_tron("legacy")(7),
-	ggplot2.discrete.colour = ggsci::pal_tron("legacy")(7)
+	ggplot2.discrete.fill = pal_d3()(4),
+	ggplot2.discrete.colour = pal_d3()(4)
 )
 
 
@@ -86,6 +87,8 @@ participants %>%
 		axis.text = element_text(size = 10),
 		axis.title.y = element_text(angle = 90)
 	) 
+
+ggsave(here("img", "participant_attrition.png"))
 ```
 
 
@@ -543,17 +546,46 @@ ggsave(here("attrition_familiarity.png"))
 ```{r attrition_familiarity_target_causes, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.height=4, out.width="100%"}
 # plot participants
 attrition %>% 
-	left_join(distinct(stimuli, test_language, location, list, trial, trial_type, familiarity_target)) %>% 
-	drop_na(trial_type, familiarity_target) %>% 
+	left_join(distinct(stimuli, test_language, list, trial, trial_type, familiarity_target)) %>% 
+	drop_na(
+		trial_type, 
+		familiarity_target
+	) %>% 
 	mutate(familiarity_target = round(familiarity_target, digits = 1)) %>% 
-	count(trial_type, age_group, valid_status, trial_type, familiarity_target) %>% 
-	ggplot(aes(as.factor(familiarity_target), n, fill = valid_status, colour = valid_status)) +
+	count(
+		trial_type,
+		age_group,
+		valid_status, 
+		trial_type, 
+		familiarity_target
+	) %>% 
+	ggplot() +
+	aes(
+		as.factor(familiarity_target), 
+		n, 
+		fill = valid_status,
+		colour = valid_status
+	) +
 	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
-	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
-	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
-	scale_x_discrete(labels = function(x) paste0(as.numeric(x)*100, "%")) +
+	geom_col(
+		position = position_fill(),
+		colour = "white"
+	) +
+	labs(
+		x = "Trial type",
+		y = "Trials",
+		colour = "Validity", 
+		fill = "Validity"
+	) +
+	guides(
+		fill = guide_legend(ncol = 2), 
+		colour = guide_legend(ncol = 2)
+	)	+
+	scale_x_discrete(
+		labels = function(x) paste0(as.numeric(x)*100, "%"),
+	) +
 	scale_y_continuous(labels = percent) +
+	scale_fill_d3() +
 	coord_flip() +
 	theme(
 		legend.position = "top",
@@ -563,6 +595,8 @@ attrition %>%
 		axis.text.y = element_text(size = 8),
 		axis.title = element_blank()
 	)
+
+ggsave(here("img", "attrition_familiarity.png"))
 ```
 
 
@@ -572,7 +606,7 @@ attrition %>%
 
 ```{r attrition_animacy_target, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition %>% 
-	left_join(distinct(stimuli, test_language, location, list, trial, trial_type, is_animate_target)) %>%
+	left_join(distinct(stimuli, test_language, list, trial, trial_type, is_animate_target)) %>%
 	mutate(is_animate_target = ifelse(is_animate_target, "Animate", "Inanimate")) %>% 
 	drop_na(trial_type, is_animate_target) %>% 
 	count(trial_type, age_group, valid_status, trial_type, is_animate_target) %>% 
@@ -599,14 +633,44 @@ attrition %>%
 
 ```{r attrition_category_target, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 attrition %>% 
-	left_join(distinct(stimuli, test_language, location, list, trial, trial_type, category_target)) %>%
-	drop_na(trial_type, category_target) %>% 
-	count(trial_type, age_group, valid_status, trial_type, category_target) %>% 
-	ggplot(aes(fct_rev(category_target), n, fill = valid_status, colour = valid_status)) +
-	facet_grid(trial_type~age_group) +
-	geom_col(position = position_fill(), colour = "white") +
-	labs(x = "Trial type", y = "Trials", colour = "Validity", fill = "Validity") +
-	guides(fill = guide_legend(ncol = 2), colour = guide_legend(ncol = 2))	+
+	left_join(distinct(stimuli, test_language, list, trial, trial_type, category_target)) %>%
+	drop_na(
+		trial_type, 
+		category_target
+	) %>% 
+	count(
+		trial_type,
+		age_group,
+		valid_status,
+		trial_type, 
+		category_target
+	) %>% 
+	ggplot() +
+	aes(
+		fct_rev(category_target),
+		n, 
+		fill = valid_status,
+		colour = valid_status
+	) +
+	facet_wrap(
+		trial_type~age_group, 
+		labeller = label_wrap_gen(multi_line = FALSE),
+		scales = "free_y"
+	) +
+	geom_col(
+		position = position_fill(),
+		colour = "white"
+	) +
+	labs(
+		x = "Trial type", 
+		y = "Trials",
+		colour = "Validity",
+		fill = "Validity"
+	) +
+	guides(
+		fill = guide_legend(ncol = 2),
+		colour = guide_legend(ncol = 2)
+	)	+
 	scale_y_continuous(labels = percent) +
 	coord_flip() +
 	theme(

@@ -72,7 +72,6 @@ test_gaze <- function(gaze){
 		expect_equal(levels(gaze$age_group), paste0(c(21, 25, 30), " months"))
 		expect_equal(levels(gaze$trial_type), c("Cognate", "Non-cognate", "Unrelated"))
 		expect_true(all(unique(gaze$time_bin) %in% 1:20))
-		expect_equal(length(unique(gaze$time_bin_center)), 20)
 		expect_true(all(unique(gaze$sum_target) >= 0))
 		expect_true(all(unique(gaze$sum_distractor) >= 0))
 		expect_true(all(unique(gaze$n) > 0))

@@ -26,57 +26,46 @@ tar_option_set(
 	packages = c(
 		# project utils
 		"arrow",
-		"clustermq",
-		"DiagrammeR",
-		
-	 
-		"here",
-		"conflicted",
-		"usethis",
-		"testthat",
-		"lazyeval",
-		# data manipulation
-		"dplyr",
-		"tidyr",
-		"purrr", 
-		"stringr",
-		"tibble",
-		"forcats", 
-		"lubridate", 
-		# data retrieval
-		"janitor",
-		"childesr",
-		"multilex", 
-		"keyring",
-		"googlesheets4",
-		"httr",
-		# modelling
-		"eyetrackingR",
 		"brms",
-		"tidybayes", 
+		"childesr",
+		"clustermq",
+		"conflicted",
+		"DiagrammeR",
+		"dplyr",
+		"eyetrackingR",
 		"emmeans",
-		"mice",
-		# data visualisation
+		"forcats", 
 		"ggplot2", 
-		"shiny", 
-		"patchwork",
-		"shiny",
 		"ggsci",
-		# data reporting
-		"knitr", 
-		"papaja",
+		"googlesheets4",
 		"gt",
-		# unit testing
+		"here",
+		"httr",
+		"janitor",
+		"keyring",
+		"knitr",
+		"lazyeval",
+		"lubridate", 
+		"mice",
+		"multilex", 
+		"papaja",
+		"patchwork",
+		"purrr", 
 		"readxl", 
 		"rmarkdown", 
 		"scales", 
 		"shiny",
+		"stringr",
 		"testthat",
 		"targets",
 		"tarchetypes",
+		"testthat",
+		"tibble",
+		"tidybayes", 
 		"tidytext",
+		"tidyr",
+		"usethis",
 		"zoo"
-		
 	)
 )
 
@@ -329,11 +318,9 @@ list(
 			stimuli = stimuli, 
 			vocabulary = vocabulary,
 			attrition = attrition,
-			aoi_coords = aoi_coords
-		) %>% 
-			filter(
-				participant %in% unique(.$participant)[1:20]
-			)
+			aoi_coords = aoi_coords, 
+			time_subset = c(0.3, 2)
+		) 
 	),
 	tar_target(
 		gaze_test,
@@ -373,7 +360,8 @@ list(
 				prior = model_prior_agg[-c(2, 5),],
 				data = gaze_aggregated,
 				iter = 2000, chains = 2, seed = 888,
-				save_model = here("stan", "fit_agg_0.stan")
+				save_model = here("stan", "fit_agg_0.stan"),
+				file = here("results", "fit_agg_0.rds")
 			)
 		}
 	),
@@ -384,7 +372,8 @@ list(
 			prior = model_prior_agg,
 			data = gaze_aggregated,
 			iter = 2000, chains = 2, seed = 888,
-			save_model = here("stan", "fit_agg_1.stan")
+			save_model = here("stan", "fit_agg_1.stan"),
+			file = here("results", "fit_agg_1.rds")
 		)
 	),
 	tar_target(
@@ -394,7 +383,8 @@ list(
 			prior = model_prior,
 			data = gaze_aggregated,
 			iter = 2000, chains = 2, seed = 888,
-			save_model = here("stan", "fit_agg_2.stan")
+			save_model = here("stan", "fit_agg_2.stan"),
+			file = here("results", "fit_agg_2.rds")
 		)
 	),
 	tar_target(
@@ -404,7 +394,8 @@ list(
 			prior = model_prior_agg,
 			data = gaze_aggregated,
 			iter = 2000, chains = 2, seed = 888,
-			save_model = here("stan", "fit_agg_3.stan")
+			save_model = here("stan", "fit_agg_3.stan"),
+			file = here("results", "fit_agg_3.rds")
 		)
 	),
 	tar_target(
@@ -414,7 +405,9 @@ list(
 			prior = model_prior_agg,
 			data = gaze_aggregated,
 			iter = 2000, chains = 2, seed = 888,
-			save_model = here("stan", "fit_agg_4.stan")
+			save_model = here("stan", "fit_agg_4.stan"),
+			file = here("results", "fit_agg_4.rds")
+			
 		)
 	),
 	tar_target(
@@ -424,9 +417,11 @@ list(
 			prior = model_prior_agg,
 			data = gaze_aggregated,
 			iter = 2000, chains = 2, seed = 888,
-			save_model = here("stan", "fit_agg_5.stan")
+			save_model = here("stan", "fit_agg_5.stan"),
+			file = here("results", "fit_agg_5.rds")
 		)
 	),
+	
 	
 	# compare aggregated models
 	tar_target(
@@ -465,11 +460,12 @@ list(
 		brm(
 			logit ~ 
 				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) +
-				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) | participant),
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3)) | participant),
 			prior = model_prior,
 			data = gaze,
 			iter = 2000, chains = 2, seed = 888, init = 0,
-			save_model = here("stan", "fit_0.stan")
+			save_model = here("stan", "fit_0.stan"),
+			file = here("results", "fit_0.rds")
 		)
 	),
 	tar_target(
@@ -477,11 +473,12 @@ list(
 		brm(
 			logit ~ 
 				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
-				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
 			prior = model_prior,
 			data = gaze,
 			iter = 2000, chains = 2, seed = 888, init = 0,
-			save_model = here("stan", "fit_1.stan")
+			save_model = here("stan", "fit_1.stan"),
+			file = here("results", "fit_1.rds")
 		)
 	),
 	tar_target(
@@ -489,11 +486,12 @@ list(
 		brm(
 			logit ~ 
 				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
-				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
 			prior = model_prior,
 			data = gaze,
 			iter = 2000, chains = 2, seed = 888, init = 0,
-			save_model = here("stan", "fit_2.stan")
+			save_model = here("stan", "fit_2.stan"),
+			file = here("results", "fit_2.rds")
 		)
 	),
 	tar_target(
@@ -501,93 +499,103 @@ list(
 		brm(
 			logit ~ 
 				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group +
-				((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*age_group | participant),
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group | participant),
 			prior = model_prior,
 			data = gaze,
 			sample_prior = "yes",
 			iter = 2000, chains = 2, seed = 888, init = 0,
 			save_model = here("stan", "fit_3.stan"),
-			fit = here("results", "fit_3.rds")
+			file = here("results", "fit_3.rds")
 		)
-	)
-	# tar_target(
-	# 	fit_1,
-	# 	brm(
-	# 		logit ~
-	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type +
-	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
-	# 		prior = model_prior,
-	# 		data = gaze,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_1.stan")
-	# 	)
-	# ),
-	# tar_target(
-	# 	fit_2,
-	# 	brm(
-	# 		logit ~ 
-	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp +
-	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type | participant),
-	# 		prior = model_prior,
-	# 		data = gaze,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_2.stan")
-	# 	)
-	# ),
-	# tar_target(
-	# 	fit_3,
-	# 	brm(
-	# 		logit ~ 
-	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group +
-	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group | participant),
-	# 		prior = model_prior,
-	# 		data = gaze,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_3.stan")
-	# 	)
-	# ),
-	# tar_target(
-	# 	fit_4,
-	# 	brm(
-	# 		logit ~ 
-	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center +
-	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center | participant),
-	# 		prior = model_prior,
-	# 		data = gaze,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_4.stan")
-	# 	)
-	# ),
-	# tar_target(
-	# 	fit_5,
-	# 	brm(
-	# 		logit ~ 
-	# 			(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center +
-	# 			((time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center | participant),
-	# 		prior = model_prior,
-	# 		data = gaze,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_5.stan")
-	# 	)
-	# ),
+	),
+	tar_target(
+		fit_4,
+		brm(
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_l1_center +
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center | participant),
+			prior = model_prior,
+			data = gaze,
+			sample_prior = "yes",
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_4.stan"),
+			file = here("results", "fit_4.rds")
+		)
+	),
+	tar_target(
+		fit_5,
+		brm(
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*lp*vocab_size_total_center +
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center | participant),
+			prior = model_prior,
+			data = gaze,
+			sample_prior = "yes",
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_5.stan"),
+			file = here("results", "fit_5.rds")
+		)
+	),
+	tar_target(
+		fit_6,
+		brm(
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group +
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*age_group | participant),
+			prior = model_prior,
+			data = gaze,
+			sample_prior = "yes",
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_6.stan"),
+			file = here("results", "fit_6.rds")
+		)
+	),
+	tar_target(
+		fit_7,
+		brm(
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center +
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_l1_center | participant),
+			prior = model_prior,
+			data = gaze,
+			sample_prior = "yes",
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_7.stan"),
+			file = here("results", "fit_7.rds")
+		)
+	),
+	tar_target(
+		fit_8,
+		brm(
+			logit ~ 
+				(time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center +
+				(1 + (time_bin_center + I(time_bin_center^2) + I(time_bin_center^3))*trial_type*vocab_size_total_center | participant),
+			prior = model_prior,
+			data = gaze,
+			sample_prior = "yes",
+			iter = 2000, chains = 2, seed = 888, init = 0,
+			save_model = here("stan", "fit_8.stan"),
+			file = here("results", "fit_8.rds")
+		)
+	),
 	
-	# compare aggregated models
-	# tar_target(
-	# 	model_fits_agg,
-	# 	lst(
-	# 		fit_agg_0,
-	# 		fit_agg_1,
-	# 		fit_agg_2,
-	# 		fit_agg_3,
-	# 		fit_agg_4,
-	# 		fit_agg_5
-	# 	)
-	# ),
-	# 
-	# tar_target(
-	# 	loos_agg,
-	# 	loo_compare(map(model_fits_agg, loo))
-	# )
+	# compare GCA models
+	tar_target(
+		model_fits,
+		lst(
+			fit_0,
+			fit_1,
+			fit_2,
+			fit_3,
+			fit_4,
+			fit_5
+		)
+	),
+	
+	tar_target(
+		loos,
+		loo_compare(map(model_fits, loo_subsample))
+	)
 	
 	# render docs
 	# tar_render(docs_participants, "docs/00_participants.Rmd", priority = 0),

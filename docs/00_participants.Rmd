@@ -18,11 +18,12 @@ knitr::opts_chunk$set(
 	dpi = 300,
 	dev.args = list(png = list(type = "cairo"))
 )
+
 options(
 	knitr.kable.NA = '-',
 	knitr.duplicate.label = "allow",
-	ggplot2.discrete.fill = ggsci::pal_tron("legacy")(7),
-	ggplot2.discrete.colour = ggsci::pal_tron("legacy")(7)
+	ggplot2.discrete.fill = pal_d3()(4),
+	ggplot2.discrete.colour = pal_d3()(4)
 )
 
 
@@ -228,5 +229,69 @@ ggsave(
 )
 
 ```
+
+
+# Language profile
+
+```{r participants-lp, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+participants %>% 
+	select(participant, age_group, lp, starts_with("doe_"), test_language) %>% 
+	mutate(participant = paste0(participant, "(", age_group, ")")) %>% 
+	pivot_longer(
+		starts_with("doe_"),
+		names_to = "language",
+		values_to = "doe"
+	) %>% 
+	mutate(
+		language = str_remove_all(language, "doe_") %>% 
+			str_to_sentence(),
+	) %>% 
+	ggplot() +
+	aes(
+		x = doe,
+		y = reorder(participant, lp),
+		fill = language
+	) +
+	facet_wrap(
+		lp~test_language,
+		scales = "free_y",
+		labeller = label_wrap_gen(multi_line = FALSE)
+	) +
+	geom_col(
+		position = position_fill(),
+		size = 0.1,
+		colour = "white"
+	) +
+	geom_vline(
+		xintercept = 0.5
+	) +
+	labs(
+		x = "Degree of exposure",
+		y = "Participant",
+		fill = "Language"
+	) +
+	scale_x_continuous(
+		labels = percent
+	) +
+	theme(
+		axis.text.y = element_blank(),
+		panel.grid = element_blank(),
+		axis.title.y = element_blank(),
+		plot.background = element_rect(fill = "white")
+		
+	)
+
+ggsave(here("img", "participants_lp.png"))
+
+
+```
+
+
+
+
+
+
+
 
 

@@ -1,6 +1,7 @@
 # run the targets pipeline using clustermq
-make <- function() {
+make <- function(clustermq = FALSE) {
 	
+	if (clustermq){
 	job::job(
 		{{ 
 			targets::tar_make_clustermq(workers = 3)
@@ -8,8 +9,19 @@ make <- function() {
 		}}, 
 		import = NULL,
 		title = "Cognate Priming"
-		
 	)
+	}
+	
+	if (!clustermq){
+		job::job(
+			{{ 
+				targets::tar_make()
+				job::export("none")  # return nothing
+			}}, 
+			import = NULL,
+			title = "Cognate Priming"
+		)
+	}
 }
 
 # load all built targets (and packages)
@@ -49,14 +61,14 @@ unmake <- function(keep_rds = TRUE) {
 theme_custom <- function(){
 	theme(
 		panel.background = element_rect(fill = "white", colour = NA),
+		panel.border = element_blank(),
 		panel.grid = element_blank(),
 		plot.background = element_rect(fill = "white", color = NA),
-		panel.border = element_blank(),
-		axis.line = element_line(colour = "black", size = 0.75),
 		legend.key = element_rect(fill = "white", colour = NA),
 		text = element_text(colour = "black", size = 15),
 		axis.text.x = element_text(size = 12, face = "bold"),
 		axis.text.y = element_text(size = 12, face = "bold"),
+		axis.line = element_line(colour = "black", size = 0.75),
 		strip.text = element_text(size = 13, face = "bold"),
 		strip.background = element_rect(fill = "white", colour = NA)
 		
