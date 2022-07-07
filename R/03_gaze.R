@@ -32,7 +32,10 @@ get_gaze_files <- function(){
 	
 	
 	for (i in 1:n_files){
-		raw <- read_csv_arrow(file_paths[i], na = c("", "NaN", "NA", "<NA>")) %>%
+		raw <- read_csv_arrow(
+			file_paths[i], 
+			na = c("", "NaN", "NA", "<NA>")
+		) %>%
 			# rename all variables to snake case
 			clean_names() %>% 
 			# fix some values from outdates files

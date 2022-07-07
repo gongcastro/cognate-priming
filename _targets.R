@@ -330,10 +330,10 @@ list(
 		gaze_aggregated,
 		aggregate_data(gaze)
 	),
-	tar_target(
-		gaze_processed_plots,
-		make_plots_gaze_processed(gaze)
-	),
+	# tar_target(
+	# 	gaze_processed_plots,
+	# 	make_plots_gaze_processed(gaze)
+	# ),
 	
 	# see R/06_analysis.R for details on the fit_models() function
 	# this function takes a list of formulas and list of datasets and fits a model 
