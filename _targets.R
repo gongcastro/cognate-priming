@@ -28,6 +28,7 @@ tar_option_set(
 		"arrow",
 		"brms",
 		"childesr",
+		"cli",
 		"clustermq",
 		"conflicted",
 		"DiagrammeR",
@@ -76,7 +77,8 @@ options(
 	mc.cores = 2,
 	brms.backend = "cmdstanr",
 	knitr.duplicate.label = "allow",
-	clustermq.scheduler = "multiprocess"
+	clustermq.scheduler = "multiprocess",
+	cli.progress_bar_style = "dot"
 )
 
 
@@ -114,26 +116,14 @@ list(
 	
 	# get multilex data (Barcelona vocabulary data) ----
 	# log into multilex
-	tar_target(
-		credentials, 
-		get_credentials()
-	), # see R/utils.R
+	tar_target(credentials, get_credentials()), # see R/utils.R
 	
 	# this returns a list with all necessary data
-	tar_target(
-		multilex_data, 
-		get_multilex(
-			update = TRUE,
-			type = "understands"
-		)
-	), 
+	tar_target(multilex_data, get_multilex(update = TRUE, type = "understands")), 
 	
 	# stimuli ----
 	# import data
-	tar_target(
-		trials, 
-		read_xlsx(here("stimuli", "stimuli.xlsx"))
-	),
+	tar_target(trials, read_xlsx(here("stimuli", "stimuli.xlsx"))),
 	tar_target(
 		animacy, 
 		here("data", "stimuli", "animacy.csv") %>% 
@@ -166,12 +156,6 @@ list(
 		)
 	),
 	tar_target(
-		frequency_subtlex,
-		get_frequency_subtlex(
-			token = unique(unlist(distinct(trials, prime, target)))
-		) 
-	),
-	tar_target(
 		semantic_category,
 		multilex_data$pool %>% # defined in arguments
 			select(word = item, language, category) %>%
@@ -185,29 +169,19 @@ list(
 			trials = trials,
 			familiarity = familiarity,
 			frequency_childes = frequency_childes,
-			frequency_subtlex = frequency_subtlex,
 			semantic_category = semantic_category,
 			animacy = animacy, 
 			
 		)
 	), 
-	tar_target(
-		stimuli_test,
-		test_stimuli(stimuli) 
-	),
+	tar_target(stimuli_test, test_stimuli(stimuli)),
 	
 	# participants ----
 	
 	# join datasets
 	# see R/01_participants.R for details on this function
-	tar_target(
-		participants, 
-		get_participants()
-	),
-	tar_target(
-		participants_test,
-		test_participants(participants)
-	),
+	tar_target(participants, get_participants()),
+	tar_target(participants_test, test_participants(participants)),
 	
 	# vocabulary ----
 	
@@ -221,16 +195,10 @@ list(
 			multilex_data = multilex_data
 		)
 	),
-	tar_target(
-		vocabulary_test,
-		test_vocabulary(vocabulary)
-	),
+	tar_target(vocabulary_test, test_vocabulary(vocabulary)),
 	
 	# gaze data ----
-	tar_target(
-		gaze_files,
-		get_gaze_files()
-	),
+	tar_target(gaze_files, get_gaze_files()),
 	
 	tar_target(
 		aoi_coords,
@@ -251,24 +219,12 @@ list(
 			aoi_coords = aoi_coords
 		)
 	),
-	tar_target(
-		gaze_raw_test,
-		test_gaze_raw(gaze_raw)
-	),
-	tar_target(
-		gaze_imputed, 
-		impute_gaze(gaze_raw)
-	),
-	tar_target(
-		gaze_imputed_test,
-		test_gaze_imputed(gaze_imputed)
-	),
+	tar_target(gaze_raw_test, test_gaze_raw(gaze_raw)),
+	tar_target(gaze_imputed, impute_gaze(gaze_raw)),
+	tar_target(gaze_imputed_test, test_gaze_imputed(gaze_imputed)),
 	tar_target(
 		gaze_plots,
-		make_plots_gaze_raw(
-			gaze_imputed,
-			aoi_coords
-		)
+		make_plots_gaze_raw(gaze_imputed, aoi_coords)
 	),
 	
 	# attrition data ----
@@ -322,18 +278,9 @@ list(
 			time_subset = c(0.3, 2)
 		) 
 	),
-	tar_target(
-		gaze_test,
-		test_gaze(gaze)
-	),
-	tar_target(
-		gaze_aggregated,
-		aggregate_data(gaze)
-	),
-	# tar_target(
-	# 	gaze_processed_plots,
-	# 	make_plots_gaze_processed(gaze)
-	# ),
+	tar_target(gaze_test, test_gaze(gaze)),
+	tar_target(gaze_aggregated, aggregate_data(gaze)),
+	tar_target(gaze_processed_plots, make_plots_gaze_processed(gaze)),
 	
 	# see R/06_analysis.R for details on the fit_models() function
 	# this function takes a list of formulas and list of datasets and fits a model 
