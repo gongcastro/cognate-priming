@@ -27,9 +27,7 @@ test_stimuli <- function(stimuli){
 				"category_prime",
 				"category_target",
 				"is_animate_prime",
-				"is_animate_target",
-				"frequency_prime_subtlex",
-				"frequency_target_subtlex"
+				"is_animate_target"
 			)
 		)
 	})
@@ -59,8 +57,6 @@ test_stimuli <- function(stimuli){
 		expect_type(stimuli$category_target, "character")
 		expect_type(stimuli$is_animate_prime, "logical")
 		expect_type(stimuli$is_animate_target, "logical")
-		expect_type(stimuli$frequency_prime_subtlex, "double")
-		expect_type(stimuli$frequency_prime_subtlex, "double")
 	})
 	
 	
@@ -86,8 +82,6 @@ test_stimuli <- function(stimuli){
 		expect_lt(length(stimuli$familiarity_se_target[is.na(stimuli$familiarity_se_target)])/nrow(stimuli), 0.10) 
 		expect_lt(length(stimuli$frequency_prime_childes[is.na(stimuli$frequency_prime_childes)])/nrow(stimuli), 0.10) 
 		expect_lt(length(stimuli$frequency_target_childes[is.na(stimuli$frequency_target_childes)])/nrow(stimuli), 0.10) 
-		expect_lt(length(stimuli$frequency_prime_subtlex[is.na(stimuli$frequency_prime_subtlex)])/nrow(stimuli), 0.10) 
-		expect_lt(length(stimuli$frequency_target_subtlex[is.na(stimuli$frequency_target_subtlex)])/nrow(stimuli), 0.10) 
 		expect_false(any(is.na(stimuli$category_prime)))
 		expect_false(any(is.na(stimuli$category_target)))
 		expect_false(any(is.na(stimuli$is_animate_prime)))
@@ -112,8 +106,6 @@ test_stimuli <- function(stimuli){
 		expect_true(all(between(stimuli$familiarity_se_target[!is.na(stimuli$familiarity_se_prime)], 0, 1)))
 		expect_true(all(unique(stimuli$frequency_prime_childes) >= 0))
 		expect_true(all(unique(stimuli$frequency_target_childes) >= 0))
-		expect_true(all(unique(stimuli$frequency_prime_subtlex) >= 0))
-		expect_true(all(unique(stimuli$frequency_target_subtlex) >= 0))
 		expect_true(all(stimuli$is_animate_prime %in% c(TRUE, FALSE)))
 		expect_true(all(stimuli$is_animate_target %in% c(TRUE, FALSE)))
 		expect_true(all(stimuli$category_prime %in% c("Animals", "Body parts", "Clothes", "Food and drink", "Games and rutines", "Household Items", "Outside", "Toys", "Vehicles")))
