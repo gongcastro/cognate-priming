@@ -7,12 +7,12 @@
 *.pptx
 *.html
 *.pdf
-_targets/*
+_targets/*/*
+_targets/
 Dissemination/*
 Media/*
 Documents/*
 Figures/*
 !Data/Stimuli/*
 nul
-img/01_raw/
-img/02_processed/*.png
+
