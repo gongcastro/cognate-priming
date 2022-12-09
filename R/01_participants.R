@@ -24,10 +24,7 @@ get_participants <- function(){
 			# remove pilot participants
 			filter(!pilot) %>% 
 			# remove participants with no gaze data
-			drop_na(
-				participant,
-				filename
-			) %>% 
+			drop_na(participant, filename) %>% 
 			select(
 				participant,
 				id_db,

@@ -12,27 +12,25 @@ prepare_data <- function(
 	suppressMessages({
 		
 		vocabulary <- vocabulary %>% 
-			mutate(
-				vocab_size_total_center = scale(vocab_size_total)[,1],
-				vocab_size_l1_center = scale(vocab_size_l1)[,1],
-				vocab_size_conceptual_center = scale(vocab_size_conceptual)[,1]
-			) 
+			mutate(across(starts_with("vocab_size"), ~scale(.)[,1], .names = "{.col}_center")) 
 		
-		clean <- list(
-			select(participants, -filename),
-			stimuli,
-			gaze_imputed
-		) %>% 
-			reduce(full_join) %>%  
+		clean <- list(select(participants, -filename), stimuli, gaze_imputed) %>% 
+			reduce(full_join) %>% 
 			select(
 				participant, age_group, trial, phase, time, x, y, 
 				target_location, filename, valid_sample
 			) %>% 
 			# evaluate if gaze coordinates are inside any AOI, and which
 			mutate(
-				aoi_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
-				aoi_target = gaze_in_target(x, y, target_location, aoi_coords),
-				aoi_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)
+				aoi_center = gaze_in_center(x, y, aoi_coords = aoi_coords),
+				aoi_left = gaze_in_left(x, y, aoi_coords),
+				aoi_right = gaze_in_right(x, y, aoi_coords)
+			) %>% 
+			replace_na(list(aoi_center = FALSE, aoi_right = FALSE, aoi_left = FALSE)) %>% 
+			mutate(
+				aoi_prime = aoi_center,
+				aoi_target = ifelse(target_location=="r", aoi_right, aoi_left),
+				aoi_distractor = ifelse(target_location=="l", aoi_right, aoi_left)
 			) %>% 
 			drop_na(filename) %>% 
 			left_join(attrition) %>% 
@@ -83,13 +81,11 @@ prepare_data <- function(
 				logit = log(prop / (1- prop))
 			) %>%
 			left_join(vocabulary) %>%  
-			mutate_at(vars(age_group, lp, trial_type), as.factor) %>% 
-			mutate_at(vars(sum_target, sum_distractor, n, time_bin, n_trials), as.integer) %>% 
 			mutate(
-				time_bin_center = scale(time_bin, scale = FALSE)[, 1],
-				vocab_size_l1_center = scale(vocab_size_l1)[, 1],
-				vocab_size_total_center = scale(vocab_size_total)[, 1],
-				vocab_size_conceptual_center = scale(vocab_size_conceptual)[, 1]
+				across(c(age_group, lp, trial_type), as.factor), 
+				across(c(sum_target, sum_distractor, n, time_bin, n_trials), as.integer),
+				across(starts_with("vocab_size"), ~scale(.)[,1], .names = "{.col}_center"),
+				time_bin_center = scale(time_bin, scale = FALSE)[, 1]
 			) %>% 
 			drop_na(vocab_size_l1_center, vocab_size_total_center, vocab_size_conceptual_center) %>% 
 			arrange(participant, trial_type, time_bin) %>% 
@@ -148,32 +144,14 @@ make_plots_gaze_processed <- function(gaze){
 		plot <- gaze %>% 
 			filter(participant==participants[i]) %>% 
 			ggplot() +
-			aes(
-				x = time_bin,
-				y = prop,
-				colour = trial_type,
-				shape = trial_type
-			) + 
+			aes(x = time_bin, y = prop, colour = trial_type, shape = trial_type) + 
 			facet_grid(~age_group) +
-			geom_hline(
-				yintercept = 0.5,
-				colour = "grey",
-				size = 1
-			) +
-			geom_line(
-				size = 1
-			) +
-			geom_point(
-				size = 3,
-				na.rm = TRUE
-			) +
+			geom_hline(yintercept = 0.5, colour = "grey", size = 1) +
+			geom_line(size = 1) +
+			geom_point(size = 3, na.rm = TRUE) +
 			geom_text(
 				data = filter(n_trials, participant==participants[i]),
-				aes(
-					x = 4,
-					y = 1,
-					label = paste0("n = ", n_trials)
-				),
+				aes(x = 4, y = 1, label = paste0("n = ", n_trials)),
 				hjust = 0,
 				vjust = 1,
 				size = 5,
@@ -248,49 +226,18 @@ aggregate_data <- function(gaze, plot = TRUE){
 	if (plot){
 		means <- aggregated %>% 
 			group_by(trial_type) %>% 
-			summarise(
-				prop = mean(prop, na.rm = TRUE),
-				.groups = "drop"
-			)
+			summarise(prop = mean(prop, na.rm = TRUE), .groups = "drop")
 		
 		my_plot <- aggregated %>% 
 			ggplot() + 
-			aes(
-				x = trial_type, 
-				y = prop,
-				colour = trial_type, 
-				fill = trial_type
-			) + 
-			geom_hline(
-				yintercept = 0.5, 
-				colour = "grey",
-				linetype = "dotted"
-			) + 
-			geom_violin(
-				colour = "white",
-				alpha = 0.25
-			) +
-			geom_boxplot(
-				fill = "white",
-				colour = "black",
-				width = 0.075,
-				size = 0.75,
-				outlier.colour = NA
-			) +
-			geom_jitter(
-				size = 2,
-				shape = 1,
-				stroke = 1,
-				width = 0.2,
-				alpha = 0.5
-			) +
+			aes(x = trial_type, y = prop, colour = trial_type, fill = trial_type) + 
+			geom_hline(yintercept = 0.5, colour = "grey", linetype = "dotted") + 
+			geom_violin(colour = "white", alpha = 0.25) +
+			geom_boxplot(fill = "white", colour = "black", width = 0.075, size = 0.75, outlier.colour = NA) +
+			geom_jitter(size = 2, shape = 1, stroke = 1, width = 0.2, alpha = 0.5) +
 			geom_text(
 				data = means,
-				aes(
-					x = trial_type,
-					y = prop,
-					label = percent(prop, accuracy = 0.1)
-				),
+				aes(x = trial_type, y = prop, label = percent(prop, accuracy = 0.1)),
 				position = position_nudge(y = 0.35),
 				fontface = "bold",
 				size = 5

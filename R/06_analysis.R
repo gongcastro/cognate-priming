@@ -60,7 +60,6 @@ get_epreds <- function(fit, gaze, transform = TRUE){
 
 # get marginal means
 get_emmeans <- function(fit, ...){
-	
 	emmean <- emmeans(fit, ~trial_type, epred = TRUE, ...) %>% 
 		as_tibble() %>% 
 		mutate_if(is.numeric, inv_logit_scaled)

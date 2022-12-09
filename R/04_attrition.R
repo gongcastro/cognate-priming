@@ -12,7 +12,6 @@ get_attrition <- function(
 ){
 	suppressWarnings({
 		
-
 		processed <- list(
 			select(participants, -filename),
 			stimuli,
@@ -33,18 +32,18 @@ get_attrition <- function(
 		valid_gaze <- processed %>% 
 			# evaluate if gaze coordinates are inside any AOI, and which
 			mutate(
-				aoi_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
-				aoi_target = gaze_in_target(x, y, target_location, aoi_coords),
-				aoi_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)
-			) %>%  
-			rename_all(function(x) str_remove(x, "_cdi")) %>% 
-			group_by(
-				participant, 
-				age_group,
-				trial_type,
-				filename,
-				trial
+				aoi_center = gaze_in_center(x, y, aoi_coords = aoi_coords),
+				aoi_left = gaze_in_left(x, y, aoi_coords),
+				aoi_right = gaze_in_right(x, y, aoi_coords)
 			) %>% 
+			replace_na(list(aoi_center = FALSE, aoi_right = FALSE, aoi_left = FALSE)) %>% 
+			mutate(
+				aoi_prime = aoi_center,
+				aoi_target = ifelse(target_location=="r", aoi_right, aoi_left),
+				aoi_distractor = ifelse(target_location=="l", aoi_right, aoi_left)
+			) %>% 
+			rename_all(function(x) str_remove(x, "_cdi")) %>% 
+			group_by(participant, age_group, trial_type, filename, trial) %>% 
 			summarise(
 				# proportion of prime looking time during prime phase
 				valid_looking_prime = sum(aoi_prime[phase=="Prime"], na.rm = TRUE)*(1/120),
@@ -56,31 +55,16 @@ get_attrition <- function(
 			) %>% 
 			mutate(
 				# prime looking proportion during prime phase is higher or equal than minimum
-				valid_gaze_prime = case_when(
-					looking_threshold["prime"] > 0 ~ (valid_looking_prime > looking_threshold["prime"]),
-					TRUE ~ TRUE
-				),					
+				valid_gaze_prime = ifelse(looking_threshold["prime"] > 0, valid_looking_prime > looking_threshold["prime"], TRUE),					
 				# participant has looked at least once to target AND distractor and higher or equal than minimum to both
-				valid_gaze_target = case_when(
-					looking_threshold["target"] > 0 ~ (valid_looking_target > looking_threshold["target"]),
-					TRUE ~ TRUE
-				),				
+				valid_gaze_target = ifelse(looking_threshold["target"] > 0, valid_looking_target > looking_threshold["target"], TRUE),				
 				# participant has looked at least once to target AND distractor and higher or equal than minimum to both
-				valid_gaze_distractor = case_when(
-					looking_threshold["distractor"] > 0 ~ (valid_looking_distractor > looking_threshold["distractor"]),
-					TRUE ~ TRUE
-				),
+				valid_gaze_distractor = ifelse(looking_threshold["distractor"] > 0 , valid_looking_distractor > looking_threshold["distractor"], TRUE),
 				# trial meets all gaze criteria
-				valid_gaze = (valid_gaze_prime & valid_gaze_target & valid_gaze_distractor)
-			) %>% 
-			mutate_at(
-				vars(starts_with("valid_")),
-				~ifelse(
-					is.na(.),
-					FALSE, 
-					.
-				)
-			)
+				valid_gaze = (valid_gaze_prime & valid_gaze_target & valid_gaze_distractor),
+				across(starts_with("valid_"), ~ifelse(is.na(.), FALSE, .))
+			) 
+		
 		# 
 		# # evaluate vocabulary
 		# valid_vocabulary <- processed %>%
@@ -98,9 +82,7 @@ get_attrition <- function(
 		# valid trials
 		valid_trials <- valid_gaze %>% 
 			# trial meets all gaze and vocabulary criteria
-			mutate(
-				valid_trial = valid_gaze_prime & valid_gaze_target & valid_gaze_distractor
-			) %>% 
+			mutate(valid_trial = valid_gaze_prime & valid_gaze_target & valid_gaze_distractor) %>% 
 			select(
 				participant, 
 				age_group,
@@ -150,11 +132,7 @@ get_attrition <- function(
 		
 		# valid participants
 		valid_participants <- valid_trials %>% 
-			group_by(
-				participant,
-				age_group,
-				trial_type
-			) %>% 
+			group_by(participant, age_group, trial_type) %>% 
 			summarise(
 				# number of valid trials by participant, age group and trial type
 				valid_trial_sum = sum(valid_trial, na.rm = TRUE),
@@ -163,12 +141,7 @@ get_attrition <- function(
 				.groups = "drop"
 			) %>% 
 			# to wide format
-			pivot_wider(
-				-trial_n, 
-				names_from = trial_type, 
-				values_from = valid_trial_sum,
-				values_fill = 0
-			) %>% 
+			pivot_wider(-trial_n, names_from = trial_type, values_from = valid_trial_sum, values_fill = 0) %>% 
 			# rename columns
 			clean_names() %>% 
 			mutate(

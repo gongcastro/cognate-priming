@@ -4,10 +4,7 @@ get_gaze_files <- function(){
 	file_names <- list.files(here("data", "gaze", "00_raw"))
 	n_files <- length(file_paths)
 	
-	relevant_variables <- c(
-		"participant", "trial_num", "trial", "phase", "time",
-		"l_x", "l_y", "l_v", "r_x", "r_y", "r_v"
-	)
+	relevant_variables <- c("participant", "trial_num", "trial", "phase", "time", "l_x", "l_y", "l_v", "r_x", "r_y", "r_v")
 	
 	col_name_changes <- c(
 		"system_time_stamp" = "time",
@@ -31,11 +28,15 @@ get_gaze_files <- function(){
 	)
 	
 	
+	i <- 0
+	cli_progress_bar("Processing", total = n_files, format = "{pb_spin} Reading file {pb_current}/{pb_total} [{pb_percent}]")
+	
 	for (i in 1:n_files){
-		raw <- read_csv_arrow(
-			file_paths[i], 
-			na = c("", "NaN", "NA", "<NA>")
-		) %>%
+		raw_data <- read_csv_arrow(file_paths[i], na = c("", "NaN", "NA", "<NA>"))
+		
+		sampling_rate <- ifelse(nrow(raw_data) > 20e3, 120, 60)
+		
+		raw <- raw_data %>% 
 			# rename all variables to snake case
 			clean_names() %>% 
 			# fix some values from outdates files
@@ -46,28 +47,22 @@ get_gaze_files <- function(){
 			mutate(
 				participant = paste0("cognatepriming", participant),
 				# fix the timestamp in some files
-				time = row_number()*(1000/120)
-			) %>%
-			# change variables to the right class
-			mutate_all(function(x) ifelse(is.nan(x), NA_real_, x)) %>% # NaNs to NAs
-			mutate_at(
-				vars(
-					starts_with("l_"),
-					starts_with("r_")
-				), 
-				as.numeric
-			) %>% # gaze coords to numeric
-			mutate_at(
-				vars(contains("_v")),
-				as.logical
-			) %>% # validity columns to logicals
+				time = row_number()*(1000/sampling_rate),
+				# change variables to the right class
+				across(everything(), ~ifelse(is.nan(.), NA_real_, .)),
+				# gaze coords to numeric
+				across(c(starts_with("l_"), starts_with("r_")), as.numeric), 
+				# validity columns to logicals
+				across(contains("_v"), as.logical) 
+			) %>% 
 			# get only variables of interest
 			select(any_of(relevant_variables))
 		
 		write_csv_arrow(raw, here("data", "gaze", "01_processed", file_names[i]))
 		
-		message(paste0("[", i, "/", n_files, "] ", file_names[i], " processed"))
+		cli_progress_update()
 	}
+	cli_progress_done(result = "done")
 }
 
 # process Barcelona gaze data
@@ -90,8 +85,8 @@ get_gaze_raw <- function(
 			set_names(list.files(here("data", "gaze", "01_processed")))  %>% 
 			bind_rows(.id = "filename") %>% 
 			# restart timestamps at each trial phase change, and express in seconds
-			group_by(participant, trial, phase, filename) %>%
-			mutate(time = (row_number()-1)*(1/120)) %>%
+			group_by(participant, trial, phase, filename) %>% 
+			mutate(time = (time-min(time))/1000) %>% 
 			ungroup() %>%
 			# trim timestamps outside the 2 seconds range
 			filter(
@@ -113,16 +108,9 @@ get_gaze_raw <- function(
 			select(participant, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
 			arrange(participant, age_group, trial, phase, time)
 		
-		
 		# merge data ----
-		expanded <- expand(raw, participant, age_group, trial, phase, time)
-		
 		gaze_raw <- raw %>% 
-			right_join(expanded) %>% 
-			select(
-				participant, age_group, trial, phase,
-				time, x, y, valid_sample, filename
-			) %>% 
+			select(participant, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
 			mutate(valid_sample = ifelse(is.na(valid_sample), FALSE, valid_sample)) %>% 
 			filter(
 				!(phase=="Prime" & time > 1.5),
@@ -184,16 +172,13 @@ make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
 		)
 	)
 	
+	i <- 0
+	cli_progress_bar("Plotting", total = n_files, format = "{pb_spin} Plotting {pb_current}/{pb_total} [{pb_percent}]")
+	
 	for (i in 1:n_files) {
-		
-		
 		plot_data <- gaze_imputed %>% 
 			filter(filename==files[i]) %>% 
-			pivot_longer(
-				c(x, y),
-				names_to = "dim",
-				values_to = "value"
-			) %>% 
+			pivot_longer(c(x, y), names_to = "dim", values_to = "value") %>% 
 			mutate(
 				is_imputed = factor(
 					is_imputed, 
@@ -206,13 +191,10 @@ make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
 					labels = c("Prime", "Target")
 				)
 			)
+		
 		plot <- plot_data %>% 
 			ggplot() +
-			aes(
-				x = time,
-				y = value,
-				colour = is_imputed
-			) + 
+			aes(x = time, y = value, colour = is_imputed) + 
 			facet_wrap(
 				trial+phase~dim,
 				ncol = 4,
@@ -282,97 +264,36 @@ make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
 		
 		ggsave(here("img", "01_raw", file_name), plot = plot, height = plot_height, width = 6)
 		
-		message(paste0("[", i, "/", n_files, "] ", file_name, " plot generated"))
+		cli_progress_update()
 	}
+	cli_progress_done(result = "done")
+	
 }
-
-
-
 
 
 # evaluate if gaze is in prime
-gaze_in_prime <- function(x, y, aoi_coords){
+gaze_in_center <- function(x, y, aoi_coords){
+	x_in_range <- (x >= aoi_coords$center["xmin"] & x <= aoi_coords$center["xmax"]) 
+	y_in_range <- (y >= aoi_coords$center["ymin"] & y <= aoi_coords$center["ymax"])
+	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
 	
-	is_gaze_in_aoi <- between(
-		x, 
-		aoi_coords$center["xmin"], 
-		aoi_coords$center["xmax"]
-	) & 
-		between(
-			y, 
-			aoi_coords$center["ymin"], 
-			aoi_coords$center["ymax"]
-		)
-	
-	is_gaze_in_aoi <- ifelse(is.na(is_gaze_in_aoi), FALSE, TRUE)
-	
-	return(is_gaze_in_aoi)
+	return(gaze_in_range)
 }
 
 # evaluate if gaze is in target
-gaze_in_target <- function(x, y, target_location, aoi_coords){
+gaze_in_right <- function(x, y, aoi_coords){
+	x_in_range <- (x >= aoi_coords$right["xmin"] & x <= aoi_coords$right["xmax"]) 
+	y_in_range <- (y >= aoi_coords$right["ymin"] & y <= aoi_coords$right["ymax"])
+	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
 	
-	is_gaze_in_aoi <- 
-		case_when(
-			target_location=="r" ~ 
-				between(
-					x,
-					aoi_coords$right["xmin"],
-					aoi_coords$right["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$right["ymin"],
-					aoi_coords$right["ymax"]
-				),
-			target_location=="l" ~ 
-				between(
-					x,
-					aoi_coords$left["xmin"],
-					aoi_coords$left["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$left["ymin"],
-					aoi_coords$left["ymax"]
-				),
-			TRUE ~ FALSE
-		)
-	
-	return(is_gaze_in_aoi)
+	return(gaze_in_range)
 }
 
-
-# evaluate if gaze is in distractor
-gaze_in_distractor <- function(x, y, target_location, aoi_coords){
+gaze_in_left <- function(x, y, aoi_coords){
+	x_in_range <- (x >= aoi_coords$left["xmin"] & x <= aoi_coords$left["xmax"]) 
+	y_in_range <- (y >= aoi_coords$left["ymin"] & y <= aoi_coords$left["ymax"])
+	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
 	
-	is_gaze_in_aoi <- 
-		case_when(
-			target_location=="l" ~
-				between(
-					x,
-					aoi_coords$right["xmin"],
-					aoi_coords$right["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$right["ymin"],
-					aoi_coords$right["ymax"]
-				),
-			target_location=="r" ~
-				between(
-					x,
-					aoi_coords$left["xmin"],
-					aoi_coords$left["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$left["ymin"],
-					aoi_coords$left["ymax"]
-				),
-			TRUE ~ FALSE
-		)
-	
-	return(is_gaze_in_aoi)
+	return(gaze_in_range)
 }
 

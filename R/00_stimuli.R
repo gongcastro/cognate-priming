@@ -69,10 +69,7 @@ get_childes_corpora <- function(
 			mutate(language = str_split(language, " ")) %>%
 			unnest(language) %>%
 			group_by(language, gloss) %>%
-			summarise(
-				freq_counts = sum(n), 
-				.groups = "drop"
-			) %>%
+			summarise(freq_counts = sum(n), .groups = "drop") %>%
 			filter(freq_counts > 0)
 		
 		write_csv_arrow(childes, "data/stimuli/childes.csv")
@@ -92,10 +89,8 @@ get_frequency_childes <- function(
 ){
 	
 	if (file.exists("data/stimuli/frequency_childes.csv")){
-		
 		frequency <- read_csv_arrow("data/stimuli/frequency_childes.csv")
 		ui_done("Previous versions of frequency_childes loaded")
-		
 	} else {
 		
 		suppressMessages({
@@ -104,17 +99,11 @@ get_frequency_childes <- function(
 			total_counts <- get_speaker_statistics() %>%
 				filter(str_detect(language, paste(languages, collapse = "|"))) %>%
 				group_by(language) %>%
-				summarise(
-					num_tokens = sum(num_tokens), 
-					.groups = "drop"
-				) %>%
+				summarise(num_tokens = sum(num_tokens), .groups = "drop") %>%
 				mutate(language = str_split(language, " ")) %>%
 				unnest(cols = language) %>%
 				group_by(language) %>%
-				summarise(
-					n = sum(num_tokens, na.rm = TRUE),
-					.groups = "drop"
-				)
+				summarise(n = sum(num_tokens, na.rm = TRUE), .groups = "drop")
 			
 			# relative frequency (counts per million)
 			frequency <- childes %>%
@@ -191,16 +180,13 @@ get_frequency_subtlex <- function(
 				select(d, y)
 			
 			colnames(subtlex_spa) <- c("word", "frequency")
-			
 			file.remove("SUBTLEX-ESP.xlsx")
 		}
 		
 		if("cat" %in% languages){
 			
 			tf <- tempfile(fileext = "xlsx")
-			
 			GET("https://psico.fcep.urv.cat/projectes/gip/papers/SUBTLEX-CAT.xlsx", write_disk(tf))
-			
 			subtlex_cat <- read_excel(tf) %>% 
 				clean_names() %>%
 				rename(word = words, frequency = zipf) %>% 
@@ -223,88 +209,45 @@ get_stimuli <- function(
 		trials, # trials dataset
 		familiarity,
 		frequency_childes,
-		frequency_subtlex,
 		animacy,
 		semantic_category,
 		impute = TRUE # impute missing data?
 ){
 	suppressMessages({
 		
-		
 		# to avoid issues with other column names
 		frequency_childes <- rename(frequency_childes, frequency_childes = frequency) 
-		frequency_subtlex <- rename(frequency_subtlex, frequency_subtlex = frequency) 
-		
+
 		# merge data ----
 		# join all datasets (not very elegant, but does the trick
 		# prime and target data are joined separately to avoid duplicating entries)
 		stimuli_raw <- trials %>% 
-			left_join(
-				semantic_category,
-				by = c("target_cdi" = "word", "test_language")
-			) %>% 
+			left_join(semantic_category, by = c("target_cdi" = "word", "test_language")) %>% 
 			rename(category_prime = category) %>% 
-			left_join(
-				semantic_category,
-				by = c("prime_cdi" = "word", "test_language")
-			) %>% 
+			left_join(semantic_category, by = c("prime_cdi" = "word", "test_language")) %>% 
 			rename(category_target = category) %>% 
-			left_join(
-				frequency_subtlex,
-				by = c("prime" = "word", "test_language")
-			) %>% 
-			rename(frequency_prime_subtlex = frequency_subtlex) %>% 
-			left_join(
-				frequency_subtlex, 
-				by = c("target" = "word", "test_language")
-			) %>% 
-			rename(frequency_target_subtlex = frequency_subtlex) %>% 
-			left_join(
-				frequency_childes, 
-				by = c("prime" = "word", "test_language")
-			) %>% 
+			left_join(frequency_childes, by = c("prime" = "word", "test_language")) %>% 
 			rename(frequency_prime_childes = frequency_childes) %>% 
-			left_join(
-				frequency_childes,
-				by = c("target" = "word", "test_language")
-			) %>% 
+			left_join(frequency_childes, by = c("target" = "word", "test_language")) %>% 
 			rename(frequency_target_childes = frequency_childes) %>% 
-			left_join(
-				animacy,
-				by = c("prime" = "object", "test_language")
-			) %>% 
+			left_join(animacy, by = c("prime" = "object", "test_language")) %>% 
 			rename(is_animate_prime = is_animate) %>% 
-			left_join(
-				animacy,
-				by = c("target" = "object", "test_language")
-			) %>% 
+			left_join(animacy, by = c("target" = "object", "test_language")) %>% 
 			rename(is_animate_target = is_animate) %>% 
-			left_join(
-				familiarity,
-				c("prime_cdi" = "word", "test_language")) %>% 
-			rename_at(
-				vars(starts_with("familiarity")), 
-				function(x) paste0(x, "_prime")
+			left_join(familiarity, c("prime_cdi" = "word", "test_language")) %>% 
+			rename_at(vars(starts_with("familiarity")), function(x) paste0(x, "_prime")) %>% 
+			left_join(familiarity, c("target_cdi" = "word", "test_language")
 			) %>% 
-			left_join(
-				familiarity,
-				c("target_cdi" = "word", "test_language")
-			) %>% 
-			rename_at(
-				vars(starts_with("familiarity") & !ends_with("_prime")), 
-				function(x) paste0(x, "_target")
-			) %>% 
-			rename_all(function(x) str_replace(x, "prime_target", "prime")) %>% 
+			rename_with(~paste0(., "_target"), c(starts_with("familiarity") & !ends_with("_prime"))) %>% 
+			rename_with(~str_replace(., "prime_target", "prime"), everything()) %>% 
 			filter(location=="Barcelona")
 		
 		# impute data
 		if (impute){ # defined in arguments
-			
 			stimuli_imputed <- stimuli_raw %>% 
 				mice(printFlag = FALSE) %>% # predictive mean matching is used by default
 				complete() %>% # get complete dataset
 				as_tibble()
-			
 		}
 		
 		stimuli <- stimuli_imputed %>% 
@@ -318,14 +261,11 @@ get_stimuli <- function(
 				frequency_prime_childes, frequency_target_childes,
 				category_prime, category_target,
 				is_animate_prime, is_animate_target,
-				frequency_prime_subtlex, frequency_target_subtlex,
 				is_animate_prime, is_animate_target
 			) %>% 
 			mutate(
-				trial = as.integer(trial),
-				is_animate_prime = as.logical(is_animate_prime),
-				is_animate_target = as.logical(is_animate_target),
-				list = as.integer(list)
+				across(c(trial, list), as.integer),
+				across(starts_with("is_animate"), as.logical)
 			)
 	})
 	
