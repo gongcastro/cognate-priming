@@ -3,33 +3,30 @@ test_stimuli <- function(stimuli){
 	test_that("stimuli has the right columns", {
 		expect_equal(
 			colnames(stimuli),
-			c(
-				"trial",
-				"test_language",
-				"version",
-				"list",
-				"trial_type",
-				"prime",
-				"target",
-				"distractor",
-				"audio",
-				"target_location",
-				"prime_cdi",
-				"target_cdi",
-				"distractor_cdi",
-				"valid_trial",
-				"familiarity_prime",
-				"familiarity_target",
-				"familiarity_se_prime",
-				"familiarity_se_target",
-				"frequency_prime_childes",
-				"frequency_target_childes",
-				"category_prime",
-				"category_target",
-				"is_animate_prime",
-				"is_animate_target"
-			)
-		)
+			c("trial",
+			  "test_language",
+			  "version",
+			  "list",
+			  "trial_type",
+			  "prime",
+			  "target",
+			  "distractor",
+			  "audio",
+			  "target_location",
+			  "prime_cdi",
+			  "target_cdi",
+			  "distractor_cdi",
+			  "valid_trial",
+			  "familiarity_prime",
+			  "familiarity_target",
+			  "familiarity_se_prime",
+			  "familiarity_se_target",
+			  "freq_prime",
+			  "freq_target",
+			  "semantic_category_prime",
+			  "semantic_category_target",
+			  "is_animate_prime",
+			  "is_animate_target"))
 	})
 	
 	test_that("stimuli has the variable classes", {
@@ -51,10 +48,10 @@ test_stimuli <- function(stimuli){
 		expect_type(stimuli$familiarity_target, "double")
 		expect_type(stimuli$familiarity_se_prime, "double")
 		expect_type(stimuli$familiarity_se_target, "double")
-		expect_type(stimuli$frequency_prime_childes, "double")
-		expect_type(stimuli$frequency_target_childes, "double")
-		expect_type(stimuli$category_prime, "character")
-		expect_type(stimuli$category_target, "character")
+		expect_type(stimuli$freq_prime, "double")
+		expect_type(stimuli$freq_target, "double")
+		expect_type(stimuli$semantic_category_prime, "character")
+		expect_type(stimuli$semantic_category_target, "character")
 		expect_type(stimuli$is_animate_prime, "logical")
 		expect_type(stimuli$is_animate_target, "logical")
 	})
@@ -80,10 +77,10 @@ test_stimuli <- function(stimuli){
 		expect_lt(length(stimuli$familiarity_target[is.na(stimuli$familiarity_target)])/nrow(stimuli), 0.10) 
 		expect_lt(length(stimuli$familiarity_se_prime[is.na(stimuli$familiarity_se_prime)])/nrow(stimuli), 0.10) 
 		expect_lt(length(stimuli$familiarity_se_target[is.na(stimuli$familiarity_se_target)])/nrow(stimuli), 0.10) 
-		expect_lt(length(stimuli$frequency_prime_childes[is.na(stimuli$frequency_prime_childes)])/nrow(stimuli), 0.10) 
-		expect_lt(length(stimuli$frequency_target_childes[is.na(stimuli$frequency_target_childes)])/nrow(stimuli), 0.10) 
-		expect_false(any(is.na(stimuli$category_prime)))
-		expect_false(any(is.na(stimuli$category_target)))
+		expect_lt(length(stimuli$freq_prime[is.na(stimuli$freq_prime)])/nrow(stimuli), 0.10) 
+		expect_lt(length(stimuli$freq_target[is.na(stimuli$freq_target)])/nrow(stimuli), 0.10) 
+		expect_false(any(is.na(stimuli$semantic_category_prime)))
+		expect_false(any(is.na(stimuli$semantic_category_target)))
 		expect_false(any(is.na(stimuli$is_animate_prime)))
 		expect_false(any(is.na(stimuli$is_animate_target)))
 	})
@@ -104,12 +101,31 @@ test_stimuli <- function(stimuli){
 		expect_true(all(between(stimuli$familiarity_target[!is.na(stimuli$familiarity_prime)], 0, 1)))
 		expect_true(all(between(stimuli$familiarity_se_prime[!is.na(stimuli$familiarity_se_prime)], 0, 1)))
 		expect_true(all(between(stimuli$familiarity_se_target[!is.na(stimuli$familiarity_se_prime)], 0, 1)))
-		expect_true(all(unique(stimuli$frequency_prime_childes) >= 0))
-		expect_true(all(unique(stimuli$frequency_target_childes) >= 0))
+		expect_true(all(unique(stimuli$freq_prime) >= 0))
+		expect_true(all(unique(stimuli$freq_target) >= 0))
 		expect_true(all(stimuli$is_animate_prime %in% c(TRUE, FALSE)))
 		expect_true(all(stimuli$is_animate_target %in% c(TRUE, FALSE)))
-		expect_true(all(stimuli$category_prime %in% c("Animals", "Body parts", "Clothes", "Food and drink", "Games and rutines", "Household Items", "Outside", "Toys", "Vehicles")))
-		expect_true(all(stimuli$category_target %in% c("Animals", "Body parts", "Clothes", "Food and drink", "Games and rutines", "Household Items", "Outside", "Toys", "Vehicles")))
+		expect_true(all(stimuli$semantic_category_prime %in% 
+							c("Animals",
+							  "Body parts",
+							  "Clothes",
+							  "Food and drink", 
+							  "Games and rutines", 
+							  "Household items", 
+							  "Outside", 
+							  "Toys", 
+							  "Vehicles")
+		))
+		expect_true(all(stimuli$semantic_category_target %in% 
+							c("Animals", 
+							  "Body parts", 
+							  "Clothes", 
+							  "Food and drink",
+							  "Games and rutines",
+							  "Household items",
+							  "Outside", 
+							  "Toys", 
+							  "Vehicles")))
 	})
 }
 

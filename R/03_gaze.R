@@ -1,98 +1,107 @@
-get_gaze_files <- function(){
+# pass eye-tracking files to Arrow
+gaze_csv_to_arrow <- function() {
 	
-	file_paths <- list.files(here("data", "gaze", "00_raw"), full.names = TRUE)
-	file_names <- list.files(here("data", "gaze", "00_raw"))
+	# set directories
+	path <- "data/gaze/00_raw"
+	new_path <- "data/gaze/01_arrow"
+	
+	# validate paths
+	stopifnot(dir.exists(path))
+	stopifnot(dir.exists(new_path))
+	
+	# get file names and paths
+	file_paths <- list.files(path, full.names = TRUE)
+	file_names <- gsub(".csv", "", list.files(path))
+	
+	# prepare progress bar
+	i <- 1
 	n_files <- length(file_paths)
+	pb_text <- "{pb_spin} Reading file {pb_current}/{pb_total} [{pb_percent}]"
+	cli_progress_bar("Processing", total = n_files, format = pb_text)
 	
-	relevant_variables <- c("participant", "trial_num", "trial", "phase", "time", "l_x", "l_y", "l_v", "r_x", "r_y", "r_v")
-	
-	col_name_changes <- c(
-		"system_time_stamp" = "time",
-		"l_1" = "l_x",
-		"l_2" = "l_y",
-		"process" = "phase",
-		"r_1" = "r_x",
-		"r_2" = "r_y",
-		"l_user_coord_3" = "l_user_coord_z",
-		"r_user_coord_3" = "r_user_coord_z",
-		"suje_num" = "participant"
-	)
-	
-	phase_name_changes <- c(
-		"GETTER" = "Getter",
-		"PRIMEIMAGE" = "Prime",
-		"TARGET_DISTRACTOR" = "Target-Distractor",
-		"prime" = "Prime",
-		"primeimage" = "Prime",
-		"target_distractor" = "Target-Distractor"
-	)
-	
-	
-	i <- 0
-	cli_progress_bar("Processing", total = n_files, format = "{pb_spin} Reading file {pb_current}/{pb_total} [{pb_percent}]")
-	
+	# read CSV and write Feather
 	for (i in 1:n_files){
-		raw_data <- read_csv_arrow(file_paths[i], na = c("", "NaN", "NA", "<NA>"))
-		
-		sampling_rate <- ifelse(nrow(raw_data) > 20e3, 120, 60)
-		
-		raw <- raw_data %>% 
-			# rename all variables to snake case
-			clean_names() %>% 
-			# fix some values from outdates files
-			rename_all(str_replace_all, col_name_changes) %>% 
-			mutate(phase = str_replace_all(phase, phase_name_changes)) %>%
-			# get gaze in prime and target-distractor phases
-			filter(phase %in% c("Target-Distractor", "Prime")) %>%
-			mutate(
-				participant = paste0("cognatepriming", participant),
-				# fix the timestamp in some files
-				time = row_number()*(1000/sampling_rate),
-				# change variables to the right class
-				across(everything(), ~ifelse(is.nan(.), NA_real_, .)),
-				# gaze coords to numeric
-				across(c(starts_with("l_"), starts_with("r_")), as.numeric), 
-				# validity columns to logicals
-				across(contains("_v"), as.logical) 
-			) %>% 
-			# get only variables of interest
-			select(any_of(relevant_variables))
-		
-		write_csv_arrow(raw, here("data", "gaze", "01_processed", file_names[i]))
-		
+		csv_file <- read_csv_arrow(file_paths[i], na = c("", "NaN", "NA", "<NA>"))
+		write_ipc_stream(csv_file, file.path(new_path, file_names[i]))
 		cli_progress_update()
 	}
 	cli_progress_done(result = "done")
 }
 
+# read and preprocess eye-tracking files
+get_gaze_files <- function(){
+	
+	# set directories
+	path <- "data/gaze/01_arrow"
+	new_path <- "data/gaze/02_processed"
+	
+	# validate paths
+	stopifnot(dir.exists(path))
+	stopifnot(dir.exists(new_path))
+	
+	# get file names and paths
+	file_paths <- list.files(path, full.names = TRUE)
+	file_names <- list.files(path)
+	
+	names_dict <- get_name_dictionary() # name changes (see R/utils.R)
+	
+	# prepare progress bar
+	i <- 1
+	n_files <- length(file_paths)
+	options(cli.spinner = "dots")
+	pb_text <- "Reading file {pb_bar} {pb_current}/{pb_total} [{pb_percent}]"
+	cli_progress_bar("Processing", total = n_files, format = pb_text)
+	
+	for (i in 1:n_files){
+		raw_data <- read_ipc_stream(file_paths[i])
+		sampling_rate <- ifelse(nrow(raw_data) > 20e3, 120, 60)
+		
+		raw <- raw_data %>% 
+			clean_names() %>% # rename all variables to snake case
+			rename_with(~str_replace_all(., names_dict[["col_name_changes"]]), everything()) %>% # fix some values from outdates files
+			mutate(phase =  str_replace_all(phase, names_dict[["phase_name_changes"]])) %>%
+			filter(phase %in% c("Target-Distractor", "Prime")) %>% 	# get gaze in prime and target-distractor phases
+			mutate(
+				id = paste0("cognatepriming", id), # fix the timestamp in some files
+				time = row_number()*(1000/sampling_rate), # change variables to the right class
+				across(everything(), ~ifelse(is.nan(.), NA_real_, .)), # gaze coords to numeric
+				across(c(starts_with("l_"), starts_with("r_")), as.numeric),  # validity columns to logicals
+				across(contains("_v"), as.logical) 
+			) %>% 
+			# get only variables of interest
+			select(any_of(names_dict[["relevant_variables"]]))
+		
+		write_ipc_stream(raw, file.path(new_path, file_names[i])) # write feather file
+		
+		cli_progress_update() # update progress bar
+	}
+	cli_progress_done(result = "done")
+}
+
 # process Barcelona gaze data
-get_gaze_raw <- function(
-		participants, # participants dataset, get_participants output
-		stimuli, # stimuli dataset, get_stimuli output
-		aoi_coords
-){
+get_gaze_raw <- function(participants, # participants dataset, get_participants output
+						 stimuli, # stimuli dataset, get_stimuli output
+						 aoi_coords){
+	
 	suppressMessages({
 		
 		screen_resolution <- c(x = 1920, y = 1080) # screen size in pixels
 		
-		file_paths <- list.files(here("data", "gaze", "01_processed"), full.names = TRUE)
+		path <- "data/gaze/02_processed" # get path
+		stopifnot(dir.exists(path)) # validate path
+		file_paths <- list.files(path, full.names = TRUE) # list files
 		
-		# trial data ----
-		
-		# import gaze data ----
-		raw <- map(file_paths, read_csv_arrow) %>% 
+		raw <- map(file_paths, read_ipc_stream) %>% 
 			# merge all data sets assigning them their file name
-			set_names(list.files(here("data", "gaze", "01_processed")))  %>% 
+			set_names(list.files(path))  %>% 
 			bind_rows(.id = "filename") %>% 
 			# restart timestamps at each trial phase change, and express in seconds
-			group_by(participant, trial, phase, filename) %>% 
+			group_by(id, trial, phase, filename) %>% 
 			mutate(time = (time-min(time))/1000) %>% 
 			ungroup() %>%
 			# trim timestamps outside the 2 seconds range
-			filter(
-				participant %in% participants$participant,
-				time < 2
-			) %>% # get only valid participants
+			filter(id %in% participants$id,
+				   time < 2) %>% # get only valid participants
 			mutate(
 				# more detailed evaluation of sample validity
 				valid_sample = (l_v & !is.na(l_x) & !is.na(l_y)) & (between(l_x, 0, 1) & between(l_y, 0, 1)),
@@ -102,20 +111,19 @@ get_gaze_raw <- function(
 				y = ifelse(valid_sample, l_y, NA),
 				# change gaze coordinates from 0-1 scale to screen resolution scale [1920x1080]
 				x = x*screen_resolution["x"],
-				y = y*screen_resolution["y"]
+				y = y*screen_resolution["y"],
+				filename = paste0(filename, ".csv")
 			) %>% 
-			left_join(select(participants, participant, age_group, filename)) %>% 
-			select(participant, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
-			arrange(participant, age_group, trial, phase, time)
+			left_join(select(participants, id, age_group, filename)) %>% 
+			select(id, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
+			arrange(id, age_group, trial, phase, time)
 		
-		# merge data ----
+		# merge data
 		gaze_raw <- raw %>% 
-			select(participant, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
+			select(id, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
 			mutate(valid_sample = ifelse(is.na(valid_sample), FALSE, valid_sample)) %>% 
-			filter(
-				!(phase=="Prime" & time > 1.5),
-				!(phase=="Target" & time > 2.0)
-			)
+			filter(!(phase=="Prime" & time > 1.5), 
+				   !(phase=="Target" & time > 2.0))
 		
 		write_csv_arrow(gaze_raw, here("data", "gaze", "03_merged.csv"))
 		
@@ -125,17 +133,11 @@ get_gaze_raw <- function(
 }
 
 
-impute_gaze <- function(gaze_raw){
-	
+impute_gaze <- function(gaze_raw, ...){
 	gaze_imputed <- gaze_raw %>% 
 		group_by(filename, trial, phase) %>% 
-		mutate(
-			x_imputed = na.locf(x, maxgap = 20, na.rm = FALSE),
-			y_imputed = na.locf(y, maxgap = 20, na.rm = FALSE),
-			is_imputed = is.na(x) & !is.na(x_imputed),
-			x = x_imputed,
-			y = y_imputed
-		) %>% 
+		mutate(across(c(x, y), ~na.locf(., ...), .names = "{.col}_imputed"),
+			   is_imputed = is.na(x) & !is.na(x_imputed)) %>% 
 		ungroup() %>% 
 		select(-c(x_imputed, y_imputed)) %>% 
 		relocate(is_imputed, .after = valid_sample)
@@ -179,85 +181,43 @@ make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
 		plot_data <- gaze_imputed %>% 
 			filter(filename==files[i]) %>% 
 			pivot_longer(c(x, y), names_to = "dim", values_to = "value") %>% 
-			mutate(
-				is_imputed = factor(
-					is_imputed, 
-					levels = c(FALSE, TRUE),
-					labels = c("No", "Yes")
-				),
-				phase = factor(
-					phase,
-					levels = c("Prime", "Target-Distractor"),
-					labels = c("Prime", "Target")
-				)
-			)
+			mutate(is_imputed = factor(is_imputed, 
+									   levels = c(FALSE, TRUE),
+									   labels = c("No", "Yes")),
+				   phase = factor(phase,
+				   			   levels = c("Prime", "Target-Distractor"), 
+				   			   labels = c("Prime", "Target")))
 		
 		plot <- plot_data %>% 
 			ggplot() +
 			aes(x = time, y = value, colour = is_imputed) + 
-			facet_wrap(
-				trial+phase~dim,
-				ncol = 4,
-				labeller = label_wrap_gen(multi_line=FALSE)
-			) +
-			geom_vline(
-				xintercept = 0.3,
-				size = 0.25,
-				colour = pal_d3()(3)[3]
-			) +
-			geom_rect(
-				data = aois,
-				aes(
-					xmin = -Inf,
-					xmax = Inf,
-					ymin = ymin,
-					ymax = ymax
-				),
-				inherit.aes = FALSE,
-				alpha = 0.25,
-				colour = NA,
-				fill = pal_d3()(2)[2]
-			) +
-			geom_point(
-				size = 0.1,
-				shape = 20,
-				alpha = 0.5,
-				na.rm = TRUE
-			) +
-			labs(
-				x = "Time (ms)",
-				y = "Gaze position in screen",
-				colour = "Imputed?",
-				title = gsub(".csv", "", files[i]),
-				caption = "Rectangles indicate the AOIs",
-			) +
+			facet_wrap(trial+phase~dim, ncol = 4, labeller = label_wrap_gen(multi_line=FALSE)) +
+			geom_vline(xintercept = 0.3, size = 0.25, colour = pal_d3()(3)[3]) +
+			geom_rect(data = aois,
+					  aes(xmin = -Inf, xmax = Inf, ymin = ymin, ymax = ymax),
+					  alpha = 0.25, colour = NA, fill = pal_d3()(2)[2],
+					  inherit.aes = FALSE) +
+			geom_point(size = 0.1, shape = 20, alpha = 0.5, na.rm = TRUE) +
+			labs(x = "Time (ms)",
+				 y = "Gaze position in screen",
+				 colour = "Imputed?",
+				 title = gsub(".csv", "", files[i]),
+				 caption = "Rectangles indicate the AOIs") +
 			theme_custom() +
-			scale_color_manual(
-				values = pal_d3()(4)[c(1, 4)]
-			) +
-			scale_y_continuous(
-				limits = c(0, 1920),
-				breaks = seq(0, 1920, 480)
-			) +
-			scale_x_continuous(
-				limits = c(0, 2),
-				breaks = seq(0, 2, 0.5),
-				labels = function(x) format(x*1000, big.mark = ",", scientific = FALSE) 
-			) +
-			theme(
-				legend.position = "top",
-				legend.key = element_rect(fill = NA),
-				legend.title = element_text(size = 10),
-				axis.text.x = element_text(size = 7),
-				axis.text.y = element_text(size = 7),
-				panel.grid.major.x = element_line(
-					colour = "grey", 
-					linetype = "dotted",
-					size = 0.25
-				),
-				plot.title = element_text(size = 10),
-				strip.text = element_text(size = 6)
-			)
+			scale_color_manual(values = pal_d3()(4)[c(1, 4)]) +
+			scale_y_continuous(limits = c(0, 1920), breaks = seq(0, 1920, 480)) +
+			scale_x_continuous(limits = c(0, 2), breaks = seq(0, 2, 0.5),
+							   labels = ~format(.*1000, big.mark = ",", scientific = FALSE) ) +
+			theme(legend.position = "top",
+				  legend.key = element_rect(fill = NA),
+				  legend.title = element_text(size = 10),
+				  axis.text.x = element_text(size = 7),
+				  axis.text.y = element_text(size = 7),
+				  panel.grid.major.x = element_line(colour = "grey", 
+				  								  linetype = "dotted",
+				  								  size = 0.25),
+				  plot.title = element_text(size = 10),
+				  strip.text = element_text(size = 6))
 		
 		file_name <- gsub(".csv", ".png", files[i])
 		plot_height <- length(unique(plot_data$trial))*0.75

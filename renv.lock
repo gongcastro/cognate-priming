@@ -79,6 +79,13 @@
       "Repository": "CRAN",
       "Hash": "e031418365a7f7a766181ab5a41a5716"
     },
+    "RMariaDB": {
+      "Package": "RMariaDB",
+      "Version": "1.2.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0c1f56f4e57463be9b13e32f62fafcc2"
+    },
     "RMySQL": {
       "Package": "RMySQL",
       "Version": "0.10.22",
@@ -191,6 +198,13 @@
       "Repository": "CRAN",
       "Hash": "543776ae6848fde2f48ff3816d0628bc"
     },
+    "base64url": {
+      "Package": "base64url",
+      "Version": "1.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0c54cf3a08cc0e550fbd64ad33166143"
+    },
     "bayesplot": {
       "Package": "bayesplot",
       "Version": "1.8.1",
@@ -286,6 +300,19 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "56ae7e1987b340186a8a5a157c2ec358"
+    },
+    "bvqdev": {
+      "Package": "bvqdev",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteUsername": "gongcastro",
+      "RemoteRepo": "bvqdev",
+      "RemoteRef": "main",
+      "RemoteSha": "c087f38978ebb6c6877b30912af82dd68f8caab5",
+      "RemoteHost": "api.github.com",
+      "Remotes": "github::rubenarslan/formr",
+      "Hash": "9387407dddfdb91d9e57666f77b5eaa9"
     },
     "cachem": {
       "Package": "cachem",
@@ -518,10 +545,10 @@
     },
     "evaluate": {
       "Package": "evaluate",
-      "Version": "0.14",
+      "Version": "0.18",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "ec8ca05cffcc70569eaaad8469d2a3a7"
+      "Hash": "6b6c0f8467cd4ce0b500cabbc1bd1763"
     },
     "eyetrackingR": {
       "Package": "eyetrackingR",
@@ -890,10 +917,10 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.33",
+      "Version": "1.41",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "0bc1b5da1b0eb07cd4b727e95e9ff0b8"
+      "Hash": "6d4971f3610e75220534a1befe81bc92"
     },
     "labeling": {
       "Package": "labeling",
@@ -1028,19 +1055,6 @@
       "Repository": "CRAN",
       "Hash": "9fd59716311ee82cba83dc2826fc5577"
     },
-    "multilex": {
-      "Package": "multilex",
-      "Version": "1.0.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "gongcastro",
-      "RemoteRepo": "multilex",
-      "RemoteRef": "main",
-      "RemoteSha": "c0cd6368137739085c89d1cfcb5831bb2fac8611",
-      "Remotes": "github::rubenarslan/formr",
-      "Hash": "b8518939fcd6894c18b5111ab8559198"
-    },
     "munsell": {
       "Package": "munsell",
       "Version": "0.5.0",
@@ -1172,6 +1186,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "7533cd805940821bf23eaf3c8d4c1735"
+    },
+    "plogr": {
+      "Package": "plogr",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "09eb987710984fc2905c7129c7d85e65"
     },
     "plyr": {
       "Package": "plyr",
@@ -1308,10 +1329,10 @@
     },
     "rlang": {
       "Package": "rlang",
-      "Version": "0.4.11",
+      "Version": "1.0.6",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "515f341d3affe0de9e4a7f762efb0456"
+      "Hash": "4ed1f8336c8d52c3e750adcdc57228a7"
     },
     "rmarkdown": {
       "Package": "rmarkdown",
@@ -1497,10 +1518,10 @@
     },
     "targets": {
       "Package": "targets",
-      "Version": "0.6.0",
+      "Version": "0.14.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "0249d89393821026c36e640b08c761ce"
+      "Hash": "6e092c00e6093177f52ec5677ee2038c"
     },
     "tensorA": {
       "Package": "tensorA",
@@ -1672,10 +1693,10 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.24",
+      "Version": "0.35",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "88cdb9779a657ad80ad942245fffba31"
+      "Hash": "f576593107bdf9aa7db48ef75a8c05fb"
     },
     "xml2": {
       "Package": "xml2",

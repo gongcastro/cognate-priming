@@ -1,145 +1,115 @@
-# run the targets pipeline using clustermq
-make <- function(clustermq = FALSE) {
-	
-	if (clustermq){
-	job::job(
-		{{ 
-			targets::tar_make_clustermq(workers = 3)
-			job::export("none")  # return nothing
-		}}, 
-		import = NULL,
-		title = "Cognate Priming"
-	)
-	}
-	
-	if (!clustermq){
-		job::job(
-			{{ 
-				targets::tar_make()
-				job::export("none")  # return nothing
-			}}, 
-			import = NULL,
-			title = "Cognate Priming"
-		)
-	}
-}
-
-# load all built targets (and packages)
-tar_load_all <- function(){
-	
-	invisible({
-		
-		suppressMessages({ tar_load_globals() })
-		
-		tars <- tar_objects()
-		lapply(tars, tar_load_raw, envir = .GlobalEnv)
-		
-		usethis::ui_done("Targets loaded: ")
-		usethis::ui_line(tars)
-		
-	})
+# run the targets pipeline
+make <- function() {
+	job::job({{ 
+		targets::tar_make()
+		job::export("none")  # return nothing
+	}}, 
+	import = NULL,
+	title = "Cognate Priming")
 }
 
 # destroy targets products
 unmake <- function(keep_rds = TRUE) {
 	tar_destroy(ask = FALSE)
-	
 	rds_paths <- list.files("results/", pattern = ".rds", full.names = TRUE)
-	
 	if (!keep_rds){
-		
-		if (length(rds_paths) > 0) {
-			lapply(rds_paths, file.remove)
-		}	
-		
+		if (length(rds_paths) > 0) lapply(rds_paths, file.remove)
 	}
-	
-	usethis::ui_done("Removed project outputs!")
+	cli::cli_alert_success("Removed project outputs!")
 }
 
 # custom ggplot theme
 theme_custom <- function(){
-	theme(
-		panel.background = element_rect(fill = "white", colour = NA),
-		panel.border = element_blank(),
-		panel.grid = element_blank(),
-		plot.background = element_rect(fill = "white", color = NA),
-		legend.key = element_rect(fill = "white", colour = NA),
-		text = element_text(colour = "black", size = 15),
-		axis.text.x = element_text(size = 12, face = "bold"),
-		axis.text.y = element_text(size = 12, face = "bold"),
-		axis.line = element_line(colour = "black", size = 0.75),
-		strip.text = element_text(size = 13, face = "bold"),
-		strip.background = element_rect(fill = "white", colour = NA)
-		
+	theme(panel.background = element_rect(fill = "white", colour = NA),
+		  panel.border = element_blank(),
+		  panel.grid = element_blank(),
+		  plot.background = element_rect(fill = "white", color = NA),
+		  legend.key = element_rect(fill = "white", colour = NA),
+		  text = element_text(colour = "black", size = 15),
+		  axis.text.x = element_text(size = 12, face = "bold"),
+		  axis.text.y = element_text(size = 12, face = "bold"),
+		  axis.line = element_line(colour = "black", size = 0.75),
+		  strip.text = element_text(size = 13, face = "bold"),
+		  strip.background = element_rect(fill = "white", colour = NA))
+}
+
+# get name dictionary 
+get_name_dictionary <- function(...) {
+	
+	col_name_changes <- c(
+		"participant" = "id",
+		"system_time_stamp" = "time",
+		"l_1" = "l_x",
+		"l_2" = "l_y",
+		"process" = "phase",
+		"r_1" = "r_x",
+		"r_2" = "r_y",
+		"l_user_coord_3" = "l_user_coord_z",
+		"r_user_coord_3" = "r_user_coord_z",
+		"suje_num" = "id"
 	)
+	
+	phase_name_changes <- c(
+		"GETTER" = "Getter",
+		"PRIMEIMAGE" = "Prime",
+		"TARGET_DISTRACTOR" = "Target-Distractor",
+		"prime" = "Prime",
+		"primeimage" = "Prime",
+		"target_distractor" = "Target-Distractor"
+	)
+	
+	relevant_variables <- c("id", "trial_num", "trial", "phase", "time", "l_x", "l_y", "l_v", "r_x", "r_y", "r_v")
+	
+	name_dict <- lst(col_name_changes, phase_name_changes, relevant_variables)
+	
+	return(name_dict)
 }
 
-# dark GitHub theme
-theme_github <- function(){
-	theme_dark() +
-		theme(
-			text = element_text(colour = "white", size = 12),
-			axis.text = element_text(colour = "white", size = 12, face = "bold"),
-			legend.title = element_text(colour = "white", size = 10),
-			legend.text = element_text(colour = "white", size = 10),
-			legend.background = element_rect(fill = "#0D1117"),
-			strip.text = element_text(size = 13),
-			legend.key = element_rect(fill = "#0D1117", colour = "#0D1117"),
-			strip.background = element_rect(fill = "#161B22"),
-			plot.background = element_rect(fill = "#0D1117"),
-			panel.background = element_rect(fill = "#0D1117"),
-			panel.border = element_rect(fill = "transparent", colour = "#0D1117")
-		)
-}
-
-# get multilex data ----
-get_credentials <- function(){
-	ml_connect()
-}
-
-get_multilex <- function(
-		update = FALSE,
-		type = "understands"
+# get BVQ data
+get_bvq <- function(update = FALSE,
+					type = "understands"
 ){
-	get_credentials()
+	p <- bvq_participants()
+	r <- bvq_responses(p, update = update)
+	l <- bvq_logs(p, r) %>% 
+		select(-id) %>% 
+		rename(id = id_exp) %>% 
+		mutate(age_group = as.factor(case_when(between(age, 19, 24) ~ "21 months",
+											   between(age, 24, 28) ~ "25 months",
+											   between(age, 28, 34) ~ "30 months",
+											   TRUE ~ "Other"))) %>% 
+	select(id, time, age_group, lp)
 	
-	p <- ml_participants()
-	r <- ml_responses(p, update = update)
-	l <- ml_logs(p, r) %>% 
-		rename(participant = id_exp) %>% 
-		mutate(
-			age_group =  as.factor(
-				case_when(
-					between(age, 19, 24) ~ 21,
-					between(age, 24, 28) ~ 25,
-					between(age, 28, 34) ~ 30
-				)),
-			age_group = paste0(age_group, " months")
-		) %>% 
-		filter(age_group != "NA months") %>% 
-		select(participant, time, age_group, lp)
+	v <- bvq_vocabulary(p, r, scale = "prop", by = "id_exp") %>% 
+		select(-id) %>% 
+		rename(id = id_exp) %>% 
+		filter(type==.env$type) %>% 
+		mutate(age_group =  as.factor(case_when(between(age, 19, 24) ~ "21 months",
+												between(age, 24, 28) ~ "25 months",
+												between(age, 28, 34) ~ "30 months",
+												TRUE ~ "Other"))) %>% 
+		left_join(distinct(l, id, age_group)) %>% 
+		relocate(id, time, age_group, age, type)
 	
-	v <- ml_vocabulary(p, r, scale = "prop", by = "id_exp") %>% 
-		filter(type==type)
+	bvq <- list(participants = p, 
+				responses = r, 
+				logs = l, 
+				vocabulary = v, 
+				pool = bvqdev::pool)
 	
-	m <- list(
-		participants = p, responses = r, logs = l,
-		vocabulary = v, pool = multilex::pool
-	)
-	
-	return(m)
+	return(bvq)
 }
 
-# adjusted proportion, SE, and CI ----
-# from Gelman, Hill & Vehtari (2020)
+# adjusted proportion from Gelman, Hill & Vehtari (2020)
 prop_adj <- function(y, n) (y+2)/(n+4)
 
+# adjusted proportion SE from Gelman, Hill & Vehtari (2020)
 prop_adj_se <- function(y, n) {
 	prop <- prop_adj(y, n)
 	sqrt(prop*(1-prop)/(n+4))
 }
 
+# adjusted proportion CI from Gelman, Hill & Vehtari (2020)
 prop_adj_ci <- function(y, n, conf = 0.95) {
 	prop <- (y+2)/(n+4)
 	se <- sqrt(prop*(1-prop)/(n+4))
@@ -148,12 +118,6 @@ prop_adj_ci <- function(y, n, conf = 0.95) {
 	ci[2] <- ifelse(ci[2]>1, 1, ci[2]) # truncate at 1
 	return(ci)
 }
-
-# inverse logi
-inv_logit <- function(x) exp(x)/(1+exp(x))
-
-# transform logit scale to probability
-logit_to_prob <- function(x) exp(x) / (1 + exp(x))
 
 
 

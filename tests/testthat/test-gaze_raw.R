@@ -3,22 +3,19 @@ test_gaze_raw <- function(gaze_raw){
 	test_that("gaze_raw has the right columns", {
 		expect_equal(
 			colnames(gaze_raw),
-			c(
-				"participant",
-				"age_group",
-				"trial",
-				"phase",
-				"time",
-				"x",
-				"y",
-				"valid_sample",
-				"filename"
-			)
-		)
+			c("id",
+			  "age_group",
+			  "trial",
+			  "phase",
+			  "time",
+			  "x",
+			  "y",
+			  "valid_sample",
+			  "filename"))
 	})
 	
 	test_that("gaze_raw has the variable classes", {
-		expect_type(gaze_raw$participant, "character")
+		expect_type(gaze_raw$id, "character")
 		expect_equal(class(gaze_raw$age_group), "factor")
 		expect_equal(class(gaze_raw$trial), "integer")
 		expect_type(gaze_raw$phase, "character")
@@ -31,11 +28,11 @@ test_gaze_raw <- function(gaze_raw){
 	})
 	
 	test_that("gaze_raw missing data is dealt with", {
-		expect_false(any(is.na(gaze_raw$participant)))
+		expect_false(any(is.na(gaze_raw$id)))
 		expect_false(any(is.na(gaze_raw$age_group)))
 		expect_false(any(is.na(gaze_raw$trial)))
 		expect_false(any(is.na(gaze_raw$valid_sample)))
-
+		
 	})
 	
 	test_that("gaze_raw variables have the right values", {

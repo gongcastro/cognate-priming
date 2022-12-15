@@ -3,29 +3,28 @@ test_participants <- function(participants){
 	test_that("participants has the right columns", {
 		expect_equal(
 			colnames(participants),
-			c(
-				"participant",
-				"id_db",
-				"date_test",
-				"lp",
-				"doe_catalan",
-				"doe_spanish",
-				"doe_others",
-				"age_group",
-				"test_language",
-				"list",
-				"version",
-				"filename"
-			)
-		)
+			c("id",
+			  "id_db",
+			  "date_test",
+			  "lp",
+			  "doe_catalan",
+			  "doe_spanish",
+			  "doe_others",
+			  "age_group",
+			  "age",
+			  "test_language",
+			  "list",
+			  "version",
+			  "filename"))
 	})
 	
 	test_that("participants variables are the right types", {
-		expect_type(participants$participant, "character")
+		expect_type(participants$id, "character")
 		expect_type(participants$id_db, "character")
 		expect_equal(class(participants$date_test), "Date")
 		expect_type(participants$lp, "integer")
 		expect_type(participants$age_group, "integer")
+		expect_type(participants$age, "double")
 		expect_type(participants$test_language, "integer")
 		expect_type(participants$list, "integer")
 		expect_type(participants$version, "character")
@@ -33,11 +32,12 @@ test_participants <- function(participants){
 	})
 	
 	test_that("participants has no missing data", {
-		expect_false(any(is.na(participants$participant)))
+		expect_false(any(is.na(participants$id)))
 		expect_false(any(is.na(participants$id_db)))
 		expect_false(any(is.na(participants$date_test)))
 		expect_false(any(is.na(participants$lp)))
 		expect_false(any(is.na(participants$age_group)))
+		expect_false(any(is.na(participants$age)))
 		expect_false(any(is.na(participants$test_language)))
 		expect_false(any(is.na(participants$list)))
 		expect_false(any(is.na(participants$version)))
@@ -48,7 +48,7 @@ test_participants <- function(participants){
 	test_that("participants and age groups combinations are not duplicated", {
 		expect_true(
 			participants %>%
-				get_dupes(participant, age_group) %>% 
+				get_dupes(id, age_group) %>% 
 				nrow() < 1
 		)
 	})

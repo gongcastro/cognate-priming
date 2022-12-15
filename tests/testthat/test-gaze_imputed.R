@@ -3,23 +3,20 @@ test_gaze_imputed <- function(gaze_imputed){
 	test_that("gaze_imputed has the right columns", {
 		expect_equal(
 			colnames(gaze_imputed),
-			c(
-				"participant",
-				"age_group",
-				"trial",
-				"phase",
-				"time",
-				"x",
-				"y",
-				"valid_sample",
-				"is_imputed",
-				"filename"
-			)
-		)
+			c("id",
+			  "age_group",
+			  "trial",
+			  "phase",
+			  "time",
+			  "x",
+			  "y",
+			  "valid_sample",
+			  "is_imputed",
+			  "filename"))
 	})
 	
 	test_that("gaze_imputed has the variable classes", {
-		expect_type(gaze_imputed$participant, "character")
+		expect_type(gaze_imputed$id, "character")
 		expect_equal(class(gaze_imputed$age_group), "factor")
 		expect_equal(class(gaze_imputed$trial), "integer")
 		expect_type(gaze_imputed$phase, "character")
@@ -33,12 +30,12 @@ test_gaze_imputed <- function(gaze_imputed){
 	})
 	
 	test_that("gaze_imputed missing data is dealt with", {
-		expect_false(any(is.na(gaze_imputed$participant)))
+		expect_false(any(is.na(gaze_imputed$id)))
 		expect_false(any(is.na(gaze_imputed$age_group)))
 		expect_false(any(is.na(gaze_imputed$trial)))
 		expect_false(any(is.na(gaze_imputed$valid_sample)))
 		expect_false(any(is.na(gaze_imputed$is_imputed)))
-
+		
 	})
 	
 	test_that("gaze_imputed variables have the right values", {

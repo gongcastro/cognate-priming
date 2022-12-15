@@ -97,12 +97,12 @@ model {
     target += normal_id_glm_lpdf(Y | Xc, mu, b, sigma);
   }
   // priors including constants
-  target += normal_lpdf(b | 0, 0.1);
-  target += normal_lpdf(Intercept | 0, 0.1);
+  target += normal_lpdf(b | 0, 1);
+  target += normal_lpdf(Intercept | 0, 1);
   target += exponential_lpdf(sigma | 4);
   target += exponential_lpdf(sd_1 | 4);
   target += std_normal_lpdf(to_vector(z_1));
-  target += lkj_corr_cholesky_lpdf(L_1 | 5);
+  target += lkj_corr_cholesky_lpdf(L_1 | 4);
 }
 generated quantities {
   // actual population-level intercept
