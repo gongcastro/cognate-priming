@@ -24,7 +24,7 @@ conflict_prefer("duration", "lubridate")
 conflict_prefer("fisher.test", "stats")
 conflict_prefer("lag", "dplyr")
 
-usethis::ui_info('Welcome! To execute the repository, 1) run renv::restore(), 2) and then make() in your R console.')
-usethis::ui_info('Check https://github.com/gongcastro/cognate-priming for instructions, documentation, and troubleshooting.')
+cli::cli_alert_info('Welcome! To execute the repository, 1) run renv::restore(), 2) and then make() in your R console.')
+cli::cli_alert_info('Check https://github.com/gongcastro/cognate-priming for instructions, documentation, and troubleshooting.')
 
 options(knitr.duplicate.label = "allow")
