@@ -78,326 +78,104 @@ participants <- participants %>%
 
 ## Participants
 
-We collected data from `r length(unique(participants$participant))` participants `r length(unique(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r length(unique(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
-
-After applying trial- and participant-level exclusion criteria, the sample comprise data from `r length(unique(participants$participant[participants$valid_participant]))` (`r length(unique(participants$participant[participants$valid_participant & participants$location=="Oxford"]))` tested in Oxford, and `r length(unique(participants$participant[participants$valid_participant & participants$location=="Barcelona"]))` tested in Barcelona), and were included in our analyses.
-
-
-From the longitudinal participants, `r length(participants$participant[(as.data.frame(table(participants$participant))$Freq>2) & participants$valid_participant])` were tested at two age groups, and `r length(participants$participant[(as.data.frame(table(participants$participant))$Freq>2) & participants$valid_participant])`were tested at three age groups.
-
 ```{r}
-#| label: tbl-participants-summary
-#| tbl-cap: "Testing sessions"
-participants %>% 
-	left_join(distinct(attrition, id, valid_participant)) %>% 
-	drop_na(valid_participant) %>% 
-	count(age_group, lp, test_language) %>% 
-	pivot_wider(names_from = age_group,
-				values_from = n, 
-				values_fill = 0) %>% 
-	clean_names() %>% 
-	gt(rowname_col = "test_language", groupname_col = "lp") %>% 
-	cols_label(x21_months = "21 months",
-			   x25_months = "25 months",
-			   x30_months = "30 months") %>% 
-	summary_rows(group = TRUE,
-				 columns = where(is.numeric),
-				 fns = list("n" = ~sum(.)),
-				 formatter = fmt_number,
-				 decimals = 0) %>% 
-	grand_summary_rows(columns = where(is.numeric),
-					   fns = list("N" = ~sum(.)),
-					   formatter = fmt_number,
-					   decimals = 0) %>% 
-	tab_style(style = cell_fill("grey82"),
-			  locations = list(cells_row_groups())) %>% 
-	tab_style(cell_text(weight = "bold"), cells_column_labels())
+#| label: participants-numbers
+n_participants_total <- length(unique(participants$id))
+n_participants_sessions <- count(participants, id, name = "n_sessions") %>% 
+	count(n_sessions) %>% 
+	split(.$n_sessions)
+n_sessions_total <- count(participants)
+n_sessions_age_group <- participants %>% 
+	group_by(age_group) %>% 
+	summarise(across(age, lst(mean, sd, min, max)),
+			  n = n(),
+			  .groups = "drop") %>% 
+	mutate(across(age_mean:age_max, round, 2)) %>% 
+	split(f = .$age_group) %>% 
+	set_names(c("age_21", "age_25", "age_30"))
+n_sessions_dominance <- count(participants, test_language) %>% 
+	split(f = .$test_language) %>% 
+	set_names(c("catalan", "spanish"))
+n_sessions_dominance_age_group <- count(participants, age_group, test_language) %>% 
+	split(f = .$test_language) %>% 
+	set_names(c("catalan", "spanish")) %>% 
+	map(~split(., f = .$age_group) %>% 
+			set_names(c("age_21", "age_25", "age_30")))
+n_sessions_lp <- participants %>% 
+	count(lp) %>% 
+	split(f = .$lp) %>% 
+	set_names(c("monolingual", "bilingual"))
+n_sessions_lp_age_group <- participants %>% 
+	count(lp, age_group) %>% 
+	split(f = .$lp) %>% 
+	set_names(c("monolingual", "bilingual")) %>% 
+	map(~split(., f = .$age_group) %>% 
+			set_names(c("age_21", "age_25", "age_30")))
 ```
 
-```{r}
-#|  label: fig-participants-summary
-participants %>% 
-	left_join(distinct(attrition, id, valid_participant)) %>% 
-	filter(valid_participant) %>% 
-	drop_na(valid_participant) %>% 
-	ggplot(aes(lp, fill = test_language)) +
-	facet_grid(~age_group, scales = "free") +
-	geom_bar(colour = NA) +
-	labs(x = "Group", y = "Sample size", fill = "Test language") +
-	theme(legend.position = "top",
-		  axis.title.x = element_blank(),
-		  axis.text = element_text(size = 10),
-		  axis.title.y = element_text(angle = 90),
-		  panel.grid.major.x = element_blank()) 
-```
+We collected data from `r n_participants_total` monolingual and bilingual participants living in the Metropolitan Area of Barcelona (Spain), who were exposed to at least Catalan and/or Spanish from birth. Families were recruited from maternity room in private hospitals in Barcelona, and contacted via phone when the child's age spanned between our age intervals of interest. Families were invited to participate at three age points: 21, 25, and 30 months. `r n_participants_sessions[[1]]$n` participants were tested at one age point,  `r n_participants_sessions[[2]]$n` at two age points, and `r n_participants_sessions[[3]]$n` at the three age points. In total, we gathered data from `r n_sessions_total$n` testing sessions: `r n_sessions_age_group$age_21$n` at 21 months (*Mean* = `r round(n_sessions_age_group$age_21$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_21$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_21$age_min`--`r n_sessions_age_group$age_21$age_max`), `r n_sessions_age_group$age_25$n` at 25 months (*Mean* = `r round(n_sessions_age_group$age_25$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_25$age_min`--`r n_sessions_age_group$age_25$age_max`), and `r n_sessions_age_group$age_30$n` at 30 months (*Mean* = `r round(n_sessions_age_group$age_30$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_30$age_min`--`r n_sessions_age_group$age_30$age_max`). 
 
-### Longitudinal participants
+We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (DoE) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan- or Spanish-dominant if the language with highest DoE was Catalan or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. We collected data from `r n_sessions_dominance$catalan$n` Catalan-dominant participants in Catalan (`r n_sessions_dominance_age_group$catalan$age_21$n` at 21 months, `r n_sessions_dominance_age_group$catalan$age_25$n` at 25 months, and `r n_sessions_dominance_age_group$catalan$age_30$n` at 30 months). We further classified participants as monolinguals if the DoE to their dominant language exceeded 80% of the total DoE to Catalan and Spanish, and as bilinguals otherwise. Participants with DoE to language other than Catalan or Spanish were excluded from analyses. This divided the sample into `r n_sessions_lp$monolingual$n` monolinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$monolinguals$age_25` at 25 months, and `r n_sessions_lp_age_group$monolinguals$age_30` at 30 months), and `r n_sessions_lp$bilingual$n` bilinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$bilingual$age_25` at 25 months, and `r n_sessions_lp_age_group$bilingual$age_30` at 30 months). tbl-participants-lp summarises the linguistic profile of our sample.
 
-We collected data from `r sum(duplicated(participants$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
 
 ```{r}
-#| label: fig-participants-longitudinal
-#| fig-height: 10
-#| fig-width: 4
+#| label: tbl-participants-lp
+#| tbl-cap: "Description of language profile of participants. Data are summarised for each age group, and for monolinguals and bilinguals separately."
 participants %>% 
-	left_join(distinct(attrition, id, valid_participant)) %>%
-	filter(valid_participant) %>% 
-	add_count(id, lp, name = "n_total") %>% 
-	count(id, age_group, test_language, lp, n_total) %>% 
-	pivot_wider(id_cols = c(id, lp, test_language, n_total),
-				names_from = age_group,
-				values_from = n,
-				values_fill = 0) %>% 
-	pivot_longer(5:7,
-				 names_to = "age_group",
-				 values_to = "n") %>% 
-	mutate(id_reordered = reorder_within(id, by = n_total, within = list(test_language, lp))) %>% 
-	ggplot(aes(age_group, id_reordered, fill = as.factor(n))) + 
-	facet_wrap(test_language~lp, scales = "free_y") +
-	geom_tile(colour = "white") +
-	labs(x = "Age (months)", 
-		 y = "Exposure to 2nd language", 
-		 fill = "Lang. Profile") +
-	scale_fill_manual(values = c("white", clrs[4], "white")) +
-	theme(legend.position = "none",
-		  legend.title = element_blank(),
-		  panel.grid = element_blank(),
-		  axis.text = element_text(size = 10),
-		  axis.title.y = element_blank(),
-		  axis.text.y = element_blank(),
-		  axis.ticks.y = element_blank())
+	select(id, age_group, age, lp, doe_catalan, doe_spanish, test_language) %>% 
+	mutate(id = paste0(id, " (", age_group, ")")) %>%
+	add_count(lp, name = "n_lp") %>% 
+		add_count(age_group, name = "n_age_group") %>% 
 
-```
-
-### Sample description
-
-```{r}
-#| label: fig-participants-lp
-#| fig-height: 7
-participants %>% 
-	select(id, age_group, age, lp, starts_with("doe_"), test_language) %>% 
-	mutate(id = paste0(id, " (", age_group, ")"),) %>% 
 	pivot_longer(starts_with("doe_"), names_to = "language", values_to = "doe") %>%
+	add_count(age_group, test_language, name = "n_age_test") %>% 
 	mutate(language = str_remove_all(language, "doe_") %>% 
 		   	str_to_sentence(),
-		   test_language = paste0("Tested in ", test_language)) %>% 
+		   age_group = paste0(age_group, " (N = ", n_age_group, ")"),
+		   test_language = paste0("Tested in ", test_language, " (N = ", n_age_test, ")"),
+		   lp = factor(lp, levels = rev(unique(lp))))  %>% 
 	group_by(age_group, lp, test_language, language) %>% 
-	summarise(n = n(), 
-			  across(c(age, doe), lst(mean, sd, min, max)),
+	summarise(across(doe, lst(mean, sd)),
 			  .groups = "drop") %>% 
-	pivot_wider(names_from = c(language),
-				values_from = matches("doe")) %>% 
+	pivot_wider(id_cols = c(age_group, test_language),
+				names_from = c(language, lp),
+				values_from = c(matches("doe"))) %>% 
 	clean_names() %>% 
-	relocate(age_group, lp, test_language, n,
-			 matches("age"), matches("catalan"),
-			 matches("spanish"), matches("other")) %>% 
-	gt(rowname_col = "test_language", groupname_col = c("age_group", "lp")) %>% 
-	tab_spanner("Age (months)", c(matches("age"), -age_group)) %>% 
-	tab_spanner("Catalan DoE", matches("catalan")) %>% 
-	tab_spanner("Spanish DoE", matches("spanish")) %>% 
-	tab_spanner("Others DoE", matches("others")) %>% 
-	fmt_number(c(starts_with("age"), -age_group)) %>% 
-	fmt_percent(matches("doe"), decimals = 1) %>% 
-	cols_merge_uncert(col_val = age_mean, col_uncert = age_sd) %>% 
-	cols_merge_uncert(col_val = doe_mean_catalan, col_uncert = doe_sd_catalan) %>% 
-	cols_merge_uncert(col_val = doe_mean_spanish, col_uncert = doe_sd_spanish) %>% 
-	cols_merge_uncert(col_val = doe_mean_others, col_uncert = doe_sd_others) %>% 
-	cols_merge_range(col_begin = age_min, col_end = age_max) %>% 
-	cols_merge_range(col_begin = doe_min_catalan, col_end = doe_max_catalan) %>% 
-	cols_merge_range(col_begin = doe_min_spanish, col_end = doe_max_spanish) %>% 
-	cols_merge_range(col_begin = doe_min_others, col_end = doe_max_others) %>% 
-	cols_label(n = "N",
-			   age_mean = "Mean",
-			   age_min = "Range",
-			   doe_mean_catalan = "Mean ± SD",
-			   doe_min_catalan = "Range",
-			   doe_mean_spanish = "Mean ± SD",
-			   doe_min_spanish = "Range",
-			   doe_mean_others = "Mean ± SD",
-			   doe_min_others = "Range") %>% 
-	summary_rows(group = TRUE,
-				 columns = c(where(is.numeric), -n),
-				 fns = list("Mean" = ~mean(.)),
-				 formatter = fmt_number,
-				 decimals = 1) %>% 
-	summary_rows(group = TRUE,
-				 columns = c(where(is.numeric), -n, -matches("age")),
-				 fns = list("Mean" = ~mean(.)),
-				 formatter = fmt_percent,
-				 decimals = 1) %>% 
-	grand_summary_rows(columns = c(where(is.numeric), -n),
-					   fns = list("Grand mean" = ~mean(.)),
-					   formatter = fmt_number,
-					   decimals = 1) %>% 
-	grand_summary_rows(columns = c(where(is.numeric), -n, -matches("age")),
-					   fns = list("Grand mean" = ~mean(.)),
-					   formatter = fmt_percent,
-					   decimals = 1) %>% 
-	tab_style(style = cell_fill("grey82"),
-			  locations = list(cells_row_groups())) %>% 
+	relocate(age_group, test_language,
+			 matches("catalan"),
+			 matches("spanish")) %>% 
+	gt(rowname_col = "test_language", 
+	   groupname_col = "age_group", row_group.sep = ": ") %>% 
+	tab_spanner(md("Monolingual (*N* = 162)"), matches("monolingual")) %>% 
+	tab_spanner(md("Bilingual (*N* = 133)"), matches("bilingual")) %>%
+	fmt_number(matches("doe"), decimals = 1, scale_by = 100) %>% 
+	cols_merge_uncert(col_val = doe_mean_catalan_monolingual,
+					  col_uncert = doe_sd_catalan_monolingual) %>% 
+	cols_merge_uncert(col_val = doe_mean_catalan_bilingual,
+					  col_uncert = doe_sd_catalan_bilingual) %>% 
+	cols_merge_uncert(col_val = doe_mean_spanish_monolingual, 
+					  col_uncert = doe_sd_spanish_monolingual) %>% 
+	cols_merge_uncert(col_val = doe_mean_spanish_bilingual, 
+					  col_uncert = doe_sd_spanish_bilingual) %>% 
+	
+	cols_label(doe_mean_catalan_monolingual = "Catalan (%)",
+			   doe_mean_catalan_bilingual = "Catalan (%)",
+			   doe_mean_spanish_monolingual = "Spanish (%)",
+			   doe_mean_spanish_bilingual = "Spanish (%)") %>% 
 	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners(),
-			  	 cells_grand_summary(),
-			  	 cells_row_groups(),
-			  	 cells_stub_grand_summary(),
-			  	 cells_stub_summary()))
+			  list(cells_column_spanners())) %>% 
+	tab_style(cell_text(size = "small"),
+			  list(cells_body(),
+			  	 cells_stub()))
 ```
+
+
+The research reported in this article was conducted in accordance with the principles expressed in the Declaration of Helsinki and approved by the local ethical committee (the clinical research ethical committee of the Parc de la Salut Mar). Before every testing session, caretakers were asked to read and sign an informed consent form, and were given a small gift at the end of it.
+
 
 ## Stimuli
 
-### Lexical frequency
 
-::: {.tabset-panel}
-
-#### Prime
-
-```{r}
-#| label: fig-stimuli-frequency-prime
-#| fig-height: 5
-stimuli %>% 
-	distinct(test_language, target, prime, .keep_all = TRUE) %>% 
-	ggplot() +
-	aes(x = trial_type, 
-		y = freq_prime, 
-		colour = trial_type, 
-		fill = trial_type) +
-	facet_wrap(~test_language) +
-	stat_slab(fill = "grey", colour = "white", scale = 0.5, adjust = 2,
-			  position = position_nudge(x = 0.3)) +
-	geom_boxplot(colour = "black", fill = "white", size = 0.75, 
-				 outlier.colour = NA, width = 0.1,
-				 position = position_nudge(x = 0.3)) + 
-	geom_point(shape = 1, stroke = 1.25, size = 3,
-			   position = position_jitter(width = 0.15, seed = 888)) +
-	labs(x = "Trial type", 
-		 y = "Lexical frequency (Zipf score)",
-		 colour = "Trial type", 
-		 fill = "Trial type") +
-	theme(legend.position = "none",
-		  axis.title.x = element_blank(),
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted"))
-```
-
-#### Target
-
-```{r}
-#| label: fig-stimuli-frequency-target,
-#| fig-height: 5
-stimuli %>% 
-	distinct(test_language, target, prime, .keep_all = TRUE) %>% 
-	ggplot() +
-	aes(x = trial_type, y = freq_target, 
-		colour = trial_type, fill = trial_type) + 
-	facet_wrap(~test_language) +
-	stat_slab(fill = "grey", colour = "white", scale = 0.5, adjust = 2,
-			  position = position_nudge(x = 0.3)) +
-	geom_boxplot(colour = "black", fill = "white", size = 0.75, 
-				 outlier.colour = NA, width = 0.1,
-				 position = position_nudge(x = 0.3)) + 
-	geom_point(shape = 1, stroke = 1.25, size = 3,
-			   position = position_jitter(width = 0.15, seed = 888)) +
-	labs(x = "Trial type",
-		 y = "Lexical frequency (Zipf score)",
-		 colour = "Trial type",
-		 fill = "Trial type") +
-	theme(legend.position = "none",
-		  axis.title.x = element_blank(),
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted"))
-```
-
-:::
-
-### Familiarity
-
-::: {.tabset-panel}
-
-#### Prime
-
-```{r}
-#| label: fig-stimuli-familiarity-prime
-#| fig-height: 7
-means <- stimuli %>% 
-	distinct(test_language, target, trial_type, prime, .keep_all = TRUE) %>% 
-	group_by(test_language, trial_type) %>% 
-	summarise(familiarity_prime = mean(familiarity_prime, na.rm = TRUE),
-			  .groups = "drop") %>% 
-	drop_na()
-
-stimuli %>% 
-	distinct(test_language, target, prime, .keep_all = TRUE) %>% 
-	mutate(prime = reorder_within(prime, familiarity_prime, list(test_language))) %>% 
-	ggplot() +
-	aes(familiarity_prime, 
-		reorder(prime, familiarity_prime),
-		colour = trial_type, 
-		fill = trial_type,
-		xmin = familiarity_prime-familiarity_se_prime,
-		xmax = familiarity_prime+familiarity_se_prime) +
-	facet_wrap(~test_language, scales = "free_y") +
-	# geom_vline(data = means, 
-	# 		   aes(xintercept = familiarity_prime, 
-	# 		   	colour = trial_type),
-	# 		   size = 1) +
-	geom_errorbar(width = 0.5) +
-	geom_point() +
-	labs(x = "% of infants that understand",
-		 y = "Prime word",
-		 colour = "Trial type", 
-		 fill = "Trial type") +
-	scale_y_reordered() +
-	scale_x_continuous(labels = percent, limits = c(0, 1)) +
-	theme(legend.position = "top",
-		  legend.title = element_blank(),
-		  axis.text.y = element_text(size = 7, hjust = 1),
-		  axis.title.y = element_blank(),
-		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
-		  plot.caption = element_text(size = 10, hjust = 0))
-```
-
-#### Target
-
-```{r}
-#| label: stimuli-familiarity-target
-#| fig-height: 6.5
-means <- stimuli %>% 
-	distinct(test_language, target, trial_type, prime, .keep_all = TRUE) %>% 
-	group_by(test_language, trial_type) %>% 
-	summarise(familiarity_target = mean(familiarity_target, na.rm = TRUE),
-			  .groups = "drop") 
-
-stimuli %>% 
-	distinct(test_language, target, prime, .keep_all = TRUE) %>% 
-	mutate(target = reorder_within(target, familiarity_target, list(test_language))) %>% 
-	ggplot(aes(x = familiarity_target, 
-			   y = target, 
-			   colour = trial_type,
-			   fill = trial_type,
-			   xmin = familiarity_target-familiarity_se_target,
-			   xmax = familiarity_target+familiarity_se_target)) +
-	facet_wrap(~test_language,  scales = "free_y") +
-	# geom_vline(data = means,
-	# 		   aes(xintercept = familiarity_target,
-	# 		   	colour = trial_type), 
-	# 		   size = 1) +
-	geom_errorbar(width = 0.5) +
-	geom_point(shape = 1, size = 0.5, stroke = 1) +
-	labs(x = "% of infants that understand",
-		 y = "Target word",
-		 colour = "Trial type",
-		 fill = "Trial type") +
-	scale_x_continuous(labels = percent, limits = c(0, 1)) +
-	scale_y_reordered() +
-	theme(legend.position = "top",
-		  legend.title = element_blank(),
-		  axis.text.y = element_text(size = 7, hjust = 1),
-		  axis.title.y = element_blank(),
-		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
-		  plot.caption = element_text(size = 10, hjust = 0))
-```
-
-:::
 
 ### Animacy
 
@@ -657,6 +435,72 @@ participants %>%
 ## Data analysis
 
 
+```{r} 
+#| label: tbl-attrition-group
+#| tbl-cap: "Summary of the dataset."
+attrition %>% 
+	left_join(select(participants, age_group, lp, id, date_test)) %>% 
+	add_count(age_group, lp, name = "n_trials") %>% 
+	group_by(id, lp, trial_type, date_test, age_group, valid_participant, n_trials) %>% 
+	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
+			  .groups = "drop") %>% 
+	pivot_wider(names_from = trial_type, values_from = valid_trial_count, values_fill = 0) %>% 
+	clean_names() %>% 
+	add_count(lp, age_group) %>%
+	group_by(lp, age_group, n, n_trials) %>% 
+	summarise(across(cognate:unrelated, lst(sum, mean, sd)),
+			  n_valid = sum(valid_participant),
+			  .groups = "drop") %>%
+	relocate(n_valid, .after = n) %>% 
+	mutate(n_prop = n_valid/n) %>% 
+	arrange(age_group, lp) %>% 
+	relocate(age_group, lp, n_valid, n_prop, matches("cognate"), matches("non_cognate"), matches("unrelated")) %>% 
+	gt(groupname_col = "age_group", rowname_col = "lp")  %>%
+	cols_hide(c(n, n_trials)) %>% 
+	fmt_number(matches("_mean|_sd"), decimals = 1) %>%
+	fmt_percent(matches("_prop"), decimals = 1) %>% 
+	cols_merge_n_pct(col_n = n_valid, col_pct = n_prop, autohide = TRUE)  %>% 
+	tab_spanner("Non-cognate", matches("non_cognate")) %>%
+	tab_spanner("Cognate", starts_with("cognate")) %>%
+	tab_spanner("Unrelated", matches("unrelated")) %>%
+	tab_spanner("Related", matches("cognate")) %>%
+	
+	cols_merge_uncert(col_val = cognate_mean, col_uncert = cognate_sd) %>% 
+	cols_merge_uncert(col_val = non_cognate_mean, col_uncert = non_cognate_sd) %>% 
+	cols_merge_uncert(col_val = unrelated_mean, col_uncert = unrelated_sd) %>% 
+	cols_label(age_group = "Age",
+			   n_valid = "Participants (included)",
+			   cognate_sum = "Trials",
+			   cognate_mean = "Mean ± SD",
+			   non_cognate_sum = "Trials",
+			   non_cognate_mean = "Mean ± SD",
+			   unrelated_sum = "Trials",
+			   unrelated_mean = "Mean ± SD") %>% 
+	summary_rows(groups = TRUE,
+				 columns = where(is.integer), 
+				 fns = list("Sum" = ~sum(.)), 
+				 formatter = fmt_number,
+				 decimals = 0) %>% 
+	summary_rows(groups = TRUE,
+				 columns = c(where(is.numeric), -n_valid), 
+				 fns = list("Mean" = ~mean(.)),
+				 formatter = fmt_number,
+				 decimals = 1) %>% 
+	grand_summary_rows(columns = where(is.integer),
+					   fns = list("N" = ~sum(.)),
+					   formatter = fmt_number,
+					   decimals = 0) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  list(cells_column_spanners(),
+			  	 cells_grand_summary(),
+			  	 cells_row_groups(),
+			  	 cells_stub_grand_summary(),
+			  	 cells_stub_summary())) 
+```
+
+
+
+
 **Parameters**:
 
 $$
@@ -713,7 +557,7 @@ ggplot(m, aes(time_bin, .epred)) +
 ### By participants
 
 ```{r}
-#| label: fig-attrition-vocab
+#| label: fig-attrition-participants
 #| fig-height: 4
 n_text <- participants %>% 
 	left_join(distinct(attrition, id, valid_participant)) %>%
@@ -772,68 +616,6 @@ participants %>%
 			  	 cells_stub_summary()))
 ```
 
-### By trials
-
-```{r} 
-#| label: tbl-attrition-group
-#| tbl-cap: "Summary of the dataset."
-attrition %>% 
-	left_join(select(participants, age_group, lp, id, date_test)) %>% 
-	add_count(age_group, lp, name = "n_trials") %>% 
-	group_by(id, lp, trial_type, date_test, age_group, valid_participant, n_trials) %>% 
-	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
-			  .groups = "drop") %>% 
-	pivot_wider(names_from = trial_type, values_from = valid_trial_count, values_fill = 0) %>% 
-	clean_names() %>% 
-	add_count(lp, age_group) %>%
-	group_by(lp, age_group, n, n_trials) %>% 
-	summarise(across(cognate:unrelated, lst(sum, mean, sd)),
-			  n_valid = sum(valid_participant),
-			  .groups = "drop") %>%
-	relocate(n_valid, .after = n) %>% 
-	mutate(n_prop = n_valid/n) %>% 
-	arrange(age_group, lp) %>% 
-	relocate(age_group, lp, n_valid, n_prop, matches("cognate"), matches("non_cognate"), matches("unrelated")) %>% 
-	gt(groupname_col = "age_group", rowname_col = "lp")  %>%
-	cols_hide(c(n, n_trials)) %>% 
-	fmt_number(matches("_mean|_sd"), decimals = 1) %>%
-	fmt_percent(matches("_prop"), decimals = 1) %>% 
-	cols_merge_n_pct(col_n = n_valid, col_pct = n_prop, autohide = TRUE)  %>% 
-	tab_spanner("Cognate", matches("cognate")) %>%
-	tab_spanner("Non-cognate", matches("non_cognate")) %>%
-	tab_spanner("Unrelated", matches("unrelated")) %>%
-	cols_merge_uncert(col_val = cognate_mean, col_uncert = cognate_sd) %>% 
-	cols_merge_uncert(col_val = non_cognate_mean, col_uncert = non_cognate_sd) %>% 
-	cols_merge_uncert(col_val = unrelated_mean, col_uncert = unrelated_sd) %>% 
-	cols_label(age_group = "Age",
-			   n_valid = "Participants (included)",
-			   cognate_sum = "Trials",
-			   cognate_mean = "Mean ± SD",
-			   non_cognate_sum = "Trials",
-			   non_cognate_mean = "Mean ± SD",
-			   unrelated_sum = "Trials",
-			   unrelated_mean = "Mean ± SD") %>% 
-	summary_rows(groups = TRUE,
-				 columns = where(is.integer), 
-				 fns = list("Sum" = ~sum(.)), 
-				 formatter = fmt_number,
-				 decimals = 0) %>% 
-	summary_rows(groups = TRUE,
-				 columns = c(where(is.numeric), -n_valid), 
-				 fns = list("Mean" = ~mean(.)),
-				 formatter = fmt_number,
-				 decimals = 1) %>% 
-	grand_summary_rows(columns = where(is.integer),
-					   fns = list("N" = ~sum(.)),
-					   formatter = fmt_number,
-					   decimals = 0) %>% 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners(),
-			  	 cells_grand_summary(),
-			  	 cells_row_groups(),
-			  	 cells_stub_grand_summary(),
-			  	 cells_stub_summary())) 
-```
 
 
 ### By stimuli properties
@@ -1022,13 +804,13 @@ post_draws <- gather_draws(fit_3, `b_.*`, regex = TRUE)
 post_draws %>% 
 	median_hdi() %>% 
 	mutate(excludes_zero = (.lower > 0) | (.upper < 0),
-		excludes_zero = ifelse(excludes_zero, "Yes", "No") %>% 
-			factor(levels = c("Yes", "No")),
-		poly = case_when(str_detect(.variable, "ot1") ~ "Linear",
-						 str_detect(.variable, "ot2") ~ "Quadratic",
-						 str_detect(.variable, "ot3") ~ "Qubic",
-						 TRUE ~ "Main"),
-		.variable_name = str_remove(.variable, "b_ot1:|b_ot2:|b_ot3:|b_")) %>% 
+		   excludes_zero = ifelse(excludes_zero, "Yes", "No") %>% 
+		   	factor(levels = c("Yes", "No")),
+		   poly = case_when(str_detect(.variable, "ot1") ~ "Linear",
+		   				 str_detect(.variable, "ot2") ~ "Quadratic",
+		   				 str_detect(.variable, "ot3") ~ "Qubic",
+		   				 TRUE ~ "Main"),
+		   .variable_name = str_remove(.variable, "b_ot1:|b_ot2:|b_ot3:|b_")) %>% 
 	ggplot(aes(x = .value, y = .variable_name, 
 			   xmin = .lower, xmax = .upper, 
 			   colour = excludes_zero)) +
@@ -1036,12 +818,12 @@ post_draws %>%
 	geom_vline(xintercept = 0, colour = "black", linetype = "dashed") +
 	geom_pointinterval(size = 5, point_size = 3) +
 	labs(x = "Estimate (Logit scale)", 
-		y = "Variable", 
-		fill = "CrI", 
-		alpha = "CrI",
-		title = "Main effects",
-		subtitle = "Mean and 95% credible interval of posterior distribution",
-		colour = "Interval excludes zero?") +
+		 y = "Variable", 
+		 fill = "CrI", 
+		 alpha = "CrI",
+		 title = "Main effects",
+		 subtitle = "Mean and 95% credible interval of posterior distribution",
+		 colour = "Interval excludes zero?") +
 	theme(legend.position = "top",
 		  axis.title.y = element_blank(),
 		  axis.text.y = element_text(hjust = 1),
@@ -1069,6 +851,49 @@ m %>%
 	geom_line(aes(group = interaction(.draw, trial_type)), alpha = 0.15, size = 1) +
 	stat_summary(fun = median, geom = "line", size = 1) +
 	theme(legend.position = "top")
+```
+
+# Appendix
+
+## Longitudinal participants
+
+We collected data from `r sum(duplicated(participants$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
+
+```{r}
+#| label: fig-participants-longitudinal
+#| fig-height: 10
+#| fig-width: 4
+participants %>% 
+	left_join(distinct(attrition, id, valid_participant)) %>%
+	filter(valid_participant) %>% 
+	add_count(id, lp, name = "n_total") %>% 
+	count(id, age_group, test_language, lp, n_total) %>% 
+	pivot_wider(id_cols = c(id, lp, test_language, n_total),
+				names_from = age_group,
+				values_from = n,
+				values_fill = 0) %>% 
+	pivot_longer(5:7,
+				 names_to = "age_group",
+				 values_to = "n") %>% 
+	mutate(id_reordered = reorder_within(id, by = n_total, within = list(test_language, lp))) %>% 
+	ggplot(aes(age_group, id_reordered, fill = as.factor(n))) + 
+	facet_wrap(test_language~lp, 
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_tile(colour = "white") +
+	labs(x = "Age (months)", 
+		 y = "Exposure to 2nd language", 
+		 fill = "Lang. Profile") +
+	scale_fill_manual(values = c("white", clrs[4], "white")) +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  panel.grid = element_blank(),
+		  axis.text.x = element_text(size = 6),
+		  axis.title.y = element_blank(),
+		  axis.title.x = element_text(size = 6),
+		  axis.text.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  strip.text = element_text(size = 6))
 
 ```
 

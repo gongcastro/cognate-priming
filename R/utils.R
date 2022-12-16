@@ -33,6 +33,57 @@ theme_custom <- function(){
 		  strip.background = element_rect(fill = "white", colour = NA))
 }
 
+# taken from https://www.anthonyschmidt.co/post/2020-06-03-making-apa-tables-with-gt/
+gt_apa <- function(x, title = " "){
+	x %>% 
+		tab_options(
+			table.border.top.color = "white",
+			table_body.hlines.width = 0.75,
+			heading.title.font.size = px(16),
+			column_labels.border.top.width = 0.75,
+			column_labels.border.top.color = "black",
+			column_labels.border.bottom.width = 0.75,
+			column_labels.border.bottom.color = "black",
+			column_labels.vlines.width = 0,
+			stub.border.color = "black",
+			row_group.border.top.width = 0,
+			row_group.border.bottom.width = 0,
+			summary_row.border.color = "black",
+			summary_row.border.width = 0.75,
+			grand_summary_row.border.color = "black",
+			grand_summary_row.border.width = 0.75,
+			stub_row_group.border.width = 0,
+			stub.border.width = 0,
+			table_body.border.bottom.color = "black",
+			table.border.bottom.color = "white",
+			table.width = pct(100),
+			table.background.color = "white",
+		) %>%
+		cols_align(align="center") %>%
+		tab_style(
+			style = list(
+				cell_borders(
+					sides = c("top", "bottom"),
+					color = "white",
+					weight = px(1)
+				),
+				cell_text(
+					align="center"
+				),
+				cell_fill(color = "white", alpha = NULL)
+			),
+			locations = cells_body(
+				columns = everything(),
+				rows = everything()
+			)
+		) %>%
+		#title setup
+		tab_header(
+			title = html("<i>", title, "</i>")
+		) %>%
+		opt_align_table_header(align = "left")
+}
+
 # get name dictionary 
 get_name_dictionary <- function(...) {
 	
