@@ -5,7 +5,6 @@
 *.rds
 *.csv
 *.pptx
-*.html
 *.pdf
 _targets/*/*
 _targets/
