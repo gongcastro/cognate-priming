@@ -68,11 +68,11 @@ theme_set(theme_custom()) # set custom ggplot theme
 clrs <- c("#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600")
 
 options(ggplot2.ordinal.fill = clrs[c(1, 4, 5)],
-	ggplot2.ordinal.colour = clrs[c(1, 4, 5)],
-	ggplot2.discrete.fill = clrs[c(1, 4, 5)],
-	ggplot2.discrete.colour = clrs[c(1, 4, 5)],
-	ggplot2.continuous.fill = ggplot2::scale_color_gradient,
-	ggplot2.continuous.colour = ggplot2::scale_color_gradient)
+		ggplot2.ordinal.colour = clrs[c(1, 4, 5)],
+		ggplot2.discrete.fill = clrs[c(1, 4, 5)],
+		ggplot2.discrete.colour = clrs[c(1, 4, 5)],
+		ggplot2.continuous.fill = ggplot2::scale_color_gradient,
+		ggplot2.continuous.colour = ggplot2::scale_color_gradient)
 
 # prepare data
 attrition <- attrition %>% 
@@ -248,8 +248,8 @@ animacy %>%
 
 ```{r}
 #| label: fig-stimuli-category-prime
-#| fig-height: 7
-#| fig-width: 12
+#| fig-height: 5
+#| fig-width: 10
 stimuli %>% 
 	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
 	drop_na(trial_type, semantic_category_prime) %>% 
@@ -291,8 +291,8 @@ stimuli %>%
 
 ```{r}
 #| label: fig-stimuli-category-target
-#| fig-height: 7
-#| fig-width: 12
+#| fig-height: 5
+#| fig-width: 10
 stimuli %>% 
 	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
 	drop_na(trial_type, semantic_category_target) %>% 
@@ -350,7 +350,8 @@ This figure represents the vocabulary size in the dominant language of participa
 ```{r}
 #| label: fig-vocabulary-l1
 #| fig-cap: "L1 vocabulary. Percentage of words in L1 reported to be understood from the vocabulary checklist."
-#| fig-height: 4
+#| fig-height: 5
+#| fig-width: 8
 sample_size <- participants %>% 
 	filter(id %in% fit_0$data$id) %>% 
 	count(age_group)
@@ -409,8 +410,8 @@ participants %>%
 ```{r}
 #| label: fig-vocabulary-total
 #| fig-cap: "Total vocabulary"
-#| fig-height: 4
-# vocabulary
+#| fig-height: 5
+#| fig-width: 8
 participants %>% 
 	mutate(
 		age_group = case_when(
@@ -453,7 +454,8 @@ participants %>%
 
 ```{r}
 #| label: fig-vocabulary-conceptual
-#| fig-height: 4
+#| fig-height: 5
+#| fig-width: 8
 participants %>% 
 	mutate(
 		age_group = case_when(
@@ -661,6 +663,8 @@ $$ {#eq-prior}
 
 ```{r}
 #| label: fig-prior-epred
+#| fig-width: 9
+#| fig-height: 6
 nd <- tibble(time_bin = seq(0, 20, 0.1)) %>% 
 	poly_add_columns(time_bin, degree = 3, prefix = "ot", scale_width = 1)
 
@@ -792,16 +796,16 @@ attrition %>%
 	cols_merge_uncert(col_val = familiarity_target_mean_valid, col_uncert = familiarity_target_sd_valid) %>%
 	cols_merge_uncert(col_val = familiarity_target_mean_excluded, col_uncert = familiarity_target_sd_excluded) %>% 
 	
-	cols_label(n_excluded = "Excluded",
-			   n_valid = "Included",
-			   freq_prime_mean_valid = "Included",
-			   freq_prime_mean_excluded = "Excluded",
-			   freq_target_mean_valid = "Included",
-			   freq_target_mean_excluded = "Excluded",
-			   familiarity_prime_mean_valid = "Included",
-			   familiarity_prime_mean_excluded = "Excluded",
-			   familiarity_target_mean_valid = "Included",
-			   familiarity_target_mean_excluded = "Excluded") %>% 
+	cols_label(n_excluded = "Exc.",
+			   n_valid = "Inc.",
+			   freq_prime_mean_valid = "Inc.",
+			   freq_prime_mean_excluded = "Exc.",
+			   freq_target_mean_valid = "Inc.",
+			   freq_target_mean_excluded = "Exc.",
+			   familiarity_prime_mean_valid = "Inc.",
+			   familiarity_prime_mean_excluded = "Exc.",
+			   familiarity_target_mean_valid = "Inc.",
+			   familiarity_target_mean_excluded = "Exc.") %>% 
 	summary_rows(groups = TRUE,
 				 columns = matches("freq_") ,
 				 fns = list("Mean" = ~mean(.)), 
@@ -833,8 +837,9 @@ attrition %>%
 			  	 cells_grand_summary(),
 			  	 cells_row_groups(),
 			  	 cells_stub_grand_summary(),
-			  	 cells_stub_summary()))
-
+			  	 cells_stub_summary())) %>% 
+	tab_footnote("Included trials.", cells_column_labels(matches("_valid"))) %>% 
+	tab_footnote("Excluded trials.", cells_column_labels(matches("_excluded")))
 ```
 
 :::
@@ -845,6 +850,8 @@ attrition %>%
 
 ```{r}
 #| label: fig-descriptives-aggregated
+#| fig-width: 10
+#| fig-height: 6
 df %>% 
 	group_by(id, lp, trial_type, age_group) %>%
 	summarise(prop = mean(prop), .groups = "drop") %>% 
@@ -863,6 +870,8 @@ df %>%
 
 ```{r}
 #| label: fig-descriptives-time-course
+#| fig-width: 12
+#| fig-height: 8
 df %>% 
 	group_by(id, time_bin, lp, trial_type, age_group) %>%
 	summarise(prop = mean(prop), .groups = "drop") %>% 
@@ -877,6 +886,8 @@ df %>%
 	scale_y_continuous(labels = ~percent(., accuracy = 1)) +
 	scale_x_continuous(labels = function(x) format(x*100, big.mark = ",")) +
 	theme(legend.position = "top",
+		  legend.title = element_blank(),
+		  panel.grid = element_line(linetype = "dotted", colour = "grey"),
 		  panel.grid.major = element_line(colour = "grey", linetype = "dotted"))
 ```
 
@@ -939,22 +950,22 @@ str_repl <- c(
 	"b_age_group21_25" = "Age [21-25]",
 	"b_age_group25_30" = "Age [25-30]",
 	"b_lpmon_bil" = "Group",
-	"b_trial_typerelated_unrelated" = "Prime (relatedness)",
-	"b_trial_typecognate_noncognate" = "Prime (cognateness)",
+	"b_trial_typerelated_unrelated" = "Prime (R)",
+	"b_trial_typecognate_noncognate" = "Prime (C)",
 	
 	"b_age_group21_25:lpmon_bil" = "Age [21-25] × Group",
 	"b_age_group25_30:lpmon_bil" = "Age [25-30] × Group",
-	"b_age_group21_25:trial_typerelated_unrelated" = "Age [21-25] × Prime (relatedness)",
-	"b_age_group21_25:trial_typecognate_noncognate" = "Age [21-25] × Prime (cognateness)",
-	"b_age_group25_30:trial_typerelated_unrelated" = "Age [25-30] × Prime (relatedness)",
-	"b_age_group25_30:trial_typecognate_noncognate" = "Age [25-30] × Prime (cognateness)",
-	"b_lpmon_bil:trial_typerelated_unrelated" = "Group × Prime (relatedness)",
-	"b_lpmon_bil:trial_typecognate_noncognate" = "Group × Prime (cognateness)",
+	"b_age_group21_25:trial_typerelated_unrelated" = "Age [21-25] × Prime (R)",
+	"b_age_group21_25:trial_typecognate_noncognate" = "Age [21-25] × Prime (C)",
+	"b_age_group25_30:trial_typerelated_unrelated" = "Age [25-30] × Prime (R)",
+	"b_age_group25_30:trial_typecognate_noncognate" = "Age [25-30] × Prime (C)",
+	"b_lpmon_bil:trial_typerelated_unrelated" = "Group × Prime (R)",
+	"b_lpmon_bil:trial_typecognate_noncognate" = "Group × Prime (C)",
 	
-	"b_age_group21_25:lpmon_bil:trial_typerelated_unrelated" = "Age [21-25] × Group × Prime (relatedness)",
-	"b_age_group21_25:lpmon_bil:trial_typecognate_noncognate" = "Age [21-25] × Group × Prime (cognateness)",
-	"b_age_group25_30:lpmon_bil:trial_typerelated_unrelated" = "Age [25-30] × Group × Prime (relatedness)",
-	"b_age_group25_30:lpmon_bil:trial_typecognate_noncognate" = "Age [25-30] × Group × Prime (cognateness)"
+	"b_age_group21_25:lpmon_bil:trial_typerelated_unrelated" = "Age [21-25] × Group × Prime (R)",
+	"b_age_group21_25:lpmon_bil:trial_typecognate_noncognate" = "Age [21-25] × Group × Prime (C)",
+	"b_age_group25_30:lpmon_bil:trial_typerelated_unrelated" = "Age [25-30] × Group × Prime (R)",
+	"b_age_group25_30:lpmon_bil:trial_typecognate_noncognate" = "Age [25-30] × Group × Prime (C)"
 )
 
 post_draws %>% 
@@ -1084,6 +1095,8 @@ post_draws %>%
 
 ```{r}
 #| label: fig-posterior-epred
+#| fig-width: 12
+#| fig-height: 8
 nd <- expand_grid(time_bin = seq(0, 20, 0.1),
 				  age_group = levels(fit_1$data$age_group),
 				  lp = levels(fit_2$data$lp),

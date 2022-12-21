@@ -26,8 +26,8 @@ theme_custom <- function(){
 		  plot.background = element_rect(fill = "white", color = NA),
 		  legend.key = element_rect(fill = "white", colour = NA),
 		  text = element_text(colour = "black", size = 15),
-		  axis.text.x = element_text(size = 12),
-		  axis.text.y = element_text(size = 12),
+		  axis.text.x = element_text(size = 9),
+		  axis.text.y = element_text(size = 9),
 		  axis.line = element_line(colour = "black", size = 0.75),
 		  strip.text = element_text(size = 13, face = "bold"),
 		  strip.background = element_rect(fill = "white", colour = NA))
