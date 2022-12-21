@@ -1,6 +1,6 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|dcee991e7a7eef60|||||||||||||||
-aggregate_data|function|f8a23870a92efd57|||||||||||||||
+.Random.seed|object|e7581610d0acd313|||||||||||||||
+aggregate_data|function|615cadd84c578c84|||||||||||||||
 animacy|stem|7729d9fee44407e6|20267e238d11c991|0c9d2f5fcf1561f8|505905828||t19345.6534458812s|53f459f4d2ba284f|963|rds|local|vector|||0.01||
 aoi_coords|stem|0ed06bee59aab156|346dc0e6d1e22fe0|0e7f82db1e6d45a8|-1212831886||t19345.6528546633s|f59c97cd75ee97ec|166|rds|local|vector|||3.14||
 attrition|stem|f2783b61b848082d|9f901c8f40474158|5795cff1865cdb85|-1403111462||t19345.6549342597s|e7ae6fba96a3373a|28729|rds|local|vector|||2.03||
@@ -9,7 +9,7 @@ bvq_data|stem|8ae1424d1ded75fb|285a3263ef1c8780|9a1adcbb9ae7b174|-1902070830||t1
 childes|stem|6d1ef685115f727f|4a76ebb94f1e3cee|2af4f186bc03d755|-1780705379||t19345.6543663624s|95b5c0fdcab1cd3f|1781|rds|local|vector|||0.02||
 childes_tokens|stem|453ef67fb3ed4feb|fc860800efbd56c1|99086f0f211eef5c|1861806323||t19345.6543447843s|52246ffe9b1232a7|1088|rds|local|vector|||0||
 df|stem|a4db25a73532bdfa|12a10f94a4e39e62|6f8bd3db9176163d|-1046211958||t19345.6561166523s|c776a17b15718fc4|163326|rds|local|vector|||5.15||
-df_aggregated|stem|0ffc8963b6877e21|04995fa4725142ec|15d6b90c5b875d7c|-1953037661||t19346.6745992738s|ea8d072a6877bd41|21052|rds|local|vector|||0.48||
+df_aggregated|stem|0ffc8963b6877e21|04995fa4725142ec|1fe306e7f4b83479|-1953037661||t19347.4357644612s|ea8d072a6877bd41|21052|rds|local|vector|||0.53||
 df_test|stem|e082e149348ab808|42e72d731a3f27d0|386c4fa1e96b7934|-1087413957||t19345.656124081s|97452b5a3d70b0b8|49|rds|local|vector|||0.15||
 familiarity|stem|0dce61b2e892a3c7|3fb4108b324a573b|9878910b894f3072|1978329466||t19345.654360245s|53689e415fe081aa|11657|rds|local|vector|||1.31||
 fit_0|stem|3cd186f6923587b5|2111d4d0914ab9d1|bc5cf0de690ec7c8|-140465254||t19345.6577104858s|683dab875a756226|13803039|rds|local|vector|||136.53||
@@ -52,8 +52,8 @@ get_vocabulary|function|43a2292997cd4ba6|||||||||||||||
 gt_apa|function|251d6992579e7b62|||||||||||||||
 loos|stem|c4281fd4c343872d|ab9c10bf7fef8b70|f74f163933bc1082|-277576917||t19345.907849595s|b34e039e5362a718|653|rds|local|vector|||2587.06|Different subsamples in fit_1 and fit_3. Naive diff SE is used.. Different subsamples in fit_1 and fit_0. Naive diff SE is used.. Different subsamples in fit_1 and fit_4. Naive diff SE is used.. Different subsamples in fit_1 and fit_2. Naive diff SE is used.|
 make|function|f28981ef8d49ed67|||||||||||||||
-make_plots_gaze_processed|function|271310222ff95ae6|||||||||||||||
-make_plots_gaze_raw|function|96c6a94d38154d6a|||||||||||||||
+make_plots_gaze_processed|function|ca7fadc7e955ed25|||||||||||||||
+make_plots_gaze_raw|function|ad55c8746fa397be|||||||||||||||
 model_prior|stem|bab5e2f91024795f|4122c20e34fb6099|1beb2bfaf7fa617f|-1420164522||t19345.6534455927s|8708189bd31382bd|257|rds|local|vector|||0||
 model_prior_agg|stem|534f7211232da896|3f52e44ded2b1edb|1beb2bfaf7fa617f|-1509992535||t19345.6535343859s|593b96e64e2952a8|253|rds|local|vector|||0||
 participants|stem|7f4d707e06cddf9a|aa04b79d648b0ecd|ac5047a2f46aad59|392525641||t19345.6530330287s|36379906ad9095ab|6934|rds|local|vector|||5.36||
@@ -62,7 +62,7 @@ prepare_data|function|a4208897910fea51|||||||||||||||
 prop_adj|function|8f984a7e77cc1c9c|||||||||||||||
 prop_adj_ci|function|3332254173832f76|||||||||||||||
 prop_adj_se|function|ea05d30982a97289|||||||||||||||
-report|stem|267ccf167e731753|f3455f1967245956|d84d7cdd1c3c4b08|-237041703|docs/index.docx*docs/index.html*docs/index.pdf*docs/index.qmd|t19346.6745905552s|8f545a80820bb0b8|5294099|file|local|vector|||1021.3||
+report|stem|fcd4ea842420d0b8|f3455f1967245956|d84d7cdd1c3c4b08|-237041703|docs/index.docx*docs/index.html*docs/index.pdf*docs/index.qmd|t19347.4357548337s|d6e18e0885bac2c8|10143561|file|local|vector|||1323.22||
 resolve_conficts|stem|0bf25546ff171d55|bf9c5cb464279940|22cd8feb20887f1e|-1176324365||t19345.6535420273s|3bd8f66805fd112b|45|rds|local|vector|||0.66||
 semantic_category|stem|421886f11ed014d3|fd6ea89f0c0ffe24|a87b78cf95793b83|-1696339101||t19345.654344565s|0d5484bbc7c335ce|8300|rds|local|vector|||0||
 stimuli|stem|41fe43846cc2b216|a2e3af4c4fb1dde9|f0ac59e6dcc79e64|1139532200||t19345.6544397729s|919e46bd66077b05|6540|rds|local|vector|||0.61|Number of logged events 19|
@@ -76,7 +76,7 @@ test_gaze_processed|function|e301ad63c0c32e93|||||||||||||||
 test_participants|function|3c5351819cef732e|||||||||||||||
 test_stimuli|function|8326e0aecf7025aa|||||||||||||||
 test_vocabulary|function|6e4608ca03122994|||||||||||||||
-theme_custom|function|096119acc0d218d8|||||||||||||||
+theme_custom|function|dce945bb1ee4166c|||||||||||||||
 trials|stem|0a4e5139700a3bf2|631eb7e9890e89cb|6b30171067e7723d|1837658601||t19345.6534464122s|69fdc92d57217f5c|10271|rds|local|vector|||0.03||
 unmake|function|bf3d99a329d6a87e|||||||||||||||
 vocabulary|stem|0a51c6556fc8ff7b|d29a4420c2fad088|dad5d55d9991a4e9|-1487046481||t19345.6543442071s|5020371fcc709f64|6147|rds|local|vector|||0.55|Number of logged events 26. Number of logged events 26. Number of logged events 26|

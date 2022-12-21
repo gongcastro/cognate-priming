@@ -195,143 +195,6 @@ The research reported in this article was conducted in accordance with the princ
 
 
 
-### Animacy
-
-```{r}
-#| label: fig-stimuli-animacy
-#| fig-height: 6
-animacy <- stimuli %>%
-	distinct(test_language, 
-			 target, 
-			 prime, 
-			 .keep_all = TRUE) %>% 
-	pivot_longer(c(is_animate_prime, is_animate_target), 
-				 names_to = "role",
-				 values_to = "is_animate") %>% 
-	mutate(role = str_to_sentence(str_remove(role, "is_animate_"))) %>% 
-	count(test_language,  trial_type, role, is_animate) %>% 
-	drop_na(is_animate) %>% 
-	mutate(is_animate = ifelse(is_animate, "Animate", "Inanimate"))
-
-animacy %>% 
-	# filter(role=="Prime") %>% 
-	ggplot() +
-	aes(x = trial_type, 
-		y = n, 
-		fill = is_animate,
-		colour = is_animate) + 
-	facet_grid(test_language~role) +
-	geom_col(position = position_fill(), colour = "white", size = 0.75) +
-	geom_hline(yintercept = 0.5,  size = 1, colour = "grey") +
-	labs(title = "Prime", 
-		 x = "Trial type", 
-		 y = "# trials",
-		 colour = "Animacy", 
-		 fill = "Animacy") +
-	scale_y_continuous(labels = percent) +
-	coord_flip() + 
-	theme(legend.position = "top",
-		  legend.title = element_blank(),
-		  panel.grid = element_blank(),
-		  axis.title.y = element_blank(),
-		  axis.text = element_text(size = 7),
-		  axis.text.y = element_text(hjust = 1),
-		  strip.text = element_text(size = 11))
-```
-
-
-### Semantic category
-
-::: {.panel-tabset}
-
-#### Prime
-
-```{r}
-#| label: fig-stimuli-category-prime
-#| fig-height: 5
-#| fig-width: 10
-stimuli %>% 
-	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
-	drop_na(trial_type, semantic_category_prime) %>% 
-	count(trial_type, test_language, semantic_category_prime, name = "sum") %>% 
-	right_join(expand(., trial_type,  test_language,  semantic_category_prime)) %>%
-	replace_na(list(sum = 0)) %>% 
-	group_by(trial_type, test_language) %>% 
-	mutate(n =  sum(sum), prop = sum/n) %>% 
-	ungroup() %>% 
-	ggplot() +
-	aes(x = prop,
-		y = reorder_within(semantic_category_prime, desc(prop), list(trial_type, test_language)),
-		fill = test_language,
-		order = prop) + 
-	facet_wrap(test_language~trial_type,
-			   scales = "free_y",
-			   labeller = label_wrap_gen(multi_line = FALSE)) +
-	geom_col(colour = "white",
-			 position = position_dodge(),
-			 width = 1) +
-	labs(x = "% of trials",
-		 y = "Trial type",
-		 colour = "Trial type",
-		 fill = "Trial type") +
-	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
-	scale_y_reordered() +
-	theme(legend.position = "none",
-		  legend.title = element_blank(),
-		  axis.text.y = element_text(size = 9, hjust = 1),
-		  axis.text.x = element_text(size = 8, hjust = 1),
-		  axis.title.y = element_blank(),
-		  axis.ticks.y = element_blank(),
-		  plot.caption = element_text(size = 10, hjust = 0),
-		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
-		  strip.text = element_text(size = 10))
-```
-
-#### Target
-
-```{r}
-#| label: fig-stimuli-category-target
-#| fig-height: 5
-#| fig-width: 10
-stimuli %>% 
-	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
-	drop_na(trial_type, semantic_category_target) %>% 
-	count(trial_type, test_language, semantic_category_target, name = "sum") %>% 
-	right_join(expand(., trial_type,  test_language,  semantic_category_target)) %>%
-	replace_na(list(sum = 0)) %>% 
-	group_by(trial_type, test_language) %>% 
-	mutate(n =  sum(sum), prop = sum/n) %>% 
-	ungroup() %>% 
-	ggplot() +
-	aes(x = prop,
-		y = reorder_within(semantic_category_target, desc(prop), list(trial_type, test_language)),
-		fill = test_language,
-		order = prop) + 
-	facet_wrap(test_language~trial_type,
-			   scales = "free_y",
-			   labeller = label_wrap_gen(multi_line = FALSE)) +
-	geom_col(colour = "white",
-			 position = position_dodge(),
-			 width = 1) +
-	labs(x = "% of trials",
-		 y = "Trial type",
-		 colour = "Trial type",
-		 fill = "Trial type") +
-	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
-	scale_y_reordered() +
-	theme(legend.position = "none",
-		  legend.title = element_blank(),
-		  axis.text.y = element_text(size = 9, hjust = 1),
-		  axis.text.x = element_text(size = 8, hjust = 1),
-		  axis.title.y = element_blank(),
-		  axis.ticks.y = element_blank(),
-		  plot.caption = element_text(size = 10, hjust = 0),
-		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
-		  strip.text = element_text(size = 10))
-```
-
-:::
-
 ## Vocabulary
 
 We collected vocabulary data from participants. In Oxford, participants were sent the online version of the Oxford Communicative Development Inventory [OCDI, @hamilton2000infant] two weeks before each appointment. In Barcelona, participants were sent the online vocabulary inventory [BVQ](https://github.com/gongcastro/bvqdev) immediately after the appointment, and were given two weeks to fill it. In Oxford, families filled the vocabulary checklist in the testing language, and when the participant was monolingual, also in the second language. In Barcelona, all participants filled the Catalan and the Spanish versions of the vocabulary checklists. All checklists included the words involved in the trial lists. When filling the vocabulary checklist, families checked each word as being *understood*, *understood and produced* or *none*. Each response to either checklist was aggregated to produce several vocabulary measures:
@@ -351,7 +214,7 @@ This figure represents the vocabulary size in the dominant language of participa
 #| label: fig-vocabulary-l1
 #| fig-cap: "L1 vocabulary. Percentage of words in L1 reported to be understood from the vocabulary checklist."
 #| fig-height: 5
-#| fig-width: 8
+#| fig-width: 11
 sample_size <- participants %>% 
 	filter(id %in% fit_0$data$id) %>% 
 	count(age_group)
@@ -411,7 +274,7 @@ participants %>%
 #| label: fig-vocabulary-total
 #| fig-cap: "Total vocabulary"
 #| fig-height: 5
-#| fig-width: 8
+#| fig-width: 11
 participants %>% 
 	mutate(
 		age_group = case_when(
@@ -455,7 +318,7 @@ participants %>%
 ```{r}
 #| label: fig-vocabulary-conceptual
 #| fig-height: 5
-#| fig-width: 8
+#| fig-width: 11
 participants %>% 
 	mutate(
 		age_group = case_when(
@@ -1177,3 +1040,143 @@ participants %>%
 
 ```
 
+
+## Additional stimuli properties
+
+
+### Animacy
+
+```{r}
+#| label: fig-stimuli-animacy
+#| fig-height: 6
+animacy <- stimuli %>%
+	distinct(test_language, 
+			 target, 
+			 prime, 
+			 .keep_all = TRUE) %>% 
+	pivot_longer(c(is_animate_prime, is_animate_target), 
+				 names_to = "role",
+				 values_to = "is_animate") %>% 
+	mutate(role = str_to_sentence(str_remove(role, "is_animate_"))) %>% 
+	count(test_language,  trial_type, role, is_animate) %>% 
+	drop_na(is_animate) %>% 
+	mutate(is_animate = ifelse(is_animate, "Animate", "Inanimate"))
+
+animacy %>% 
+	# filter(role=="Prime") %>% 
+	ggplot() +
+	aes(x = trial_type, 
+		y = n, 
+		fill = is_animate,
+		colour = is_animate) + 
+	facet_grid(test_language~role) +
+	geom_col(position = position_fill(), colour = "white", size = 0.75) +
+	geom_hline(yintercept = 0.5,  size = 1, colour = "grey") +
+	labs(title = "Prime", 
+		 x = "Trial type", 
+		 y = "# trials",
+		 colour = "Animacy", 
+		 fill = "Animacy") +
+	scale_y_continuous(labels = percent) +
+	coord_flip() + 
+	theme(legend.position = "top",
+		  legend.title = element_blank(),
+		  panel.grid = element_blank(),
+		  axis.title.y = element_blank(),
+		  axis.text = element_text(size = 7),
+		  axis.text.y = element_text(hjust = 1),
+		  strip.text = element_text(size = 11))
+```
+
+
+### Semantic category
+
+::: {.panel-tabset}
+
+#### Prime
+
+```{r}
+#| label: fig-stimuli-category-prime
+#| fig-height: 5
+#| fig-width: 10
+stimuli %>% 
+	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
+	drop_na(trial_type, semantic_category_prime) %>% 
+	count(trial_type, test_language, semantic_category_prime, name = "sum") %>% 
+	right_join(expand(., trial_type,  test_language,  semantic_category_prime)) %>%
+	replace_na(list(sum = 0)) %>% 
+	group_by(trial_type, test_language) %>% 
+	mutate(n =  sum(sum), prop = sum/n) %>% 
+	ungroup() %>% 
+	ggplot() +
+	aes(x = prop,
+		y = reorder_within(semantic_category_prime, desc(prop), list(trial_type, test_language)),
+		fill = test_language,
+		order = prop) + 
+	facet_wrap(test_language~trial_type,
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_col(colour = "white",
+			 position = position_dodge(),
+			 width = 1) +
+	labs(x = "% of trials",
+		 y = "Trial type",
+		 colour = "Trial type",
+		 fill = "Trial type") +
+	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
+	scale_y_reordered() +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  axis.text.y = element_text(size = 9, hjust = 1),
+		  axis.text.x = element_text(size = 8, hjust = 1),
+		  axis.title.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  plot.caption = element_text(size = 10, hjust = 0),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
+		  strip.text = element_text(size = 10))
+```
+
+#### Target
+
+```{r}
+#| label: fig-stimuli-category-target
+#| fig-height: 5
+#| fig-width: 10
+stimuli %>% 
+	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
+	drop_na(trial_type, semantic_category_target) %>% 
+	count(trial_type, test_language, semantic_category_target, name = "sum") %>% 
+	right_join(expand(., trial_type,  test_language,  semantic_category_target)) %>%
+	replace_na(list(sum = 0)) %>% 
+	group_by(trial_type, test_language) %>% 
+	mutate(n =  sum(sum), prop = sum/n) %>% 
+	ungroup() %>% 
+	ggplot() +
+	aes(x = prop,
+		y = reorder_within(semantic_category_target, desc(prop), list(trial_type, test_language)),
+		fill = test_language,
+		order = prop) + 
+	facet_wrap(test_language~trial_type,
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_col(colour = "white",
+			 position = position_dodge(),
+			 width = 1) +
+	labs(x = "% of trials",
+		 y = "Trial type",
+		 colour = "Trial type",
+		 fill = "Trial type") +
+	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
+	scale_y_reordered() +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  axis.text.y = element_text(size = 9, hjust = 1),
+		  axis.text.x = element_text(size = 8, hjust = 1),
+		  axis.title.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  plot.caption = element_text(size = 10, hjust = 0),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
+		  strip.text = element_text(size = 10))
+```
+
+:::
