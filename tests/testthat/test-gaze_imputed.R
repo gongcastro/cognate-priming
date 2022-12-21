@@ -6,6 +6,7 @@ test_gaze_imputed <- function(gaze_imputed){
 			c("id",
 			  "age_group",
 			  "trial",
+			  "trial_id",
 			  "phase",
 			  "time",
 			  "x",
@@ -17,7 +18,7 @@ test_gaze_imputed <- function(gaze_imputed){
 	
 	test_that("gaze_imputed has the variable classes", {
 		expect_type(gaze_imputed$id, "character")
-		expect_equal(class(gaze_imputed$age_group), "factor")
+		expect_equal(class(gaze_imputed$age_group), "character")
 		expect_equal(class(gaze_imputed$trial), "integer")
 		expect_type(gaze_imputed$phase, "character")
 		expect_type(gaze_imputed$time, "double")
@@ -39,7 +40,7 @@ test_gaze_imputed <- function(gaze_imputed){
 	})
 	
 	test_that("gaze_imputed variables have the right values", {
-		expect_equal(levels(gaze_imputed$age_group), paste0(c(21, 25, 30), " months"))
+		expect_true(all(unique(gaze_imputed$age_group) %in% paste0(c(21, 25, 30), " months")))
 		expect_true(all(between(unique(gaze_imputed$trial), 0, 32)))
 		expect_true(all(unique(gaze_imputed$phase) %in% c("Prime", "Target-Distractor")))
 		expect_true(all(between(unique(gaze_imputed$time[gaze_imputed$phase=="Prime"]), 0, 1.5)))

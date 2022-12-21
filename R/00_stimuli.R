@@ -147,7 +147,7 @@ get_stimuli <- function(trials, # trials dataset
 		}
 		
 		stimuli <- stimuli_imputed %>% 
-			select(trial, test_language, version, list, trial_type,
+			select(trial_id = trial, test_language, version, list, trial_type,
 				   prime, target, distractor, audio, target_location,
 				   prime_cdi, target_cdi, distractor_cdi,
 				   valid_trial, 
@@ -157,7 +157,7 @@ get_stimuli <- function(trials, # trials dataset
 				   semantic_category_prime, semantic_category_target,
 				   is_animate_prime, is_animate_target,
 				   is_animate_prime, is_animate_target) %>% 
-			mutate(across(c(trial, list), as.integer),
+			mutate(across(c(trial_id, list), as.integer),
 				   across(starts_with("is_animate"), as.logical))
 	})
 	

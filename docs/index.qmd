@@ -1,0 +1,1166 @@
+---
+title: "Cognate Priming"
+subtitle: "Lab notes"
+date: "Updated: `r format(Sys.Date(), '%Y/%m/%d')`"
+authors:
+  - name: Gonzalo Garcia-Castro
+    orcid: 0000-0002-8553-4209
+    email: gonzalo.garciadecastro@upf.edu
+    corresponding: true
+    affiliations:
+      - name: Universitat Pompeu Fabra
+        department: Center for Brain and Cognition
+        address: Ramon Trias fargas 25-27
+        city: Barcelona
+        state: Spain
+        postal-code: 08005
+abstract: "Previous studies have provided evidence that lexical access is language non-selective in bilinguals: recognising and producing words in one language activates lexical representations of words in the other language (e.g., Costa et al., 2000; Thierry & Wu, 2007). It has been suggested that this parallel activation is already present during toddlerhood (Jardak & Byers-Heinlein, 2019; Von Holzen & Mani, 2012), but it is unclear how it impacts the developing lexicon. In the present study, we tested Catalan-Spanish and English-Spanish bilinguals in a word recognition task, in which they were presented with words in their dominant language exclusively. In each trial, two pictures were presented side-by-side and one of them was named (target picture). Participants' visual preference for the named picture was taken as an indicator of word recognition. Each pair of pictures was preceded by the presentation of a silent image (prime picture). We designed three types of trials: (1) cognate trials in which prime and target labels shared phonological onset and the prime label was a cognate (e.g., flower-flor / fork), (2) non-cognate trials, in which prime and target labels shared phonological onset but the prime label was a non-cognate (e.g., frog-rana / fork), and (3) unrelated trials, in which prime and target labels did not share onset (unrelated trials; car-coche / fork). In line with previous studies, we expected participants to generate implicit labels for the prime pictures, which should interfere with target word recognition when both words share phonological onset (e.g., Mani & Plunkett, 2011). Additionally, under the hypothesis that bilingual participants would activate labels for the prime pictures in both languages, we predicted that interference would be stronger after cognate primes (labels from both languages share phonological overlap with target word recognition) than after non-cognate primes (only the label in the target language share phonological overlap with target word recognition). We tested bilinguals (n = 46) and same-aged monolingual controls, n = 123) at three age points (21, 25, and 30 months) to investigate how any cross-language priming effect emerged or changed across these ages."
+format:
+    html:
+        link-external-newwindow: true
+        number-offset: 0
+        code-fold: true
+        code-overflow: scroll
+        code-line-numbers: true
+        code-copy: hover
+        reference-location: margin
+    pdf: default
+    docx:
+        reference-doc: reference.docx
+fig-dpi: 1000
+warning: false
+echo: false
+toc: true
+colorlinks: true
+number-sections: true
+bibliography: "references.bib"
+csl: "apa7.csl"
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+tar_load_everything() # load target objects
+
+# load packages
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(gt)
+library(tidybayes)
+library(brms)
+library(polypoly)
+library(tidytext)
+library(janitor)
+library(forcats)
+library(scales)
+library(patchwork)
+library(bvqdev)
+
+
+# set ggplot theme and colour palette
+theme_set(theme_custom()) # set custom ggplot theme
+clrs <- c("#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600")
+
+options(ggplot2.ordinal.fill = clrs[c(1, 4, 5)],
+	ggplot2.ordinal.colour = clrs[c(1, 4, 5)],
+	ggplot2.discrete.fill = clrs[c(1, 4, 5)],
+	ggplot2.discrete.colour = clrs[c(1, 4, 5)],
+	ggplot2.continuous.fill = ggplot2::scale_color_gradient,
+	ggplot2.continuous.colour = ggplot2::scale_color_gradient)
+
+# prepare data
+attrition <- attrition %>% 
+	mutate(
+		valid_gaze = valid_gaze_prime & valid_gaze_target,
+		valid_status = case_when(
+			!valid_gaze ~ "Invalid gaze",
+			!valid_participant ~ "Invalid participant",
+			TRUE ~ "Valid"
+		))
+
+participants <- participants %>% 
+	left_join(distinct(attrition, id, age_group, valid_participant)) %>% 
+	drop_na(id) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
+
+```
+
+# Methods
+
+## Participants
+
+```{r}
+#| label: participants-numbers
+n_participants_total <- length(unique(participants$id))
+n_participants_sessions <- count(participants, id, name = "n_sessions") %>% 
+	count(n_sessions) %>% 
+	split(.$n_sessions)
+n_sessions_total <- count(participants)
+n_sessions_age_group <- participants %>% 
+	group_by(age_group) %>% 
+	summarise(across(age, lst(mean, sd, min, max)),
+			  n = n(),
+			  .groups = "drop") %>% 
+	mutate(across(age_mean:age_max, round, 2)) %>% 
+	split(f = .$age_group) %>% 
+	set_names(c("age_21", "age_25", "age_30"))
+n_sessions_dominance <- count(participants, test_language) %>% 
+	split(f = .$test_language) %>% 
+	set_names(c("catalan", "spanish"))
+n_sessions_dominance_age_group <- count(participants, age_group, test_language) %>% 
+	split(f = .$test_language) %>% 
+	set_names(c("catalan", "spanish")) %>% 
+	map(~split(., f = .$age_group) %>% 
+			set_names(c("age_21", "age_25", "age_30")))
+n_sessions_lp <- participants %>% 
+	count(lp) %>% 
+	split(f = .$lp) %>% 
+	set_names(c("monolingual", "bilingual"))
+n_sessions_lp_age_group <- participants %>% 
+	count(lp, age_group) %>% 
+	split(f = .$lp) %>% 
+	set_names(c("monolingual", "bilingual")) %>% 
+	map(~split(., f = .$age_group) %>% 
+			set_names(c("age_21", "age_25", "age_30")))
+```
+
+We collected data from `r n_participants_total` monolingual and bilingual participants living in the Metropolitan Area of Barcelona (Spain), who were exposed to at least Catalan and/or Spanish from birth. Families were recruited from maternity room in private hospitals in Barcelona, and contacted via phone when the child's age spanned between our age intervals of interest. Families were invited to participate at three age points: 21, 25, and 30 months. `r n_participants_sessions[[1]]$n` participants were tested at one age point,  `r n_participants_sessions[[2]]$n` at two age points, and `r n_participants_sessions[[3]]$n` at the three age points. In total, we gathered data from `r n_sessions_total$n` testing sessions: `r n_sessions_age_group$age_21$n` at 21 months (*Mean* = `r round(n_sessions_age_group$age_21$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_21$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_21$age_min`--`r n_sessions_age_group$age_21$age_max`), `r n_sessions_age_group$age_25$n` at 25 months (*Mean* = `r round(n_sessions_age_group$age_25$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_25$age_min`--`r n_sessions_age_group$age_25$age_max`), and `r n_sessions_age_group$age_30$n` at 30 months (*Mean* = `r round(n_sessions_age_group$age_30$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_30$age_min`--`r n_sessions_age_group$age_30$age_max`). 
+
+We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (DoE) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan- or Spanish-dominant if the language with highest DoE was Catalan or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. We collected data from `r n_sessions_dominance$catalan$n` Catalan-dominant participants in Catalan (`r n_sessions_dominance_age_group$catalan$age_21$n` at 21 months, `r n_sessions_dominance_age_group$catalan$age_25$n` at 25 months, and `r n_sessions_dominance_age_group$catalan$age_30$n` at 30 months). We further classified participants as monolinguals if the DoE to their dominant language exceeded 80% of the total DoE to Catalan and Spanish, and as bilinguals otherwise. Participants with DoE to language other than Catalan or Spanish were excluded from analyses. This divided the sample into `r n_sessions_lp$monolingual$n` monolinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$monolinguals$age_25` at 25 months, and `r n_sessions_lp_age_group$monolinguals$age_30` at 30 months), and `r n_sessions_lp$bilingual$n` bilinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$bilingual$age_25` at 25 months, and `r n_sessions_lp_age_group$bilingual$age_30` at 30 months). tbl-participants-lp summarises the linguistic profile of our sample.
+
+
+```{r}
+#| label: tbl-participants-lp
+#| tbl-cap: "Description of language profile of participants. Data are summarised for each age group, and for monolinguals and bilinguals separately."
+participants %>% 
+	select(id, age_group, age, lp, doe_catalan, doe_spanish, test_language) %>% 
+	mutate(id = paste0(id, " (", age_group, ")")) %>%
+	add_count(lp, name = "n_lp") %>% 
+	add_count(age_group, name = "n_age_group") %>% 
+	
+	pivot_longer(starts_with("doe_"), names_to = "language", values_to = "doe") %>%
+	add_count(age_group, test_language, name = "n_age_test") %>% 
+	mutate(language = str_remove_all(language, "doe_") %>% 
+		   	str_to_sentence(),
+		   age_group = paste0(age_group, " (N = ", n_age_group, ")"),
+		   test_language = paste0("Tested in ", test_language, " (N = ", n_age_test, ")"),
+		   lp = factor(lp, levels = rev(unique(lp))))  %>% 
+	group_by(age_group, lp, test_language, language) %>% 
+	summarise(across(doe, lst(mean, sd)),
+			  .groups = "drop") %>% 
+	pivot_wider(id_cols = c(age_group, test_language),
+				names_from = c(language, lp),
+				values_from = c(matches("doe"))) %>% 
+	clean_names() %>% 
+	relocate(age_group, test_language,
+			 matches("catalan"),
+			 matches("spanish")) %>% 
+	gt(rowname_col = "test_language", 
+	   groupname_col = "age_group", row_group.sep = ": ") %>% 
+	tab_spanner(md("Monolingual (*N* = 162)"), matches("monolingual")) %>% 
+	tab_spanner(md("Bilingual (*N* = 133)"), matches("bilingual")) %>%
+	fmt_number(matches("doe"), decimals = 1, scale_by = 100) %>% 
+	cols_merge_uncert(col_val = doe_mean_catalan_monolingual,
+					  col_uncert = doe_sd_catalan_monolingual) %>% 
+	cols_merge_uncert(col_val = doe_mean_catalan_bilingual,
+					  col_uncert = doe_sd_catalan_bilingual) %>% 
+	cols_merge_uncert(col_val = doe_mean_spanish_monolingual, 
+					  col_uncert = doe_sd_spanish_monolingual) %>% 
+	cols_merge_uncert(col_val = doe_mean_spanish_bilingual, 
+					  col_uncert = doe_sd_spanish_bilingual) %>% 
+	
+	cols_label(doe_mean_catalan_monolingual = "Catalan (%)",
+			   doe_mean_catalan_bilingual = "Catalan (%)",
+			   doe_mean_spanish_monolingual = "Spanish (%)",
+			   doe_mean_spanish_bilingual = "Spanish (%)") %>% 
+	tab_style(cell_text(weight = "bold"),
+			  list(cells_column_spanners())) %>% 
+	tab_style(cell_text(size = "medium"),
+			  list(cells_body(),
+			  	 cells_stub()))
+```
+
+
+The research reported in this article was conducted in accordance with the principles expressed in the Declaration of Helsinki and approved by the local ethical committee (the clinical research ethical committee of the Parc de la Salut Mar). Before every testing session, caretakers were asked to read and sign an informed consent form, and were given a small gift at the end of it.
+
+
+## Stimuli
+
+
+
+### Animacy
+
+```{r}
+#| label: fig-stimuli-animacy
+#| fig-height: 6
+animacy <- stimuli %>%
+	distinct(test_language, 
+			 target, 
+			 prime, 
+			 .keep_all = TRUE) %>% 
+	pivot_longer(c(is_animate_prime, is_animate_target), 
+				 names_to = "role",
+				 values_to = "is_animate") %>% 
+	mutate(role = str_to_sentence(str_remove(role, "is_animate_"))) %>% 
+	count(test_language,  trial_type, role, is_animate) %>% 
+	drop_na(is_animate) %>% 
+	mutate(is_animate = ifelse(is_animate, "Animate", "Inanimate"))
+
+animacy %>% 
+	# filter(role=="Prime") %>% 
+	ggplot() +
+	aes(x = trial_type, 
+		y = n, 
+		fill = is_animate,
+		colour = is_animate) + 
+	facet_grid(test_language~role) +
+	geom_col(position = position_fill(), colour = "white", size = 0.75) +
+	geom_hline(yintercept = 0.5,  size = 1, colour = "grey") +
+	labs(title = "Prime", 
+		 x = "Trial type", 
+		 y = "# trials",
+		 colour = "Animacy", 
+		 fill = "Animacy") +
+	scale_y_continuous(labels = percent) +
+	coord_flip() + 
+	theme(legend.position = "top",
+		  legend.title = element_blank(),
+		  panel.grid = element_blank(),
+		  axis.title.y = element_blank(),
+		  axis.text = element_text(size = 7),
+		  axis.text.y = element_text(hjust = 1),
+		  strip.text = element_text(size = 11))
+```
+
+
+### Semantic category
+
+::: {.panel-tabset}
+
+#### Prime
+
+```{r}
+#| label: fig-stimuli-category-prime
+#| fig-height: 7
+#| fig-width: 12
+stimuli %>% 
+	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
+	drop_na(trial_type, semantic_category_prime) %>% 
+	count(trial_type, test_language, semantic_category_prime, name = "sum") %>% 
+	right_join(expand(., trial_type,  test_language,  semantic_category_prime)) %>%
+	replace_na(list(sum = 0)) %>% 
+	group_by(trial_type, test_language) %>% 
+	mutate(n =  sum(sum), prop = sum/n) %>% 
+	ungroup() %>% 
+	ggplot() +
+	aes(x = prop,
+		y = reorder_within(semantic_category_prime, desc(prop), list(trial_type, test_language)),
+		fill = test_language,
+		order = prop) + 
+	facet_wrap(test_language~trial_type,
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_col(colour = "white",
+			 position = position_dodge(),
+			 width = 1) +
+	labs(x = "% of trials",
+		 y = "Trial type",
+		 colour = "Trial type",
+		 fill = "Trial type") +
+	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
+	scale_y_reordered() +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  axis.text.y = element_text(size = 9, hjust = 1),
+		  axis.text.x = element_text(size = 8, hjust = 1),
+		  axis.title.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  plot.caption = element_text(size = 10, hjust = 0),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
+		  strip.text = element_text(size = 10))
+```
+
+#### Target
+
+```{r}
+#| label: fig-stimuli-category-target
+#| fig-height: 7
+#| fig-width: 12
+stimuli %>% 
+	distinct(test_language,  target,  prime, .keep_all = TRUE) %>% 
+	drop_na(trial_type, semantic_category_target) %>% 
+	count(trial_type, test_language, semantic_category_target, name = "sum") %>% 
+	right_join(expand(., trial_type,  test_language,  semantic_category_target)) %>%
+	replace_na(list(sum = 0)) %>% 
+	group_by(trial_type, test_language) %>% 
+	mutate(n =  sum(sum), prop = sum/n) %>% 
+	ungroup() %>% 
+	ggplot() +
+	aes(x = prop,
+		y = reorder_within(semantic_category_target, desc(prop), list(trial_type, test_language)),
+		fill = test_language,
+		order = prop) + 
+	facet_wrap(test_language~trial_type,
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_col(colour = "white",
+			 position = position_dodge(),
+			 width = 1) +
+	labs(x = "% of trials",
+		 y = "Trial type",
+		 colour = "Trial type",
+		 fill = "Trial type") +
+	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
+	scale_y_reordered() +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  axis.text.y = element_text(size = 9, hjust = 1),
+		  axis.text.x = element_text(size = 8, hjust = 1),
+		  axis.title.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  plot.caption = element_text(size = 10, hjust = 0),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
+		  strip.text = element_text(size = 10))
+```
+
+:::
+
+## Vocabulary
+
+We collected vocabulary data from participants. In Oxford, participants were sent the online version of the Oxford Communicative Development Inventory [OCDI, @hamilton2000infant] two weeks before each appointment. In Barcelona, participants were sent the online vocabulary inventory [BVQ](https://github.com/gongcastro/bvqdev) immediately after the appointment, and were given two weeks to fill it. In Oxford, families filled the vocabulary checklist in the testing language, and when the participant was monolingual, also in the second language. In Barcelona, all participants filled the Catalan and the Spanish versions of the vocabulary checklists. All checklists included the words involved in the trial lists. When filling the vocabulary checklist, families checked each word as being *understood*, *understood and produced* or *none*. Each response to either checklist was aggregated to produce several vocabulary measures:
+
+* **Total vocabulary**: total number of words the child knows, summing up both languages. For instance, a child who knows 210 words in Catalan and 100 words in Spanish would have a total vocabulary size of 210 words.
+* **L1 vocabulary**: number of words the child knows in the languages of higher exposure (i.e., testing language). For instance, for a child exposed to 75% Catalan who knows 210 words in Catalan and 100 words in Spanish, their L1 vocabulary size would be 210 words.
+* **Conceptual vocabulary**: number of lexicalised concepts, that is, the number of concepts for which the child knows a word in at least one of the languages. For example, a Catalan-Spanish bilingual that knows *taula* and *mesa* -- Catalan and Spanish translations of *table*-- would have a conceptual vocabulary size of 1.
+
+Vocabulary sizes of participants whose families failed to complete the vocabulary checklists were imputed, by assigning them the most likely vocabulary size from a distribution of vocabulary sizes of children of similar age ($\pm 1$ month) and language profile (similar exposure to a second language, $\pm 10%$) that completed the same vocabulary checklist previously.
+
+
+### L1 vocabulary
+
+This figure represents the vocabulary size in the dominant language of participants in the Y-axis and their linguistic profile in the X-axis. Results are presented separately for each age group. The shape of the violins, represents the distribution of the vocabulary sizes. The box-plot inside each violin represents the median, 25th and 75th percentiles, and the vertical lines represent the minimum and maximum values. vocabulary sizes in the dominant language were calculated as the proportion of items each participant was reported to *understand* or *understand and say* in the language of most exposure. for example, for a participant exposed mostly to Catalan, their vocabulary size in the dominant language was calculated as the proportion of words they were reported to understand and/or say in Catalan, from a total of ~200 words.
+
+```{r}
+#| label: fig-vocabulary-l1
+#| fig-cap: "L1 vocabulary. Percentage of words in L1 reported to be understood from the vocabulary checklist."
+#| fig-height: 4
+sample_size <- participants %>% 
+	filter(id %in% fit_0$data$id) %>% 
+	count(age_group)
+
+sample_size_lp <- participants %>% 
+	filter(id %in% fit_0$data$id) %>% 
+	count(age_group, lp) %>% 
+	mutate(
+		age_group = case_when(
+			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
+			age_group=="25 months" ~ paste0(age_group, " (N = ", sample_size$n[2], ")"),
+			age_group=="30 months" ~ paste0(age_group, " (N = ", sample_size$n[3], ")")
+		)
+	) 
+
+# vocabulary
+participants %>% 
+	mutate(
+		age_group = case_when(
+			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
+			age_group=="25 months" ~ paste0(age_group, " (N = ", sample_size$n[2], ")"),
+			age_group=="30 months" ~ paste0(age_group, " (N = ", sample_size$n[3], ")")
+		),
+		is_imputed = factor(ifelse(is_imputed, "Imputed", "Observed"),
+							levels = c("Observed", "Imputed"))
+	) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot(aes(lp,  vocab_size_l1, colour = is_imputed, fill = is_imputed)) +
+	facet_wrap(~age_group, scales = "free_x") +
+	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
+	stat_slab(colour = "white", fill = "grey", alpha = 0.75,
+			  position = position_nudge(x = 0.3)) +
+	geom_boxplot(width = 0.15, size = 1, colour = "black",
+				 fill = "white", outlier.colour = NA,
+				 position = position_nudge(x = 0.3)) +
+	geom_jitter(shape = 1, stroke = 1, width = 0.15, alpha = 0.5, size = 2) +
+	geom_text(data = sample_size_lp,
+			  aes(x = 1.5, y = 0,  label = paste0("N = ", n), group = lp),
+			  colour = "black", show.legend = FALSE, 
+			  position = position_dodge(width = 2), inherit.aes = FALSE) +
+	labs(y = "Receptive vocabulary", 
+		 colour = "Imputed", 
+		 fill = "Imputed") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(legend.position = "top", 
+		  legend.title = element_blank(),
+		  panel.grid.major.x = element_blank(),
+		  axis.title.x = element_blank(),
+		  axis.text = element_text(size = 9))
+```
+
+
+### Total vocabulary
+
+```{r}
+#| label: fig-vocabulary-total
+#| fig-cap: "Total vocabulary"
+#| fig-height: 4
+# vocabulary
+participants %>% 
+	mutate(
+		age_group = case_when(
+			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
+			age_group=="25 months" ~ paste0(age_group, " (N = ", sample_size$n[2], ")"),
+			age_group=="30 months" ~ paste0(age_group, " (N = ", sample_size$n[3], ")")
+		),
+		is_imputed = factor(ifelse(is_imputed, "Imputed", "Observed"),
+							levels = c("Observed", "Imputed"))
+	) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot(aes(lp,  vocab_size_total, colour = is_imputed, fill = is_imputed)) +
+	facet_wrap(~age_group, scales = "free_x") +
+	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
+	stat_slab(colour = "white", fill = "grey", alpha = 0.75,
+			  position = position_nudge(x = 0.3)) +
+	geom_boxplot(width = 0.15, size = 1, colour = "black",
+				 fill = "white", outlier.colour = NA,
+				 position = position_nudge(x = 0.3)) +
+	geom_jitter(shape = 1, stroke = 1, width = 0.15, alpha = 0.5, size = 2) +
+	geom_text(data = sample_size_lp,
+			  aes(x = 1.5, y = 0,  label = paste0("N = ", n), group = lp),
+			  colour = "black", show.legend = FALSE, 
+			  position = position_dodge(width = 2), inherit.aes = FALSE) +
+	labs(y = "Receptive vocabulary", 
+		 colour = "Imputed", 
+		 fill = "Imputed") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(legend.position = "top", 
+		  legend.title = element_blank(),
+		  panel.grid.major.x = element_blank(),
+		  axis.title.x = element_blank(),
+		  axis.text = element_text(size = 9))
+```
+
+
+### Conceptual vocabulary
+
+
+```{r}
+#| label: fig-vocabulary-conceptual
+#| fig-height: 4
+participants %>% 
+	mutate(
+		age_group = case_when(
+			age_group=="21 months" ~ paste0(age_group, " (N = ", sample_size$n[1], ")"),
+			age_group=="25 months" ~ paste0(age_group, " (N = ", sample_size$n[2], ")"),
+			age_group=="30 months" ~ paste0(age_group, " (N = ", sample_size$n[3], ")")
+		),
+		is_imputed = factor(ifelse(is_imputed, "Imputed", "Observed"),
+							levels = c("Observed", "Imputed"))
+	) %>% 
+	drop_na(lp) %>%
+	filter(valid_participant) %>% 
+	ggplot(aes(lp,  vocab_size_conceptual, colour = is_imputed, fill = is_imputed)) +
+	facet_wrap(~age_group, scales = "free_x") +
+	geom_hline(yintercept = 0.5, colour = "black", linetype = "dotted") +
+	stat_slab(colour = "white", fill = "grey", alpha = 0.75,
+			  position = position_nudge(x = 0.3)) +
+	geom_boxplot(width = 0.15, size = 1, colour = "black",
+				 fill = "white", outlier.colour = NA,
+				 position = position_nudge(x = 0.3)) +
+	geom_jitter(shape = 1, stroke = 1, width = 0.15, alpha = 0.5, size = 2) +
+	geom_text(data = sample_size_lp,
+			  aes(x = 1.5, y = 0,  label = paste0("N = ", n), group = lp),
+			  colour = "black", show.legend = FALSE, 
+			  position = position_dodge(width = 2), inherit.aes = FALSE) +
+	labs(y = "Receptive vocabulary", 
+		 colour = "Imputed", 
+		 fill = "Imputed") +
+	scale_y_continuous(limits = c(0, 1), labels = percent) +
+	theme(legend.position = "top", 
+		  legend.title = element_blank(),
+		  panel.grid.major.x = element_blank(),
+		  axis.title.x = element_blank(),
+		  axis.text = element_text(size = 9))
+```
+
+
+## Design
+
+## Data analysis
+
+### Data processing
+
+
+```{r} 
+#| label: tbl-attrition-group
+#| tbl-cap: "Summary of the dataset."
+attrition %>% 
+	left_join(select(participants, age_group, lp, id, date_test)) %>% 
+	add_count(age_group, lp, name = "n_trials") %>% 
+	group_by(id, lp, trial_type, date_test, age_group, valid_participant, n_trials) %>% 
+	summarise(valid_trial_count = sum(valid_trial, na.rm = TRUE),
+			  .groups = "drop") %>% 
+	pivot_wider(names_from = trial_type, values_from = valid_trial_count, values_fill = 0) %>% 
+	clean_names() %>% 
+	add_count(lp, age_group) %>%
+	group_by(lp, age_group, n, n_trials) %>% 
+	summarise(across(cognate:unrelated, lst(sum, mean, sd)),
+			  n_valid = sum(valid_participant),
+			  .groups = "drop") %>%
+	relocate(n_valid, .after = n) %>% 
+	mutate(n_prop = n_valid/n) %>% 
+	arrange(age_group, lp) %>% 
+	relocate(age_group, lp, n_valid, n_prop, matches("cognate"), matches("non_cognate"), matches("unrelated")) %>% 
+	gt(groupname_col = "age_group", rowname_col = "lp")  %>%
+	cols_hide(c(n, n_trials)) %>% 
+	fmt_number(matches("_mean|_sd"), decimals = 1) %>%
+	fmt_percent(matches("_prop"), decimals = 1) %>% 
+	cols_merge_n_pct(col_n = n_valid, col_pct = n_prop, autohide = TRUE)  %>% 
+	tab_spanner("Non-cognate", matches("non_cognate")) %>%
+	tab_spanner("Cognate", starts_with("cognate")) %>%
+	tab_spanner("Unrelated", matches("unrelated")) %>%
+	tab_spanner("Related", matches("cognate")) %>%
+	
+	cols_merge_uncert(col_val = cognate_mean, col_uncert = cognate_sd) %>% 
+	cols_merge_uncert(col_val = non_cognate_mean, col_uncert = non_cognate_sd) %>% 
+	cols_merge_uncert(col_val = unrelated_mean, col_uncert = unrelated_sd) %>% 
+	cols_label(age_group = "Age",
+			   n_valid = "Participants (included)",
+			   cognate_sum = "Trials",
+			   cognate_mean = "Mean ± SD",
+			   non_cognate_sum = "Trials",
+			   non_cognate_mean = "Mean ± SD",
+			   unrelated_sum = "Trials",
+			   unrelated_mean = "Mean ± SD") %>% 
+	summary_rows(groups = TRUE,
+				 columns = where(is.integer), 
+				 fns = list("Sum" = ~sum(.)), 
+				 formatter = fmt_number,
+				 decimals = 0) %>% 
+	summary_rows(groups = TRUE,
+				 columns = c(where(is.numeric), -n_valid), 
+				 fns = list("Mean" = ~mean(.)),
+				 formatter = fmt_number,
+				 decimals = 1) %>% 
+	grand_summary_rows(columns = where(is.integer),
+					   fns = list("N" = ~sum(.)),
+					   formatter = fmt_number,
+					   decimals = 0) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  list(cells_column_spanners(),
+			  	 cells_grand_summary(),
+			  	 cells_row_groups(),
+			  	 cells_stub_grand_summary(),
+			  	 cells_stub_summary())) 
+```
+
+
+### Predictors
+
+### Model
+
+$$
+\begin{aligned}
+\textbf{Likelihood:} \\
+y_{ij} &\sim \text{Bernoulli}(p)
+\end{aligned}
+$$ {#eq-likelihood}
+
+
+where:
+
+- $y$ is an observed response ($y \in \{\text{No, Understands, Understands and Says}\}$)
+- $i$ is the participant index
+- $j$ is the translation equivalent (TE) index
+- $p$ is the probability f target looking ($p \in (0, 1)$) 
+
+$p$ is then estimated using a logit regression model as indicated in @eq-linear.
+
+$$
+\begin{aligned}
+\textbf{Linear model:} \\
+logit(p) = \text{ln} \frac{p}{1-p} &= (\beta_{0} + u_{0_{i}}) + \\
+& (\beta_{1} + u_{1_{i}}) · \text{Age group}_{i} + & \\
+& \beta_{2} · \text{Language Profile}_{i} + & \\
+& (\beta_{3} + u_{2_{i}}) · \text{Trial type}_{i} + & \\
+& \beta_{4} · (\text{Age group}_{i} \times \text{Language Profile}_{i}) & \\
+& (\beta_{5} + u_{3_{i}}) · (\text{Age group}_{i} \times \text{Trial type}_{i}) + & \\
+& \beta_{6} · (\text{Language Profile}_{ij} \times \text{Trial type}_{i}) & \\
+& \beta_{7} · (\text{Age group}_{i} \times \text{Language Profile}_{i} \times \text{Trial type}_{i}) & \\
+\end{aligned}
+$$ {#eq-linear}
+
+
+where:
+
+- $i$ and $j$ index the participant and translation equivalent (TE)
+- $\beta_{0_k}$ is the fixed coefficient of the regression model for the intercept of threshold $k$
+- $u_{0_{i}}$ and $w_{0_{j}}$ are the by-participant and by-TE adjustments for $\beta_{0_{k}}$ (i.e., random intercepts), respectively
+- $\beta_{1-8}$ are the fixed coefficients of the regression model for the predictors of interest
+- $u_{1-8_{i}}$ and $w_{1-3_{j}}$ are the by-participant and by-TE adjustments for$\beta_{1-8}$ (i.e., random slopes), respectively
+
+
+
+$$
+\begin{aligned}
+\\
+\textbf{Prior:} \\
+\beta_{0_{k}} &\sim \mathcal{N}(-0.25, 0.1) & [\mbox{Intercept/response category threshold}] \\
+\beta_{1} &\sim \mathcal{N}(1, 0.1) & [\mbox{Age population-level coefficient}]\\
+\beta_{2-8} &\sim \mathcal{N}(0, 1) & [\mbox{Rest of population-level coefficients}] \\
+u_{0-8_{i}} &\sim \mathcal{N}(0, \sigma_{u_{0-8_{i}}}) & [\mbox{Participant-level coefficient variability}] \\
+w_{0-3_{j}} &\sim \mathcal{N}(0, \sigma_{w_{0-3_{j}}}) & [\mbox{TE-level coefficient variability}] \\\\
+&&\mbox{[Participant-level coefficient variability]} \\ \\
+\Bigg(\begin{smallmatrix}
+u_{k_{0}} \\ 
+u_{1_{i}} \\ 
+\vdots \\ 
+u_{8_{i}} 
+\end{smallmatrix}\Bigg) &\sim \mathcal{N} 
+\Bigg(\Bigg(\begin{smallmatrix}0 \\
+0 \\ 
+\vdots \\
+0\end{smallmatrix}\Bigg), \Sigma_{u}\Bigg) \\
+\Sigma_{u} &= \Bigg(\begin{smallmatrix} \\
+\rho_{u_{0}} & \rho_{u_{0}} \sigma_{u_{0_{k}}} \sigma_{u_{1}} & \dots & \rho_{u_{0}} \sigma_{u_{0}} \sigma_{w_{8}}\\ 
+\rho_{u_{1}} \sigma_{u_{1}} \sigma_{u_{0}} & \rho_{u_{1}} & \dots & \rho_{u_{1}} \sigma_{u_{1}} \sigma_{u_{8}}\\ 
+\vdots & \vdots & \vdots & \vdots \\
+\rho_{8} \sigma_{u_{8}} \sigma_{u_{0_{k}}} & \dots & \dots & \rho_{u_{8}} \end{smallmatrix}\Bigg) \\
+\sigma_{u_{0-8}} &\sim \mathcal{N_{+}}(1, 0.1) \\
+\rho_{u} &\sim LKJcorr(2) \\
+\\
+&&\mbox{[TE-level coefficient variability]} \\ \\
+\Bigg(\begin{smallmatrix}
+w_{k_{0}}\\ 
+w_{1_{j}} \\ 
+\vdots \\ 
+w_{3_{j}} 
+\end{smallmatrix}\Bigg) &\sim \mathcal{N} \Bigg(\Bigg(\begin{smallmatrix}
+0\\ 
+0 \\ 
+\vdots \\
+0 
+\end{smallmatrix}\Bigg), \Sigma_{w}\Bigg) \\
+\Sigma_{w} &= \Bigg(\begin{smallmatrix} \\
+\rho_{w_{0}} & \rho_{w_{0}} \sigma_{w_{0_{k}}} \sigma_{w_{1}} & \dots & \rho_{w_{0}} \sigma_{w_{0}} \sigma_{w_{3}}\\ 
+\rho_{w_{1}} \sigma_{w_{1}} \sigma_{w_{0}} & \rho_{w_{1}} & \dots & \rho_{w_{1}} \sigma_{w_{1}} \sigma_{w_{3}}\\ 
+\vdots & \vdots & \vdots & \vdots \\
+\rho_{3} \sigma_{w_{3}} \sigma_{w_{0_{k}}} & \dots & \dots & \rho_{w_{3}} \end{smallmatrix}\Bigg) \\
+\sigma_{w_{0-3}} &\sim \mathcal{N_{+}}(1, 0.1) \\
+\rho_{w_{0-3}} &\sim LKJcorr(2)
+\end{aligned}
+$$ {#eq-prior}
+
+
+```{r}
+#| label: fig-prior-epred
+nd <- tibble(time_bin = seq(0, 20, 0.1)) %>% 
+	poly_add_columns(time_bin, degree = 3, prefix = "ot", scale_width = 1)
+
+m <- add_epred_draws(nd, fit_prior, ndraws = 50, re_formula = NA) %>% 
+	mutate(.epred = plogis(.epred))
+
+ggplot(m, aes(time_bin, .epred)) +
+	geom_hline(yintercept = 0.5, colour = "grey", size = 1) +
+	geom_line(aes(group = .draw), colour = clrs[4], size = 1, alpha = 0.5) +
+	labs(x = "Time (ms)",
+		 y = "Proportion of target looking time") +
+	scale_y_continuous(labels = percent) +
+	scale_x_continuous(labels = function(x) format(x*100, big.mark = ","))
+```
+
+
+# Results
+
+## Attrition
+
+::: {.tabset-panel}
+
+### By participants
+
+```{r}
+#| label: fig-attrition-participants
+#| fig-height: 4
+n_text <- participants %>% 
+	left_join(distinct(attrition, id, valid_participant)) %>%
+	left_join(vocabulary) %>% 
+	drop_na(valid_participant) %>% 
+	mutate(
+		valid_status = case_when(
+			valid_participant & !is_imputed ~ "Valid (observed CDI)",
+			valid_participant & is_imputed ~ "Valid (imputed CDI)",
+			!valid_participant ~ "Excluded"
+		)
+	) %>% 
+	filter(valid_status != "Excluded") %>% 
+	count(lp, age_group) %>% 
+	mutate(n_label = paste0(n, " valid"),
+		   valid_status = "Valid (observed CDI)")
+
+
+participants %>% 
+	left_join(distinct(attrition, id, valid_participant)) %>%
+	left_join(vocabulary) %>% 
+	drop_na(valid_participant) %>% 
+	mutate(valid_status = case_when(
+		valid_participant & !is_imputed ~ "valid_cdi_observed",
+		valid_participant & is_imputed ~ "valid_cdi_imputed",
+		!valid_participant ~ "excluded")) %>% 
+	add_count(age_group, lp, name = "n_total") %>% 
+	count(age_group, lp, n_total, valid_status) %>% 
+	pivot_wider(names_from = valid_status, values_from = n, values_fill = 0) %>% 
+	relocate(age_group, lp, n_total, valid_cdi_observed, valid_cdi_imputed, excluded) %>% 
+	mutate(across(matches("valid_|excluded"), ~./n_total, .names = "{.col}_prop")) %>% 
+	gt(rowname_col = "lp", groupname_col = "age_group") %>% 
+	fmt_percent(matches("prop"), decimals = 1) %>% 
+	cols_merge_n_pct(col_n = valid_cdi_observed, col_pct = valid_cdi_observed_prop) %>% 
+	cols_merge_n_pct(col_n = valid_cdi_imputed, col_pct = valid_cdi_imputed_prop) %>% 
+	cols_merge_n_pct(col_n = excluded, col_pct = excluded_prop) %>% 
+	tab_spanner("Included participants", matches("valid")) %>% 
+	tab_spanner("Excluded participants", matches("excluded")) %>% 
+	cols_label(n_total = "N",
+			   valid_cdi_observed = "Collected CDI",
+			   valid_cdi_imputed = "Missing CDI",
+			   excluded = "") %>% 
+	summary_rows(groups = TRUE, columns = where(is.integer), 
+				 fns = list("N" = ~sum(.)),
+				 formatter = fmt_number,
+				 decimals = 0) %>% 
+	grand_summary_rows(columns = where(is.integer), 
+					   fns = list("N" = ~sum(.)),
+					   formatter = fmt_number,
+					   decimals = 0) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  list(cells_column_spanners(),
+			  	 cells_grand_summary(),
+			  	 cells_row_groups(),
+			  	 cells_stub_grand_summary(),
+			  	 cells_stub_summary()))
+```
+
+
+
+### By stimuli properties
+
+```{r}
+#| label: tbl-attrition-predictors
+
+attrition %>% 
+	left_join(distinct(participants, id, age_group, test_language, list, version, list)) %>% 
+	left_join(distinct(stimuli, test_language, version, list, trial_id, trial_type,
+					   freq_target, freq_prime, familiarity_prime, familiarity_target)) %>% 
+	mutate(valid_status = ifelse(valid_status != "Valid",  "Excluded", valid_status)) %>% 
+	drop_na() %>% 
+	group_by(trial_type, valid_status, age_group) %>% 
+	summarise(n = n(),
+			  across(matches("freq_|familiarity_"), lst(mean, sd)),
+			  .groups = "drop") %>% 
+	pivot_wider(names_from = valid_status,
+				values_from = c(n, matches("freq_|familiarity_")),
+				values_fill = 0) %>%
+	clean_names() %>% 
+	relocate(age_group, trial_type, n_valid, n_excluded, 
+			 matches("_valid")) %>% 
+	
+	gt(rowname_col = "trial_type", groupname_col = "age_group") %>% 
+	fmt_number(matches("n_"), decimals = 0) %>% 
+	fmt_number(matches("freq_"), decimals = 1) %>% 
+	fmt_number(matches("familiarity"), scale_by = 100, decimals = 1) %>% 
+	
+	tab_spanner("N", c(n_valid, n_excluded)) %>% 
+	
+	tab_spanner("Prime", id = 1, c(freq_prime_mean_valid, freq_prime_mean_excluded)) %>%
+	tab_spanner("Target", id = 2, c(freq_target_mean_valid, freq_target_mean_excluded)) %>% 
+	tab_spanner("Prime", id = 3, c(familiarity_prime_mean_valid, familiarity_prime_mean_excluded)) %>% 
+	tab_spanner("Target", id = 4, c(familiarity_target_mean_valid, familiarity_target_mean_excluded)) %>%
+	tab_spanner("Frequency", starts_with("freq_")) %>% 
+	tab_spanner("Familiarity (%)", starts_with("familiarity_")) %>% 
+	
+	cols_merge_uncert(col_val = freq_prime_mean_valid, col_uncert = freq_prime_sd_valid) %>% 
+	cols_merge_uncert(col_val = freq_prime_mean_excluded, col_uncert = freq_prime_sd_excluded) %>% 
+	cols_merge_uncert(col_val = freq_target_mean_valid, col_uncert = freq_target_sd_valid) %>% 
+	cols_merge_uncert(col_val = freq_target_mean_excluded, col_uncert = freq_target_sd_excluded) %>% 
+	cols_merge_uncert(col_val = familiarity_prime_mean_valid, col_uncert = familiarity_prime_sd_valid) %>% 
+	cols_merge_uncert(col_val = familiarity_prime_mean_excluded, col_uncert = familiarity_prime_sd_excluded) %>% 
+	cols_merge_uncert(col_val = familiarity_target_mean_valid, col_uncert = familiarity_target_sd_valid) %>%
+	cols_merge_uncert(col_val = familiarity_target_mean_excluded, col_uncert = familiarity_target_sd_excluded) %>% 
+	
+	cols_label(n_excluded = "Excluded",
+			   n_valid = "Included",
+			   freq_prime_mean_valid = "Included",
+			   freq_prime_mean_excluded = "Excluded",
+			   freq_target_mean_valid = "Included",
+			   freq_target_mean_excluded = "Excluded",
+			   familiarity_prime_mean_valid = "Included",
+			   familiarity_prime_mean_excluded = "Excluded",
+			   familiarity_target_mean_valid = "Included",
+			   familiarity_target_mean_excluded = "Excluded") %>% 
+	summary_rows(groups = TRUE,
+				 columns = matches("freq_") ,
+				 fns = list("Mean" = ~mean(.)), 
+				 formatter = fmt_number,
+				 decimals = 1) %>% 
+	summary_rows(groups = TRUE,
+				 columns = matches("familiarity_"), 
+				 fns = list("Mean" = ~mean(.)),
+				 formatter = fmt_number,
+				 scale_by = 100,
+				 decimals = 1) %>% 
+	grand_summary_rows(columns = c(n_valid, n_excluded),
+					   fns = list("N" = ~sum(.)),
+					   formatter = fmt_number,
+					   decimals = 0) %>% 
+	grand_summary_rows(columns = matches("familiarity_"),
+					   fns = list("Mean" = ~mean(.)),
+					   formatter = fmt_number,
+					   scale_by = 100,
+					   decimals = 1) %>% 
+	grand_summary_rows(columns = matches("freq_"),
+					   fns = list("Mean" = ~mean(.)),
+					   formatter = fmt_number,
+					   decimals = 1) %>% 
+	tab_style(cell_text(align = "center"),
+			  cells_column_labels()) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  list(cells_column_spanners(),
+			  	 cells_grand_summary(),
+			  	 cells_row_groups(),
+			  	 cells_stub_grand_summary(),
+			  	 cells_stub_summary()))
+
+```
+
+:::
+
+## Descriptive statistics
+
+### Aggregated target looking
+
+```{r}
+#| label: fig-descriptives-aggregated
+df %>% 
+	group_by(id, lp, trial_type, age_group) %>%
+	summarise(prop = mean(prop), .groups = "drop") %>% 
+	ggplot(aes(trial_type, prop, colour = trial_type, fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_line(aes(group = id), alpha = 0.25) +
+	stat_slab(side = "right", scale = 0.5) +
+	geom_boxplot(width = 0.1, size = 0.75, fill = "white", colour = "black", outlier.colour = NA) +
+	labs(x = "Trial type", y = "Proportion of target looking", colour = "Trial type", fill = "Trial type") +
+	scale_y_continuous(labels = ~percent(., accuracy = 1)) +
+	theme(legend.position = "none")
+```
+
+### Time-course target looking
+
+```{r}
+#| label: fig-descriptives-time-course
+df %>% 
+	group_by(id, time_bin, lp, trial_type, age_group) %>%
+	summarise(prop = mean(prop), .groups = "drop") %>% 
+	ggplot(aes(time_bin, prop, colour = trial_type, fill = trial_type, shape = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
+	stat_summary(fun = mean, geom = "point", size = 2) +
+	stat_summary(fun = mean, geom = "line", size = 0.75) +
+	labs(x = "Time bin (100 ms)", y = "Proportion of target looking",
+		 colour = "Trial type", fill = "Trial type", shape = "Trial type") +
+	scale_y_continuous(labels = ~percent(., accuracy = 1)) +
+	scale_x_continuous(labels = function(x) format(x*100, big.mark = ",")) +
+	theme(legend.position = "top",
+		  panel.grid.major = element_line(colour = "grey", linetype = "dotted"))
+```
+
+
+## Model outputs
+
+### Model comparison
+
+```{r}
+#| label: tab-model-comparison
+loos %>% 
+	as_tibble(.name_repair = make_clean_names) %>% 
+	rownames_to_column("model") %>% 
+	relocate(
+		model, 
+		matches("diff"),
+		matches("elpd_loo"),
+		matches("p_loo"), 
+		matches("looic")
+	) %>%
+	mutate(across(everything(), as.numeric),
+		   model = attr(loos, "dimnames")[[1]]) %>% 
+	select(-matches("subsampling")) %>% 
+	gt(rowname_col = "model") %>%
+	fmt_number(is.numeric, decimals = 1) %>% 
+	cols_merge_uncert(col_val = elpd_diff, col_uncert = se_diff) %>% 
+	cols_merge_uncert(col_val = elpd_loo, col_uncert = se_elpd_loo) %>% 
+	cols_merge_uncert(col_val = p_loo, col_uncert = se_p_loo) %>% 
+	cols_merge_uncert(col_val = looic, col_uncert = se_looic) %>% 
+	cols_label(model = "Model",
+			   elpd_loo = md("*ELPD*"),
+			   p_loo = md("*p*"),
+			   looic = md("*LOO-IC*"),
+			   elpd_diff = md("Difference")) %>% 
+	tab_source_note(md("Pareto-*k* estimates of all models were acceptable (*k* < 0.5)")) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  cells_column_labels()) %>% 
+	tab_style(cell_fill(color = "grey", alpha = 0.5),
+			  cells_body(matches("diff"))) %>% 
+	tab_style(cell_fill(color = clrs[4], alpha = 0.75),
+			  cells_body(everything(), 1))
+```
+
+### Fixed effects 
+
+::: {.panel-tabset}
+
+#### Table
+
+```{r}
+#| label: tbl-fixed-effects
+#| tbl-cap: "Summary of the posterior distribution of the Growth Curve Analysis model. We report the median and 95% highest density interval (*HDI*) of each fixed coefficient. The 95% interval indicates the range of values that contains the true value of the parameter with 95% probability. Values are in *logit* scale. Coefficients whose 95% HDI excludes zero are highlighted in red. Coefficients on the intercept indicate changes in overal proportion of target looking, coefficients in the linear term indicate changes in the overall slope of target looking growth across time, coefficients in the quadratic and cubic terms reflect the steepness of the rise and fall or of the rise, fall and rise, respectivey,  of the curve."
+post_draws <- gather_draws(fit_3, `b_.*`, regex = TRUE)
+
+str_repl <- c(
+	"b_Intercept" = "Base",
+	"b_ot1" = "Base",
+	"b_ot2" = "Base",
+	"b_ot3" = "Base",
+	"b_age_group21_25" = "Age [21-25]",
+	"b_age_group25_30" = "Age [25-30]",
+	"b_lpmon_bil" = "Group",
+	"b_trial_typerelated_unrelated" = "Prime (relatedness)",
+	"b_trial_typecognate_noncognate" = "Prime (cognateness)",
+	
+	"b_age_group21_25:lpmon_bil" = "Age [21-25] × Group",
+	"b_age_group25_30:lpmon_bil" = "Age [25-30] × Group",
+	"b_age_group21_25:trial_typerelated_unrelated" = "Age [21-25] × Prime (relatedness)",
+	"b_age_group21_25:trial_typecognate_noncognate" = "Age [21-25] × Prime (cognateness)",
+	"b_age_group25_30:trial_typerelated_unrelated" = "Age [25-30] × Prime (relatedness)",
+	"b_age_group25_30:trial_typecognate_noncognate" = "Age [25-30] × Prime (cognateness)",
+	"b_lpmon_bil:trial_typerelated_unrelated" = "Group × Prime (relatedness)",
+	"b_lpmon_bil:trial_typecognate_noncognate" = "Group × Prime (cognateness)",
+	
+	"b_age_group21_25:lpmon_bil:trial_typerelated_unrelated" = "Age [21-25] × Group × Prime (relatedness)",
+	"b_age_group21_25:lpmon_bil:trial_typecognate_noncognate" = "Age [21-25] × Group × Prime (cognateness)",
+	"b_age_group25_30:lpmon_bil:trial_typerelated_unrelated" = "Age [25-30] × Group × Prime (relatedness)",
+	"b_age_group25_30:lpmon_bil:trial_typecognate_noncognate" = "Age [25-30] × Group × Prime (cognateness)"
+)
+
+post_draws %>% 
+	median_hdi() %>%
+	mutate(poly = case_when(str_detect(.variable, "ot1") ~ "Linear",
+							str_detect(.variable, "ot2") ~ "Quadratic",
+							str_detect(.variable, "ot3") ~ "Cubic",
+							TRUE ~ "Intercept"),
+		   .variable_name = case_when(.variable %in% paste0("b_ot", 1:3) ~ .variable,
+		   						   TRUE ~ str_remove_all(.variable, "ot1\\:|ot2\\:|ot3\\:")) %>% 
+		   	factor(levels = names(str_repl),
+		   		   label = str_repl,
+		   		   ordered = TRUE),
+		   type = case_when(.variable_name %in% str_repl[1:9] ~ "Main effect",
+		   				 .variable_name %in% str_repl[10:17] ~ "Two-way interactions",
+		   				 .variable_name %in% str_repl[18:length(str_repl)] ~ "Three-way interactions")) %>%
+	select(.variable_name, type, poly, .value:.upper) %>%
+	arrange(.variable_name) %>% 
+	pivot_wider(names_from = poly, 
+				values_from = is.numeric,
+				id_cols = c(.variable_name, type),
+				values_fill = NA,
+				names_repair = make_clean_names) %>% 
+	relocate(variable_name, starts_with("value_")) %>% 
+	gt(rowname_col = "variable_name",
+	   groupname_col = "type") %>% 
+	fmt_number(is.numeric) %>%
+	tab_spanner("Intercept", matches("intercept")) %>% 
+	sub_missing(everything(), rows = everything(), missing_text = "--") %>% 
+	tab_spanner("Linear", matches("linear")) %>% 
+	tab_spanner("Quadratic", matches("quadratic")) %>% 
+	tab_spanner("Cubic", matches("cubic")) %>% 
+	cols_merge(c(lower_intercept, upper_intercept), pattern = "[{1}, {2}]") %>% 
+	cols_merge(c(lower_linear, upper_linear), pattern = "[{1}, {2}]") %>% 
+	cols_merge(c(lower_quadratic, upper_quadratic), pattern = "[{1}, {2}]") %>% 
+	cols_merge(c(lower_cubic, upper_cubic), pattern = "[{1}, {2}]") %>%
+	cols_label(value_intercept = md("b"),
+			   lower_intercept = md("95% *HDI*"),
+			   value_linear = md("b"),
+			   lower_linear = md("95% *HDI*"),
+			   value_quadratic = md("b"),
+			   lower_quadratic = md("95% *HDI*"),
+			   value_cubic = md("b"),
+			   lower_cubic = md("95% *HDI*")) %>% 
+	tab_style(cell_text(align = "left", indent = px(10)),
+			  cells_stub()) %>% 
+	tab_style(cell_fill(color = "grey90"),
+			  cells_body(matches("value"))) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  cells_column_spanners()) %>% 
+	tab_style(cell_text(weight = "bold"),
+			  cells_row_groups()) %>% 
+	tab_style(cell_text(style = "oblique"),
+			  cells_column_labels(columns = matches("value"))) %>% 
+	tab_style(cell_fill(color = clrs[4], alpha = 0.75),
+			  cells_body(columns = value_intercept, 
+			  		   rows = (upper_intercept < 0) | (lower_intercept > 0))) %>% 
+	tab_style(cell_fill(color = clrs[4], alpha = 0.75),
+			  cells_body(columns = value_linear, 
+			  		   rows = (upper_linear < 0) | (lower_linear > 0))) %>%
+	tab_style(cell_fill(color = clrs[4], alpha = 0.75),
+			  cells_body(columns = value_quadratic, 
+			  		   rows = (upper_quadratic < 0) | (lower_quadratic > 0))) %>%
+	tab_style(cell_fill(color = clrs[4], alpha = 0.75),
+			  cells_body(columns = value_cubic, 
+			  		   rows = (upper_cubic < 0) | (lower_cubic > 0))) %>% 
+	tab_style(cell_text(size = "small"), 
+			  list(cells_body(), cells_stub())) %>% 
+	tab_footnote("Sum-coded contrast between 21 and 25 month old participants.",
+				 cells_stub(rows = 2)) %>% 
+	tab_footnote("Sum-coded contrast between 25 and 30 month old participants.",
+				 cells_stub(rows = 3)) %>% 
+	tab_footnote("Sum-coded contrast between monolingual and bilingual participants.",
+				 cells_stub(rows = 4)) %>% 
+	tab_footnote("Sum-coded contrast between related (cognate and non-cognate) and unrelated trials",
+				 cells_stub(rows = 5)) %>% 
+	tab_footnote("Sum-coded contrast between cognate and non-cognate trials",
+				 cells_stub(rows = 6))
+```
+
+#### Plot 
+
+```{r}
+#| label: fig-fixed-effects
+#| fig-height: 7
+#| fig-width: 13
+#| fig-cap: "Summary of the posterior of the Growth Curve Analysis model. We report the median and 95% highest density interval (*HDI*) of each fixed coefficient. The 95% interval indicates the range of values that contains the true value of the parameter with 95% probability. Values are in *logit* scale. Coefficients whose 95% HDI excludes zero are highlighted in red. Summary of the posterior distribution of the Growth Curve Analysis model. We report the median and 95% highest density interval (*HDI*) of each fixed coefficient. The 95% interval indicates the range of values that contains the true value of the parameter with 95% probability. Values are in *logit* scale. Coefficients whose 95% HDI excludes zero are highlighted in red. Coefficients on the intercept indicate changes in overal proportion of target looking, coefficients in the linear term indicate changes in the overall slope of target looking growth across time, coefficients in the quadratic and cubic terms reflect the steepness of the rise and fall or of the rise, fall and rise, respectivey,  of the curve."
+post_draws %>% 
+	median_hdi() %>%
+	mutate(poly = case_when(str_detect(.variable, "ot1") ~ "Linear",
+							str_detect(.variable, "ot2") ~ "Quadratic",
+							str_detect(.variable, "ot3") ~ "Cubic",
+							TRUE ~ "Intercept") %>% 
+		   	factor(levels = c("Intercept", "Linear", "Quadratic", "Cubic")),
+		   .variable_name = case_when(.variable %in% paste0("b_ot", 1:3) ~ .variable,
+		   						   TRUE ~ str_remove_all(.variable, "ot1\\:|ot2\\:|ot3\\:")) %>% 
+		   	factor(levels = names(str_repl),
+		   		   label = str_repl,
+		   		   ordered = TRUE),
+		   type = case_when(.variable_name %in% str_repl[1:9] ~ "Main effect",
+		   				 .variable_name %in% str_repl[10:17] ~ "Two-way interactions",
+		   				 .variable_name %in% str_repl[18:length(str_repl)] ~ "Three-way interactions"),
+		   excludes_zero = ifelse((.lower > 0) | (.upper < 0), "Yes", "No")) %>%
+	select(.variable_name, type, poly, .value:.upper, excludes_zero) %>%
+	arrange(.variable_name) %>% 
+	ggplot(aes(x = .value, y = fct_rev(.variable_name), 
+			   colour = excludes_zero,
+			   xmin = .lower, xmax = .upper)) +
+	facet_wrap(~poly, scales = "free_x", nrow = 1) +
+	geom_vline(xintercept = 0, colour = "grey", size = 1) +
+	geom_errorbar(width = 0.2, size = 0.75) +
+	geom_point(size = 3) +
+	labs(x = "Estimate (Logit scale)", 
+		 y = "Variable", 
+		 fill = "CrI", 
+		 alpha = "CrI",
+		 colour = "Interval excludes zero?") +
+	theme(legend.position = "top",
+		  axis.title.y = element_blank(),
+		  axis.text.y = element_text(face = "plain", hjust = 1),
+		  panel.border = element_rect(colour = "black", fill = NA))
+```
+
+:::
+
+### Marginal means
+
+```{r}
+#| label: fig-posterior-epred
+nd <- expand_grid(time_bin = seq(0, 20, 0.1),
+				  age_group = levels(fit_1$data$age_group),
+				  lp = levels(fit_2$data$lp),
+				  trial_type = levels(fit_4$data$trial_type)) %>% 
+	poly_add_columns(time_bin, degree = 3, prefix = "ot", scale_width = 1)
+
+m <- add_epred_draws(nd, fit_3, ndraws = 25, re_formula = NA) %>% 
+	mutate(.epred = plogis(.epred))
+
+ptlt_means <- df %>% 
+	group_by(id, age_group, lp, trial_type, time_bin) %>% 
+	summarise(prop = mean(prop), .groups = "drop") %>% 
+	group_by(age_group, lp, trial_type, time_bin) %>% 
+	summarise(prop = mean(prop), .groups = "drop")
+
+m %>% 
+	ggplot(aes(time_bin, .epred, colour = trial_type, shape = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, size = 1, colour = "grey") +
+	geom_line(aes(group = interaction(.draw, trial_type)), alpha = 0.15, size = 0.75) +
+	# stat_summary(fun = median, geom = "line", size = 1) +
+	geom_point(data = ptlt_means, aes(y = prop)) +
+	labs(x = "Time (ms)",
+		 y = "Proportion of target looking time",
+		 colour = "Prime",
+		 fill = "Prime",
+		 shape = "Prime",
+		 linetype = "Trial type") +
+	scale_x_continuous(labels = function(x) format(x*100, big.mark = ",")) +
+	scale_y_continuous(labels = percent) +
+	theme(legend.position = "top",
+		  panel.grid = element_line(linetype = "dotted", colour = "grey"),
+		  panel.grid.minor = element_blank(),
+		  legend.title = element_blank())
+```
+
+# Appendix
+
+## Longitudinal participants
+
+We collected data from `r sum(duplicated(participants$participant))` longitudinal participants, that is, who were tested in at least two of the three ages (21, 25, and 30). Of those, `r sum(duplicated(participants$participant[participants$location=="Oxford"]))` were tested in Oxford, and `r sum(duplicated(participants$participant[participants$location=="Barcelona"]))` were tested in Barcelona.
+
+```{r}
+#| label: fig-participants-longitudinal
+#| fig-height: 10
+#| fig-width: 4
+participants %>% 
+	left_join(distinct(attrition, id, valid_participant)) %>%
+	filter(valid_participant) %>% 
+	add_count(id, lp, name = "n_total") %>% 
+	count(id, age_group, test_language, lp, n_total) %>% 
+	pivot_wider(id_cols = c(id, lp, test_language, n_total),
+				names_from = age_group,
+				values_from = n,
+				values_fill = 0) %>% 
+	pivot_longer(5:7,
+				 names_to = "age_group",
+				 values_to = "n") %>% 
+	mutate(id_reordered = reorder_within(id, by = n_total, within = list(test_language, lp))) %>% 
+	ggplot(aes(age_group, id_reordered, fill = as.factor(n))) + 
+	facet_wrap(test_language~lp, 
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_tile(colour = "white") +
+	labs(x = "Age (months)", 
+		 y = "Exposure to 2nd language", 
+		 fill = "Lang. Profile") +
+	scale_fill_manual(values = c("white", clrs[4], "white")) +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  panel.grid = element_blank(),
+		  axis.text.x = element_text(size = 6),
+		  axis.title.y = element_blank(),
+		  axis.title.x = element_text(size = 6),
+		  axis.text.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  strip.text = element_text(size = 6))
+
+```
+

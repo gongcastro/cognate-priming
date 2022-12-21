@@ -1,9 +1,10 @@
 # pass eye-tracking files to Arrow
-gaze_csv_to_arrow <- function() {
+get_gaze_normalised <- function() {
 	
 	# set directories
 	path <- "data/gaze/00_raw"
-	new_path <- "data/gaze/01_arrow"
+	new_path <- "data/gaze/01_normalised"
+	unlink(list.files(new_path, full.names = TRUE), recursive = TRUE)
 	
 	# validate paths
 	stopifnot(dir.exists(path))
@@ -13,138 +14,199 @@ gaze_csv_to_arrow <- function() {
 	file_paths <- list.files(path, full.names = TRUE)
 	file_names <- gsub(".csv", "", list.files(path))
 	
-	# prepare progress bar
+	# prepare for loop and pre-allocate list
 	i <- 1
 	n_files <- length(file_paths)
+	gaze_normalised <- vector(mode = "list", length = n_files)
+	names(gaze_normalised) <- file_names
+	
+	names_dict <- get_name_dictionary() # name changes (see R/utils.R)
+	
+	# prepare progress bar
 	pb_text <- "{pb_spin} Reading file {pb_current}/{pb_total} [{pb_percent}]"
 	cli_progress_bar("Processing", total = n_files, format = pb_text)
 	
 	# read CSV and write Feather
 	for (i in 1:n_files){
-		csv_file <- read_csv_arrow(file_paths[i], na = c("", "NaN", "NA", "<NA>"))
-		write_ipc_stream(csv_file, file.path(new_path, file_names[i]))
+		
+		gaze_normalised[[i]] <- read_csv_arrow(file_paths[i], na = c("", "NaN", "NA", "<NA>")) %>% 
+			clean_names() %>% # rename all variables to snake case
+			rename_with(~str_replace_all(., names_dict$col_name_changes), everything()) %>% # fix some values from outdates files
+			mutate(phase =  str_replace_all(phase, names_dict$phase_name_changes),
+				   across(c(l_x, l_y, r_x, r_y), as.double),
+				   across(c(l_v, r_v), ~as.logical(as.integer(.))),
+				   x = ifelse(is.na(l_x) | !l_v, r_x, l_x) %>% 
+				   	ifelse(!between(., 0, 1), NA_real_, .),
+				   y = ifelse(is.na(l_y) | !l_v, r_y, l_y) %>% 
+				   	ifelse(!between(., 0, 1), NA_real_, .),
+				   valid_sample = (!is.na(x) & !is.na(y) & (l_v | r_v))) %>% 
+			select(one_of(names_dict$relevant_variables), -time)
+		
 		cli_progress_update()
 	}
+	
 	cli_progress_done(result = "done")
+	db <- bind_rows(gaze_normalised, .id = "filename")
+	write_dataset(db, new_path, partitioning = "filename")
 }
 
-# read and preprocess eye-tracking files
-get_gaze_files <- function(){
+# pass eye-tracking files to Arrow
+get_gaze_joint <- function() {
 	
-	# set directories
-	path <- "data/gaze/01_arrow"
-	new_path <- "data/gaze/02_processed"
-	
-	# validate paths
+	# set and validate dirs
+	path <- "data/gaze/01_normalised"
+	new_path <- "data/gaze/02_joint"
 	stopifnot(dir.exists(path))
 	stopifnot(dir.exists(new_path))
 	
-	# get file names and paths
-	file_paths <- list.files(path, full.names = TRUE)
-	file_names <- list.files(path)
+	file.remove(list.files(new_path, full.names = TRUE))
 	
 	names_dict <- get_name_dictionary() # name changes (see R/utils.R)
 	
-	# prepare progress bar
-	i <- 1
-	n_files <- length(file_paths)
-	options(cli.spinner = "dots")
-	pb_text <- "Reading file {pb_bar} {pb_current}/{pb_total} [{pb_percent}]"
-	cli_progress_bar("Processing", total = n_files, format = pb_text)
+	gaze_joint <- open_dataset(path) %>% # read Arrow dataset
+		filter(between(trial_id, 1, 32),
+			   phase %in% c("Target-Distractor", "Prime")) %>%  # get prime and target phase
+		rename_with(~str_replace_all(., names_dict[["col_name_changes"]]), everything()) %>% # fix some values from outdates files
+		group_by(filename) %>% 
+		mutate(id = paste0("cognatepriming", id)) %>% 
+		collect() %>% 
+		mutate(row_n = row_number(),
+			   sampling_rate = ifelse(max(row_n) < 8e3, 60, 120),
+			   time = row_n*(1/sampling_rate)) %>%  # reconstruct time in seconds
+		ungroup() %>% 
+		group_by(filename, trial, phase) %>% 
+		mutate(time = time-min(time)) %>% 
+		ungroup() %>% 
+		filter(!(phase=="Prime" & time > 1.5), 
+			   !(phase=="Target-Distractor" & time > 2.0)) %>% 
+		select(id, trial, trial_id, phase, time, x, y, valid_sample, filename)
+	# mutate(across(everything(), ~ifelse(is.nan(.), NA_real_, .))) %>%  # restart timestamps at each trial phase change
 	
-	for (i in 1:n_files){
-		raw_data <- read_ipc_stream(file_paths[i])
-		sampling_rate <- ifelse(nrow(raw_data) > 20e3, 120, 60)
-		
-		raw <- raw_data %>% 
-			clean_names() %>% # rename all variables to snake case
-			rename_with(~str_replace_all(., names_dict[["col_name_changes"]]), everything()) %>% # fix some values from outdates files
-			mutate(phase =  str_replace_all(phase, names_dict[["phase_name_changes"]])) %>%
-			filter(phase %in% c("Target-Distractor", "Prime")) %>% 	# get gaze in prime and target-distractor phases
-			mutate(
-				id = paste0("cognatepriming", id), # fix the timestamp in some files
-				time = row_number()*(1000/sampling_rate), # change variables to the right class
-				across(everything(), ~ifelse(is.nan(.), NA_real_, .)), # gaze coords to numeric
-				across(c(starts_with("l_"), starts_with("r_")), as.numeric),  # validity columns to logicals
-				across(contains("_v"), as.logical) 
-			) %>% 
-			# get only variables of interest
-			select(any_of(names_dict[["relevant_variables"]]))
-		
-		write_ipc_stream(raw, file.path(new_path, file_names[i])) # write feather file
-		
-		cli_progress_update() # update progress bar
-	}
-	cli_progress_done(result = "done")
+	write_dataset(gaze_joint, path = new_path, partitioning = "filename") # export Arrow database
+	return(gaze_joint)
 }
 
 # process Barcelona gaze data
-get_gaze_raw <- function(participants, # participants dataset, get_participants output
-						 stimuli, # stimuli dataset, get_stimuli output
-						 aoi_coords){
-	
+get_gaze_processed <- function(participants, # participants dataset, get_participants output
+							   stimuli, # stimuli dataset, get_stimuli output
+							   aoi_coords,
+							   screen_resolution = c(x = 1920, y = 1080)) {
 	suppressMessages({
 		
-		screen_resolution <- c(x = 1920, y = 1080) # screen size in pixels
+		participants_tmp <- select(participants, id, age_group, filename)
 		
-		path <- "data/gaze/02_processed" # get path
+		# set and validate dirs
+		path <- "data/gaze/02_joint"
+		new_path <- "data/gaze/03_processed" # get path
 		stopifnot(dir.exists(path)) # validate path
-		file_paths <- list.files(path, full.names = TRUE) # list files
+		stopifnot(dir.exists(new_path)) # validate path
+		unlink(list.files(new_path, full.names = TRUE), recursive = TRUE)
 		
-		raw <- map(file_paths, read_ipc_stream) %>% 
-			# merge all data sets assigning them their file name
-			set_names(list.files(path))  %>% 
-			bind_rows(.id = "filename") %>% 
-			# restart timestamps at each trial phase change, and express in seconds
-			group_by(id, trial, phase, filename) %>% 
-			mutate(time = (time-min(time))/1000) %>% 
-			ungroup() %>%
-			# trim timestamps outside the 2 seconds range
-			filter(id %in% participants$id,
-				   time < 2) %>% # get only valid participants
-			mutate(
-				# more detailed evaluation of sample validity
-				valid_sample = (l_v & !is.na(l_x) & !is.na(l_y)) & (between(l_x, 0, 1) & between(l_y, 0, 1)),
-				valid_sample = ifelse(is.na(valid_sample), FALSE, valid_sample),
-				# if sample is not valid, change value to NA
-				x = ifelse(valid_sample, l_x, NA),
-				y = ifelse(valid_sample, l_y, NA),
-				# change gaze coordinates from 0-1 scale to screen resolution scale [1920x1080]
-				x = x*screen_resolution["x"],
-				y = y*screen_resolution["y"],
-				filename = paste0(filename, ".csv")
-			) %>% 
-			left_join(select(participants, id, age_group, filename)) %>% 
-			select(id, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
-			arrange(id, age_group, trial, phase, time)
-		
-		# merge data
-		gaze_raw <- raw %>% 
-			select(id, age_group, trial, phase, time, x, y, valid_sample, filename) %>% 
+		gaze_processed <- open_dataset(path) %>% 
+			filter(id %in% participants$id) %>% # trim timestamps outside the 2 seconds range
+			mutate(x = x*screen_resolution["x"], # change gaze coordinates from 0-1 scale to screen resolution scale
+				   y = y*screen_resolution["y"],
+				   filename = paste0(filename, ".csv")) %>% 
+			left_join(participants_tmp) %>% 
+			mutate(age_group = as.character(age_group)) %>% 
+			select(id, age_group, trial, trial_id, phase, time, x, y, valid_sample, filename) %>%
+			arrange(id, age_group, trial, phase, time) %>% 
+			select(id, age_group, trial, trial_id, phase, time, x, y, valid_sample, filename) %>% 
 			mutate(valid_sample = ifelse(is.na(valid_sample), FALSE, valid_sample)) %>% 
-			filter(!(phase=="Prime" & time > 1.5), 
-				   !(phase=="Target" & time > 2.0))
+			collect()
 		
-		write_csv_arrow(gaze_raw, here("data", "gaze", "03_merged.csv"))
-		
+		write_dataset(gaze_processed, new_path, partitioning = "filename")
 		
 	})
-	return(gaze_raw)
+	return(gaze_processed)
 }
 
 
-impute_gaze <- function(gaze_raw, ...){
-	gaze_imputed <- gaze_raw %>% 
+get_gaze_imputed <- function(...){
+	
+	# set and validate dirs
+	path <- "data/gaze/03_processed" # get path
+	new_path <- "data/gaze/04_imputed" # get path
+	stopifnot(dir.exists(path)) # validate path
+	stopifnot(dir.exists(new_path)) # validate path
+	unlink(list.files(new_path, full.names = TRUE), recursive = TRUE)
+	
+	# impute gaze NAs
+	gaze_imputed <- open_dataset(path) %>% 
 		group_by(filename, trial, phase) %>% 
-		mutate(across(c(x, y), ~na.locf(., ...), .names = "{.col}_imputed"),
+		collect() %>% 
+		mutate(across(c(x, y), ~na.locf(., na.rm = FALSE, ...), .names = "{.col}_imputed"),
 			   is_imputed = is.na(x) & !is.na(x_imputed)) %>% 
 		ungroup() %>% 
 		select(-c(x_imputed, y_imputed)) %>% 
 		relocate(is_imputed, .after = valid_sample)
 	
+	write_dataset(gaze_imputed, new_path, partitioning = "filename")
+	
 	return(gaze_imputed)
 	
 }
+
+get_gaze_aoi <- function(participants,
+						 stimuli,
+						 aoi_coords,
+						 ...) {
+	
+	# set and validate dirs
+	path <- "data/gaze/04_imputed"
+	new_path <- "data/gaze/05_aoi" 
+	stopifnot(dir.exists(path)) 
+	stopifnot(dir.exists(new_path))
+	unlink(list.files(new_path, full.names = TRUE), recursive = TRUE)
+	
+	gaze_aoi <- open_dataset(path) %>% 
+		left_join(select(participants, id, age_group, filename, test_language, list, version)) %>% 
+		left_join(select(stimuli, test_language, list, version, trial_id, target_location, trial_type)) %>% 
+		select(id, age_group, trial, trial_id, phase, time, x, y, valid_sample, target_location, trial_type, filename) %>% 
+		collect() %>% 
+		# evaluate if gaze coordinates are inside any AOI, and which
+		mutate(aoi_center = gaze_in_center(x, y, aoi_coords = aoi_coords),
+			   aoi_left = gaze_in_left(x, y, aoi_coords),
+			   aoi_right = gaze_in_right(x, y, aoi_coords)) %>% 
+		replace_na(list(aoi_center = FALSE, aoi_right = FALSE, aoi_left = FALSE)) %>% 
+		mutate(aoi_prime = aoi_center,
+			   aoi_target = ifelse(target_location=="r", aoi_right, aoi_left),
+			   aoi_distractor = ifelse(target_location=="l", aoi_right, aoi_left))  %>% 
+		select(id, age_group, trial, trial_id, phase, time, x, y, valid_sample, 
+			   aoi_prime, aoi_target, aoi_distractor, trial_type, filename)
+	
+	write_dataset(gaze_aoi, new_path, partitioning = "filename")
+	
+	return(gaze_aoi)
+	
+}
+
+# evaluate if gaze is in prime
+gaze_in_center <- function(x, y, aoi_coords){
+	x_in_range <- (x >= aoi_coords$center["xmin"] & x <= aoi_coords$center["xmax"]) 
+	y_in_range <- (y >= aoi_coords$center["ymin"] & y <= aoi_coords$center["ymax"])
+	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
+	
+	return(gaze_in_range)
+}
+
+# evaluate if gaze is in target
+gaze_in_right <- function(x, y, aoi_coords){
+	x_in_range <- (x >= aoi_coords$right["xmin"] & x <= aoi_coords$right["xmax"]) 
+	y_in_range <- (y >= aoi_coords$right["ymin"] & y <= aoi_coords$right["ymax"])
+	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
+	
+	return(gaze_in_range)
+}
+
+gaze_in_left <- function(x, y, aoi_coords){
+	x_in_range <- (x >= aoi_coords$left["xmin"] & x <= aoi_coords$left["xmax"]) 
+	y_in_range <- (y >= aoi_coords$left["ymin"] & y <= aoi_coords$left["ymax"])
+	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
+	
+	return(gaze_in_range)
+}
+
 
 make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
 	
@@ -231,29 +293,4 @@ make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
 }
 
 
-# evaluate if gaze is in prime
-gaze_in_center <- function(x, y, aoi_coords){
-	x_in_range <- (x >= aoi_coords$center["xmin"] & x <= aoi_coords$center["xmax"]) 
-	y_in_range <- (y >= aoi_coords$center["ymin"] & y <= aoi_coords$center["ymax"])
-	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
-	
-	return(gaze_in_range)
-}
-
-# evaluate if gaze is in target
-gaze_in_right <- function(x, y, aoi_coords){
-	x_in_range <- (x >= aoi_coords$right["xmin"] & x <= aoi_coords$right["xmax"]) 
-	y_in_range <- (y >= aoi_coords$right["ymin"] & y <= aoi_coords$right["ymax"])
-	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
-	
-	return(gaze_in_range)
-}
-
-gaze_in_left <- function(x, y, aoi_coords){
-	x_in_range <- (x >= aoi_coords$left["xmin"] & x <= aoi_coords$left["xmax"]) 
-	y_in_range <- (y >= aoi_coords$left["ymin"] & y <= aoi_coords$left["ymax"])
-	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
-	
-	return(gaze_in_range)
-}
 

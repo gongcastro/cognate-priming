@@ -11,6 +11,7 @@ test_attrition <- function(
 			c("id",
 			  "age_group",
 			  "trial",
+			  "trial_id",
 			  "trial_type",
 			  "valid_gaze_prime",
 			  "valid_gaze_target",
@@ -33,8 +34,9 @@ test_attrition <- function(
 	
 	test_that("attrition has the variable classes", {
 		expect_type(attrition$id, "character")
-		expect_equal(class(attrition$age_group), "factor")
+		expect_equal(class(attrition$age_group), "character")
 		expect_equal(class(attrition$trial), "integer")
+		expect_equal(class(attrition$trial_id), "integer")
 		expect_type(attrition$trial_type, "character")
 		expect_type(attrition$valid_gaze_prime, "logical")
 		expect_type(attrition$valid_gaze_target, "logical")
@@ -52,6 +54,7 @@ test_attrition <- function(
 		expect_false(any(is.na(attrition$id)))
 		expect_false(any(is.na(attrition$age_group)))
 		expect_false(any(is.na(attrition$trial)))
+		expect_false(any(is.na(attrition$trial_id)))
 		expect_false(any(is.na(attrition$trial_type)))
 		expect_false(any(is.na(attrition$valid_gaze_prime)))
 		expect_false(any(is.na(attrition$valid_gaze_target)))
@@ -63,8 +66,9 @@ test_attrition <- function(
 	})
 	
 	test_that("attrition variables have the right values", {
-		expect_equal(levels(attrition$age_group), paste0(c(21, 25, 30), " months"))
+		expect_true(all(unique(attrition$age_group) %in% paste0(c(21, 25, 30), " months")))
 		expect_true(all(between(unique(attrition$trial), 0, 32)))
+		expect_true(all(between(unique(attrition$trial_id), 0, 32)))
 		expect_true(all(unique(attrition$trial_type) %in% c("Cognate", "Non-cognate", "Unrelated")))
 		expect_true(all(unique(attrition$valid_gaze_prime) %in% c(TRUE, FALSE)))
 		expect_true(all(unique(attrition$valid_gaze_target) %in% c(TRUE, FALSE)))

@@ -26,8 +26,8 @@ theme_custom <- function(){
 		  plot.background = element_rect(fill = "white", color = NA),
 		  legend.key = element_rect(fill = "white", colour = NA),
 		  text = element_text(colour = "black", size = 15),
-		  axis.text.x = element_text(size = 12, face = "bold"),
-		  axis.text.y = element_text(size = 12, face = "bold"),
+		  axis.text.x = element_text(size = 12),
+		  axis.text.y = element_text(size = 12),
 		  axis.line = element_line(colour = "black", size = 0.75),
 		  strip.text = element_text(size = 13, face = "bold"),
 		  strip.background = element_rect(fill = "white", colour = NA))
@@ -52,6 +52,8 @@ gt_apa <- function(x, title = " "){
 			summary_row.border.width = 0.75,
 			grand_summary_row.border.color = "black",
 			grand_summary_row.border.width = 0.75,
+			grand_summary_row.border.style = 0.75,
+			
 			stub_row_group.border.width = 0,
 			stub.border.width = 0,
 			table_body.border.bottom.color = "black",
@@ -97,7 +99,10 @@ get_name_dictionary <- function(...) {
 		"r_2" = "r_y",
 		"l_user_coord_3" = "l_user_coord_z",
 		"r_user_coord_3" = "r_user_coord_z",
-		"suje_num" = "id"
+		"suje_num" = "id",
+		"numtrial_lista" = "trial_num",
+		"trial_num" = "trial_id"
+		
 	)
 	
 	phase_name_changes <- c(
@@ -109,7 +114,7 @@ get_name_dictionary <- function(...) {
 		"target_distractor" = "Target-Distractor"
 	)
 	
-	relevant_variables <- c("id", "trial_num", "trial", "phase", "time", "l_x", "l_y", "l_v", "r_x", "r_y", "r_v")
+	relevant_variables <- c("id", "trial", "trial_id", "phase", "time", "x", "y", "valid_sample")
 	
 	name_dict <- lst(col_name_changes, phase_name_changes, relevant_variables)
 	

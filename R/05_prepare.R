@@ -1,6 +1,6 @@
 # prepare
 
-prepare_data <- function(gaze_imputed, 
+prepare_data <- function(gaze_aoi, 
 						 participants, # participants dataset, get_participants output
 						 stimuli, # stimuli dataset, get_stimuli output
 						 vocabulary, # vocabulary dataset, get_vocabulary output
@@ -12,7 +12,7 @@ prepare_data <- function(gaze_imputed,
 		
 		vocabulary <- mutate(vocabulary, across(starts_with("vocab_size"), ~scale(.)[,1], .names = "{.col}_center")) 
 		
-		clean <- list(select(participants, -filename), stimuli, gaze_imputed) %>% 
+		clean <- list(select(participants, -filename), stimuli, gaze_aoi) %>% 
 			reduce(full_join) %>% 
 			select(id, age_group, trial, phase, time, x, y, 
 				   target_location, filename, valid_sample) %>% 
@@ -77,7 +77,7 @@ prepare_data <- function(gaze_imputed,
 	})
 	
 	# export data
-	saveRDS(df, file.path("data", "04_df.rds"))
+	saveRDS(df, file.path("data", "gaze.rds"))
 	
 	return(df)
 	

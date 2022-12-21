@@ -3,7 +3,7 @@ test_stimuli <- function(stimuli){
 	test_that("stimuli has the right columns", {
 		expect_equal(
 			colnames(stimuli),
-			c("trial",
+			c("trial_id",
 			  "test_language",
 			  "version",
 			  "list",
@@ -30,7 +30,7 @@ test_stimuli <- function(stimuli){
 	})
 	
 	test_that("stimuli has the variable classes", {
-		expect_type(stimuli$trial, "integer")
+		expect_type(stimuli$trial_id, "integer")
 		expect_type(stimuli$test_language, "character")
 		expect_type(stimuli$version, "character")
 		expect_type(stimuli$list, "integer")
@@ -58,7 +58,7 @@ test_stimuli <- function(stimuli){
 	
 	
 	test_that("stimuli missing data is dealt with", {
-		expect_false(any(is.na(stimuli$trial)))
+		expect_false(any(is.na(stimuli$trial_id)))
 		expect_false(any(is.na(stimuli$test_language)))
 		expect_false(any(is.na(stimuli$version)))
 		expect_false(any(is.na(stimuli$list)))
@@ -86,7 +86,7 @@ test_stimuli <- function(stimuli){
 	})
 	
 	test_that("stimuli variables have the right values", {
-		expect_true(all(stimuli$trial %in% 1:32))
+		expect_true(all(stimuli$trial_id %in% 1:32))
 		expect_true(all(stimuli$test_language %in% c("Catalan", "Spanish")))
 		expect_true(all(stimuli$trial_type %in% c("Cognate", "Non-cognate", "Unrelated")))
 		expect_true(all(
