@@ -1,0 +1,164 @@
+---
+title: "Developmental trajectories of word recognition: a priming study in bilinguals"
+editor: source
+author:
+  - name: Gonzalo Garcia-Castro
+    orcid: 0000-0002-8553-4209
+    email: gonzalo.garciadecastro@upf.edu
+    affiliations:
+      - ref: upf
+    corresponding: true
+  - name: Serene Siow
+    affiliations:
+      - ref: oxf
+  - name: Núria Sebastian-Galles
+    affiliations:
+      - ref: upf
+  - name: Kim Plunkett
+    affiliations:
+      - ref: oxf
+affiliations:
+  - id: upf
+    name: Center for Brain and Cognition, Universitat Pompeu Fabra
+  - id: oxf
+    name: Department of Experimental Psychology, University of Oxford
+    
+pagetitle: Cross-linguistic similarity and  word acquisition
+abstract: "Previous studies have provided evidence that lexical access is language non-selective in bilinguals: recognising and producing words in one language activates lexical representations of words in the other language (e.g., Costa et al., 2000; Thierry & Wu, 2007). It has been suggested that this parallel activation is already present during toddlerhood (Jardak & Byers-Heinlein, 2019; Von Holzen & Mani, 2012), but it is unclear how it impacts the developing lexicon. In the present study, we tested Catalan-Spanish and English-Spanish bilinguals in a word recognition task, in which they were presented with words in their dominant language exclusively. In each trial, two pictures were presented side-by-side and one of them was named (target picture). Participants' visual preference for the named picture was taken as an indicator of word recognition. Each pair of pictures was preceded by the presentation of a silent image (prime picture). We designed three types of trials: (1) cognate trials in which prime and target labels shared phonological onset and the prime label was a cognate (e.g., flower-flor / fork), (2) non-cognate trials, in which prime and target labels shared phonological onset but the prime label was a non-cognate (e.g., frog-rana / fork), and (3) unrelated trials, in which prime and target labels did not share onset (unrelated trials; car-coche / fork). In line with previous studies, we expected participants to generate implicit labels for the prime pictures, which should interfere with target word recognition when both words share phonological onset (e.g., Mani & Plunkett, 2011). Additionally, under the hypothesis that bilingual participants would activate labels for the prime pictures in both languages, we predicted that interference would be stronger after cognate primes (labels from both languages share phonological overlap with target word recognition) than after non-cognate primes (only the label in the target language share phonological overlap with target word recognition). We tested bilinguals (n = 46) and same-aged monolingual controls, n = 123) at three age points (21, 25, and 30 months) to investigate how any cross-language priming effect emerged or changed across these ages."
+thanks: "This research was supported by grants from the Spanish Ministerio de Ciencia, Innovación y Universidades (PGC2018-101831-B-I00 and PRE2019-088165), and the Catalan Government [ICREA (Catalan Institution for Research and Advanced Studies) Academia 2019 award]. Gonzalo Garcia-Castro was supported by a fellowship of the Spanish Ministerio de Ciencia, Innovación y Universidades (FPI 2019). The authors declare no conflicts of interest with regard to the funding source of this study. We thank Xavier Mayoral, Silvia Blanch, Cristina Cuadrado, and Irina Lepadatu for their technical support. We also thank Cristina Dominguez, Katia Pistrin, and Nicola Gillen for their efforts in recruiting infants. We would like to thank the clinics Quirón and Sagrada Familia that allowed us to recruit participants in their premises. We also thank all families and infants who participated in the experiments. Data collection was half-way when the COVID-19 pandemic started. We would like to pay special tribute to the families that collaborated with us under these difficult circumstances."
+keywords: word recognition, cognate, vocabulary, bilingualism, eye-tracking, growth curve analysis, bayesian
+csl: assets/bibliography/apa7.csl
+bibliography: assets/bibliography/references.bib
+format:
+  pdf:
+    pdf-engine: lualatex
+    number-sections: true
+    whitespace: small
+  docx:
+  	reference-doc: assets/templates/template.docx
+linestretch: 1.5
+toc: false
+fig-dpi: 1000
+echo: false
+warning: false
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+
+tar_load_everything() # load target objects
+
+# load packages
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(gt)
+library(tidybayes)
+library(brms)
+library(polypoly)
+library(tidytext)
+library(janitor)
+library(forcats)
+library(scales)
+library(patchwork)
+library(bvq)
+
+
+# set ggplot theme and colour palette
+theme_set(theme_custom()) # set custom ggplot theme
+clrs <- c("#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600")
+
+options(ggplot2.ordinal.fill = clrs[c(1, 4, 5)],
+		ggplot2.ordinal.colour = clrs[c(1, 4, 5)],
+		ggplot2.discrete.fill = clrs[c(1, 4, 5)],
+		ggplot2.discrete.colour = clrs[c(1, 4, 5)],
+		ggplot2.continuous.fill = ggplot2::scale_color_gradient,
+		ggplot2.continuous.colour = ggplot2::scale_color_gradient)
+
+# prepare data
+attrition <- attrition %>% 
+	mutate(
+		valid_gaze = valid_gaze_prime & valid_gaze_target,
+		valid_status = case_when(
+			!valid_gaze ~ "Invalid gaze",
+			!valid_participant ~ "Invalid participant",
+			TRUE ~ "Valid"
+		))
+
+participants <- participants %>% 
+	left_join(distinct(attrition, id, age_group, valid_participant)) %>% 
+	drop_na(id) %>% 
+	left_join(vocabulary) %>% 
+	mutate(vocab_size_l1_center = scale(vocab_size_l1)[,1])
+
+```
+
+
+# Introduction
+
+# Methods
+
+All materials, data, and reproducible code can be found at the OSF ([https://osf.io/hy984/](https://osf.io/ckydb/)) and GitHub ([https://github.com/gongcastro/cognate-priming](https://github.com/gongcastro/cognate-priming)) repositories. This study was conducted according to guidelines laid down in the Declaration of Helsinki, and was approved by the Drug Research Ethical Committee (CEIm) of the IMIM Parc de Salut Mar, reference 2020/9080/I.
+
+
+## Participants
+
+
+```{r}
+#| label: participants-numbers
+n_participants_total <- length(unique(participants$id))
+n_participants_sessions <- count(participants, id, name = "n_sessions") %>% 
+	count(n_sessions) %>% 
+	split(.$n_sessions)
+n_sessions_total <- count(participants)
+n_sessions_age_group <- participants %>% 
+	group_by(age_group) %>% 
+	summarise(across(age, lst(mean, sd, min, max)),
+			  n = n(),
+			  .groups = "drop") %>% 
+	mutate(across(age_mean:age_max, round, 2)) %>% 
+	split(f = .$age_group) %>% 
+	set_names(c("age_21", "age_25", "age_30"))
+n_sessions_dominance <- count(participants, test_language) %>% 
+	split(f = .$test_language) %>% 
+	set_names(c("catalan", "spanish"))
+n_sessions_dominance_age_group <- count(participants, age_group, test_language) %>% 
+	split(f = .$test_language) %>% 
+	set_names(c("catalan", "spanish")) %>% 
+	map(~split(., f = .$age_group) %>% 
+			set_names(c("age_21", "age_25", "age_30")))
+n_sessions_lp <- participants %>% 
+	count(lp) %>% 
+	split(f = .$lp) %>% 
+	set_names(c("monolingual", "bilingual"))
+n_sessions_lp_age_group <- participants %>% 
+	count(lp, age_group) %>% 
+	split(f = .$lp) %>% 
+	set_names(c("monolingual", "bilingual")) %>% 
+	map(~split(., f = .$age_group) %>% 
+			set_names(c("age_21", "age_25", "age_30")))
+```
+
+We collected data from `r n_participants_total` monolingual and bilingual participants living in the Metropolitan Area of Barcelona (Spain), who were exposed to at least Catalan and/or Spanish from birth. Families were recruited from maternity room in private hospitals in Barcelona, and contacted via phone when the child's age spanned between our age intervals of interest. Families were invited to participate at three age points: 21, 25, and 30 months. `r n_participants_sessions[[1]]$n` participants were tested at one age point,  `r n_participants_sessions[[2]]$n` at two age points, and `r n_participants_sessions[[3]]$n` at the three age points. In total, we gathered data from `r n_sessions_total$n` testing sessions: `r n_sessions_age_group$age_21$n` at 21 months (*Mean* = `r round(n_sessions_age_group$age_21$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_21$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_21$age_min`--`r n_sessions_age_group$age_21$age_max`), `r n_sessions_age_group$age_25$n` at 25 months (*Mean* = `r round(n_sessions_age_group$age_25$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_25$age_min`--`r n_sessions_age_group$age_25$age_max`), and `r n_sessions_age_group$age_30$n` at 30 months (*Mean* = `r round(n_sessions_age_group$age_30$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_30$age_min`--`r n_sessions_age_group$age_30$age_max`). 
+
+We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (DoE) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan- or Spanish-dominant if the language with highest DoE was Catalan or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. We collected data from `r n_sessions_dominance$catalan$n` Catalan-dominant participants in Catalan (`r n_sessions_dominance_age_group$catalan$age_21$n` at 21 months, `r n_sessions_dominance_age_group$catalan$age_25$n` at 25 months, and `r n_sessions_dominance_age_group$catalan$age_30$n` at 30 months). We further classified participants as monolinguals if the DoE to their dominant language exceeded 80% of the total DoE to Catalan and Spanish, and as bilinguals otherwise. Participants with DoE to language other than Catalan or Spanish were excluded from analyses. This divided the sample into `r n_sessions_lp$monolingual$n` monolinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$monolinguals$age_25` at 25 months, and `r n_sessions_lp_age_group$monolinguals$age_30` at 30 months), and `r n_sessions_lp$bilingual$n` bilinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$bilingual$age_25` at 25 months, and `r n_sessions_lp_age_group$bilingual$age_30` at 30 months). tbl-participants-lp summarises the linguistic profile of our sample.
+
+
+
+## Stimuli
+
+## Procedure
+
+## Apparatus
+
+## Data analysis
+
+# Results
+
+# Discussion

@@ -60,7 +60,7 @@ library(janitor)
 library(forcats)
 library(scales)
 library(patchwork)
-library(bvqdev)
+library(bvq)
 
 
 # set ggplot theme and colour palette
@@ -197,7 +197,7 @@ The research reported in this article was conducted in accordance with the princ
 
 ## Vocabulary
 
-We collected vocabulary data from participants. In Oxford, participants were sent the online version of the Oxford Communicative Development Inventory [OCDI, @hamilton2000infant] two weeks before each appointment. In Barcelona, participants were sent the online vocabulary inventory [BVQ](https://github.com/gongcastro/bvqdev) immediately after the appointment, and were given two weeks to fill it. In Oxford, families filled the vocabulary checklist in the testing language, and when the participant was monolingual, also in the second language. In Barcelona, all participants filled the Catalan and the Spanish versions of the vocabulary checklists. All checklists included the words involved in the trial lists. When filling the vocabulary checklist, families checked each word as being *understood*, *understood and produced* or *none*. Each response to either checklist was aggregated to produce several vocabulary measures:
+We collected vocabulary data from participants. In Oxford, participants were sent the online version of the Oxford Communicative Development Inventory [OCDI, @hamilton2000infant] two weeks before each appointment. In Barcelona, participants were sent the online vocabulary inventory [BVQ](https://github.com/gongcastro/bvq) immediately after the appointment, and were given two weeks to fill it. In Oxford, families filled the vocabulary checklist in the testing language, and when the participant was monolingual, also in the second language. In Barcelona, all participants filled the Catalan and the Spanish versions of the vocabulary checklists. All checklists included the words involved in the trial lists. When filling the vocabulary checklist, families checked each word as being *understood*, *understood and produced* or *none*. Each response to either checklist was aggregated to produce several vocabulary measures:
 
 * **Total vocabulary**: total number of words the child knows, summing up both languages. For instance, a child who knows 210 words in Catalan and 100 words in Spanish would have a total vocabulary size of 210 words.
 * **L1 vocabulary**: number of words the child knows in the languages of higher exposure (i.e., testing language). For instance, for a child exposed to 75% Catalan who knows 210 words in Catalan and 100 words in Spanish, their L1 vocabulary size would be 210 words.

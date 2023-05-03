@@ -1,54 +1,42 @@
 library(targets)
 library(tarchetypes)
 
-# load functions ----
-source("R/utils.R")
-source("R/00_stimuli.R")
-source("R/01_participants.R")
-source("R/02_vocabulary.R")
-source("R/03_gaze.R")
-source("R/04_attrition.R")
-source("R/05_prepare.R")
-source("R/06_analysis.R")
-
-# load tests -------------------------------------------------------------------
-invisible({
-	lapply(list.files("tests/testthat", full.names = TRUE, pattern = ".R"), source)
+# load functions ---------------------------------------------------------------
+invisible({ 
+	lapply(list.files(path = "R", 
+					  full.names = TRUE, 
+					  pattern = ".R"), source) 
+	lapply(list.files(path = "tests/testthat",
+					  full.names = TRUE, 
+					  pattern = ".R"), source)
 })
 
-
-# load packages ----
+# load packages ----------------------------------------------------------------
 tar_option_set(
 	packages = c(
 		# project utils
 		"arrow",
 		"brms",
-		"bvqdev",
+		"bvq",
 		"childesr",
 		"cli",
 		"conflicted",
 		"dplyr",
 		"eyetrackingR",
-		"emmeans",
 		"forcats", 
 		"ggplot2", 
-		"ggsci",
 		"googlesheets4",
 		"gt",
 		"here",
 		"httr",
 		"janitor",
-		"keyring",
-		"knitr",
 		"lazyeval",
 		"lubridate", 
 		"mice",
-		"papaja",
 		"patchwork",
 		"polypoly",
 		"purrr", 
 		"readxl", 
-		"rmarkdown", 
 		"scales", 
 		"shiny",
 		"stringr",
@@ -67,7 +55,6 @@ tar_option_set(
 options(mc.cores = 2,
 		brms.backend = "cmdstanr",
 		knitr.duplicate.label = "allow",
-		clustermq.scheduler = "multiprocess",
 		cli.progress_bar_style = "dot")
 
 
@@ -86,50 +73,48 @@ options(mc.cores = 2,
 
 list(
 	
-	tar_target(
-		resolve_conficts,
-		{
-			# resolve namespace conflicts --------------------------------------
-			conflict_prefer("last_warnings", "rlang")
-			conflict_prefer("filter", "dplyr")
-			conflict_prefer("between", "dplyr")
-			conflict_prefer("timestamp", "utils")
-			conflict_prefer("ar", "brms")
-			conflict_prefer("chisq.test", "stats")
-			conflict_prefer("discard", "scales")
-			conflict_prefer("duration", "lubridate")
-			conflict_prefer("fisher.test", "stats")
-			conflict_prefer("lag", "dplyr")
-		}
-	),
+	tar_target(resolve_conficts, resolve_conflicts()),
 	
 	# get BVQ data -------------------------------------------------------------
 	
 	# this returns a list with all necessary data
-	tar_target(bvq_data, get_bvq(update = TRUE, type = "understands")), 
+	tar_target(bvq_data, get_bvq(type = "understands")), 
 	
 	# stimuli ------------------------------------------------------------------
+	
 	# import data
 	tar_target(trials, read_xlsx("stimuli/stimuli.xlsx")),
+	
 	tar_target(childes_tokens, unique(unlist(distinct(trials, prime, target)))),
+	
 	tar_target(animacy, {
-		read.csv("data/stimuli/animacy.csv") %>% 
-			as_tibble() %>% 
-			mutate(is_animate = as.logical(is_animate)) %>% 
+		read.csv("data/stimuli/animacy.csv") |> 
+			as_tibble() |> 
+			mutate(is_animate = as.logical(is_animate)) |> 
 			filter(test_language %in% c("Catalan", "Spanish"))
 	}),
+	
 	tar_target(familiarity, 
 			   get_familiarity(
 			   	tokens = unique(unlist(distinct(trials, prime_cdi, target_cdi))),
 			   	type = "understands", # defined in arguments
-			   	update = update, # defined in arguments
 			   	bvq_data = bvq_data)), # defined in arguments
-	tar_target(childes, get_childes_corpora(token = childes_tokens, languages = c("cat", "spa"))),
-	tar_target(frequencies, get_frequency_childes(childes, token = childes_tokens)),
+	
+	tar_target(childes, 
+			   get_childes_corpora(
+			   	token = childes_tokens,
+			   	languages = c("cat", "spa"))),
+	
+	tar_target(frequencies,
+			   get_frequency_childes(
+			   	childes,
+			   	token = childes_tokens)),
+	
 	tar_target(semantic_category,
-			   bvq_data$pool %>% # defined in arguments
-			   	select(word = item, language, semantic_category) %>%
+			   bvq_data$pool |> # defined in arguments
+			   	select(word = item, language, semantic_category) |>
 			   	rename(test_language = language)),
+	
 	# join all stimuli datasets into a single object
 	# see src/R/00_stimuli.R for details on this function
 	tar_target(
@@ -138,8 +123,8 @@ list(
 					familiarity = familiarity,
 					frequencies = frequencies,
 					semantic_category = semantic_category,
-					animacy = animacy)
-	), 
+					animacy = animacy)), 
+	
 	tar_target(stimuli_test, test_stimuli(stimuli)),
 	
 	# participants -------------------------------------------------------------
@@ -152,8 +137,6 @@ list(
 	tar_target(vocabulary,
 			   # see R/02_vocabulary.R for details on this function
 			   get_vocabulary(participants = participants, 
-			   			   update = FALSE,
-			   			   type = "understands",
 			   			   bvq_data = bvq_data)),
 	tar_target(vocabulary_test, test_vocabulary(vocabulary)),
 	
@@ -304,13 +287,13 @@ list(
 			   	file = here("results", "fit_4.rds"))),
 	
 	# compare GCA models
-	tar_target(loos, loo_compare(map(lst(fit_0, fit_1, fit_2, fit_3, fit_4), loo_subsample))),
+	tar_target(loos, loo_compare(map(lst(fit_0, fit_1, fit_2, fit_3, fit_4), loo_subsample)))
 	
 	# render report
-	tar_quarto(report, 
-			   "docs/index.qmd", 
-			   execute = TRUE,
-			   quiet = FALSE)
+	# tar_quarto(report, 
+	# 		   "docs/index.qmd", 
+	# 		   execute = TRUE,
+	# 		   quiet = FALSE)
 )
 
 

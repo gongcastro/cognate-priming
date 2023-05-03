@@ -1,3 +1,5 @@
+# project utils ----------------------------------------------------------------
+
 # run the targets pipeline
 make <- function() {
 	job::job({{ 
@@ -18,6 +20,25 @@ unmake <- function(keep_rds = TRUE) {
 	cli::cli_alert_success("Removed project outputs!")
 }
 
+# resolve namespace conflicts between packages
+resolve_conflicts <- function() {
+	suppressMessages({
+		conflict_prefer("last_warnings", "rlang")
+		conflict_prefer("filter", "dplyr")
+		conflicts_prefer(dplyr::filter)
+		conflict_prefer("between", "dplyr")
+		conflict_prefer("timestamp", "utils")
+		conflict_prefer("ar", "brms")
+		conflict_prefer("chisq.test", "stats")
+		conflict_prefer("discard", "scales")
+		conflict_prefer("duration", "lubridate")
+		conflict_prefer("fisher.test", "stats")
+		conflict_prefer("lag", "dplyr")
+	})
+}
+
+# visualisation utils ----------------------------------------------------------
+
 # custom ggplot theme
 theme_custom <- function(){
 	theme(panel.background = element_rect(fill = "white", colour = NA),
@@ -33,128 +54,41 @@ theme_custom <- function(){
 		  strip.background = element_rect(fill = "white", colour = NA))
 }
 
-# taken from https://www.anthonyschmidt.co/post/2020-06-03-making-apa-tables-with-gt/
-gt_apa <- function(x, title = " "){
-	x %>% 
-		tab_options(
-			table.border.top.color = "white",
-			table_body.hlines.width = 0.75,
-			heading.title.font.size = px(16),
-			column_labels.border.top.width = 0.75,
-			column_labels.border.top.color = "black",
-			column_labels.border.bottom.width = 0.75,
-			column_labels.border.bottom.color = "black",
-			column_labels.vlines.width = 0,
-			stub.border.color = "black",
-			row_group.border.top.width = 0,
-			row_group.border.bottom.width = 0,
-			summary_row.border.color = "black",
-			summary_row.border.width = 0.75,
-			grand_summary_row.border.color = "black",
-			grand_summary_row.border.width = 0.75,
-			grand_summary_row.border.style = 0.75,
-			
-			stub_row_group.border.width = 0,
-			stub.border.width = 0,
-			table_body.border.bottom.color = "black",
-			table.border.bottom.color = "white",
-			table.width = pct(100),
-			table.background.color = "white",
-		) %>%
-		cols_align(align="center") %>%
-		tab_style(
-			style = list(
-				cell_borders(
-					sides = c("top", "bottom"),
-					color = "white",
-					weight = px(1)
-				),
-				cell_text(
-					align="center"
-				),
-				cell_fill(color = "white", alpha = NULL)
-			),
-			locations = cells_body(
-				columns = everything(),
-				rows = everything()
-			)
-		) %>%
-		#title setup
-		tab_header(
-			title = html("<i>", title, "</i>")
-		) %>%
-		opt_align_table_header(align = "left")
-}
+# eyetracking utils ------------------------------------------------------------
 
 # get name dictionary 
 get_name_dictionary <- function(...) {
 	
-	col_name_changes <- c(
-		"participant" = "id",
-		"system_time_stamp" = "time",
-		"l_1" = "l_x",
-		"l_2" = "l_y",
-		"process" = "phase",
-		"r_1" = "r_x",
-		"r_2" = "r_y",
-		"l_user_coord_3" = "l_user_coord_z",
-		"r_user_coord_3" = "r_user_coord_z",
-		"suje_num" = "id",
-		"numtrial_lista" = "trial_num",
-		"trial_num" = "trial_id"
-		
-	)
+	col_name_changes <- c("participant" = "id",
+						  "system_time_stamp" = "time",
+						  "l_1" = "l_x",
+						  "l_2" = "l_y",
+						  "process" = "phase",
+						  "r_1" = "r_x",
+						  "r_2" = "r_y",
+						  "l_user_coord_3" = "l_user_coord_z",
+						  "r_user_coord_3" = "r_user_coord_z",
+						  "suje_num" = "id",
+						  "numtrial_lista" = "trial_num",
+						  "trial_num" = "trial_id")
 	
-	phase_name_changes <- c(
-		"GETTER" = "Getter",
-		"PRIMEIMAGE" = "Prime",
-		"TARGET_DISTRACTOR" = "Target-Distractor",
-		"prime" = "Prime",
-		"primeimage" = "Prime",
-		"target_distractor" = "Target-Distractor"
-	)
+	phase_name_changes <- c("GETTER" = "Getter",
+							"PRIMEIMAGE" = "Prime",
+							"TARGET_DISTRACTOR" = "Target-Distractor",
+							"prime" = "Prime",
+							"primeimage" = "Prime",
+							"target_distractor" = "Target-Distractor")
 	
 	relevant_variables <- c("id", "trial", "trial_id", "phase", "time", "x", "y", "valid_sample")
 	
-	name_dict <- lst(col_name_changes, phase_name_changes, relevant_variables)
+	name_dict <- lst(col_name_changes, 
+					 phase_name_changes, 
+					 relevant_variables)
 	
 	return(name_dict)
 }
 
-# get BVQ data
-get_bvq <- function(update = FALSE,
-					type = "understands"
-){
-	p <- bvq_participants()
-	r <- bvq_responses(p, update = update)
-	l <- bvq_logs(p, r) %>% 
-		select(-id) %>% 
-		rename(id = id_exp) %>% 
-		mutate(age_group = as.factor(case_when(between(age, 19, 24) ~ "21 months",
-											   between(age, 24, 28) ~ "25 months",
-											   between(age, 28, 34) ~ "30 months",
-											   TRUE ~ "Other"))) %>% 
-	select(id, time, age_group, lp)
-	
-	v <- bvq_vocabulary(p, r, scale = "prop", by = "id_exp") %>% 
-		select(-id) %>% 
-		rename(id = id_exp) %>% 
-		filter(type==.env$type) %>% 
-		mutate(age_group =  as.factor(case_when(between(age, 19, 24) ~ "21 months",
-												between(age, 24, 28) ~ "25 months",
-												between(age, 28, 34) ~ "30 months",
-												TRUE ~ "Other"))) %>% 
-		left_join(distinct(l, id, age_group)) %>% 
-		relocate(id, time, age_group, age, type)
-	
-	bvq <- list(participants = p, 
-				responses = r, 
-				logs = l, 
-				vocabulary = v, 
-				pool = bvqdev::pool)
-	
-	return(bvq)
-}
+# stats utils ------------------------------------------------------------------
 
 # adjusted proportion from Gelman, Hill & Vehtari (2020)
 prop_adj <- function(y, n) (y+2)/(n+4)

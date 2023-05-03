@@ -4,7 +4,6 @@ test_participants <- function(participants){
 		expect_equal(
 			colnames(participants),
 			c("id",
-			  "id_db",
 			  "date_test",
 			  "lp",
 			  "doe_catalan",
@@ -20,7 +19,6 @@ test_participants <- function(participants){
 	
 	test_that("participants variables are the right types", {
 		expect_type(participants$id, "character")
-		expect_type(participants$id_db, "character")
 		expect_equal(class(participants$date_test), "Date")
 		expect_type(participants$lp, "integer")
 		expect_type(participants$age_group, "integer")
@@ -33,7 +31,6 @@ test_participants <- function(participants){
 	
 	test_that("participants has no missing data", {
 		expect_false(any(is.na(participants$id)))
-		expect_false(any(is.na(participants$id_db)))
 		expect_false(any(is.na(participants$date_test)))
 		expect_false(any(is.na(participants$lp)))
 		expect_false(any(is.na(participants$age_group)))
