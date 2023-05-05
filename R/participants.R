@@ -19,7 +19,7 @@ get_participants <- function(){
 			filter(!pilot) %>% # remove pilot participants
 			drop_na(id, filename) %>% # remove participants with no gaze data
 			select(id = id_db, date_test, lp, doe_catalan, doe_spanish, doe_others,
-				   age_group, age, test_language, list, version, filename)
+				   age_group, age, test_language, list, version, filename, id_exp = id)
 	})
 	
 	return(participants)

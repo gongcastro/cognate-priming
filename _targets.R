@@ -9,6 +9,9 @@ invisible({
 	lapply(list.files(path = "tests/testthat",
 					  full.names = TRUE, 
 					  pattern = ".R"), source)
+	lapply(list.files(path = "src",
+					  full.names = TRUE, 
+					  pattern = ".R"), source)
 })
 
 # load packages ----------------------------------------------------------------
@@ -147,7 +150,7 @@ list(
 			   	 right = c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790))),
 	
 	tar_target(gaze_normalised, get_gaze_normalised()),
-	tar_target(gaze_joint, get_gaze_joint()),
+	tar_target(gaze_joint, get_gaze_joint(gaze_normalised)),
 	tar_target(gaze_joint_test, test_gaze_joint(gaze_joint)),
 	tar_target(gaze_processed, get_gaze_processed(participants, stimuli, aoi_coords)),
 	tar_target(gaze_processed_test, test_gaze_processed(gaze_processed)),

@@ -9,9 +9,9 @@ test_gaze_imputed <- function(gaze_imputed){
 			  "trial_id",
 			  "phase",
 			  "time",
+			  "valid_sample",
 			  "x",
 			  "y",
-			  "valid_sample",
 			  "is_imputed",
 			  "filename"))
 	})

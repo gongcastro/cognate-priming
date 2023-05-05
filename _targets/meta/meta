@@ -1,125 +1,86 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 .Random.seed|object|d68cfe33652f998c|||||||||||||||
-animacy|stem|fc50b4bd42dd3a87|657b8e0afdad3c19|4e2040876a008ab5|505905828||t19473.4469015682s|43bcac061eabbb19|962|rds|local|vector|||0.02||
-aoi_coords|stem|0ed06bee59aab156|346dc0e6d1e22fe0|0e7f82db1e6d45a8|-1212831886||t19345.6528546633s|ae3ca543e47cf4fd|166|rds|local|vector|||3.14||
+aggregate_data|function|1159e1b19bb6a542|||||||||||||||
+animacy|stem|fc50b4bd42dd3a87|657b8e0afdad3c19|4e2040876a008ab5|505905828||t19480.406204881s|43bcac061eabbb19|962|rds|local|vector|||0.01||
+aoi_coords|stem|e0ef92c54dd5cb8e|346dc0e6d1e22fe0|0e7f82db1e6d45a8|-1212831886||t19480.3895377236s|ae3ca543e47cf4fd|166|rds|local|vector|||6.07|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package conflicted was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package httr was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package polypoly was built under R version 4.2.3. package readxl was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package tidytext was built under R version 4.2.3. package zoo was built under R version 4.2.3|
 attrition|stem|f2783b61b848082d|9f901c8f40474158|5795cff1865cdb85|-1403111462||t19345.6549342597s|e7ae6fba96a3373a|28729|rds|local|vector|||2.03||
 attrition_test|stem|e082e149348ab808|d2636155281e83e0|6d44fb70bc4440a2|-1966628280||t19345.6561221995s|97452b5a3d70b0b8|49|rds|local|vector|||0.45||
-bvq_data|stem|94350863de003a05|baf87c21208eb87c|998f093f6a2ede75|-1902070830||t19479.6093056075s|5ef925d9c1b110d3|1241769|rds|local|vector|||48.47|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package bvq was built under R version 4.2.3. package cli was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package ggplot2 was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package zoo was built under R version 4.2.3|
-childes|stem|6d1ef685115f727f|4a76ebb94f1e3cee|2af4f186bc03d755|-1780705379||t19345.6543663624s|3caa5a62531c33a4|1781|rds|local|vector|||0.02||
-childes_tokens|stem|453ef67fb3ed4feb|fc860800efbd56c1|99086f0f211eef5c|1861806323||t19345.6543447843s|7d645bf271ac4f66|1088|rds|local|vector|||0||
+bvq_data|stem|41b7483b2489d811|baf87c21208eb87c|998f093f6a2ede75|-1902070830||t19480.4062040417s|ff4046872688b8bc|1241761|rds|local|vector|||50.53|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package conflicted was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package httr was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package polypoly was built under R version 4.2.3. package readxl was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package tidytext was built under R version 4.2.3. package zoo was built under R version 4.2.3|
+childes|stem|3120036d5201d481|4a76ebb94f1e3cee|53e337653d47d710|-1780705379||t19480.4101491708s|f32b82de6d470bb1|1780|rds|local|vector|||0.05||
+childes_tokens|stem|31346cace2a73ab0|fc860800efbd56c1|f95631c0936236f9|1861806323||t19480.4101067958s|79191eb1d1f85be6|1087|rds|local|vector|||0||
 df|stem|a4db25a73532bdfa|12a10f94a4e39e62|6f8bd3db9176163d|-1046211958||t19345.6561166523s|c776a17b15718fc4|163326|rds|local|vector|||5.15||
 df_aggregated|stem|0ffc8963b6877e21|04995fa4725142ec|1fe306e7f4b83479|-1953037661||t19347.4357644612s|ea8d072a6877bd41|21052|rds|local|vector|||0.53||
 df_test|stem|e082e149348ab808|42e72d731a3f27d0|386c4fa1e96b7934|-1087413957||t19345.656124081s|97452b5a3d70b0b8|49|rds|local|vector|||0.15||
-familiarity|stem|bbdbe630a9e51523|c2bf6a5f421c074e|0fb81f42646f7679|1978329466||t19479.6428843652s|f31b7de7703d956b|11553|rds|local|vector|||2||
+familiarity|stem|bbdbe630a9e51523|c2bf6a5f421c074e|2d1b1e44a5359bed|1978329466||t19480.4101482211s|f31b7de7703d956b|11553|rds|local|vector|||1.22||
 fit_0|stem|3cd186f6923587b5|2111d4d0914ab9d1|bc5cf0de690ec7c8|-140465254||t19345.6577104858s|683dab875a756226|13803039|rds|local|vector|||136.53||
 fit_1|stem|fac477e206778aca|1a6d2391cfdeff8d|4180ce2206e171a3|-379580647||t19345.6664514049s|23cfddd62d81f8a6|41828012|rds|local|vector|||753.67||
 fit_2|stem|23f18b1e2b40dbb6|ae9578c8b2b902f3|b27c2ff3fcc8f8e0|322593485||t19345.6766222603s|c7e594aa06131c55|41912393|rds|local|vector|||877.09||
 fit_3|stem|4878a4a2ff799aba|102ff408a2ceb615|c780b0a7cc822410|83150402||t19345.7812753969s|d4b4c929484d2d86|317992851|rds|local|vector|||9031.1||
 fit_4|stem|df8d85fcc9c15d46|0e497b8f2b1241cc|253f30b529906668|816979392||t19345.8778354478s|718894f0d47267cc|196420149|rds|local|vector|||8335.17||
+fit_models|function|88fd3e3d9951d368|||||||||||||||
 fit_prior|stem|83cc2050b16bb138|b3d42a6b3f32e3f5|d272468bfb750144|-1910933605||t19345.8779063394s|3dff088fd831333c|14629240|rds|local|vector|||4.55||
-frequencies|stem|12f3f246ee3f6fc2|c2362663ea015c27|9de4bd38f77a9116|-2093894477||t19345.6544324686s|470a40755fbd1319|2511|rds|local|vector|||5.7||
+fix_timestamps|function|626f0255f2e2fe2e|||||||||||||||
+fix_validity|function|a55155283d05c8ea|||||||||||||||
+frequencies|stem|df658a4c4cc6138a|c2362663ea015c27|70ce4568bd90fa7a|-2093894477||t19480.4102629288s|684dde92aa934b1f|2510|rds|local|vector|||9.81||
 gaze_aoi|stem|36e47d9200fc4ed2|86c8720d401f14bf|86b9000acc29db55|-473696643||t19345.6548019225s|9fb44a276d9bf783|45049671|rds|local|vector|||23.81||
 gaze_aoi_test|stem|e082e149348ab808|b9c30f5aa764eff1|89ba6dcfd2173ba2|-211736496||t19345.6552948453s|97452b5a3d70b0b8|49|rds|local|vector|||31.12||
-gaze_imputed|stem|f185e56aea8d8162|e74437574db8ba01|6384460bb3ca0179|-1858305026||t19345.6529684599s|8276b5ffedd308cc|44694433|rds|local|vector|||3.64||
-gaze_imputed_test|stem|e082e149348ab808|ee5c00f433db9f21|813567a001100a2a|192030700||t19345.6543355734s|44989414465ff33d|49|rds|local|vector|||21.09||
-gaze_joint|stem|ef25b68a4c840137|ef99f20260c95152|cce81db80be46cd8|-929817737||t19345.6535324653s|7923707db46ae8a4|49196350|rds|local|vector|||2.2|cannot remove file datagaze02_jointfilenameCognatePriming_001_20190528, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_005_20190910, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_006_20190914_1, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_007_20190921, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_008_20190921_3, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_009_20190921, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_010_20190926, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_011_20190930_2, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_012_20191001, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_013_20191004, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_014_20191004_2, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_015_20191005_2, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_016_20191005, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_017_20191011_2, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_018_20191126_2, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_019_20191128, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_020_20191130, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_021_20191130, reason Permission denied. cannot remove file datagaze02_jointfilenameCognatePriming_022_20191130, reason Pe|
-gaze_joint_test|stem|e082e149348ab808|31940f9fe545de42|d505e21ba6028778|1876825614||t19345.6543645964s|44989414465ff33d|49|rds|local|vector|||0.36||
-gaze_normalised|stem|0bf25546ff171d55|2492af32fc23a82d|4129de51d64536a8|201013753||t19345.654091153s|b820b0556822e1c9|45|rds|local|vector|||47.42|Unknown columns trial_id. Unknown columns trial_id. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion. NAs introduced by coercion|
-gaze_processed|stem|4501a986a03f9ffe|0963820f4be7d612|8949507fb6ee2d78|567014333||t19345.6549088872s|691550879b6c69af|44645984|rds|local|vector|||2.79||
-gaze_processed_test|stem|e082e149348ab808|4434ccab803662f4|b478e9a49e9d3fb4|-658577322||t19345.6553327778s|97452b5a3d70b0b8|49|rds|local|vector|||3.25||
-gt_apa|function|251d6992579e7b62|||||||||||||||
-loos|stem|c4281fd4c343872d|ab9c10bf7fef8b70|f74f163933bc1082|-277576917||t19345.907849595s|b34e039e5362a718|653|rds|local|vector|||2587.06|Different subsamples in fit_1 and fit_3. Naive diff SE is used.. Different subsamples in fit_1 and fit_0. Naive diff SE is used.. Different subsamples in fit_1 and fit_4. Naive diff SE is used.. Different subsamples in fit_1 and fit_2. Naive diff SE is used.|
-model_prior|stem|bab5e2f91024795f|4122c20e34fb6099|1beb2bfaf7fa617f|-1420164522||t19345.6534455927s|e4d8959e1d69ff64|257|rds|local|vector|||0||
-model_prior_agg|stem|534f7211232da896|3f52e44ded2b1edb|1beb2bfaf7fa617f|-1509992535||t19345.6535343859s|bd9cdb2e6c3ecc89|253|rds|local|vector|||0||
-participants|stem|ed5dcad7e6933870|aa04b79d648b0ecd|b44ac953e553d268|392525641||t19479.587645072s|b25213ba370a07be|6151|rds|local|vector|||10.31|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package bvq was built under R version 4.2.3. package cli was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package ggplot2 was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package zoo was built under R version 4.2.3|
-participants_test|stem|32af597cbdb2a163|ffc69402e3973190|cdc5349bb3537ff6|-717703539||t19479.6382216757s|ac45463db19e2cbe|48|rds|local|vector|||1.17||
-report|stem|fcd4ea842420d0b8|f3455f1967245956|d84d7cdd1c3c4b08|-237041703|docs/index.docx*docs/index.html*docs/index.pdf*docs/index.qmd|t19347.4357548337s||10143561|file|local|vector|||122.74||System command quarto.exe failed
-resolve_conficts|stem|15d7f6b08f6e9a66|6130ab64ebc11cb1|324b6cee55869edb|-1176324365||t19473.4469007061s|a1c456b03adbfbf8|44|rds|local|vector|||3.69|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package ggplot2 was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package zoo was built under R version 4.2.3|
-semantic_category|stem|1112338be9b2d883|224625f26adaa2c6|5afaf61f2b646525|-1696339101||t19479.6402582408s|fa823e19749c8d0d|8305|rds|local|vector|||0.02||
-stimuli|stem|61c83c0f2bd588c4|a2e3af4c4fb1dde9|bb0f832e17101f36|1139532200||t19479.646164799s|05a5fe6e364aad67|6553|rds|local|vector|||1.27|Number of logged events 19|
-stimuli_test|stem|e082e149348ab808|7c12b91e2b477208|c9a707622375dd96|277838245||t19345.654442439s|97452b5a3d70b0b8|49|rds|local|vector|||0.21||
-trials|stem|0a4e5139700a3bf2|631eb7e9890e89cb|6b30171067e7723d|1837658601||t19345.6534464122s|b7a0beda3c507d41|10271|rds|local|vector|||0.03||
-vocabulary|stem|3bd960e9442273bb|110cd389a322ca13|17c19d63b916a6fc|-1487046481||t19479.6443372945s|2dd45f5ad6507147|7716|rds|local|vector|||1.2|Number of logged events 126|
-vocabulary_test|stem|32af597cbdb2a163|7b03f1a9e1b14d18|5cd1e8ba46c08357|-1210617018||t19479.6461491351s|ac45463db19e2cbe|48|rds|local|vector|||0.89||
-prop_adj|function|8f984a7e77cc1c9c|||||||||||||||
-get_vocabulary|function|815d9ccc602bdc4a|||||||||||||||
-test_stimuli|function|8326e0aecf7025aa|||||||||||||||
-get_bvq|function|fb23509d52780e52|||||||||||||||
+gaze_imputed|stem|e050e34b4807af64|e74437574db8ba01|3fefef1a56d80495|-1858305026||t19480.440331516s|240faf2335800376|42828908|rds|local|vector|||13.9|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package conflicted was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package httr was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package polypoly was built under R version 4.2.3. package readxl was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package tidytext was built under R version 4.2.3. package zoo was built under R version 4.2.3|
+gaze_imputed_test|stem|e082e149348ab808|ee5c00f433db9f21|b07fe2aa1eb658cc|192030700||t19345.6543355734s||49|rds|local|vector|||0.53||Test failed
 gaze_in_center|function|8ff87c0037e57e05|||||||||||||||
-get_gaze_processed|function|54c7ad40aed7bdb7|||||||||||||||
+gaze_in_left|function|72595a2a57f5f438|||||||||||||||
 gaze_in_right|function|b00efdfee4d44354|||||||||||||||
-test_gaze_joint|function|83dda2bb5656da62|||||||||||||||
-get_name_dictionary|function|ea5947eeb7e3827e|||||||||||||||
-test_df|function|ae1286f5e9760c2a|||||||||||||||
+gaze_joint|stem|33a98ff0f10d67b8|ef99f20260c95152|91134398f2f8b67f|-929817737||t19480.4090191135s||47309808|rds|local|vector|||4.5|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package conflicted was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package httr was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package polypoly was built under R version 4.2.3. package readxl was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package tidytext was built under R version 4.2.3. package zoo was built under R version 4.2.3|el argumento gaze_normalised está ausente, sin valor por omisión
+gaze_joint_test|stem|e082e149348ab808|31940f9fe545de42|d505e21ba6028778|1876825614||t19345.6543645964s|44989414465ff33d|49|rds|local|vector|||0.36||
+gaze_normalised|stem|1984c1f9d1117457|2492af32fc23a82d|d34f09da2c45b8ec|201013753||t19481.7795354939s|376eb18220fcdc5d|94209302|rds|local|vector|||90.78||
+gaze_processed|stem|15c726b56b89eb1b|0963820f4be7d612|c0151559c334f785|567014333||t19480.4102810238s|4b46e8ae20ede711|198|rds|local|vector|||0.39||
+gaze_processed_test|stem|e082e149348ab808|4434ccab803662f4|b478e9a49e9d3fb4|-658577322||t19345.6553327778s|97452b5a3d70b0b8|49|rds|local|vector|||3.25||
 get_attrition|function|8b0537f5e707dbe1|||||||||||||||
+get_bvq|function|fb23509d52780e52|||||||||||||||
 get_childes_corpora|function|02b1b114356ac568|||||||||||||||
 get_emmeans|function|84fc811b2a558bb3|||||||||||||||
-theme_custom|function|dce945bb1ee4166c|||||||||||||||
-gaze_in_left|function|72595a2a57f5f438|||||||||||||||
-test_attrition|function|7b0f8dc9c1485797|||||||||||||||
-test_vocabulary|function|caeb9001b1213607|||||||||||||||
-prop_adj_ci|function|3332254173832f76|||||||||||||||
-test_participants|function|5dd0309f7fd5828b|||||||||||||||
-fit_models|function|88fd3e3d9951d368|||||||||||||||
 get_epreds|function|8028ac66dcc54482|||||||||||||||
-resolve_conflicts|function|5aedeec40da80285|||||||||||||||
-get_frequency_childes|function|eb54f3e6f3c99cba|||||||||||||||
-get_gaze_imputed|function|1e0c939d1bd9c1e4|||||||||||||||
-unmake|function|bf3d99a329d6a87e|||||||||||||||
-get_participants|function|26bece83dae9414d|||||||||||||||
-test_gaze_processed|function|e301ad63c0c32e93|||||||||||||||
-test_gaze_imputed|function|320ea22053553c6b|||||||||||||||
-make|function|f28981ef8d49ed67|||||||||||||||
-get_stimuli|function|66f559eb98c6b558|||||||||||||||
-test_gaze_aoi|function|1a732f268aa41f36|||||||||||||||
-get_posterior_draws|function|7053611033f60e2c|||||||||||||||
-prop_adj_se|function|ea05d30982a97289|||||||||||||||
-get_gaze_normalised|function|988591c348477a02|||||||||||||||
-get_gaze_joint|function|8715508b9e041a7b|||||||||||||||
-make_plots_gaze_processed|function|ca7fadc7e955ed25|||||||||||||||
-make_plots_gaze_raw|function|ad55c8746fa397be|||||||||||||||
-aggregate_data|function|615cadd84c578c84|||||||||||||||
-prepare_data|function|a4208897910fea51|||||||||||||||
-get_gaze_aoi|function|0ed600da8c795dc0|||||||||||||||
 get_familiarity|function|1683106b529641ad|||||||||||||||
-prop_adj|function|8f984a7e77cc1c9c
-get_vocabulary|function|815d9ccc602bdc4a
-test_stimuli|function|8326e0aecf7025aa
-get_bvq|function|fb23509d52780e52
-gaze_in_center|function|8ff87c0037e57e05
-get_gaze_processed|function|54c7ad40aed7bdb7
-gaze_in_right|function|b00efdfee4d44354
-test_gaze_joint|function|83dda2bb5656da62
-get_name_dictionary|function|ea5947eeb7e3827e
-test_df|function|ae1286f5e9760c2a
-get_attrition|function|8b0537f5e707dbe1
-get_childes_corpora|function|02b1b114356ac568
-get_emmeans|function|84fc811b2a558bb3
-theme_custom|function|dce945bb1ee4166c
-gaze_in_left|function|72595a2a57f5f438
-test_attrition|function|7b0f8dc9c1485797
-test_vocabulary|function|caeb9001b1213607
-prop_adj_ci|function|3332254173832f76
-test_participants|function|5dd0309f7fd5828b
-fit_models|function|88fd3e3d9951d368
-get_epreds|function|8028ac66dcc54482
-resolve_conflicts|function|5aedeec40da80285
-get_frequency_childes|function|eb54f3e6f3c99cba
-get_gaze_imputed|function|1e0c939d1bd9c1e4
-unmake|function|bf3d99a329d6a87e
-get_participants|function|26bece83dae9414d
-test_gaze_processed|function|e301ad63c0c32e93
-test_gaze_imputed|function|320ea22053553c6b
-make|function|f28981ef8d49ed67
-get_stimuli|function|66f559eb98c6b558
-test_gaze_aoi|function|1a732f268aa41f36
-get_posterior_draws|function|7053611033f60e2c
-prop_adj_se|function|ea05d30982a97289
-get_gaze_normalised|function|988591c348477a02
-get_gaze_joint|function|8715508b9e041a7b
-make_plots_gaze_processed|function|ca7fadc7e955ed25
-make_plots_gaze_raw|function|ad55c8746fa397be
-aggregate_data|function|615cadd84c578c84
-prepare_data|function|a4208897910fea51
-get_gaze_aoi|function|0ed600da8c795dc0
-get_familiarity|function|1683106b529641ad
+get_frequency_childes|function|eb54f3e6f3c99cba|||||||||||||||
+get_gaze_aoi|function|223ae8074a529fdb|||||||||||||||
+get_gaze_imputed|function|74071ac041228449|||||||||||||||
+get_gaze_joint|function|3ae0a4199351fbd2|||||||||||||||
+get_gaze_normalised|function|6d668c226bfce7a6|||||||||||||||
+get_gaze_processed|function|4c1c78fbbbaa0177|||||||||||||||
+get_name_dictionary|function|de309a0e1112b49b|||||||||||||||
+get_participants|function|e289659e87f28ad7|||||||||||||||
+get_posterior_draws|function|7053611033f60e2c|||||||||||||||
+get_stimuli|function|66f559eb98c6b558|||||||||||||||
+get_vocabulary|function|815d9ccc602bdc4a|||||||||||||||
+gt_apa|function|251d6992579e7b62|||||||||||||||
+loos|stem|c4281fd4c343872d|ab9c10bf7fef8b70|f74f163933bc1082|-277576917||t19345.907849595s|b34e039e5362a718|653|rds|local|vector|||2587.06|Different subsamples in fit_1 and fit_3. Naive diff SE is used.. Different subsamples in fit_1 and fit_0. Naive diff SE is used.. Different subsamples in fit_1 and fit_4. Naive diff SE is used.. Different subsamples in fit_1 and fit_2. Naive diff SE is used.|
+make|function|f28981ef8d49ed67|||||||||||||||
+make_plots_gaze_processed|function|6e9602ddcf178b12|||||||||||||||
+make_plots_gaze_raw|function|c5e46a3df40d2f7d|||||||||||||||
+model_prior|stem|78c19b40923eae57|4122c20e34fb6099|1beb2bfaf7fa617f|-1420164522||t19480.4062044754s|3359bf05477e5075|269|rds|local|vector|||0.01||
+model_prior_agg|stem|29e6a6583328076f|3f52e44ded2b1edb|1beb2bfaf7fa617f|-1509992535||t19481.7781473711s|4ee275e9c5aaed22|265|rds|local|vector|||3.9|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package conflicted was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package httr was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package polypoly was built under R version 4.2.3. package readxl was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package tidytext was built under R version 4.2.3. package zoo was built under R version 4.2.3|
+participants|stem|e4f35f780c6d3a7f|aa04b79d648b0ecd|3bd9ebf022ab7327|392525641||t19480.4150444565s|5b679c2cda25945e|6936|rds|local|vector|||9.5|package arrow was built under R version 4.2.3. package brms was built under R version 4.2.3. package cli was built under R version 4.2.3. package conflicted was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package googlesheets4 was built under R version 4.2.3. package gt was built under R version 4.2.3. package httr was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package polypoly was built under R version 4.2.3. package readxl was built under R version 4.2.3. package testthat was built under R version 4.2.3. package tibble was built under R version 4.2.3. package tidybayes was built under R version 4.2.3. package tidytext was built under R version 4.2.3. package zoo was built under R version 4.2.3|
+participants_test|stem|32af597cbdb2a163|ffc69402e3973190|6d67a7c69e9fe762|-717703539||t19479.6382216757s||48|rds|local|vector|||1.33||Test failed
+prepare_data|function|a4208897910fea51|||||||||||||||
+prop_adj|function|8f984a7e77cc1c9c|||||||||||||||
+prop_adj_ci|function|3332254173832f76|||||||||||||||
+prop_adj_se|function|ea05d30982a97289|||||||||||||||
+report|stem|fcd4ea842420d0b8|f3455f1967245956|d84d7cdd1c3c4b08|-237041703|docs/index.docx*docs/index.html*docs/index.pdf*docs/index.qmd|t19347.4357548337s||10143561|file|local|vector|||122.74||System command quarto.exe failed
+resolve_conficts|stem|15d7f6b08f6e9a66|6130ab64ebc11cb1|0625c05e3cf87891|-1176324365||t19481.7781607111s|a1c456b03adbfbf8|44|rds|local|vector|||1.14||
+resolve_conflicts|function|7bb037736111f1cb|||||||||||||||
+semantic_category|stem|1112338be9b2d883|224625f26adaa2c6|24bf190063a12223|-1696339101||t19480.4101484879s|fa823e19749c8d0d|8305|rds|local|vector|||0||
+stimuli|stem|61c83c0f2bd588c4|a2e3af4c4fb1dde9|262692cb4aff4d99|1139532200||t19480.4102762171s|05a5fe6e364aad67|6553|rds|local|vector|||1.13|Number of logged events 19|
+stimuli_test|stem|e082e149348ab808|7c12b91e2b477208|c9a707622375dd96|277838245||t19345.654442439s|97452b5a3d70b0b8|49|rds|local|vector|||0.21||
+test_attrition|function|7b0f8dc9c1485797|||||||||||||||
+test_df|function|ae1286f5e9760c2a|||||||||||||||
+test_gaze_aoi|function|1a732f268aa41f36|||||||||||||||
+test_gaze_imputed|function|4081cf02dc7725a1|||||||||||||||
+test_gaze_joint|function|83dda2bb5656da62|||||||||||||||
+test_gaze_processed|function|e301ad63c0c32e93|||||||||||||||
+test_participants|function|5dd0309f7fd5828b|||||||||||||||
+test_stimuli|function|8326e0aecf7025aa|||||||||||||||
+test_vocabulary|function|caeb9001b1213607|||||||||||||||
+theme_custom|function|dce945bb1ee4166c|||||||||||||||
+trials|stem|3f312fec8e8b7727|631eb7e9890e89cb|6b30171067e7723d|1837658601||t19480.406205646s|b7a0beda3c507d41|10271|rds|local|vector|||0.05||
+unmake|function|bf3d99a329d6a87e|||||||||||||||
+vocabulary|stem|3bd960e9442273bb|110cd389a322ca13|17c19d63b916a6fc|-1487046481||t19479.6443372945s|2dd45f5ad6507147|7716|rds|local|vector|||1.2|Number of logged events 126|
+vocabulary_test|stem|32af597cbdb2a163|7b03f1a9e1b14d18|5cd1e8ba46c08357|-1210617018||t19479.6461491351s|ac45463db19e2cbe|48|rds|local|vector|||0.89||

@@ -71,7 +71,23 @@ library(bvq)
 
 
 # set ggplot theme and colour palette
-theme_set(theme_custom()) # set custom ggplot theme
+theme_set(
+	theme(
+		panel.background = element_rect(fill = "white", colour = NA),
+		panel.border = element_blank(),
+		panel.grid = element_blank(),
+		plot.background = element_rect(fill = "white", color = NA),
+		legend.key = element_rect(fill = "white", colour = NA),
+		text = element_text(colour = "black", size = 15),
+		axis.text.x = element_text(size = 9),
+		axis.text.y = element_text(size = 9),
+		axis.line = element_line(colour = "black", size = 0.75),
+		strip.text = element_text(size = 13, face = "bold"),
+		strip.background = element_rect(fill = "white", colour = NA)
+	)
+)
+
+# set custom ggplot theme
 clrs <- c("#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600")
 
 options(ggplot2.ordinal.fill = clrs[c(1, 4, 5)],
