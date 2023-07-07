@@ -1,63 +1,80 @@
 # attrition
-get_attrition <- function(
-		gaze_aoi, # Barcelona gaze data, get_gaze_bcn output
-		participants, # participants dataset, get_participants output
-		stimuli, # stimuli dataset, get_stimuli output
-		vocabulary, # vocabulary dataset, get_vocabulary output
-		aoi_coords = aoi_coords,
-		filter_vocabulary = c("prime", "target"), # should the trial be excluded if no comprehension in any of these words? (prime, target, distractor)
-		looking_threshold = c(prime = 0.25, target = 0.25, distractor = 0), # minimum looking time
-		min_trials = c(cognate = 2, non_cognate = 2, unrelated = 2) # minimum n trials in each condition
+get_attrition_trials <- function(
+		gaze_aoi, 
+		participants, 
+		aoi_coords,
+		# minimum looking time in seconds
+		looking_threshold = c(prime = 0.75,
+							  test = 1.00,
+							  test_each = 0.10)
 ){
-	suppressWarnings({
-		
-		valid_gaze <- gaze_aoi %>% 
-			group_by(filename) %>% 
-			mutate(sampling_rate = ifelse(n() < 8e3, 60, 120)) %>% 
-			ungroup() %>% 
-			group_by(id, age_group, trial_type, filename, trial, sampling_rate) %>% 
-			summarise(valid_looking_prime = sum(aoi_prime[phase=="Prime"], na.rm = TRUE), # % of prime looking time during prime
-					  valid_looking_target = sum(aoi_target[phase=="Target-Distractor"], na.rm = TRUE), # % of target looking time during target
-					  valid_looking_distractor = sum(aoi_distractor[phase=="Target-Distractor"], na.rm = TRUE), # % of distractor looking time during target
-					  .groups = "drop") %>% 
-			mutate(across(starts_with("valid_looking_"), ~./sampling_rate)) %>% 
-			select(-sampling_rate) %>% 
-			# evaluate criteria
-			mutate(valid_gaze_prime = valid_looking_prime >= looking_threshold["prime"], 				
-				   valid_gaze_target = valid_looking_target >= looking_threshold["target"],			
-				   valid_gaze_distractor = valid_looking_distractor > looking_threshold["distractor"],
-				   valid_gaze = (valid_gaze_prime & valid_gaze_target & valid_gaze_distractor), # trial meets all gaze criteria
-				   across(starts_with("valid_"), ~ifelse(is.na(.), FALSE, .))) 
-		
-		# valid trials
-		valid_trials <- valid_gaze %>% 
-			# trial meets all gaze and vocabulary criteria
-			mutate(valid_trial = valid_gaze_prime & valid_gaze_target & valid_gaze_distractor) %>% 
-			select(id, age_group, trial_type, trial, starts_with("valid_gaze_"), valid_trial)
-		
-		# valid participants
-		valid_participants <- valid_trials %>% 
-			group_by(id, age_group, trial_type) %>% 
-			summarise(valid_trial_sum = sum(valid_trial, na.rm = TRUE), # number of valid trials by participant, age group and trial type
-					  trial_n = n(), # total number of trials by participant, age, group, and trial type
-					  .groups = "drop") %>% 
-			pivot_wider(-trial_n, names_from = trial_type, values_from = valid_trial_sum, values_fill = 0) %>% 
-			clean_names() %>% 
-			mutate(
-				valid_participant_cognate = cognate >= min_trials["cognate"], # minimum number of cognate trials
-				valid_participant_non_cognate = non_cognate >= min_trials["non_cognate"], # has minimum number of noncognate trials
-				valid_participant_unrelated = unrelated >= min_trials["unrelated"], # has minimum number of unrelated trials
-				valid_participant = valid_participant_cognate & valid_participant_non_cognate & valid_participant_unrelated) # participant fulfils and the conditions above
-		
-		# attrition
-		attrition <- list(gaze_aoi, valid_trials, valid_participants) %>% 
-			reduce(left_join) %>% 
-			distinct(id, age_group, trial, trial_id, trial_type, 
-					 valid_gaze_prime, valid_gaze_target, valid_gaze_distractor,
-					 valid_trial, cognate, non_cognate, unrelated, valid_participant)
-		
-		return(attrition)
-	})
 	
+	attrition_trials <- gaze_aoi |>  
+		fix_sampling_rate(filename, date_onset = "2022-05-26") |>
+		summarise(
+			# % of prime looking time during prime
+			prime_time = sum(is_gaze_prime[phase=="Prime"], 
+							 na.rm = TRUE), 
+			# % of target looking time during target
+			target_time = sum(is_gaze_target[phase=="Target-Distractor"],
+							  na.rm = TRUE), 
+			# % of distractor looking time during target
+			distractor_time = sum(is_gaze_distractor[phase=="Target-Distractor"], 
+								  na.rm = TRUE), 
+			.by = c(id, age_group, trial_type, filename, trial, sampling_rate)) |> 
+		mutate(across(ends_with("_time"), \(x) x / sampling_rate),
+			   test_time = target_time + distractor_time
+		) |> 
+		select(-sampling_rate) |> 
+		# evaluate criteria
+		mutate(
+			is_valid_gaze_prime = prime_time >= looking_threshold["prime"], 				
+			is_valid_gaze_test = test_time >= looking_threshold["test"],
+			is_valid_gaze_test_each =
+				(target_time > looking_threshold["test_each"]) &
+				(distractor_time > looking_threshold["test_each"]),
+			# trial meets all gaze criteria
+			is_valid_gaze = (is_valid_gaze_prime & is_valid_gaze_test & is_valid_gaze_test_each),
+			across(starts_with("is_valid_"), \(x) ifelse(is.na(x), FALSE, x)),
+			is_valid_trial = is_valid_gaze
+		) |> 
+		select(id, age_group, trial_type, trial, 
+			   starts_with("is_valid_gaze_"),
+			   is_valid_trial)
+	
+	return(attrition_trials)
+	
+}
+
+get_attrition_participants <- function(attrition_trials,
+									   participants,
+									   # minimum n trials in each condition
+									   min_trials = c(cognate = 2, 
+									   			   noncognate = 2, 
+									   			   unrelated = 2)) {
+	# valid participants
+	attrition_participants <- attrition_trials |> 
+		summarise(is_valid_trial_sum = sum(is_valid_trial, na.rm = TRUE), # number of valid trials by participant, age group and trial type
+				  trial_n = n(), # total number of trials by participant, age, group, and trial type
+				  .by = c(id, age_group, trial_type)) |> 
+		pivot_wider(id_cols = -trial_n, 
+					names_from = trial_type,
+					values_from = is_valid_trial_sum,
+					values_fill = 0,
+					names_repair = janitor::make_clean_names) |> 
+		rename(noncognate = non_cognate) |> 
+		relocate(noncognate, .after = cognate) |> 
+		mutate(
+			# minimum number of cognate trials
+			is_valid_cognate = cognate >= min_trials["cognate"], 
+			# has minimum number of noncognate trials
+			is_valid_noncognate = noncognate >= min_trials["noncognate"],
+			# has minimum number of unrelated trials
+			is_valid_unrelated = unrelated >= min_trials["unrelated"], 
+			# participant fulfils and the conditions above
+			is_valid_participant = is_valid_cognate & is_valid_noncognate & is_valid_unrelated
+		) 
+	
+	return(attrition_participants)
 }
 

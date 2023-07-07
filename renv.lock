@@ -230,7 +230,7 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "11.0.0.100000321",
+      "Version": "11.0.0.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -248,7 +248,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "c323b7953eada53c49559ccb2d1f778c"
+      "Hash": "e861b81e0b87a2f133a688c985953508"
     },
     "askpass": {
       "Package": "askpass",
@@ -518,7 +518,7 @@
       "Package": "bvq",
       "Version": "0.2.0",
       "Source": "Repository",
-      "RemoteType": "repository",
+      "Repository": "https://gongcastro.r-universe.dev",
       "Remotes": "github::rubenarslan/formr",
       "RemoteUrl": "https://github.com/gongcastro/bvq",
       "RemoteRef": "HEAD",
@@ -538,7 +538,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "849b5392988e5f7cc0d01a0c0647fe18"
+      "Hash": "15ed9e8bdd5f0e2f67da42df8ec85208"
     },
     "cachem": {
       "Package": "cachem",

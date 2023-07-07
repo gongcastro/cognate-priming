@@ -1,83 +1,109 @@
-test_attrition <- function(
-		attrition,
-		missing_trials_threshold = c(cognate = 2,
-									 non_cognate = 2, 
-									 unrelated = 2)
-){
+test_attrition_trials <- function(attrition_trials){
 	
-	test_that("attrition has the right columns", {
+	test_that("attrition_trials has the right columns", {
 		expect_equal(
-			colnames(attrition),
+			colnames(attrition_trials),
 			c("id",
 			  "age_group",
-			  "trial",
-			  "trial_id",
 			  "trial_type",
-			  "valid_gaze_prime",
-			  "valid_gaze_target",
-			  "valid_gaze_distractor",
-			  "valid_trial",
-			  "cognate",
-			  "non_cognate",
-			  "unrelated",
-			  "valid_participant"))
+			  "trial",
+			  "is_valid_gaze_prime",
+			  "is_valid_gaze_test",
+			  "is_valid_gaze_test_each",
+			  "is_valid_trial"))
 	})
 	
-	test_that("attrition has no duplicated combinations of participant and age group", {
+	test_that("attrition_trials has no duplicated combinations of participant and age group", {
 		expect_true(
-			attrition %>% 
-				count(id, age_group, trial) %>% 
-				pull(n) %>% 
-				all(. == 1) 
+			all(count(attrition_trials, id, age_group, trial)$n == 1)
 		)
 	})
 	
 	test_that("attrition has the variable classes", {
-		expect_type(attrition$id, "character")
-		expect_equal(class(attrition$age_group), "character")
-		expect_equal(class(attrition$trial), "integer")
-		expect_equal(class(attrition$trial_id), "integer")
-		expect_type(attrition$trial_type, "character")
-		expect_type(attrition$valid_gaze_prime, "logical")
-		expect_type(attrition$valid_gaze_target, "logical")
-		expect_type(attrition$valid_gaze_distractor, "logical")
-		expect_type(attrition$valid_trial, "logical")
-		expect_type(attrition$cognate, "integer")
-		expect_type(attrition$non_cognate, "integer")
-		expect_type(attrition$unrelated, "integer")
-		expect_type(attrition$valid_participant, "logical")
-		
-		
+		expect_type(attrition_trials$id, "integer")
+		expect_equal(class(attrition_trials$age_group), "character")
+		expect_equal(class(attrition_trials$trial), "integer")
+		expect_type(attrition_trials$trial_type, "character")
+		expect_type(attrition_trials$is_valid_gaze_prime, "logical")
+		expect_type(attrition_trials$is_valid_gaze_test, "logical")
+		expect_type(attrition_trials$is_valid_gaze_test_each, "logical")
+		expect_type(attrition_trials$is_valid_trial, "logical")
 	})
 	
 	test_that("attrition missing data is dealt with", {
-		expect_false(any(is.na(attrition$id)))
-		expect_false(any(is.na(attrition$age_group)))
-		expect_false(any(is.na(attrition$trial)))
-		expect_false(any(is.na(attrition$trial_id)))
-		expect_false(any(is.na(attrition$trial_type)))
-		expect_false(any(is.na(attrition$valid_gaze_prime)))
-		expect_false(any(is.na(attrition$valid_gaze_target)))
-		expect_false(any(is.na(attrition$valid_gaze_distractor)))
-		expect_false(any(is.na(attrition$cognate)))
-		expect_false(any(is.na(attrition$non_cognate)))
-		expect_false(any(is.na(attrition$valid_participant)))
+		expect_false(any(is.na(attrition_trials$id)))
+		expect_false(any(is.na(attrition_trials$age_group)))
+		expect_false(any(is.na(attrition_trials$trial)))
+		expect_false(any(is.na(attrition_trials$trial_type)))
+		expect_false(any(is.na(attrition_trials$is_valid_gaze_prime)))
+		expect_false(any(is.na(attrition_trials$is_valid_gaze_test)))
+		expect_false(any(is.na(attrition_trials$is_valid_gaze_test_each)))
+		expect_false(any(is.na(attrition_trials$is_valid_trial)))
 		
 	})
 	
 	test_that("attrition variables have the right values", {
-		expect_true(all(unique(attrition$age_group) %in% paste0(c(21, 25, 30), " months")))
-		expect_true(all(between(unique(attrition$trial), 0, 32)))
-		expect_true(all(between(unique(attrition$trial_id), 0, 32)))
-		expect_true(all(unique(attrition$trial_type) %in% c("Cognate", "Non-cognate", "Unrelated")))
-		expect_true(all(unique(attrition$valid_gaze_prime) %in% c(TRUE, FALSE)))
-		expect_true(all(unique(attrition$valid_gaze_target) %in% c(TRUE, FALSE)))
-		expect_true(all(unique(attrition$valid_gaze_distractor) %in% c(TRUE, FALSE)))
-		expect_true(all(unique(attrition$valid_trial) %in% c(TRUE, FALSE)))
-		expect_true(all(between(unique(attrition$cognate), 0, 8)))
-		expect_true(all(between(unique(attrition$non_cognate), 0, 8)))
-		expect_true(all(between(unique(attrition$unrelated), 0, 16)))
-		expect_true(all(unique(attrition$valid_participant %in% c(TRUE, FALSE))))
+		expect_true(all(unique(attrition_trials$age_group) %in% paste0(c(21, 25, 30), " months")))
+		expect_true(all(between(unique(attrition_trials$trial), 0, 32)))
+		expect_true(all(unique(attrition_trials$trial_type) %in% c("Cognate", "Non-cognate", "Unrelated")))
+		
+	})
+	
+}
+
+test_attrition_participants <- function(attrition_participants){
+	
+	test_that("attrition_participants has the right columns", {
+		expect_equal(
+			colnames(attrition_participants),
+			c("id",
+			  "age_group",
+			  "cognate",
+			  "noncognate",
+			  "unrelated",
+			  "is_valid_cognate",
+			  "is_valid_noncognate",
+			  "is_valid_unrelated",
+			  "is_valid_participant"))
+	})
+	
+	test_that("attrition_participants has no duplicated combinations of participant and age group", {
+		expect_true(
+			all(count(attrition_participants, id, age_group)$n == 1) 
+		)
+	})
+	
+	test_that("attrition_participants has the variable classes", {
+		expect_type(attrition_participants$id, "integer")
+		expect_equal(class(attrition_participants$age_group), "character")
+		expect_type(attrition_participants$cognate, "integer")
+		expect_type(attrition_participants$noncognate, "integer")
+		expect_type(attrition_participants$unrelated, "integer")
+		expect_type(attrition_participants$is_valid_cognate, "logical")
+		expect_type(attrition_participants$is_valid_noncognate, "logical")
+		expect_type(attrition_participants$is_valid_unrelated, "logical")
+		expect_type(attrition_participants$is_valid_participant, "logical")
+	})
+	
+	test_that("attrition missing data is dealt with", {
+		expect_false(any(is.na(attrition_participants$id)))
+		expect_false(any(is.na(attrition_participants$age_group)))
+		expect_false(any(is.na(attrition_participants$cognate)))
+		expect_false(any(is.na(attrition_participants$noncognate)))
+		expect_false(any(is.na(attrition_participants$unrelated)))
+		expect_false(any(is.na(attrition_participants$is_valid_cognate)))
+		expect_false(any(is.na(attrition_participants$is_valid_noncognate)))
+		expect_false(any(is.na(attrition_participants$is_valid_unrelated)))
+		expect_false(any(is.na(attrition_participants$is_valid_participant)))
+		
+		
+	})
+	
+	test_that("attrition variables have the right values", {
+		expect_true(all(unique(attrition_participants$age_group) %in% paste0(c(21, 25, 30), " months")))
+		expect_true(all(between(unique(attrition_participants$cognate), 0, 8)))
+		expect_true(all(between(unique(attrition_participants$noncognate), 0, 8)))
+		expect_true(all(between(unique(attrition_participants$unrelated), 0, 16)))
 	})
 	
 }

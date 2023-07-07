@@ -1,0 +1,323 @@
+id,session,age_group,pilot,id_db,location,test_language,list,version,date_test,date_birth,age,age_today,sex,doe_spanish,doe_catalan,doe_english,doe_others,lp,comments,filename,filename_visual_preference,valid_participant,informed_consent,vocab_checklist,vocab_questionnaire
+cognatepriming1,1,30,TRUE,56927,Barcelona,Spanish,2,euro,28/05/2019,18/06/2016,35.80,83.87,m,91%,9%,0%,0%,Monolingual,Autism,CognatePriming_001_2019-05-28.csv,,FALSE,,FALSE,FALSE
+cognatepriming2,1,30,TRUE,54904,Barcelona,Catalan,2,ll,03/06/2019,21/11/2017,18.63,66.50,f,7%,93%,0%,0%,Monolingual,Age,CognatePriming_002_2019-06-03.csv,,FALSE,,FALSE,FALSE
+cognatepriming3,1,30,TRUE,53292,Barcelona,Spanish,3,euro,04/06/2019,17/01/2017,28.93,76.77,f,45%,55%,0%,0%,Bilingual,,CognatePriming_003_2019-06-04.csv,,TRUE,,FALSE,FALSE
+cognatepriming4,1,30,TRUE,51273,Barcelona,Catalan,2,ll,19/06/2019,23/02/2017,28.20,75.53,f,0%,100%,0%,0%,Monolingual,,CognatePriming_004_2019-06-19.csv,,TRUE,,FALSE,FALSE
+cognatepriming5,1,30,TRUE,54563,Barcelona,Spanish,1,euro,10/09/2019,09/05/2017,28.47,73.03,m,87%,0%,8%,5%,Monolingual,,CognatePriming_005_2019-09-10.csv,,TRUE,,FALSE,FALSE
+cognatepriming6,1,30,TRUE,57148,Barcelona,Catalan,1,ll,14/09/2019,25/02/2017,31.03,75.47,m,5%,58%,0%,37%,Bilingual,,CognatePriming_006_2019-09-14_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming7,1,30,TRUE,53655,Barcelona,Catalan,2,ll,21/09/2019,26/04/2017,29.27,73.47,f,37%,63%,0%,0%,Bilingual,Pacifier,CognatePriming_007_2019-09-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming8,1,30,TRUE,54202,Barcelona,Spanish,1,euro,22/09/2019,26/04/2017,29.30,73.47,m,54%,46%,0%,0%,Bilingual,Experimental failure,CognatePriming_008_2019-09-21_3.csv,,FALSE,,FALSE,FALSE
+cognatepriming9,1,30,TRUE,52360,Barcelona,Catalan,3,ll,23/09/2019,30/03/2017,30.23,74.37,f,33%,67%,0%,0%,Bilingual,,CognatePriming_009_2019-09-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming10,1,30,TRUE,54322,Barcelona,Catalan,3,ll,26/09/2019,06/07/2017,27.07,71.10,m,45%,55%,0%,0%,Bilingual,,CognatePriming_010_2019-09-26.csv,,TRUE,,FALSE,FALSE
+cognatepriming11,1,30,TRUE,54286,Barcelona,Spanish,1,euro,30/09/2019,26/06/2017,27.53,71.43,f,63%,37%,0%,0%,Bilingual,,CognatePriming_011_2019-09-30_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming12,1,30,TRUE,54169,Barcelona,Spanish,2,euro,01/10/2019,01/05/2017,29.43,73.30,m,51%,49%,0%,0%,Bilingual,,CognatePriming_012_2019-10-01.csv,,TRUE,,FALSE,FALSE
+cognatepriming13,1,30,TRUE,51407,Barcelona,Spanish,1,euro,04/10/2019,28/02/2017,31.60,75.37,m,60%,40%,0%,0%,Bilingual,,CognatePriming_013_2019-10-04.csv,,TRUE,,FALSE,FALSE
+cognatepriming14,1,30,TRUE,52554,Barcelona,Catalan,1,ll,04/10/2019,06/04/2017,30.37,74.13,m,75%,20%,5%,0%,Bilingual,Weird timings,CognatePriming_014_2019-10-04_2.csv,,FALSE,,FALSE,FALSE
+cognatepriming15,1,30,TRUE,52823,Barcelona,Catalan,2,ll,05/10/2019,28/04/2017,29.67,73.40,f,50%,50%,0%,0%,Bilingual,,CognatePriming_015_2019-10-05_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming16,1,30,TRUE,53656,Barcelona,Spanish,2,euro,05/10/2019,27/04/2017,29.70,73.43,m,63%,37%,0%,0%,Bilingual,,CognatePriming_016_2019-10-05.csv,,TRUE,,FALSE,FALSE
+cognatepriming17,1,30,TRUE,54160,Barcelona,Catalan,2,ll,11/10/2019,25/05/2017,28.97,72.50,f,25%,75%,0%,0%,Bilingual,,CognatePriming_017_2019-10-11_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming18,1,30,FALSE,54377,Barcelona,Spanish,1,euro,26/11/2019,20/07/2017,28.63,70.63,m,46%,54%,0%,0%,Bilingual,"Bad calibration, crying, lights on",CognatePriming_018_2019-11-26_2.csv,,FALSE,,FALSE,FALSE
+cognatepriming19,1,30,FALSE,54731,Barcelona,Catalan,2,ll,28/11/2019,13/06/2017,29.93,71.87,m,40%,58%,2%,0%,Bilingual,Valencian,CognatePriming_019_2019-11-28.csv,,TRUE,,FALSE,FALSE
+cognatepriming20,1,30,FALSE,54538,Barcelona,Spanish,1,euro,30/11/2019,04/09/2017,27.23,69.10,f,74%,26%,0%,0%,Bilingual,"Osito, bad calibration, possibly wrong language.",CognatePriming_020_2019-11-30.csv,,FALSE,,FALSE,FALSE
+cognatepriming21,1,30,FALSE,54379,Barcelona,Spanish,2,euro,30/11/2019,21/07/2017,28.73,70.60,f,40%,56%,4%,0%,Bilingual,Wrong laguage,CognatePriming_021_2019-11-30.csv,,TRUE,,FALSE,FALSE
+cognatepriming22,1,30,FALSE,50010,Barcelona,Catalan,3,i,30/11/2019,28/11/2016,36.57,78.43,f,76%,24%,0%,0%,Bilingual,"Wrong language, age",CognatePriming_022_2019-11-30.csv,,FALSE,,FALSE,FALSE
+cognatepriming23,1,30,FALSE,54548,Barcelona,Spanish,3,euro,30/11/2019,05/09/2017,27.20,69.07,m,98%,2%,0%,0%,Monolingual,,CognatePriming_023_2019-11-30.csv,,TRUE,,FALSE,FALSE
+cognatepriming24,1,25,TRUE,55155,Barcelona,Catalan,1,ll,12/12/2019,05/12/2017,24.57,66.03,m,20%,80%,0%,0%,Bilingual,Jan,CognatePriming_024_2019-12-12_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming25,1,30,FALSE,54250,Barcelona,Catalan,1,ll,14/12/2019,13/06/2017,30.47,71.87,m,18%,82%,0%,0%,Monolingual,CDI only on Catalan,CognatePriming_025_2019-12-14.csv,,FALSE,,FALSE,FALSE
+cognatepriming26,1,30,FALSE,54487,Barcelona,Catalan,1,i,14/12/2019,28/08/2017,27.93,69.33,m,43%,57%,0%,0%,Bilingual,"Bad calibration, CDI only in Catalan",CognatePriming_026_2019-12-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming27,1,30,FALSE,54840,Barcelona,Catalan,2,ll,14/12/2019,04/08/2017,28.73,70.13,m,11%,88%,0%,0%,Monolingual,,CognatePriming_027_2019-12-14_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming28,1,30,FALSE,54469,Barcelona,Spanish,3,latin,14/12/2019,13/08/2017,28.43,69.83,f,93%,7%,0%,0%,Monolingual,Argentinian and Chilean,CognatePriming_028_2019-12-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming29,1,30,FALSE,54639,Barcelona,Spanish,1,euro,15/01/2020,02/10/2017,27.83,68.17,m,76%,24%,0%,0%,Bilingual,,CognatePriming_029_2020-01-15.csv,,TRUE,,FALSE,FALSE
+cognatepriming30,1,30,FALSE,54705,Barcelona,Spanish,3,euro,18/01/2020,23/10/2017,27.23,67.47,f,84%,16%,0%,0%,Monolingual,,CognatePriming_030_2020-01-17.csv,,TRUE,,FALSE,FALSE
+cognatepriming31,1,30,FALSE,54680,Barcelona,Spanish,2,euro,17/01/2020,14/10/2017,27.50,67.77,f,66%,44%,0%,0%,Bilingual,,CognatePriming_031_2020-01-18.csv,,TRUE,,FALSE,FALSE
+cognatepriming32,1,30,FALSE,55537,Barcelona,Catalan,2,ll,18/01/2020,05/10/2017,27.83,68.07,m,47%,53%,0%,0%,Bilingual,,CognatePriming_032_2020-01-18_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming33,1,30,FALSE,54717,Barcelona,Spanish,1,euro,23/01/2020,24/10/2017,27.37,67.43,f,82%,18%,0%,0%,Monolingual,,CognatePriming_033_2020-01-23.csv,,TRUE,,FALSE,FALSE
+cognatepriming34,1,30,FALSE,54709,Barcelona,Catalan,1,i,28/01/2020,20/10/2017,27.67,67.57,f,37%,58%,5%,0%,Bilingual,,CognatePriming_034_2020-01-28.csv,,TRUE,,FALSE,FALSE
+cognatepriming35,1,30,FALSE,55108,Barcelona,Catalan,2,ll,01/02/2020,13/11/2017,27.00,66.77,m,46%,50%,0%,4%,Bilingual,"Bad calibration, CDI only in Catalan",CognatePriming_035_2020-02-01.csv,,FALSE,,FALSE,FALSE
+cognatepriming36,1,30,FALSE,54875,Barcelona,Spanish,1,euro,06/02/2020,27/11/2017,26.70,66.30,f,89%,11%,0%,0%,Monolingual,,CognatePriming_036_2020-02-06.csv,,TRUE,,FALSE,FALSE
+cognatepriming37,1,25,FALSE,58059,Barcelona,Spanish,3,euro,08/02/2020,28/02/2018,23.67,63.20,f,48%,2%,20%,30%,Bilingual,,CognatePriming_037_2020-02-08.csv,,FALSE,,FALSE,FALSE
+cognatepriming38,1,30,FALSE,54816,Barcelona,Catalan,3,ll,10/02/2020,11/11/2017,27.37,66.83,m,16%,84%,0%,0%,Monolingual,CDI in Spanish incomplete,CognatePriming_038_2020-02-10.csv,,TRUE,,FALSE,FALSE
+cognatepriming39,1,30,FALSE,54788,Barcelona,Spanish,2,euro,10/02/2020,03/11/2017,27.63,67.10,f,100%,0%,0%,0%,Monolingual,,CognatePriming_039_2020-02-10.csv,,TRUE,,FALSE,FALSE
+cognatepriming40,1,30,FALSE,54866,Barcelona,Catalan,1,ll,14/02/2020,22/11/2017,27.13,66.47,m,15%,85%,0%,0%,Monolingual,New script,CognatePriming_040_2020-02-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming41,1,30,FALSE,54912,Barcelona,Spanish,2,euro,15/02/2020,25/11/2017,27.07,66.37,m,98%,2%,0%,0%,Monolingual,New script,CognatePriming_041_2020-02-15.csv,,TRUE,,FALSE,FALSE
+cognatepriming42,1,30,FALSE,54993,Barcelona,Spanish,3,euro,25/02/2020,19/12/2017,26.60,65.57,f,77%,23%,0%,0%,Bilingual,"New script, potentially bad calibration",CognatePriming_042_2020-02-25.csv,,TRUE,,FALSE,FALSE
+cognatepriming43,1,30,FALSE,54960,Barcelona,Spanish,2,euro,28/02/2020,14/12/2017,26.87,65.73,f,51%,49%,0%,0%,Bilingual,"New script, potentially bad calibration, second attempt",CognatePriming_043_2020-02-28_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming44,1,30,FALSE,54815,Barcelona,Catalan,2,ll,29/02/2020,12/11/2017,27.97,66.80,m,58%,42%,0%,0%,Bilingual,Bad calibration,CognatePriming_044_2020-02-29_1.csv,,FALSE,,FALSE,FALSE
+cognatepriming45,1,21,FALSE,55867,Barcelona,Catalan,1,ll,07/03/2020,25/06/2018,20.70,59.30,m,44%,56%,0%,0%,Bilingual,"Second attempt, lights on",CognatePriming_045_2020-03-07_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming46,1,30,TRUE,55010,Barcelona,Spanish,1,euro,07/03/2020,03/01/2018,26.47,65.07,f,79%,21%,0%,0%,Bilingual,CDI in Catalan incomplete,CognatePriming_046_2020-03-07.csv,,TRUE,,FALSE,FALSE
+cognatepriming47,1,21,FALSE,55877,Barcelona,Catalan,1,ll,11/03/2020,27/06/2018,20.77,59.23,f,0%,100%,0%,0%,Monolingual,,CognatePriming_047_2020-03-11.csv,,TRUE,,FALSE,FALSE
+cognatepriming48,1,21,FALSE,55878,Barcelona,Spanish,2,euro,11/03/2020,27/06/2018,20.77,59.23,m,49%,51%,0%,0%,Bilingual,"CDI in Catalan incomplete, bad calibration, wrong language",CognatePriming_048_2020-03-11.csv,,FALSE,,FALSE,FALSE
+cognatepriming49,1,21,FALSE,56762,Barcelona,Catalan,3,ll,06/11/2020,21/01/2019,21.83,52.30,f,0%,97%,3%,0%,Monolingual,"First baby with COVID protocol, 2nd attempt (2 trials)",CognatePriming_049_2020-11-06_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming50,1,21,FALSE,56937,Barcelona,Catalan,2,ll,07/11/2020,27/02/2019,20.63,51.07,f,0%,100%,0%,0%,Monolingual,,CognatePriming_050_2020-11-07.csv,,TRUE,,FALSE,FALSE
+cognatepriming51,1,21,FALSE,56911,Barcelona,Catalan,1,ll,07/11/2020,15/02/2019,21.03,51.47,m,8%,92%,0%,0%,Monolingual,"Fussy, early stop",CognatePriming_051_2020-11-07.csv,,TRUE,,FALSE,FALSE
+cognatepriming52,1,21,FALSE,56876,Barcelona,Catalan,2,ll,09/11/2020,07/02/2019,21.37,51.73,f,8%,92%,0%,0%,Monolingual,,CognatePriming_052_2020-11-09.csv,,TRUE,,FALSE,FALSE
+cognatepriming53,1,25,FALSE,56334,Barcelona,Catalan,2,ll,14/11/2020,08/10/2018,25.60,55.80,f,7%,91%,3%,0%,Monolingual,,CognatePriming_053_2020-11-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming54,1,21,FALSE,56985,Barcelona,Spanish,1,euro,14/11/2020,12/03/2019,20.43,50.63,f,92%,8%,0%,0%,Monolingual,,CognatePriming_054_2020-11-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming55,1,21,FALSE,56766,Barcelona,Catalan,1,ll,14/11/2020,21/01/2019,22.10,52.30,f,32%,68%,0%,0%,Bilingual,"Revisar. Blue eyes, lost gaze in several trials",CognatePriming_055_2020-11-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming56,1,21,FALSE,56772,Barcelona,Spanish,2,latin,14/11/2020,24/01/2019,22.00,52.20,f,84%,16%,0%,0%,Monolingual,,CognatePriming_056_2020-11-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming57,1,21,FALSE,56771,Barcelona,Catalan,3,ll,16/11/2020,24/02/2019,21.03,51.17,m,45%,55%,0%,0%,Bilingual,Bad calibration,CognatePriming_057_2020-11-16.csv,,TRUE,,FALSE,FALSE
+cognatepriming58,1,25,FALSE,56232,Barcelona,Catalan,3,ll,17/11/2020,26/09/2018,26.10,56.20,m,20%,80%,0%,0%,Monolingual,,CognatePriming_058_2020-11-17.csv,,TRUE,,FALSE,FALSE
+cognatepriming59,1,25,FALSE,56346,Barcelona,Catalan,2,ll,18/11/2020,08/10/2018,25.73,55.80,m,3%,97%,0%,0%,Monolingual,,CognatePriming_059_2020-11-18.csv,,TRUE,,FALSE,FALSE
+cognatepriming60,1,25,FALSE,56366,Barcelona,Spanish,3,euro,19/11/2020,15/10/2018,25.53,55.57,f,77%,23%,0%,0%,Bilingual,2nd attempt (crying),CognatePriming_060_2020-11-19_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming61,1,25,FALSE,56224,Barcelona,Spanish,2,euro,05/12/2020,26/09/2018,26.70,56.20,m,70%,30%,0%,0%,Bilingual,Recitados para dos semanas después,CognatePriming_061_2020-12-05.csv,,FALSE,,FALSE,FALSE
+cognatepriming62,1,21,FALSE,56995,Barcelona,Catalan,1,ll,21/11/2020,13/03/2019,20.63,50.60,m,0%,99%,1%,0%,Monolingual,,CognatePriming_062_2020-11-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming64,1,25,FALSE,56237,Barcelona,Spanish,1,latin,21/11/2020,29/09/2018,26.13,56.10,f,1%,99%,0%,0%,Monolingual,Bad calibration,CognatePriming_064_2020-11-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming65,1,25,FALSE,56363,Barcelona,Catalan,1,ll,25/11/2020,16/10/2018,25.70,55.53,f,0%,100%,0%,0%,Monolingual,Too far,CognatePriming_065_2020-11-25.csv,,FALSE,,FALSE,FALSE
+cognatepriming66,1,25,FALSE,56465,Barcelona,Spanish,1,euro,26/11/2020,10/11/2018,24.90,54.70,f,63%,37%,0%,0%,Bilingual,,CognatePriming_066_2020-11-26.csv,,TRUE,,FALSE,FALSE
+cognatepriming67,1,25,FALSE,56374,Barcelona,Catalan,1,ll,27/11/2020,21/10/2018,25.60,55.37,f,47%,53%,0%,0%,Bilingual,,CognatePriming_067_2020-11-27.csv,,TRUE,,FALSE,FALSE
+cognatepriming68,1,25,FALSE,56523,Barcelona,Catalan,1,ll,27/11/2020,24/11/2018,24.47,54.23,m,37%,63%,0%,0%,Bilingual,,CognatePriming_068_2020-11-27.csv,,TRUE,,FALSE,FALSE
+cognatepriming69,1,25,FALSE,56352,Barcelona,Spanish,2,euro,28/11/2020,14/10/2018,25.87,55.60,m,92%,5%,3%,0%,Monolingual,,CognatePriming_069_2020-11-28.csv,,TRUE,,FALSE,FALSE
+cognatepriming70,1,21,FALSE,57059,Barcelona,Spanish,3,euro,01/12/2020,27/03/2019,20.50,50.13,f,98%,2%,0%,0%,Monolingual,"Weird position, only one eye registered, but seems fine",CognatePriming_070_2020-12-01.csv,,TRUE,,FALSE,FALSE
+cognatepriming71,1,21,FALSE,56984,Barcelona,Catalan,1,ll,01/12/2020,11/03/2019,21.03,50.67,m,29%,71%,0%,0%,Bilingual,Fussy at the end,CognatePriming_071_2020-12-01.csv,,TRUE,,FALSE,FALSE
+cognatepriming72,1,21,FALSE,57028,Barcelona,Spanish,3,euro,04/12/2020,20/03/2019,20.83,50.37,m,86%,14%,0%,0%,Monolingual,,CognatePriming_072_2020-12-04.csv,,TRUE,,FALSE,FALSE
+cognatepriming73,1,21,FALSE,57062,Barcelona,Spanish,2,euro,04/12/2020,28/03/2019,20.57,50.10,m,97%,1%,2%,0%,Monolingual,,CognatePriming_073_2020-12-04.csv,,FALSE,,FALSE,FALSE
+cognatepriming74,1,25,FALSE,56371,Barcelona,Catalan,3,ll,05/12/2020,18/10/2018,25.97,55.47,f,97%,3%,0%,0%,Monolingual,,CognatePriming_074_2020-12-05.csv,,FALSE,,FALSE,FALSE
+cognatepriming75,1,25,FALSE,56528,Barcelona,Catalan,2,ll,09/12/2020,26/11/2018,24.80,54.17,m,19%,81%,0%,0%,Monolingual,,CognatePriming_075_2020-12-09.csv,,TRUE,,FALSE,FALSE
+cognatepriming76,1,21,FALSE,57436,Barcelona,Spanish,1,euro,12/12/2020,25/03/2019,20.93,50.20,m,48%,52%,0%,0%,Bilingual,,CognatePriming_076_2020-12-12.csv,,TRUE,,FALSE,FALSE
+cognatepriming77,1,21,FALSE,57139,Barcelona,Catalan,2,ll,12/12/2020,10/04/2019,20.40,49.67,m,0%,100%,0%,0%,Monolingual,,CognatePriming_077_2020-12-12.csv,,TRUE,,FALSE,FALSE
+cognatepriming78,1,21,FALSE,57050,Barcelona,Catalan,3,ll,16/12/2020,26/03/2019,21.03,50.17,f,0%,100%,0%,0%,Monolingual,"Crying, couldn't be tested",CognatePriming_078_2020-12-16.csv,,FALSE,,FALSE,FALSE
+cognatepriming79,1,21,FALSE,57157,Barcelona,Catalan,3,ll,16/12/2020,16/04/2019,20.33,49.47,m,0%,100%,0%,0%,Monolingual,Moving a lot,CognatePriming_079_2020-12-16.csv,,TRUE,,FALSE,FALSE
+cognatepriming80,1,21,FALSE,56344,Barcelona,Spanish,3,euro,19/12/2020,08/10/2018,26.77,55.80,f,60%,40%,0%,0%,Bilingual,,CognatePriming_080_2020-12-19_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming81,1,21,FALSE,57092,Barcelona,Catalan,3,ll,21/12/2020,03/04/2019,20.93,49.90,f,4%,96%,0%,0%,Monolingual,,CognatePriming_081_2020-12-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming82,1,21,FALSE,57097,Barcelona,Spanish,3,euro,21/12/2020,04/04/2019,20.90,49.87,f,100%,0,0%,0%,Monolingual,,CognatePriming_082_2020-12-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming83,1,21,FALSE,57111,Barcelona,Spanish,2,euro,16/01/2021,05/04/2019,21.73,49.83,f,82%,8%,0%,0%,Monolingual,,CognatePriming_083_2021-01-16.csv,,TRUE,,FALSE,FALSE
+cognatepriming84,1,21,FALSE,57177,Barcelona,Catalan,1,ll,22/01/2021,29/04/2019,21.13,49.03,m,1%,99%,0%,0%,Monolingual,,CognatePriming_084_2021-01-22.csv,,TRUE,,FALSE,FALSE
+cognatepriming85,1,21,FALSE,57170,Barcelona,Catalan,2,ll,22/01/2021,24/04/2019,21.30,49.20,m,0%,100%,0%,0%,Monolingual,,CognatePriming_085_2021-01-22.csv,,FALSE,,FALSE,FALSE
+cognatepriming86,1,21,FALSE,57159,Barcelona,Catalan,3,i,29/01/2021,21/04/2019,21.63,49.30,f,62%,38%,0%,0%,Bilingual,Wrong language,CognatePriming_086_2021-01-29.csv,,TRUE,,FALSE,FALSE
+cognatepriming87,1,21,FALSE,57201,Barcelona,Catalan,2,ll,30/01/2021,07/05/2019,21.13,48.77,f,5%,95%,0%,0%,Monolingual,,CognatePriming_087_2021-01-30.csv,,TRUE,,FALSE,FALSE
+cognatepriming88,1,21,FALSE,57222,Barcelona,Spanish,3,euro,30/01/2021,10/05/2019,21.03,48.67,f,61%,39%,0%,0%,Bilingual,,CognatePriming_088_2021-01-30.csv,,TRUE,,FALSE,FALSE
+cognatepriming89,1,21,FALSE,57241,Barcelona,Catalan,3,ll,02/02/2021,13/05/2019,21.03,48.57,m,3%,97%,0%,0%,Monolingual,,CognatePriming_089_2021-02-02.csv,,TRUE,,FALSE,FALSE
+cognatepriming90,1,21,FALSE,57427,Barcelona,Catalan,1,ll,06/02/2021,03/05/2019,21.50,48.90,f,45%,55%,0%,0%,Bilingual,,CognatePriming_090_2021-02-06_2.csv,,TRUE,,FALSE,FALSE
+cognatepriming91,1,21,FALSE,57165,Barcelona,Spanish,1,euro,06/02/2021,25/04/2019,21.77,49.17,m,97%,3%,0%,0%,Monolingual,,CognatePriming_091_2021-02-06.csv,,TRUE,,FALSE,FALSE
+cognatepriming92,1,21,FALSE,57250,Barcelona,Catalan,2,ll,06/02/2021,18/05/2019,21.00,48.40,f,10%,90%,0%,0%,Monolingual,,CognatePriming_092_2021-02-06.csv,,TRUE,,FALSE,FALSE
+cognatepriming93,1,21,FALSE,57273,Barcelona,Spanish,1,euro,13/02/2021,22/05/2019,21.10,48.27,m,72%,28%,0%,0%,Bilingual,,CognatePriming_093_2021-02-13.csv,,TRUE,,FALSE,FALSE
+cognatepriming49,2,25,FALSE,56762,Barcelona,Catalan,3,ll,13/02/2021,21/01/2019,25.13,52.30,f,3%,97%,0%,0%,Monolingual,First longitudinal baby,CognatePriming_049_2021-02-13.csv,,TRUE,,FALSE,FALSE
+cognatepriming94,1,21,FALSE,57243,Barcelona,Spanish,1,euro,13/02/2021,15/05/2019,21.33,48.50,f,100%,0%,0%,0%,Monolingual,,CognatePriming_094_2021-02-13.csv,,FALSE,,FALSE,FALSE
+cognatepriming95,1,21,FALSE,57227,Barcelona,Catalan,1,ll,13/02/2021,13/05/2019,21.40,48.57,f,5%,95%,0%,0%,Monolingual,"Technical problems, invalid 1/3 ",CognatePriming_095_2021-02-13_1.csv,,FALSE,,FALSE,FALSE
+cognatepriming96,1,21,FALSE,57324,Barcelona,Catalan,1,ll,13/02/2021,05/06/2019,20.63,47.80,m,97%,3%,0%,0%,Monolingual,Moving a lot,CognatePriming_096_2021-02-13.csv,,TRUE,,FALSE,FALSE
+cognatepriming97,1,21,FALSE,57374,Barcelona,Spanish,2,euro,19/02/2021,19/06/2019,20.37,47.33,f,100%,0%,0%,0%,Monolingual,,CognatePriming_097_2021-02-19.csv,,TRUE,,FALSE,FALSE
+cognatepriming98,1,21,FALSE,57337,Barcelona,Catalan,2,ll,20/02/2021,10/06/2019,20.70,47.63,f,27%,73%,0%,0%,Bilingual,,CognatePriming_098_2021-02-20.csv,,TRUE,,FALSE,FALSE
+cognatepriming55,2,25,FALSE,56766,Barcelona,Catalan,1,ll,20/02/2021,21/01/2019,25.37,52.30,f,31%,67%,0%,2%,Bilingual,,CognatePriming_055_2021-02-20_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming99,1,21,FALSE,57239,Barcelona,Spanish,2,euro,20/02/2021,13/05/2019,21.63,48.57,m,70%,30%,0%,0%,Bilingual,,CognatePriming_099_2021-02-20_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming100,1,21,FALSE,57274,Barcelona,Catalan,3,ll,20/02/2021,22/05/2019,21.33,48.27,f,34%,66%,0%,0%,Bilingual,,CognatePriming_100_2021-02-20_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming101,1,21,FALSE,57240,Barcelona,Catalan,2,ll,20/02/2021,14/05/2019,21.60,48.53,m,0%,100%,0%,0%,Monolingual,,CognatePriming_101_2021-02-20_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming102,1,21,FALSE,57839 ,Barcelona,Catalan,1,ll,26/02/2021,03/06/2019,21.13,47.87,f,0%,100%,0%,0%,Monolingual,,CognatePriming_102_2021-02-26.csv,,TRUE,,FALSE,FALSE
+cognatepriming103,1,21,FALSE,57336,Barcelona,Catalan,2,i,27/02/2021,08/06/2019,21.00,47.70,m,34%,66%,0%,0%,Bilingual,,CognatePriming_103_2021-02-27.csv,,TRUE,,FALSE,FALSE
+cognatepriming104,1,21,FALSE,57340,Barcelona,Spanish,3,euro,27/02/2021,10/06/2019,20.93,47.63,m,100%,0%,0%,0%,Monolingual,,CognatePriming_104_2021-02-27.csv,,TRUE,,FALSE,FALSE
+cognatepriming105,1,21,FALSE,57293,Barcelona,Catalan,2,ll,27/02/2021,29/05/2019,21.33,48.03,m,44%,56%,0%,0%,Bilingual,,CognatePriming_105_2021-02-27_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming57,2,25,FALSE,56771,Barcelona,Catalan,3,ll,05/03/2021,24/02/2019,24.67,51.17,m,45%,55%,0%,0%,Bilingual,Moving a lot,CognatePriming_057_2021-03-05.csv,,TRUE,,FALSE,FALSE
+cognatepriming51,2,25,FALSE,56911,Barcelona,Catalan,1,ll,06/03/2021,15/02/2019,25.00,51.47,m,8%,92%,0%,0%,Monolingual,,CognatePriming_051_2021-03-06_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming106,1,21,FALSE,58347,Barcelona,Spanish,1,euro,13/03/2021,08/07/2019,20.47,46.70,m,74%,26%,0%,0%,Bilingual,"Very fussy, did not complete more than 3 trials",CognatePriming_106_2021-03-13_1.csv,,FALSE,,FALSE,FALSE
+cognatepriming50,2,25,FALSE,56937,Barcelona,Catalan,2,ll,13/03/2021,27/02/2019,24.83,51.07,f,1%,99%,0%,0%,Monolingual,,CognatePriming_050_2021-03-13.csv,,TRUE,,FALSE,FALSE
+cognatepriming107,1,21,FALSE,58328,Barcelona,Catalan,1,ll,13/03/2021,13/06/2019,21.30,47.53,f,0%,100%,0%,0%,Monolingual,,CognatePriming_107_2021-03-13.csv,,TRUE,,FALSE,FALSE
+cognatepriming108,1,21,FALSE,57464,Barcelona,Spanish,2,euro,15/03/2021,10/07/2019,20.47,46.63,f,56%,44%,0%,0%,Bilingual,Moving,CognatePriming_108_2021-03-15.csv,,TRUE,,FALSE,FALSE
+cognatepriming54,2,25,FALSE,56985,Barcelona,Spanish,1,euro,17/03/2021,12/03/2019,24.53,50.63,f,91%,9%,0%,0%,Monolingual,,CognatePriming_054_2021-03-17.csv,,TRUE,,FALSE,FALSE
+cognatepriming74,2,30,FALSE,56371,Barcelona,Catalan,3,ll,20/03/2021,18/10/2018,29.47,55.47,f,2%,98%,0%,0%,Monolingual,Very bad calibration,CognatePriming_074_2021-03-20_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming52,2,25,FALSE,56876,Barcelona,Catalan,2,ll,22/03/2021,07/02/2019,25.80,51.73,f,8%,92%,0%,0%,Monolingual,,CognatePriming_052_2021-03-22.csv,,TRUE,,FALSE,FALSE
+cognatepriming64,2,30,FALSE,56237,Barcelona,Spanish,1,latin,10/04/2021,29/09/2018,30.80,56.10,f,95%,5%,0%,0%,Monolingual,,CognatePriming_064_2021-04-10_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming62,2,25,FALSE,56995,Barcelona,Catalan,1,ll,10/04/2021,13/03/2019,25.30,50.60,m,0%,99%,1%,0%,Monolingual,Mildly bad calibration,CognatePriming_062_2021-04-10_1.csv,,FALSE,,FALSE,FALSE
+cognatepriming80,2,30,FALSE,56344,Barcelona,Spanish,3,euro,10/04/2021,08/10/2018,30.50,55.80,f,58%,42%,0%,0%,Bilingual,,CognatePriming_080_2021-04-10.csv,,TRUE,,FALSE,FALSE
+cognatepriming59,2,30,FALSE,56346,Barcelona,Catalan,2,ll,13/04/2021,08/10/2018,30.60,55.80,m,3%,97%,0%,0%,Monolingual,,CognatePriming_059_2021-04-13.csv,,TRUE,,FALSE,FALSE
+cognatepriming109,1,21,FALSE,57462,Barcelona,Catalan,3,ll,14/04/2021,10/07/2019,21.47,46.63,m,29%,71%,0%,0%,Bilingual,Lower volume,CognatePriming_109_2021-04-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming110,1,21,FALSE,57480,Barcelona,Catalan,2,ll,17/04/2021,17/07/2019,21.33,46.40,f,42%,58%,0%,0%,Bilingual,"Crying, no trials",,,FALSE,,FALSE,FALSE
+cognatepriming111,1,30,FALSE,58319,Barcelona,Catalan,3,ll,17/04/2021,19/11/2018,29.33,54.40,m,38%,62%,0%,0%,Bilingual,,CognatePriming_111_2021-04-17.csv,,TRUE,,FALSE,FALSE
+cognatepriming53,2,30,FALSE,56334,Barcelona,Catalan,2,ll,17/04/2021,08/10/2018,30.73,55.80,f,8%,92%,1%,0%,Monolingual,,CognatePriming_053_2021-04-17.csv,,TRUE,,FALSE,FALSE
+cognatepriming67,2,30,FALSE,56374,Barcelona,Catalan,1,ll,22/04/2021,21/10/2018,30.47,55.37,f,46%,54%,0%,0%,Bilingual,,CognatePriming_067_2021-04-22.csv,,TRUE,,FALSE,FALSE
+cognatepriming65,2,30,FALSE,56363,Barcelona,Catalan,1,ll,22/04/2021,16/10/2018,30.63,55.53,f,0%,100%,0%,0%,Monolingual,,CognatePriming_065_2021-04-22.csv,,TRUE,,FALSE,FALSE
+cognatepriming60,2,30,FALSE,56366,Barcelona,Spanish,3,euro,26/04/2021,15/10/2018,30.80,55.57,f,75%,25%,0%,0%,Bilingual,,CognatePriming_060_2021-04-26.csv,,TRUE,,FALSE,FALSE
+cognatepriming58,2,30,FALSE,56232,Barcelona,Catalan,3,ll,28/04/2021,26/09/2018,31.50,56.20,m,20%,80%,0%,0%,Bilingual,,CognatePriming_058_2021-04-28.csv,,TRUE,,FALSE,FALSE
+cognatepriming70,2,25,FALSE,57059,Barcelona,Spanish,3,euro,28/04/2021,27/03/2019,25.43,50.13,f,96%,4%,0%,0%,Monolingual,Slighly bad claibration,CognatePriming_070_2021-04-28.csv,,TRUE,,FALSE,FALSE
+cognatepriming72,2,25,FALSE,57028,Barcelona,Spanish,3,euro,29/04/2021,20/03/2019,25.70,50.37,m,84%,16%,0%,0%,Monolingual,,CognatePriming_072_2021-04-29_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming78,2,25,FALSE,57050,Barcelona,Catalan,3,ll,29/04/2021,26/03/2019,25.50,50.17,f,0%,100%,0%,0%,Monolingual,,CognatePriming_078_2021-04-29.csv,,TRUE,,FALSE,FALSE
+cognatepriming73,2,25,FALSE,57062,Barcelona,Spanish,2,euro,30/04/2021,28/03/2019,25.47,50.10,m,96%,1%,3%,0%,Monolingual,"Bad calibration, wrong language, last vocabulary checklist",CognatePriming_073_2021-04-30_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming81,2,25,FALSE,57092,Barcelona,Catalan,3,ll,03/05/2021,03/04/2019,25.37,49.90,f,5%,95%,0%,0%,Monolingual,,CognatePriming_081_2021-05-03.csv,,TRUE,,FALSE,FALSE
+cognatepriming82,2,25,FALSE,57097,Barcelona,Spanish,3,euro,07/05/2021,04/04/2019,25.47,49.87,f,100%,0%,0%,0%,Monolingual,,CognatePriming_082_2021-05-07.csv,,TRUE,,FALSE,FALSE
+cognatepriming76,2,25,FALSE,57436,Barcelona,Spanish,1,euro,08/05/2021,25/03/2019,25.83,50.20,m,48%,52%,0%,0%,Bilingual,,CognatePriming_076_2021-05-08.csv,,TRUE,,FALSE,FALSE
+cognatepriming69,2,30,FALSE,56352,Barcelona,Spanish,2,euro,08/05/2021,14/10/2018,31.23,55.60,m,91%,6%,3%,0%,Monolingual,,CognatePriming_069_2021-05-08.csv,,TRUE,,FALSE,FALSE
+cognatepriming84,2,25,FALSE,57177,Barcelona,Catalan,1,ll,12/05/2021,29/04/2019,24.80,49.03,m,0%,100%,0%,0%,Monolingual,Tired mid-task,CognatePriming_084_2021-05-12.csv,,TRUE,,FALSE,FALSE
+cognatepriming86,2,25,FALSE,57159,Barcelona,Spanish,3,euro,14/05/2021,21/04/2019,25.13,49.30,f,60%,40%,0%,0%,Bilingual,,CognatePriming_086_2021-05-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming112,1,21,FALSE,57537,Barcelona,Catalan,2,ll,14/05/2021,02/08/2019,21.70,45.87,m,0%,100%,0%,0%,Monolingual,,CognatePriming_112_2021-05-14.csv,,TRUE,,FALSE,FALSE
+cognatepriming113,1,21,FALSE,57534,Barcelona,Catalan,1,ll,15/05/2021,03/08/2019,21.70,45.83,f,1%,99%,0%,0%,Monolingual,,CognatePriming_113_2021-05-15.csv,,TRUE,,FALSE,FALSE
+cognatepriming79,2,25,FALSE,57157,Barcelona,Catalan,3,ll,17/05/2021,16/04/2019,25.40,49.47,m,0%,100%,0%,0%,Monolingual,Jumped off the chair mid-task,CognatePriming_079_2021-05-17_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming114,1,21,FALSE,57566,Barcelona,Spanish,2,euro,19/05/2021,25/08/2019,21.10,45.10,f,88%,12%,0%,0%,Monolingual,,CognatePriming_114_2021-05-19.csv,,TRUE,,TRUE,FALSE
+cognatepriming115,1,21,FALSE,57559,Barcelona,Spanish,2,euro,22/05/2021,24/08/2019,21.23,45.13,m,85%,15%,0%,0%,Monolingual,Slighly bad calibrationç,CognatePriming_115_2021-05-22.csv,,TRUE,,TRUE,FALSE
+cognatepriming75,2,30,FALSE,56528,Barcelona,Catalan,2,ll,26/05/2021,26/11/2018,30.40,54.17,m,20%,80%,0%,0%,Monolingual,Had to restart after one trial due to bad calibration,CognatePriming_075_2021-05-26.csv,,TRUE,,TRUE,FALSE
+cognatepriming116,1,21,FALSE,57575,Barcelona,Catalan,1,ll,27/05/2021,25/08/2019,21.37,45.10,f,0%,100%,0%,0%,Monolingual,,CognatePriming_116_2021-05-27.csv,,TRUE,,TRUE,FALSE
+cognatepriming117,1,21,FALSE,57642,Barcelona,Spanish,1,euro,27/05/2021,18/09/2019,20.57,44.30,m,58%,42%,0%,0%,Bilingual,,CognatePriming_117_2021-05-27.csv,,TRUE,,TRUE,FALSE
+cognatepriming118,1,21,FALSE,57552,Barcelona,Spanish,3,euro,29/05/2021,19/08/2019,21.63,45.30,m,0%,100%,0%,0%,Monolingual,,CognatePriming_118_2021-05-29.csv,,TRUE,,TRUE,FALSE
+cognatepriming119,1,21,FALSE,57613,Barcelona,Catalan,3,ll,01/06/2021,17/09/2019,20.77,44.33,m,0%,100%,0%,0%,Monolingual,,CognatePriming_119_2021-06-01.csv,,TRUE,,TRUE,FALSE
+cognatepriming120,1,21,FALSE,57569,Barcelona,Catalan,2,ll,08/06/2021,24/08/2019,21.80,45.13,m,25%,75%,0%,0%,Bilingual,,CognatePriming_120_2021-06-08_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming92,2,25,FALSE,57250,Barcelona,Catalan,1,ll,08/06/2021,18/05/2019,25.07,48.40,f,10%,90%,0%,0%,Monolingual,,CognatePriming_092_2021-06-08.csv,,TRUE,,TRUE,FALSE
+cognatepriming121,1,21,FALSE,57666,Barcelona,Catalan,3,ll,08/06/2021,26/09/2019,20.70,44.03,f,0%,100%,0%,0%,Monolingual,,CognatePriming_121_2021-06-08.csv,,TRUE,,TRUE,FALSE
+cognatepriming100,2,25,FALSE,57274,Barcelona,Catalan,3,ll,14/06/2021,22/05/2019,25.13,48.27,f,36%,64%,0%,0%,Bilingual,,CognatePriming_100_2021-06-14.csv,,TRUE,,TRUE,FALSE
+cognatepriming91,2,25,FALSE,57165,Barcelona,Spanish,1,euro,18/06/2021,25/04/2019,26.17,49.17,m,95%,5%,0%,0%,Monolingual,,CognatePriming_091_2021-06-18.csv,,TRUE,,TRUE,FALSE
+cognatepriming122,1,21,FALSE,58233,Barcelona,Catalan,1,i,19/06/2021,18/09/2019,21.33,44.30,m,28%,72%,0%,0%,Bilingual,,CognatePriming_122_2021-06-19_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming90,2,25,FALSE,57427,Barcelona,Catalan,1,ll,19/06/2021,03/05/2019,25.93,48.90,f,38%,62%,0%,0%,Bilingual,,CognatePriming_090_2021-06-19.csv,,TRUE,,TRUE,FALSE
+cognatepriming123,1,21,FALSE,57597,Barcelona,Spanish,3,euro,19/06/2021,08/09/2019,21.67,44.63,m,57%,43%,0%,0%,Bilingual,,CognatePriming_123_2021-06-19.csv,,TRUE,,FALSE,FALSE
+cognatepriming124,1,21,FALSE,57707,Barcelona,Spanish,2,latin,25/06/2021,09/10/2019,20.83,43.60,f,79%,21%,0%,0%,Bilingual,,CognatePriming_124_2021-06-25.csv,,TRUE,,TRUE,FALSE
+cognatepriming88,2,25,FALSE,57222,Barcelona,Spanish,3,euro,26/06/2021,10/05/2019,25.93,48.67,f,58%,42%,0%,0%,Bilingual,,CognatePriming_088_2021-06-26.csv,,TRUE,,TRUE,FALSE
+cognatepriming125,1,21,FALSE,57660,Barcelona,Catalan,2,ll,26/06/2021,23/09/2019,21.40,44.13,m,0,100%,0%,0%,Monolingual,,CognatePriming_125_2021-06-26.csv,,TRUE,,TRUE,FALSE
+cognatepriming126,1,21,FALSE,57595,Barcelona,Spanish,1,euro,26/06/2021,04/09/2019,22.03,44.77,m,67%,33%,0%,0%,Bilingual,,CognatePriming_126_2021-06-26.csv,,TRUE,,TRUE,FALSE
+cognatepriming127,1,21,FALSE,57670,Barcelona,Spanish,2,euro,28/06/2021,26/09/2019,21.37,44.03,m,86%,14%,0%,0%,Monolingual,,CognatePriming_127_2021-06-28.csv,,TRUE,,TRUE,FALSE
+cognatepriming128,1,21,FALSE,57742,Barcelona,Spanish,3,euro,29/06/2021,19/10/2019,20.63,43.27,f,24%,74%,0%,2%,Bilingual,,CognatePriming_128_2021-06-29.csv,,TRUE,,TRUE,FALSE
+cognatepriming129,1,21,FALSE,58049,Barcelona,Catalan,3,ll,03/07/2021,15/09/2019,21.90,44.40,f,0%,100%,0%,0%,Monolingual,,CognatePriming_129_2021-07-03.csv,,TRUE,,TRUE,FALSE
+cognatepriming130,1,21,FALSE,57658,Barcelona,Spanish,1,euro,03/07/2021,23/09/2019,21.63,44.13,f,89%,11%,0%,0%,Monolingual,,CognatePriming_130_2021-07-03.csv,,TRUE,,TRUE,FALSE
+cognatepriming131,1,21,FALSE,57709,Barcelona,Spanish,2,euro,05/07/2021,09/10/2019,21.17,43.60,m,87%,13%,0%,0%,Monolingual,,CognatePriming_131_2021-07-05.csv,,TRUE,,TRUE,FALSE
+cognatepriming102,2,25,FALSE,57839 ,Barcelona,Catalan,1,ll,05/07/2021,03/06/2019,25.43,47.87,f,0%,100%,0%,0%,Monolingual,,CognatePriming_102_2021-07-05.csv,,TRUE,,TRUE,FALSE
+cognatepriming132,1,21,FALSE,57710,Barcelona,Spanish,3,euro,06/07/2021,10/10/2019,21.17,43.57,f,100%,0%,0%,0%,Monolingual,,CognatePriming_132_2021-07-06_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming133,1,21,FALSE,57684,Barcelona,Catalan,2,ll,06/07/2021,03/10/2019,21.40,43.80,f,2%,98%,0%,0%,Monolingual,,CognatePriming_133_2021-07-06.csv,,TRUE,,TRUE,FALSE
+cognatepriming89,2,25,FALSE,57241,Barcelona,Catalan,3,ll,06/07/2021,13/05/2019,26.17,48.57,m,3%,97%,0%,0%,Monolingual,,CognatePriming_089_2021-07-06.csv,,TRUE,,TRUE,FALSE
+cognatepriming134,1,21,FALSE,57592,Barcelona,Spanish,1,euro,06/07/2021,05/09/2019,22.33,44.73,m,50%,50%,0%,0%,Bilingual,,CognatePriming_134_2021-07-06.csv,,TRUE,,TRUE,FALSE
+cognatepriming105,2,25,FALSE,57293,Barcelona,Catalan,2,ll,24/07/2021,29/05/2019,26.23,48.03,m,43%,57%,0%,0%,Bilingual,,CognatePriming_105_2021-07-24_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming106,2,25,FALSE,58347,Barcelona,Spanish,1,euro,26/07/2021,08/07/2019,24.97,46.70,m,73%,27%,0%,0%,Bilingual,,CognatePriming_106_2021-07-26.csv,,TRUE,,TRUE,FALSE
+cognatepriming112,2,25,FALSE,57537,Barcelona,Catalan,2,ll,21/09/2021,02/08/2019,26.03,45.87,m,0%,100%,0%,0%,Monolingual,,CognatePriming_112_2021-09-21.csv,,TRUE,,TRUE,FALSE
+cognatepriming113,2,25,FALSE,57534,Barcelona,Catalan,1,ll,21/09/2021,03/08/2019,26.00,45.83,f,1%,99%,0%,0%,Monolingual,,CognatePriming_113_2021-09-21.csv,,TRUE,,TRUE,FALSE
+cognatepriming70,3,30,FALSE,57059,Barcelona,Spanish,3,euro,30/09/2021,27/03/2019,30.60,50.13,f,96%,4%,0%,0%,Monolingual,Slighly bad claibration,CognatePriming_070_2021-09-30_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming51,3,30,FALSE,56911,Barcelona,Catalan,1,ll,01/10/2021,15/02/2019,31.97,51.47,m,7%,93%,0%,0%,Monolingual,,CognatePriming_051_2021-10-01.csv,VisualPreference_051_2021-10-01.csv,TRUE,,TRUE,FALSE
+cognatepriming118,2,25,FALSE,57552,Barcelona,Catalan,3,ll,02/10/2021,19/08/2019,25.83,45.30,m,0%,100%,0%,0%,Monolingual,,CognatePriming_118_2021-10-02_6.csv,,TRUE,,TRUE,FALSE
+cognatepriming50,3,30,FALSE,56937,Barcelona,Catalan,2,ll,02/10/2021,27/02/2019,31.60,51.07,f,1%,99%,0%,0%,Monolingual,,CognatePriming_050_2021-10-02.csv,VisualPreference_050_2021-10-02.csv,TRUE,,TRUE,FALSE
+cognatepriming62,3,30,FALSE,56995,Barcelona,Catalan,1,ll,02/10/2021,13/03/2019,31.13,50.60,m,0%,98%,2%,0%,Monolingual,Wrong file name,CognatePriming_062_2021-10-02.csv,VisualPreference_062_2021-10-02.csv,TRUE,,TRUE,FALSE
+cognatepriming73,3,30,FALSE,57062,Barcelona,Spanish,2,euro,02/10/2021,28/03/2019,30.63,50.10,m,95%,1%,4%,0%,Monolingual,,CognatePriming_073_2021-10-02.csv,VisualPreference_073_2021-10-02.csv,TRUE,,TRUE,FALSE
+cognatepriming71,2,25,FALSE,56984,Barcelona,Catalan,1,ll,04/10/2021,11/03/2019,31.27,50.67,m,26%,74%,0%,0%,Bilingual,,CognatePriming_071_2021-10-04_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming52,3,30,FALSE,56876,Barcelona,Catalan,2,ll,05/10/2021,07/02/2019,32.37,51.73,f,7%,93%,0%,0%,Monolingual,,CognatePriming_052_2021-10-05.csv,VisualPreference_052_2021-10-05_2.csv,TRUE,,TRUE,FALSE
+cognatepriming79,3,30,FALSE,57157,Barcelona,Catalan,3,ll,07/10/2021,16/04/2019,30.17,49.47,m,0%,100%,0%,0%,Monolingual,Moving a lot,CognatePriming_079_2021-10-07_1.csv,VisualPreference_079_2021-10-07_1.csv,TRUE,,TRUE,FALSE
+cognatepriming54,3,30,FALSE,56985,Barcelona,Spanish,1,euro,09/10/2021,12/03/2019,31.40,50.63,f,89%,11%,0%,0%,Monolingual,,CognatePriming_054_2021-10-09.csv,VisualPreference_054_2021-10-09.csv,TRUE,,FALSE,FALSE
+cognatepriming77,2,30,FALSE,57139,Barcelona,Catalan,2,ll,09/10/2021,10/04/2019,30.43,49.67,m,0%,100%,0%,0%,Monolingual,,CognatePriming_077_2021-10-09.csv,,TRUE,,TRUE,FALSE
+cognatepriming119,2,25,FALSE,57613,Barcelona,Catalan,3,ll,11/10/2021,17/09/2019,25.17,44.33,m,0%,100%,0%,0%,Monolingual,,CognatePriming_119_2021-10-11.csv,VisualPreference_119_2021-10-11.csv,TRUE,,FALSE,FALSE
+cognatepriming84,3,30,FALSE,57177,Barcelona,Catalan,1,ll,15/10/2021,29/04/2019,30.00,49.03,m,0%,100%,0%,0%,Monolingual,,CognatePriming_084_2021-10-15.csv,,TRUE,,FALSE,FALSE
+cognatepriming76,3,30,FALSE,57436,Barcelona,Spanish,1,euro,16/10/2021,25/03/2019,31.20,50.20,m,47%,53%,0%,0%,Bilingual,,CognatePriming_076_2021-10-16.csv,VisualPreference_076_2021-10-16.csv,TRUE,,TRUE,FALSE
+cognatepriming88,3,30,FALSE,57222,Barcelona,Spanish,3,euro,16/10/2021,10/05/2019,29.67,48.67,f,58%,42%,0%,0%,Bilingual,,CognatePriming_088_2021-10-16.csv,,TRUE,,FALSE,FALSE
+cognatepriming121,2,25,FALSE,57666,Barcelona,Catalan,3,ll,18/10/2021,26/09/2019,25.10,44.03,f,0%,100%,0%,0%,Monolingual,,CognatePriming_121_2021-10-18.csv,,TRUE,,TRUE,FALSE
+cognatepriming81,3,30,FALSE,57092,Barcelona,Catalan,3,ll,19/10/2021,03/04/2019,31.00,49.90,f,5%,95%,0%,0%,Monolingual,,CognatePriming_081_2021-10-19.csv,,TRUE,,TRUE,FALSE
+cognatepriming78,3,30,FALSE,57050,Barcelona,Catalan,3,ll,20/10/2021,26/03/2019,31.30,50.17,f,0%,100%,0%,0%,Monolingual,,CognatePriming_078_2021-10-20_3.csv,VisualPreference_078_2021-10-20.csv,TRUE,,TRUE,FALSE
+cognatepriming124,2,25,FALSE,57707,Barcelona,Spanish,2,latin,22/10/2021,09/10/2019,24.80,43.60,f,77%,23%,0%,0%,Bilingual,,CognatePriming_124_2021-10-22.csv,VisualPreference_124_2021-10-22.csv,TRUE,,TRUE,FALSE
+cognatepriming115,2,25,FALSE,57559,Barcelona,Spanish,2,euro,23/10/2021,24/08/2019,26.37,45.13,m,83%,17%,0%,0%,Monolingual,,CognatePriming_115_2021-10-23.csv,VisualPreference_115_2021-10-23_1.csv,TRUE,,TRUE,FALSE
+cognatepriming83,3,30,FALSE,57111,Barcelona,Spanish,2,euro,23/10/2021,05/04/2019,31.07,49.83,f,90%,10%,0%,0%,Monolingual,,CognatePriming_083_2021-10-23.csv,,TRUE,,TRUE,FALSE
+cognatepriming126,2,25,FALSE,57595,Barcelona,Spanish,1,euro,23/10/2021,04/09/2019,26.00,44.77,m,66%,34%,0%,0%,Bilingual,,CognatePriming_126_2021-10-23_3.csv,,TRUE,,TRUE,FALSE
+cognatepriming123,2,25,FALSE,57597,Barcelona,Spanish,3,euro,23/10/2021,08/09/2019,25.87,44.63,m,56%,44%,0%,0%,Bilingual,,CognatePriming_123_2021-10-23.csv,VisualPreference_123_2021-10-23.csv,TRUE,,TRUE,FALSE
+cognatepriming127,2,25,FALSE,57670,Barcelona,Spanish,2,euro,25/10/2021,26/09/2019,25.33,44.03,m,84%,16%,0%,0%,Monolingual,,CognatePriming_127_2021-10-25.csv,VisualPreference_127_2021-10-25.csv,TRUE,,TRUE,FALSE
+cognatepriming120,2,25,FALSE,57569,Barcelona,Catalan,2,ll,28/10/2021,24/08/2019,26.53,45.13,m,25%,75%,0%,0%,Bilingual,,CognatePriming_120_2021-10-28.csv,VisualPreference_120_2021-10-28.csv,TRUE,,TRUE,FALSE
+cognatepriming128,2,25,FALSE,57742,Barcelona,Catalan,3,ll,02/11/2021,19/10/2019,24.83,43.27,f,22%,76%,0%,2%,Bilingual,,CognatePriming_128_2021-11-02.csv,VisualPreference_128_2021-11-02.csv,TRUE,,TRUE,FALSE
+cognatepriming97,2,30,FALSE,57374,Barcelona,Spanish,3,euro,03/11/2021,19/06/2019,28.93,47.33,f,98%,1%,1%,0%,Monolingual,Crying,CognatePriming_097_2021-11-03_2.csv,,TRUE,,TRUE,FALSE
+cognatepriming86,3,30,FALSE,57159,Barcelona,Spanish,3,euro,05/11/2021,21/04/2019,30.97,49.30,f,57%,43%,0%,0%,Bilingual,,CognatePriming_086_2021-11-05.csv,VisualPreference_086_2021-11-05.csv,TRUE,,TRUE,FALSE
+cognatepriming129,2,25,FALSE,58049,Barcelona,Catalan,3,ll,06/11/2021,15/09/2019,26.10,44.40,f,0%,100%,0%,0%,Monolingual,,CognatePriming_129_2021-11-06_2.csv,,TRUE,,TRUE,FALSE
+cognatepriming130,2,25,FALSE,57658,Barcelona,Spanish,1,euro,06/11/2021,23/09/2019,25.83,44.13,f,89%,11%,0%,0%,Monolingual,,CognatePriming_130_2021-11-06.csv,,TRUE,,TRUE,FALSE
+cognatepriming100,3,30,FALSE,57274,Barcelona,Catalan,3,ll,09/11/2021,22/05/2019,30.07,48.27,f,32%,68%,0%,0%,Bilingual,,CognatePriming_100_2021-11-09.csv,VisualPreference_100_2021-11-09_2.csv,TRUE,,TRUE,FALSE
+cognatepriming102,3,30,FALSE,57839 ,Barcelona,Catalan,1,ll,12/11/2021,03/06/2019,29.77,47.87,f,0%,100%,0%,0%,Monolingual,,CognatePriming_102_2021-11-12.csv,VisualPreference_102_2021-11-12.csv,TRUE,,TRUE,FALSE
+cognatepriming131,2,25,FALSE,57709,Barcelona,Spanish,2,euro,12/11/2021,09/10/2019,25.50,43.60,m,84%,16%,0%,0%,Monolingual,,CognatePriming_131_2021-11-12.csv,VisualPreference_131_2021-11-12.csv,TRUE,,TRUE,FALSE
+cognatepriming103,2,30,FALSE,57336,Barcelona,Catalan,2,i,13/11/2021,08/06/2019,29.63,47.70,m,32%,68%,0%,0%,Bilingual,,CognatePriming_103_2021-11-13.csv,,TRUE,,TRUE,FALSE
+cognatepriming132,2,25,FALSE,57710,Barcelona,Spanish,3,euro,13/11/2021,10/10/2019,25.50,43.57,f,98%,2%,0%,0%,Monolingual,,CognatePriming_132_2021-11-13.csv,,TRUE,,TRUE,FALSE
+cognatepriming104,2,30,FALSE,57340,Barcelona,Spanish,3,euro,13/11/2021,10/06/2019,29.57,47.63,m,99%,1%,0%,0%,Monolingual,,CognatePriming_104_2021-11-13_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming95,2,30,FALSE,57227,Barcelona,Catalan,1,ll,13/11/2021,13/05/2019,30.50,48.57,f,4%,95%,2%,0%,Monolingual,,CognatePriming_095_2021-11-13_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming98,2,30,FALSE,57337,Barcelona,Catalan,2,ll,13/11/2021,10/06/2019,29.57,47.63,f,23%,77%,0%,0%,Bilingual,,CognatePriming_098_2021-11-13.csv,VisualPreference_098_2021-11-13_2.csv,TRUE,,TRUE,FALSE
+cognatepriming117,2,25,FALSE,57642,Barcelona,Spanish,1,euro,16/11/2021,18/09/2019,26.33,44.30,m,54%,42%,0%,0%,Bilingual,,CognatePriming_117_2021-11-16.csv,VisualPreference_117_2021-11-16.csv,TRUE,,TRUE,FALSE
+cognatepriming101,2,30,FALSE,57240,Barcelona,Catalan,2,ll,20/11/2021,14/05/2019,30.70,48.53,m,1%,99%,0%,0%,Monolingual,,CognatePriming_101_2021-11-20.csv,VisualPreference_101_2021-11-20.csv,TRUE,,TRUE,FALSE
+cognatepriming105,3,30,FALSE,57293,Barcelona,Catalan,2,ll,27/11/2021,29/05/2019,30.43,48.03,m,43%,57%,0%,0%,Bilingual,,CognatePriming_105_2021-11-27.csv,,TRUE,,TRUE,FALSE
+cognatepriming135,1,25,FALSE,57735,Barcelona,Catalan,3,ll,01/12/2021,16/10/2019,25.90,43.37,f,16%,84%,0%,0%,Monolingual,,CognatePriming_135_2021-12-01.csv,,TRUE,,TRUE,FALSE
+cognatepriming136,1,25,FALSE,57885,Barcelona,Catalan,2,ll,03/12/2021,13/12/2019,24.03,41.43,m,55%,45%,0%,0%,Bilingual,"SI first, CP fussi, no VP",CognatePriming_136_2021-12-03.csv,,TRUE,,TRUE,FALSE
+cognatepriming82,3,30,FALSE,57097,Barcelona,Spanish,3,euro,03/12/2021,04/04/2019,32.47,49.87,f,99%,0%,1%,0%,Monolingual,,CognatePriming_082_2021-12-03_1.csv,VisualPreference_082_2021-12-03.csv,TRUE,,FALSE,FALSE
+cognatepriming137,1,25,FALSE,57725,Barcelona,Catalan,2,ll,04/12/2021,15/10/2019,26.03,43.40,m,26%,74%,0%,0%,Bilingual,"si first, cognate fussi",CognatePriming_137_2021-12-04_1.csv,VisualPreference_137_2021-12-04.csv,TRUE,,TRUE,FALSE
+cognatepriming138,1,30,FALSE,57369,Barcelona,Catalan,1,ll,11/12/2021,17/06/2019,30.27,47.40,f,39%,61%,0%,0%,Bilingual,,CognatePriming_138_2021-12-11.csv,VisualPreference_138_2021-12-11.csv,TRUE,,TRUE,FALSE
+cognatepriming140,1,25,FALSE,57741,Barcelona,Catalan,3,ll,11/12/2021,20/10/2019,26.10,43.23,f,0%,100%,0%,0%,Monolingual,no tiempo pasar cuestionatio lenguas fussi,CognatePriming_140_2021-12-11_2.csv,VisualPreference_140_2021-12-11.csv,TRUE,,TRUE,FALSE
+cognatepriming141,1,25,FALSE,57823,Barcelona,Catalan,2,ll,18/12/2021,17/11/2019,25.40,42.30,m,79%,21%,0%,0%,Bilingual,"CP FIRST, pero FUSSI durante CP",CognatePriming_141_2021-12-18.csv,VisualPreference_141_2021-12-18.csv,TRUE,,TRUE,FALSE
+cognatepriming142,1,21,FALSE,58190,Barcelona,Spanish,1,euro,21/12/2021,09/03/2020,21.73,38.53,m,43%,54%,3%,0%,Bilingual,"CP first, pero el ET perdió los ojos cerca del final",CognatePriming_142_2021-12-21.csv,VisualPreference_142_2021-12-21.csv,TRUE,,TRUE,FALSE
+cognatepriming143,1,25,FALSE,57902,Barcelona,Spanish,2,euro,04/01/2022,17/12/2019,24.97,41.30,m,46%,54%,0%,0%,Bilingual,"CP first, pero tuve que parar el estudio porque la niña lloraba",CognatePriming_143_2022-01-04.csv,VisualPreference_143_2022-01-04.csv,TRUE,,TRUE,FALSE
+cognatepriming144,1,25,FALSE,58372,Barcelona,Catalan,3,ll,07/01/2022,23/12/2019,24.87,41.10,m,34%,64%,2%,0%,Bilingual,CP first,CognatePriming_144_2022-01-07.csv,VisualPreference_144_2022-01-07.csv,TRUE,,TRUE,FALSE
+cognatepriming145,1,21,FALSE,58310,Barcelona,Catalan,2,ll,12/01/2022,09/03/2020,22.47,38.53,m,26%,74%,0%,0%,Bilingual,CP first,CognatePriming_145_2022-01-12_2.csv,,TRUE,,TRUE,FALSE
+cognatepriming110,2,30,FALSE,57480,Barcelona,Catalan,2,ll,22/01/2022,17/07/2019,30.67,46.40,f,43%,57%,0%,0%,Bilingual,,CognatePriming_110_2022-01-22_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming119,3,30,FALSE,57613,Barcelona,Catalan,3,ll,26/01/2022,17/09/2019,28.73,44.33,m,0%,100%,0%,0%,Monolingual,,CognatePriming_119_2022-01-26.csv,VisualPreference_119_2022-01-26_3.csv,TRUE,,TRUE,FALSE
+cognatepriming108,2,30,FALSE,57464,Barcelona,Spanish,2,euro,26/01/2022,10/07/2019,31.03,46.63,f,55%,45%,0%,0%,Bilingual,,CognatePriming_108_2022-01-26_1.csv,VisualPreference_108_2022-01-26.csv,TRUE,,TRUE,FALSE
+cognatepriming113,3,30,FALSE,57534,Barcelona,Catalan,1,ll,26/01/2022,03/08/2019,30.23,45.83,f,1%,99%,0%,0%,Monolingual,,CognatePriming_113_2022-01-26.csv,VisualPreference_113_2022-01-26.csv,TRUE,,TRUE,FALSE
+cognatepriming146,1,25,FALSE,57919,Barcelona,Catalan,3,ll,27/01/2022,19/12/2019,25.67,41.23,f,10%,90%,0%,0%,Monolingual,,CognatePriming_146_2022-01-27.csv,VisualPreference_146_2022-01-27.csv,TRUE,,TRUE,FALSE
+cognatepriming147,1,25,FALSE,57908,Barcelona,Catalan,2,ll,28/01/2022,17/12/2019,25.77,41.30,f,14%,86%,0%,0%,Monolingual,,CognatePriming_147_2022-01-28.csv,,TRUE,,TRUE,FALSE
+cognatepriming115,3,30,FALSE,57559,Barcelona,Spanish,2,euro,29/01/2022,24/08/2019,29.63,45.13,m,82%,18%,0%,0%,Monolingual,,CognatePriming_115_2022-01-29.csv,,TRUE,,TRUE,FALSE
+cognatepriming148,1,21,FALSE,58406,Barcelona,Spanish,3,euro,31/01/2022,11/05/2020,21.00,36.43,m,84%,16%,0%,0%,Monolingual,,CognatePriming_148_2022-01-31.csv,,TRUE,,TRUE,FALSE
+cognatepriming109,2,25,FALSE,57462,Barcelona,Catalan,3,ll,31/01/2022,10/07/2019,31.20,46.63,m,30%,70%,0%,0%,Bilingual,,CognatePriming_109_2022-01-31.csv,,TRUE,,TRUE,FALSE
+cognatepriming149,1,21,FALSE,58860,Barcelona,Catalan,2,ll,03/02/2022,20/05/2020,20.80,36.13,m,40%,45%,0%,15%,Bilingual,Trilingual,CognatePriming_149_2022-02-03.csv,,FALSE,,TRUE,FALSE
+cognatepriming150,1,21,FALSE,58286,Barcelona,Spanish,1,euro,04/02/2022,06/05/2020,21.30,36.60,m,66%,34%,0%,0%,Bilingual,,CognatePriming_150_2022-02-04.csv,,TRUE,,TRUE,FALSE
+cognatepriming151,1,25,FALSE,58012,Barcelona,Catalan,2,ll,04/02/2022,21/01/2020,24.83,40.13,m,8%,92%,,0%,Monolingual,,CognatePriming_151_2022-02-04.csv,,TRUE,,TRUE,FALSE
+cognatepriming152,1,21,FALSE,58551,Barcelona,Spanish,3,euro,05/02/2022,16/05/2020,21.00,36.27,m,32%,68%,0%,0%,Bilingual,,CognatePriming_152_2022-02-05.csv,,TRUE,,TRUE,FALSE
+cognatepriming153,1,25,FALSE,57943,Barcelona,Spanish,1,euro,05/02/2022,20/12/2019,25.93,41.20,f,92%,8%,0%,0%,Monolingual,,CognatePriming_153_2022-02-05.csv,,TRUE,,TRUE,FALSE
+cognatepriming154,1,25,FALSE,57914,Barcelona,Catalan,2,ll,08/02/2022,17/12/2019,26.13,41.30,f,13%,87%,0%,0%,Monolingual,,CognatePriming_154_2022-02-08_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming155,1,25,FALSE,58000,Barcelona,Spanish,2,euro,08/02/2022,15/01/2020,25.17,40.33,f,41%,59%,0%,0%,Bilingual,,CognatePriming_155_2022-02-08.csv,,TRUE,,TRUE,FALSE
+cognatepriming156,1,25,FALSE,58046,Barcelona,Catalan,3,ll,09/02/2022,30/01/2020,24.70,39.83,f,26%,74%,0%,0%,Bilingual,,CognatePriming_156_2022-02-09_2.csv,,TRUE,,TRUE,FALSE
+cognatepriming157,1,25,FALSE,58088,Barcelona,Catalan,1,ll,10/02/2022,11/02/2020,24.33,39.43,m,14%,86%,0%,0%,Monolingual,,CognatePriming_157_2022-02-10.csv,,TRUE,,TRUE,FALSE
+cognatepriming158,1,21,FALSE,58530,Barcelona,Catalan,2,ll,12/02/2022,29/04/2020,21.80,36.83,f,41%,59%,0%,0%,Bilingual,first + file name CognatePriming_158_2022-02-12_1.csv,CognatePriming_158_2022-02-12_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming131,3,30,FALSE,57709,Barcelona,Spanish,2,euro,18/02/2022,09/10/2019,28.77,43.60,m,83%,17%,0%,0%,Monolingual,,CognatePriming_131_2022-02-18.csv,,TRUE,,TRUE,FALSE
+cognatepriming124,3,30,FALSE,57707,Barcelona,Spanish,2,latin,18/02/2022,09/10/2019,28.77,43.60,m,77%,23%,0%,0%,Bilingual,,CognatePriming_124_2022-02-18.csv,,TRUE,,FALSE,FALSE
+cognatepriming112,3,30,FALSE,57537,Barcelona,Catalan,2,ll,18/02/2022,02/08/2019,31.03,45.87,m,0%,100%,0%,0%,Monolingual,,CognatePriming_112_2022-02-18.csv,,TRUE,,TRUE,FALSE
+cognatepriming134,2,30,FALSE,57592,Barcelona,Spanish,1,euro,18/02/2022,05/09/2019,29.90,44.73,m,48%,52%,0%,0%,Bilingual,,CognatePriming_134_2022-02-18.csv,,TRUE,,TRUE,FALSE
+cognatepriming118,3,30,FALSE,57552,Barcelona,Catalan,3,ll,19/02/2022,19/08/2019,30.50,45.30,m,0%,100%,0%,0%,Monolingual,,CognatePriming_118_2022-02-19_2.csv,,TRUE,,TRUE,FALSE
+cognatepriming129,3,30,FALSE,58049,Barcelona,Catalan,3,ll,19/02/2022,15/09/2019,29.60,44.40,f,0%,100%,0%,0%,Monolingual,,CognatePriming_129_2022-02-19.csv,,TRUE,,TRUE,FALSE
+cognatepriming121,3,30,FALSE,57666,Barcelona,Catalan,3,ll,21/02/2022,26/09/2019,29.30,44.03,f,0%,100%,0%,0%,Monolingual,,CognatePriming_121_2022-02-21.csv,,TRUE,,FALSE,FALSE
+cognatepriming107,2,30,FALSE,58328,Barcelona,Catalan,1,ll,21/02/2022,13/06/2019,32.80,47.53,f,0%,100%,0%,0%,Monolingual,,CognatePriming_107_2022-02-21.csv,,TRUE,,TRUE,FALSE
+cognatepriming159,1,21,FALSE,58262,Barcelona,Catalan,2,ll,23/02/2022,17/05/2020,21.57,36.23,m,35%,65%,0%,0%,Bilingual,,CognatePriming_159_2022-02-23.csv,,TRUE,,TRUE,FALSE
+cognatepriming160,1,21,FALSE,58681,Barcelona,Catalan,1,ll,28/02/2022,19/05/2020,21.67,36.17,m,37%,63%,0%,0%,Bilingual,,CognatePriming_160_2022-02-28.csv,,TRUE,,TRUE,FALSE
+cognatepriming161,1,21,FALSE,58304,Barcelona,Spanish,3,euro,01/03/2022,08/02/2020,25.07,39.53,m,59%,41%,0%,0%,Bilingual,,CognatePriming_161_2022-03-01_2.csv,,TRUE,,TRUE,FALSE
+cognatepriming162,1,25,FALSE,58550,Barcelona,Catalan,3,ll,03/03/2022,20/01/2020,25.77,40.17,m,45%,42%,0%,13%,Bilingual,Trilingual,CognatePriming_162_2022-03-03.csv,,TRUE,,TRUE,FALSE
+cognatepriming163,1,25,FALSE,58096,Barcelona,Spanish,1,euro,03/03/2022,12/02/2020,25.00,39.40,m,60%,40%,0%,0%,Bilingual,,CognatePriming_163_2022-03-03.csv,,TRUE,,TRUE,FALSE
+cognatepriming164,1,21,FALSE,58435,Barcelona,Catalan,2,ll,07/03/2022,12/06/2020,21.10,35.37,m,20%,80%,0%,0%,Monolingual,,CognatePriming_164_2022-03-07_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming165,1,21,FALSE,58173,Barcelona,Spanish,3,euro,08/03/2022,13/06/2020,21.10,35.33,m,63%,33%,0%,0%,Bilingual,,CognatePriming_165_2022-03-08.csv,,TRUE,,TRUE,FALSE
+cognatepriming166,1,21,FALSE,58394,Barcelona,Catalan,1,ll,08/03/2022,17/01/2020,26.03,40.27,f,40%,60%,0%,0%,Bilingual,,CognatePriming_166_2022-03-08.csv,,TRUE,,TRUE,FALSE
+cognatepriming167,1,21,FALSE,58335,Barcelona,Catalan,1,ll,09/03/2022,03/07/2020,20.47,34.67,m,24%,70%,0%,0%,Bilingual,,CognatePriming_167_2022-03-09.csv,,TRUE,,TRUE,FALSE
+cognatepriming168,1,25,FALSE,57983,Barcelona,Spanish,2,euro,09/03/2022,14/01/2020,26.17,40.37,f,73%,27%,0%,0%,Bilingual,,CognatePriming_168_2022-03-09_1.csv,,TRUE,,TRUE,FALSE
+cognatepriming169,1,25,FALSE,58172,Barcelona,Catalan,3,ll,10/03/2022,02/03/2020,24.60,38.77,m,70%,30%,0%,0%,Bilingual,Wrong language,CognatePriming_169_2022-03-10.csv,,TRUE,,TRUE,FALSE
+cognatepriming170,1,25,FALSE,58079,Barcelona,Spanish,2,euro,11/03/2022,06/02/2020,25.47,39.60,f,53%,30%,14%,0%,Bilingual,Trilingual,CognatePriming_170_2022-03-11_1.csv,,FALSE,,TRUE,FALSE
+cognatepriming117,3,30,FALSE,57642,Barcelona,Spanish,1,euro,11/03/2022,18/09/2019,30.17,44.30,m,52%,48%,0%,0%,Bilingual,,CognatePriming_117_2022-03-11_1.csv,,TRUE,,FALSE,FALSE
+cognatepriming171,1,25,FALSE,58132,Barcelona,Catalan,2,ll,14/03/2022,24/02/2020,24.97,39.00,f,81%,19%,0%,0%,Monolingual,"Wrong language, possible ID error",CognatePriming_171_2022-03-14.csv,,TRUE,,TRUE,FALSE
+cognatepriming145,2,25,FALSE,58310,Barcelona,Catalan,2,ll,14/03/2022,09/03/2020,24.50,38.53,m,26%,74%,0%,0%,Bilingual,Possible ID error,CognatePriming_145_2022-03-14.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming172,1,25,FALSE,58128,Barcelona,Spanish,3,euro,15/03/2022,13/02/2020,25.37,39.37,f,17%,83%,0%,0%,Monolingual,Wrong language,CognatePriming_172_2022-03-15.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming173,1,25,FALSE,58093,Barcelona,Catalan,2,ll,18/03/2022,09/02/2020,25.60,39.50,f,0%,100%,0%,0%,Monolingual,,CognatePriming_173_2022-03-18_1.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming174,1,25,FALSE,58176,Barcelona,Catalan,1,ll,19/03/2022,04/03/2020,24.83,38.70,m,43%,57%,0%,0%,Bilingual,,CognatePriming_174_2022-03-19.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming175,1,25,FALSE,58165,Barcelona,Catalan,3,ll,22/03/2022,02/03/2020,25.00,38.77,m,30%,70%,0%,0%,Bilingual,,CognatePriming_175_2022-03-22.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming176,1,25,FALSE,58068,Barcelona,Spanish,2,euro,22/03/2022,03/02/2020,25.93,39.70,f,4%,96%,0%,0%,Monolingual,Wrong language,CognatePriming_176_2022-03-22.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming177,1,25,FALSE,58137,Barcelona,Catalan,2,ll,23/03/2022,24/02/2020,25.27,39.00,m,52%,48%,0%,0%,Bilingual,Wrong language,CognatePriming_177_2022-03-23.csv,,TRUE,FALSE,FALSE,FALSE
+cognatepriming178,1,25,FALSE,58720,Barcelona,Catalan,1,ll,23/03/2022,19/03/2020,24.47,38.20,f,27%,73%,0%,0%,Bilingual,,CognatePriming_178_2022-03-23_1.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming179,1,21,FALSE,58523,Barcelona,Spanish,3,euro,28/03/2022,22/07/2020,20.47,34.03,m,62%,38%,0%,0%,Bilingual,,CognatePriming_179_2022-03-28.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming142,2,25,FALSE,58190,Barcelona,Catalan,2,ll,31/03/2022,09/03/2020,25.07,38.53,m,43%,54%,3%,0%,Bilingual,,CognatePriming_142_2022-03-31.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming180,1,25,FALSE,58109,Barcelona,Spanish,2,euro,02/04/2022,15/02/2020,25.90,39.30,f,81%,19%,0%,0%,Monolingual,semantic first - un poco fussi en la mitad de cada estudio,CognatePriming_180_2022-04-02.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming114,2,30,FALSE,57566,Barcelona,Spanish,2,euro,04/04/2022,25/08/2019,31.77,45.10,f,83%,17%,0%,0%,Monolingual,CP first - tuve que abortar VP porque estaba muy fussi,CognatePriming_114_2022-04-04.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming181,1,25,FALSE,58146,Barcelona,Catalan,3,ll,09/04/2022,03/03/2020,25.57,38.73,f,60%,40%,0%,0%,Bilingual,"niña estaba fussi, al intentar quit la session, no se guardaron los datos ...",,,FALSE,FALSE,TRUE,FALSE
+cognatepriming182,1,21,FALSE,58299,Barcelona,Catalan,2,ll,17/05/2022,17/09/2020,20.23,32.13,f,3%,97%,0%,0%,Monolingual,,CognatePriming_182_2022-05-17.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming128,3,30,FALSE,57742,Barcelona,Catalan,3,ll,18/05/2022,19/10/2019,31.40,43.27,f,22%,76%,0%,2%,Bilingual,,CognatePriming_128_2022-05-18.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming183,1,25,FALSE,58298,Barcelona,Catalan,1,ll,20/05/2022,27/04/2020,25.10,36.90,f,1%,99%,0%,0%,Monolingual,,CognatePriming_183_2022-05-20.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming184,1,25,FALSE,58256,Barcelona,Catalan,2,ll,20/05/2022,22/04/2020,25.27,37.07,m,32%,68%,0%,0%,Bilingual,,CognatePriming_184_2022-05-20.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming127,3,30,FALSE,57670,Barcelona,Spanish,2,euro,23/05/2022,26/09/2019,32.33,44.03,m,82%,18%,0%,0%,Monolingual,,CognatePriming_127_2022-05-23.csv,VisualPreference_127_2022-05-23.csv,TRUE,FALSE,TRUE,FALSE
+cognatepriming154,2,30,FALSE,57914,Barcelona,Catalan,2,ll,24/05/2022,17/12/2019,29.63,41.30,f,13%,87%,0%,0%,Monolingual,,CognatePriming_154_2022-05-24_1.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming143,2,30,FALSE,57902,Barcelona,Catalan,2,ll,24/05/2022,17/12/2019,29.63,41.30,f,46%,54%,0%,0%,Bilingual,"CP first, pero tuve que parar el estudio porque la niña lloraba",CognatePriming_143_2022-05-24.csv,VisualPreference_143_2022-05-24.csv,TRUE,FALSE,TRUE,FALSE
+cognatepriming185,1,21,FALSE,58724,Barcelona,Spanish,3,euro,25/05/2022,20/08/2020,21.43,33.07,f,28%,72%,0%,0%,Bilingual,,CognatePriming_185_2022-05-25_1.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming159,2,25,FALSE,58262,Barcelona,Catalan,2,ll,26/05/2022,17/05/2020,24.63,36.23,m,36%,64%,0%,0%,Bilingual,,CognatePriming_159_2022-05-26.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming155,2,30,FALSE,58000,Barcelona,Spanish,2,euro,30/05/2022,15/01/2020,28.87,40.33,f,29%,71%,0%,0%,Bilingual,,CognatePriming_155_2022-05-30_3.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming150,2,25,FALSE,58286,Barcelona,Spanish,1,euro,03/06/2022,06/05/2020,25.27,36.60,m,64%,36%,0%,0%,Bilingual,Did not get to start this experiment (only Semantic Inhibition),,,FALSE,FALSE,TRUE,FALSE
+cognatepriming137,3,30,FALSE,57725,Barcelona,Catalan,2,ll,04/06/2022,15/10/2019,32.10,43.40,m,28%,72%,0%,0%,Bilingual,,CognatePriming_137_2022-06-04.csv,VisualPreference_137_2022-06-04.csv,TRUE,FALSE,TRUE,FALSE
+cognatepriming136,2,30,FALSE,57885,Barcelona,Catalan,2,ll,04/06/2022,13/12/2019,30.13,41.43,m,54%,46%,0%,0%,Bilingual,"SI first, CP fussi, no VP",CognatePriming_136_2022-06-04_2.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming146,2,30,FALSE,57919,Barcelona,Catalan,3,ll,14/06/2022,19/12/2019,30.27,41.23,f,12%,88%,0%,0%,Monolingual,,CognatePriming_146_2022-06-14.csv,VisualPreference_146_2022-06-14.csv,TRUE,FALSE,TRUE,FALSE
+cognatepriming186,1,30,FALSE,57717,Barcelona,Spanish,1,euro,14/06/2022,14/10/2019,32.47,43.43,m,50%,50%,0%,0%,Bilingual,,,,TRUE,FALSE,TRUE,FALSE
+cognatepriming187,1,30,FALSE,58547,Barcelona,Catalan,2,ll,16/06/2022,30/05/2020,24.90,35.80,f,8%,92%,0%,0%,Monolingual,,CognatePriming_187_2022-06-16.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming188,1,21,FALSE,58308,Barcelona,Spanish,3,euro,17/06/2022,08/10/2020,20.57,31.43,f,100%,0%,0%,0%,Monolingual,,CognatePriming_188_2022-06-17.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming147,2,30,FALSE,57908,Barcelona,Catalan,2,ll,17/06/2022,17/12/2019,30.43,41.30,f,14%,86%,0%,0%,Monolingual,,CognatePriming_147_2022-06-17.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming189,1,21,FALSE,58737,Barcelona,Catalan,1,ll,18/06/2022,05/10/2020,20.70,31.53,f,9%,89%,2%,0%,Monolingual,Did not get to start this experiment (only Semantic Inhibition),,,FALSE,FALSE,TRUE,FALSE
+cognatepriming153,2,30,FALSE,57943,Barcelona,Spanish,1,euro,18/06/2022,20/12/2019,30.37,41.20,f,92%,8%,0%,0%,Monolingual,,CognatePriming_153_2022-06-18_1.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming190,1,25,FALSE,58361,Barcelona,Catalan,1,ll,20/06/2022,10/06/2020,24.67,35.43,f,71%,29%,0%,0%,Bilingual,,CognatePriming_190_2022-06-20.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming191,1,30,FALSE,57805,Barcelona,Spanish,2,euro,21/06/2022,12/11/2019,31.73,42.47,f,87%,13%,0%,0%,Monolingual,,CognatePriming_191_2022-06-21.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming192,1,30,FALSE,57788,Barcelona,Catalan,3,ll,21/06/2022,03/11/2019,32.03,42.77,m,48%,52%,0%,0%,Bilingual,,CognatePriming_192_2022-06-21.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming193,1,21,FALSE,58329,Barcelona,Catalan,3,ll,25/06/2022,05/10/2020,20.93,31.53,f,45%,55%,0%,0%,Bilingual,,CognatePriming_193_2022-06-25.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming194,1,30,FALSE,57815,Barcelona,Catalan,2,ll,27/06/2022,14/11/2019,31.87,42.40,f,0%,80%,20%,0%,Monolingual,Trilingual,CognatePriming_194_2022-06-27.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming195,1,21,FALSE,58761,Barcelona,Spanish,3,euro,28/06/2022,12/10/2020,20.80,31.30,m,62%,38%,0%,0%,Bilingual,,CognatePriming_195_2022-06-28.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming196,1,21,FALSE,58333,Barcelona,Catalan,1,ll,28/06/2022,06/10/2020,21.00,31.50,m,48%,52%,0%,0%,Bilingual,,CognatePriming_196_2022-06-28_2.csv,,TRUE,FALSE,FALSE,FALSE
+cognatepriming168,2,30,FALSE,57983,Barcelona,Spanish,2,euro,29/06/2022,14/01/2020,29.90,40.37,f,73%,27%,0%,0%,Bilingual,,CognatePriming_168_2022-06-29.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming197,1,30,FALSE,58124,Barcelona,Catalan,1,ll,01/10/2022,20/02/2021,19.60,26.93,f,44%,56%,0%,0%,Bilingual,,CognatePriming_197_2022-10-01.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming198,1,30,FALSE,58265,Barcelona,Catalan,2,ll,01/10/2022,30/04/2020,29.47,36.80,m,15%,85%,0%,0%,Monolingual,,CognatePriming_198_2022-10-01.csv,,TRUE,FALSE,FALSE,FALSE
+cognatepriming199,1,30,FALSE,58420,Barcelona,Catalan,3,ll,03/10/2022,25/02/2020,31.70,38.97,f,0%,100%,0%,0%,Monolingual,,CognatePriming_199_2022-10-03.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming157,2,30,FALSE,58088,Barcelona,Catalan,1,ll,03/10/2022,11/02/2020,32.17,39.43,m,14%,86%,0%,0%,Monolingual,,CognatePriming_157_2022-10-03.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming200,1,30,FALSE,58136,Barcelona,Spanish,3,euro,04/10/2022,24/02/2020,31.77,39.00,f,43%,48%,9%,0%,Bilingual,Wrong language,CognatePriming_200_2022-10-04.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming177,2,30,FALSE,58137,Barcelona,Catalan,2,ll,05/10/2022,24/02/2020,31.80,39.00,m,51%,49%,0%,0%,Bilingual,,CognatePriming_177_2022-10-05.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming183,2,30,FALSE,58298,Barcelona,Catalan,1,ll,06/10/2022,27/04/2020,29.73,36.90,f,1%,99%,0%,0%,Monolingual,,CognatePriming_183_2022-10-06.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming201,1,25,FALSE,58725,Barcelona,Catalan,2,ll,07/10/2022,13/09/2020,25.13,32.27,m,3%,97%,0%,0%,Monolingual,,CognatePriming_201_2022-10-07.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming202,1,30,FALSE,58139,Barcelona,Catalan,3,ll,08/10/2022,25/02/2020,31.87,38.97,m,3%,97%,0%,0%,Monolingual,,CognatePriming_202_2022-10-08.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming203,1,30,FALSE,58120,Barcelona,Catalan,1,ll,08/10/2022,18/02/2020,32.10,39.20,f,34%,66%,0%,0%,Bilingual,,CognatePriming_203_2022-10-08.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming174,2,30,FALSE,58176,Barcelona,Catalan,1,ll,15/10/2022,04/03/2020,31.83,38.70,m,43%,57%,0%,0%,Bilingual,,CognatePriming_174_2022-10-15.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming158,2,30,FALSE,58530,Barcelona,Catalan,2,ll,15/10/2022,29/04/2020,29.97,36.83,f,41%,59%,0%,0%,Bilingual,,CognatePriming_158_2022-10-15.csv,,TRUE,FALSE,TRUE,FALSE
+cognatepriming204,1,21,FALSE,59385,Barcelona,Catalan,1,ll,26/10/2022,18/12/2020,22.57,29.07,m,,,,,,,,,FALSE,FALSE,FALSE,FALSE
+cognatepriming205,1,21,FALSE,59175,Barcelona,Catalan,1,ll,27/10/2022,17/02/2021,20.57,27.03,m,,,,,,,,,FALSE,FALSE,FALSE,FALSE
+cognatepriming150,3,30,FALSE,58286,Barcelona,Spanish,1,euro,28/10/2022,06/05/2020,30.17,36.60,m,,,,,,,,,,,,FALSE

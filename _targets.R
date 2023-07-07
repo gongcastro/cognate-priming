@@ -1,65 +1,42 @@
-library(targets)
-library(tarchetypes)
+# load packages ----------------------------------------------------------------
 
-# load functions ---------------------------------------------------------------
-invisible({ 
-	lapply(list.files(path = "R", 
-					  full.names = TRUE, 
-					  pattern = ".R"), source) 
-	lapply(list.files(path = "tests/testthat",
-					  full.names = TRUE, 
-					  pattern = ".R"), source)
-	lapply(list.files(path = "src",
-					  full.names = TRUE, 
-					  pattern = ".R"), source)
+suppressPackageStartupMessages({
+	suppressWarnings({
+		# workflows and project
+		library(targets)
+		library(tarchetypes)
+		library(cli)
+		# data handling, cleaning, and testing
+		library(tidyverse)
+		library(testthat)
+		# modelling
+		library(brms)
+		library(cmdstanr)
+		library(tidybayes)
+		library(collapse)
+		# reporting
+		library(quarto)
+		library(knitr)
+		library(gt)
+		library(kableExtra)
+		library(beeswarm)
+	})
 })
 
-# load packages ----------------------------------------------------------------
-tar_option_set(
-	packages = c(
-		# project utils
-		"arrow",
-		"brms",
-		"bvq",
-		"childesr",
-		"cli",
-		"conflicted",
-		"dplyr",
-		"eyetrackingR",
-		"forcats", 
-		"ggplot2", 
-		"googlesheets4",
-		"gt",
-		"here",
-		"httr",
-		"janitor",
-		"lazyeval",
-		"lubridate", 
-		"mice",
-		"patchwork",
-		"polypoly",
-		"purrr", 
-		"readxl", 
-		"scales", 
-		"shiny",
-		"stringr",
-		"targets",
-		"tarchetypes",
-		"testthat",
-		"tibble",
-		"tidybayes", 
-		"tidytext",
-		"tidyr",
-		"zoo"
-	)
-)
+# load functions ---------------------------------------------------------------
+
+invisible({ 
+	lapply(list.files(path = c("R", "tests/testthat"),
+					  full.names = TRUE, 
+					  pattern = ".R"), source) 
+})
 
 # set params -------------------------------------------------------------------
+
 options(mc.cores = 2,
 		brms.backend = "cmdstanr",
 		knitr.duplicate.label = "allow",
 		cli.progress_bar_style = "dot")
-
 
 # define targets (see https://books.ropensci.org/targets/)
 # in each target, the value returned by a function (second argument) is assigned to 
@@ -76,48 +53,36 @@ options(mc.cores = 2,
 
 list(
 	
-	tar_target(resolve_conficts, resolve_conflicts()),
-	
 	# get BVQ data -------------------------------------------------------------
 	
 	# this returns a list with all necessary data
-	tar_target(bvq_data, get_bvq(type = "understands")), 
+	tar_target(bvq_data_file, "data-raw/bvq.rds", format = "file"),
+	tar_target(bvq_data, readRDS(bvq_data_file)),
 	
 	# stimuli ------------------------------------------------------------------
 	
 	# import data
-	tar_target(trials, read_xlsx("stimuli/stimuli.xlsx")),
-	
+	tar_target(trials_file, "stimuli/stimuli.xlsx", format = "file"),
+	tar_target(trials, readxl::read_xlsx(trials_file)),
 	tar_target(childes_tokens, unique(unlist(distinct(trials, prime, target)))),
-	
-	tar_target(animacy, {
-		read.csv("data/stimuli/animacy.csv") |> 
-			as_tibble() |> 
-			mutate(is_animate = as.logical(is_animate)) |> 
-			filter(test_language %in% c("Catalan", "Spanish"))
-	}),
-	
+	tar_target(animacy, get_animacy()),
 	tar_target(familiarity, 
 			   get_familiarity(
 			   	tokens = unique(unlist(distinct(trials, prime_cdi, target_cdi))),
-			   	type = "understands", # defined in arguments
-			   	bvq_data = bvq_data)), # defined in arguments
-	
+			   	type = "understands",
+			   	bvq_data = bvq_data)),
 	tar_target(childes, 
 			   get_childes_corpora(
 			   	token = childes_tokens,
 			   	languages = c("cat", "spa"))),
-	
 	tar_target(frequencies,
 			   get_frequency_childes(
 			   	childes,
 			   	token = childes_tokens)),
-	
 	tar_target(semantic_category,
 			   bvq_data$pool |> # defined in arguments
 			   	select(word = item, language, semantic_category) |>
 			   	rename(test_language = language)),
-	
 	# join all stimuli datasets into a single object
 	# see src/R/00_stimuli.R for details on this function
 	tar_target(
@@ -127,16 +92,20 @@ list(
 					frequencies = frequencies,
 					semantic_category = semantic_category,
 					animacy = animacy)), 
-	
 	tar_target(stimuli_test, test_stimuli(stimuli)),
 	
 	# participants -------------------------------------------------------------
+	
 	# join datasets
 	# see R/01_participants.R for details on this function
-	tar_target(participants, get_participants()),
+	tar_target(participants_file,
+			   "data-raw/barcelona/participants.csv",
+			   format = "file"),
+	tar_target(participants, get_participants(participants_file)),
 	tar_target(participants_test, test_participants(participants)),
 	
 	# vocabulary ---------------------------------------------------------------
+	
 	tar_target(vocabulary,
 			   # see R/02_vocabulary.R for details on this function
 			   get_vocabulary(participants = participants, 
@@ -149,154 +118,191 @@ list(
 			   	 left = c(xmin = 180, xmax = 680, ymin = 290, ymax = 790),
 			   	 right = c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790))),
 	
-	tar_target(gaze_normalised, get_gaze_normalised()),
-	tar_target(gaze_joint, get_gaze_joint(gaze_normalised)),
-	tar_target(gaze_joint_test, test_gaze_joint(gaze_joint)),
-	tar_target(gaze_processed, get_gaze_processed(participants, stimuli, aoi_coords)),
-	tar_target(gaze_processed_test, test_gaze_processed(gaze_processed)),
-	tar_target(gaze_imputed, get_gaze_imputed(maxgap = 20)),
-	tar_target(gaze_imputed_test, test_gaze_imputed(gaze_imputed)),
-	tar_target(gaze_aoi, get_gaze_aoi(participants, stimuli, aoi_coords)),
-	tar_target(gaze_aoi_test, test_gaze_aoi(gaze_aoi)),
+	tar_target(gaze_files, 
+			   list.files("data-raw/barcelona/eyetracking/", 
+			   		   pattern = ".csv$",
+			   		   full.names = TRUE),
+			   format = "file"),
 	
-	# tar_target(gaze_plots, make_plots_gaze_raw(gaze_imputed, aoi_coords)),
+	tar_target(gaze_normalised, 
+			   get_gaze_normalised(gaze_files)),
+	
+	tar_target(gaze_raw, 
+			   get_gaze_raw(gaze_normalised)),
+	
+	tar_target(gaze_raw_test,
+			   test_gaze_raw(gaze_raw)),
+	
+	tar_target(gaze_processed, 
+			   get_gaze_processed(gaze_raw, participants)),
+	
+	tar_target(gaze_processed_test,
+			   test_gaze_processed(gaze_processed)),
+	
+	tar_target(gaze_aoi,
+			   get_gaze_aoi(gaze_processed,
+			   			 participants,
+			   			 stimuli, 
+			   			 aoi_coords)),
+	
+	tar_target(gaze_aoi_test, 
+			   test_gaze_aoi(gaze_aoi)),
+	# 
+	# tar_target(gaze_plots,
+	# 		   make_plots_gaze(
+	# 		   	gaze_aoi, 
+	# 		   	aoi_coords,
+	# 		   	participants,
+	# 		   	stimuli,
+	# 		   	attrition_trials,
+	# 		   	attrition_participants
+	# 		   )),
 	
 	# attrition data -----------------------------------------------------------
 	# see R/04_attrition.R for details on this function
-	tar_target(attrition,
-			   get_attrition(participants = participants,
-			   			  vocabulary = vocabulary,
-			   			  stimuli = stimuli,
-			   			  aoi_coords = aoi_coords,
-			   			  gaze_aoi = gaze_aoi,
-			   			  looking_threshold = c(prime = 0.25, target = 0.25, distractor = 0),
-			   			  min_trials = c(cognate = 2, non_cognate = 2, unrelated = 2))),
-	tar_target(attrition_test,
-			   test_attrition(
-			   	attrition,
-			   	missing_trials_threshold = c(cognate = 2, non_cognate = 2, unrelated = 2))),
+	tar_target(attrition_trials,
+			   get_attrition_trials(participants = participants,
+			   					 aoi_coords = aoi_coords,
+			   					 gaze_aoi = gaze_aoi,
+			   					 looking_threshold = c(prime = 0.75, 
+			   					 					  test = 1,
+			   					 					  test_each = 0.1))),
+	
+	tar_target(attrition_trials_test,
+			   test_attrition_trials(attrition_trials)),
+	
+	tar_target(attrition_participants,
+			   get_attrition_participants(attrition_trials,
+			   						   min_trials = c(cognate = 2, 
+			   						   			   noncognate = 2,
+			   						   			   unrelated = 2))),
+	tar_target(attrition_participants_test,
+			   test_attrition_participants(attrition_participants)),
 	
 	# prepare data for analysis ------------------------------------------------
 	# see R/05_prepare.R for details on the get_prepared() function
 	# this function returns an analysis ready dataset, with all necessary (transformed/coded) variables
-	tar_target(df,
-			   prepare_data(gaze_aoi = gaze_aoi,
-			   			 participants = participants,
-			   			 stimuli = stimuli, 
-			   			 vocabulary = vocabulary,
-			   			 attrition = attrition,
-			   			 aoi_coords = aoi_coords, 
-			   			 time_subset = c(0, 2))),
-	tar_target(df_test, test_df(df)),
-	tar_target(df_aggregated, aggregate_data(df)),
-	# tar_target(df_processed_plots, make_plots_gaze_processed(df)),
+	tar_target(data_time,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials,
+			   			  attrition_participants = attrition_participants,
+			   			  aoi_coords = aoi_coords, 
+			   			  time_subset = c(0.25, 2))),
 	
-	# see R/06_analysis.R for details on the fit_models() function
-	# this function takes a list of formulas and list of datasets and fits a model 
-	# that takes each formula-dataset pair at a time, and returns a named list of fits
+	tar_target(data_time_test,
+			   test_data_time(data_time)),
 	
-	# set model prior
-	tar_target(model_prior_agg,
-			   c(prior(normal(0, 0.1), class = "Intercept"),
-			     prior(exponential(4), class = "sigma"),
-			     prior(exponential(4), class = "sd"),
-			     prior(lkj(5), class = "cor"))),
+	tar_target(data_summary,
+			   get_data_summary(data_time)),
 	
-	# fit aggregated  models ---------------------------------------------------
-	# tar_target(
-	# 	fit_agg_prior,
-	# 	brm(logit ~ 1 + (1 | id),
-	# 		prior = model_prior_agg[-c(2, 5),],
-	# 		data = df_aggregated,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_agg_prior.stan"),
-	# 		file = here("results", "fit_agg_prior.rds"))
-	# ),
-	# tar_target(
-	# 	fit_agg_0,
-	# 	brm(logit ~ 1 + (1 | id),
-	# 		prior = model_prior_agg[-c(2, 5),],
-	# 		data = df_aggregated,
-	# 		iter = 2000, chains = 2, seed = 888,
-	# 		save_model = here("stan", "fit_agg_0.stan"),
-	# 		file = here("results", "fit_agg_0.rds"))
-	# ),
+	tar_target(data_summary_test,
+			   test_data_summary(data_summary)),
 	
-	# compare aggregated models
-	# tar_target(
-	# 	model_fits_agg,
-	# 	lst(fit_agg_0, fit_agg_1, fit_agg_2, fit_agg_3, fit_agg_4, fit_agg_5)
-	# ),
-	# 
-	# tar_target(loos_agg, loo_compare(map(model_fits_agg, loo))),
+	tar_target(data_time_plots,
+			   make_plots_gaze_processed(data_time, attrition_participants)),
 	
-	# fit growth curve analysis models -----------------------------------------
+	# analyse aggregated data
+	tar_target(fit_aggregated_0,
+			   get_model_fit(
+			   	formula = .logit ~ age_group +
+			   		(1 + age_group | id),
+			   	data = data_summary,
+			   	prior = c(prior(normal(0, 1), "Intercept"),
+			   			  prior(normal(0, 1), "b"),
+			   			  prior(normal(0, 1), "sd"),
+			   			  prior(normal(0, 1), "sigma")),
+			   	file = "results/fit_aggregated_0.rds"
+			   )),
 	
-	# set model prior
-	tar_target(model_prior,
-			   c(prior(normal(0, 1), class = "Intercept"),
-			     prior(normal(0, 1), class = "b"),
-			     prior(exponential(4), class = "sigma"),
-			     prior(exponential(4), class = "sd"),
-			     prior(lkj(4), class = "cor"))),
-	tar_target(fit_prior,
-			   brm(prop ~ (ot1 + ot2 + ot3) + ((ot1 + ot2 + ot3) | id),
-			   	data = df,
-			   	prior = model_prior,
-			   	sample_prior = "only",
-			   	# file_refit = "always",
-			   	iter = 1000, chains = 2, seed = 888, init = 0,
-			   	save_model = here("stan", "fit_prior.stan"),
-			   	file = here("results", "fit_prior.rds"))),
-	tar_target(fit_0,
-			   brm(logit ~ (ot1 + ot2 + ot3) + ((ot1 + ot2 + ot3) | id),
-			   	data = df,
-			   	prior = model_prior,
-			   	# file_refit = "always",
-			   	iter = 1000, chains = 2, seed = 888,
-			   	save_model = here("stan", "fit_0.stan"),
-			   	file = here("results", "fit_0.rds"))),
-	tar_target(fit_1,
-			   brm(logit ~ (ot1 + ot2 + ot3)*age_group + ((ot1 + ot2 + ot3)*age_group | id),
-			   	data = df,
-			   	prior = model_prior,
-			   	# file_refit = "always",
-			   	iter = 1000, chains = 2, seed = 888, init = 0,
-			   	save_model = here("stan", "fit_1.stan"),
-			   	file = here("results", "fit_1.rds"))),
-	tar_target(fit_2,
-			   brm(logit ~ (ot1 + ot2 + ot3)*age_group*lp + ((ot1 + ot2 + ot3)*age_group | id),
-			   	data = df,
-			   	prior = model_prior,
-			   	# file_refit = "always",
-			   	iter = 1000, chains = 2, seed = 888, init = 0,
-			   	save_model = here("stan", "fit_2.stan"),
-			   	file = here("results", "fit_2.rds"))),
-	tar_target(fit_3,
-			   brm(logit ~ (ot1 + ot2 + ot3)*age_group*lp*trial_type + ((ot1 + ot2 + ot3)*age_group*lp*trial_type | id),
-			   	data = df,
-			   	prior = model_prior,
-			   	# file_refit = "always",
-			   	iter = 1000, chains = 2, seed = 888, init = 0,
-			   	save_model = here("stan", "fit_3.stan"),
-			   	file = here("results", "fit_3.rds"))),
-	tar_target(fit_4,
-			   brm(logit ~ (ot1 + ot2 + ot3)*vocab_std*lp*trial_type + ((ot1 + ot2 + ot3)*vocab_std*lp*trial_type | id),
-			   	data = df,
-			   	prior = model_prior,
-			   	# file_refit = "always",
-			   	iter = 1000, chains = 2, seed = 888, init = 1,
-			   	save_model = here("stan", "fit_4.stan"),
-			   	file = here("results", "fit_4.rds"))),
+	tar_target(fit_aggregated_1,
+			   get_model_fit(
+			   	formula = .logit ~ age_group * lp +
+			   		(1 + age_group * trial_type | id),
+			   	data = data_summary,
+			   	prior = c(prior(normal(0, 1), "Intercept"),
+			   			  prior(normal(0, 1), "b"),
+			   			  prior(normal(0, 1), "sd"),
+			   			  prior(normal(0, 1), "sigma"),
+			   			  prior(lkj(5), "cor")),
+			   	file = "results/fit_aggregated_1.rds"
+			   )),
 	
-	# compare GCA models
-	tar_target(loos, loo_compare(map(lst(fit_0, fit_1, fit_2, fit_3, fit_4), loo_subsample)))
+	tar_target(fit_aggregated_2,
+			   get_model_fit(
+			   	formula = .logit ~ age_group * lp * trial_type +
+			   		(1 + age_group * trial_type | id),
+			   	data = data_summary,
+			   	prior = c(prior(normal(0, 1), "Intercept"),
+			   			  prior(normal(0, 1), "b"),
+			   			  prior(normal(0, 1), "sd"),
+			   			  prior(normal(0, 1), "sigma"),
+			   			  prior(lkj(5), "cor")),
+			   	file = "results/fit_aggregated_2.rds"
+			   )),
 	
-	# render report
-	# tar_quarto(report, 
-	# 		   "docs/index.qmd", 
+	
+	tar_target(loos_aggregated,
+			   loo_compare(map(lst(fit_aggregated_0,
+			   					fit_aggregated_1,
+			   					fit_aggregated_2),
+			   				loo))),
+	
+	# TIMECOURSE
+	tar_target(fit_timecourse_0,
+			   get_model_fit(
+			   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group +
+			   		(1 + (ot1 + ot2 + ot3) * age_group | id),
+			   	data = data_time,
+			   	prior = c(prior(normal(0, 1), "Intercept"),
+			   			  prior(normal(0, 1), "b"),
+			   			  prior(normal(0, 1), "sd"),
+			   			  prior(normal(0, 1), "sigma"),
+			   			  prior(lkj(5), "cor")),
+			   	file = "results/fit_timecourse_0.rds"
+			   )),
+	
+	tar_target(fit_timecourse_1,
+			   get_model_fit(
+			   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group * lp +
+			   		(1 + (ot1 + ot2 + ot3) * age_group | id),
+			   	data = data_time,
+			   	prior = c(prior(normal(0, 1), "Intercept"),
+			   			  prior(normal(0, 1), "b"),
+			   			  prior(normal(0, 1), "sd"),
+			   			  prior(normal(0, 1), "sigma"),
+			   			  prior(lkj(5), "cor")),
+			   	file = "results/fit_timecourse_1.rds"
+			   )),
+	
+	tar_target(fit_timecourse_2,
+			   get_model_fit(
+			   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group * lp * trial_type +
+			   		(1 + (ot1 + ot2 + ot3) * age_group * trial_type | id),
+			   	data = data_time,
+			   	prior = c(prior(normal(0, 1), "Intercept"),
+			   			  prior(normal(0, 1), "b"),
+			   			  prior(normal(0, 1), "sd"),
+			   			  prior(normal(0, 1), "sigma"),
+			   			  prior(lkj(5), "cor")),
+			   	file = "results/fit_timecourse_2.rds"
+			   )),
+	
+	tar_target(loos_timecourse,
+			   loo_compare(map(lst(fit_timecourse_0,
+			   					fit_timecourse_1,
+			   					fit_timecourse_2),
+			   				loo)))
+	
+	
+	# # render report
+	# tar_quarto(report,
+	# 		   "docs/index.qmd",
 	# 		   execute = TRUE,
 	# 		   quiet = FALSE)
+	
 )
 
 

@@ -3,7 +3,7 @@ test_vocabulary <- function(vocabulary){
 	test_that("vocabulary has the right columns", {
 		expect_equal(
 			colnames(vocabulary),
-			c("id",
+			c("id_db",
 			  "age_group",
 			  "lp",
 			  "total_prop",
@@ -16,7 +16,7 @@ test_vocabulary <- function(vocabulary){
 	})
 	
 	test_that("vocabulary has the variable classes", {
-		expect_type(vocabulary$id, "character")
+		expect_type(vocabulary$id_db, "character")
 		expect_equal(class(vocabulary$age_group), "factor")
 		expect_equal(class(vocabulary$lp), "factor")
 		expect_type(vocabulary$total_prop, "double")
@@ -30,7 +30,7 @@ test_vocabulary <- function(vocabulary){
 	})
 	
 	test_that("vocabulary missing data is dealt with", {
-		expect_false(any(is.na(vocabulary$id)))
+		expect_false(any(is.na(vocabulary$id_db)))
 		expect_false(any(is.na(vocabulary$age_group)))
 		expect_false(any(is.na(vocabulary$lp)))
 		expect_false(any(is.na(vocabulary$total_prop)))
