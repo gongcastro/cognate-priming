@@ -12,11 +12,11 @@ _targets/
 **/nul
 **/*.parquet
 **/*.html
+img/**/*.png
 
 Dissemination/
 Media/
 documents/
-img/
 presentations/
 
 !Data/Stimuli/*

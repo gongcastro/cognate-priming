@@ -42,7 +42,8 @@ csl: "apa7.csl"
 tar_load(c(participants, stimuli, 
 		   attrition_trials,
 		   attrition_participants,
-		   gaze_aoi,
+		   gaze_aoi, vocabulary,
+		   loos_aggregated, loos_timecourse,
 		   data_time, data_summary))
 
 # set ggplot theme and colour palette
@@ -363,19 +364,45 @@ participants |>
 
 ## Data analysis
 
-
-
 ### Data processing
 
-Trial-level inclusion criteria:
+```{r attrition-numbers}
+n_trials <- nrow(attrition_trials)
+n_sessions <- distinct(attrition_trials, id, age_group) |> 
+	nrow()
+n_participants <- distinct(attrition_trials, id) |> 
+	nrow()
 
-1. Valid prime: $\text{Prime}_{LT} \geq 750 \text{ms}$ (50%)
-2. Valid test: $\text{Target}_{LT} + \text{Distractor}_{LT} \geq 1,000 \text{ms}$ (50%)
-3. Minimum 100ms looking time to target, and minimum 100ms looking time to target (5%)
+n_trials_prime <- attrition_trials |> 
+	filter(is_valid_gaze_prime)
 
-Participant-level inclusion criteria:
+n_trials_test <- n_trials_prime |> 
+	filter(is_valid_gaze_test)
 
-4. At least two valid trial of each type (cognate, non-cognate, unrelated)
+n_trials_each <- n_trials_test |> 
+	filter(is_valid_gaze_test_each)
+
+n_trials_participant <- n_trials_each |> 
+	inner_join(filter(attrition_participants,
+					  is_valid_participant),
+			   by = join_by(id, age_group))
+
+n_sessions_valid <- attrition_participants |> 
+	filter(is_valid_participant)
+
+n_participants_valid <- n_trials_participant |> 
+	distinct(id)
+
+n_longitudinal <- count(n_sessions_valid, id, name = "sessions") |> 
+	count(sessions)
+
+n_participants_include <- read_csv("data-raw/participants.csv",
+								   show_col_types = FALSE)
+```
+
+We gathered data for `r format(n_trials, big.mark = ",")` trials from `r n_sessions` experimental sessions, provided by `r n_participants` distinct participants. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach]. We excluded trials in which the participant did not fixate the prime at least half of the time of the prime phase ($\geq$750 ms, *n* = `r format(n_trials - nrow(n_trials_prime), big.mark = ",")`), or the target and distractor during the test phase ($\geq$1,000 ms, *n* = `r format(nrow(n_trials_prime) - nrow(n_trials_test), big.mark = ",")`). Additionally, we also excluded trials in which the participant failed to fixate both target *and* distractor pictures for at least 100 ms (5% of the time, `r format(nrow(n_trials_test) - nrow(n_trials_each), big.mark = ",")`). Finally we excluded trials from experimental sessions in which the participant did not provide at least two valid trials in each of the three experimental conditions (cognate prime, non-cognate prime, and unrelated prime) which resulted in the exclusion of `r nrow(distinct(n_trials_each, id, age_group)) - nrow(n_sessions_valid)` experimental sessions and their `r nrow(n_trials_each) - nrow(n_trials_participant)` remaining trials. The final data set comprised `r format(sum(data_summary$.ntrials), big.mark = ",")` from `r n_sessions_valid` experimental sessions, provided by `r n_participants_valid` distinct participants. Of those participants, `r n_longitudinal[1]` provided data from one experimental session, `r n_longitudinal[2]` provided data from two experimental sessions, and `r n_longitudinal[1]` provided data from three experimental sessions.
+
+We defined our time window of interest from 300 ms after the onset of the test phase (target and distractor presentation) until the end of the test phase (2,000 ms). For each trial, we chunked the time domain into 17 time bins of 100 ms of duration. We then calculated, for each experimental session, time bin, and condition, participant's proportion of target and distractor fixations. Finally, we computed the empirical log-odds of target and distractor fixations, which we introduced in the statistical analyses as our response variable.
 
 
 ```{r} 
@@ -544,475 +571,74 @@ w_{3_{j}}
 $$ {#eq-prior}
 
 
-```{r}
-#| label: fig-prior-epred
-#| fig-width: 9
-#| fig-height: 6
-nd <- tibble(time_bin = seq(0, 20, 0.1)) |> 
-polypoly::poly_add_columns(time_bin, degree = 3, prefix = "ot", scale_width = 1)
-
-m <- add_epred_draws(nd, fit_prior, ndraws = 50, re_formula = NA) |> 
-mutate(.epred = plogis(.epred))
-
-ggplot(m, aes(time_bin, .epred)) +
-geom_hline(yintercept = 0.5, colour = "grey", size = 1) +
-geom_line(aes(group = .draw), colour = clrs[4], size = 1, alpha = 0.5) +
-labs(x = "Time (ms)",
-y = "Proportion of target looking time") +
-scale_y_continuous(labels = percent) +
-scale_x_continuous(labels = function(x) format(x*100, big.mark = ","))
-```
 
 
 # Results
 
-## Attrition
-
-::: {.tabset-panel}
-
-### By participants
+## Aggregated target looking
 
 ```{r}
-#| label: fig-attrition-participants
-#| fig-height: 4
-n_text <- participants |> 
-drop_na(is_valid_participant) |> 
-mutate(
-valid_status = case_when(
-is_valid_participant & !is_imputed ~ "Valid (observed CDI)",
-is_valid_participant & is_imputed ~ "Valid (imputed CDI)",
-!is_valid_participant ~ "Excluded"
-)
-) |> 
-count(lp, age_group, valid_status) 
+#| label: tbl-loos-agreggated
+loos_aggregated |> 
+	as_tibble(.name_repair = janitor::make_clean_names) |> 
+	rownames_to_column("model") |> 
+	relocate(
+		model, 
+		matches("diff"),
+		matches("elpd_loo"),
+		matches("p_loo"), 
+		matches("looic")
+	) |>
+	mutate(across(everything(), as.numeric),
+		   model = attr(loos_aggregated, "dimnames")[[1]]) |> 
+	select(-matches("subsampling")) |> 
+	gt(rowname_col = "model") |>
+	fmt_number(is.numeric, decimals = 1) |> 
+	cols_merge_uncert(col_val = elpd_diff, col_uncert = se_diff) |> 
+	cols_merge_uncert(col_val = elpd_loo, col_uncert = se_elpd_loo) |> 
+	cols_merge_uncert(col_val = p_loo, col_uncert = se_p_loo) |> 
+	cols_merge_uncert(col_val = looic, col_uncert = se_looic) |> 
+	cols_label(model = "Model",
+			   elpd_loo = md("*ELPD*"),
+			   p_loo = md("*p*"),
+			   looic = md("*LOO-IC*"),
+			   elpd_diff = md("Difference")) |> 
+	tab_source_note(md("Pareto-*k* estimates of all models were acceptable (*k* < 0.5)"))
 
-
-participants |> 
-mutate(valid_status = case_when(
-is_valid_participant & !is_imputed ~ "valid_cdi_observed",
-is_valid_participant & is_imputed ~ "valid_cdi_imputed",
-!is_valid_participant ~ "excluded")) |> 
-add_count(age_group, lp, name = "n_total") |> 
-count(age_group, lp, n_total, valid_status) |> 
-pivot_wider(names_from = valid_status, values_from = n, values_fill = 0) |> 
-relocate(age_group, lp, n_total, valid_cdi_observed, valid_cdi_imputed, excluded) |> 
-mutate(across(matches("valid_|excluded"), ~./n_total, .names = "{.col}_prop")) |> 
-gt(rowname_col = "lp", groupname_col = "age_group") |> 
-fmt_percent(matches("prop"), decimals = 1) |> 
-cols_merge_n_pct(col_n = valid_cdi_observed, col_pct = valid_cdi_observed_prop) |> 
-cols_merge_n_pct(col_n = valid_cdi_imputed, col_pct = valid_cdi_imputed_prop) |> 
-cols_merge_n_pct(col_n = excluded, col_pct = excluded_prop) |> 
-tab_spanner("Included participants", matches("valid")) |> 
-tab_spanner("Excluded participants", matches("excluded")) |> 
-cols_label(n_total = "N",
-valid_cdi_observed = "Collected CDI",
-valid_cdi_imputed = "Missing CDI",
-excluded = "") |> 
-summary_rows(groups = TRUE, columns = where(is.integer), 
-fns = list("N" = ~sum(.)),
-formatter = fmt_number,
-decimals = 0) |> 
-grand_summary_rows(columns = where(is.integer), 
-fns = list("N" = ~sum(.)),
-formatter = fmt_number,
-decimals = 0) 
 ```
 
-
-
-### By stimuli properties
+## Growth Curve Analysis
 
 ```{r}
-#| label: tbl-attrition-predictors
+#| label: tbl-loos-timecourse
+loos_timecourse |> 
+	as_tibble(.name_repair = janitor::make_clean_names) |> 
+	rownames_to_column("model") |> 
+	relocate(
+		model, 
+		matches("diff"),
+		matches("elpd_loo"),
+		matches("p_loo"), 
+		matches("looic")
+	) |>
+	mutate(across(everything(), as.numeric),
+		   model = attr(loos_timecourse, "dimnames")[[1]]) |> 
+	select(-matches("subsampling")) |> 
+	gt(rowname_col = "model") |>
+	fmt_number(is.numeric, decimals = 1) |> 
+	cols_merge_uncert(col_val = elpd_diff, col_uncert = se_diff) |> 
+	cols_merge_uncert(col_val = elpd_loo, col_uncert = se_elpd_loo) |> 
+	cols_merge_uncert(col_val = p_loo, col_uncert = se_p_loo) |> 
+	cols_merge_uncert(col_val = looic, col_uncert = se_looic) |> 
+	cols_label(model = "Model",
+			   elpd_loo = md("*ELPD*"),
+			   p_loo = md("*p*"),
+			   looic = md("*LOO-IC*"),
+			   elpd_diff = md("Difference")) |> 
+	tab_source_note(md("Pareto-*k* estimates of all models were acceptable (*k* < 0.5)"))
 
-attrition_participants |> 
-left_join(distinct(participants, id, age_group,
-test_language, list, version, list),
-by = join_by(id, age_group)) |> 
-left_join(distinct(stimuli, test_language, version, list,
-trial_id, trial_type,
-freq_target, freq_prime,
-familiarity_prime, familiarity_target),
-relationship = "many-to-many",
-by = join_by(test_language, list, version))|> 
-mutate(valid_status = ifelse(valid_status != "Valid",
-"Excluded", 
-valid_status)) |> 
-summarise(n = n(),
-across(matches("freq_|familiarity_"), lst(mean, sd)),
-.by = c(trial_type, valid_status, age_group)) |> 
-pivot_wider(names_from = valid_status,
-values_from = c(n, matches("freq_|familiarity_")),
-values_fill = 0,
-names_repair = janitor::make_clean_names) |>
-relocate(age_group, trial_type,
-n_valid, n_excluded, 
-matches("_valid")) |> 
-gt(rowname_col = "trial_type", 
-groupname_col = "age_group") |> 
-fmt_number(matches("n_"),
-decimals = 0) |> 
-fmt_number(matches("freq_"),
-decimals = 1) |> 
-fmt_number(matches("familiarity"),
-scale_by = 100,
-decimals = 1) |> 
-tab_spanner("N", c(n_valid, n_excluded)) |> 
-tab_spanner("Prime", id = 1,
-c(freq_prime_mean_valid,
-freq_prime_mean_excluded)) |>
-tab_spanner("Target", id = 2, 
-c(freq_target_mean_valid, 
-freq_target_mean_excluded)) |> 
-tab_spanner("Prime", id = 3, 
-c(familiarity_prime_mean_valid, 
-familiarity_prime_mean_excluded)) |> 
-tab_spanner("Target", id = 4, 
-c(familiarity_target_mean_valid,
-familiarity_target_mean_excluded)) |>
-tab_spanner("Frequency", starts_with("freq_")) |> 
-tab_spanner("Familiarity (%)", starts_with("familiarity_")) |> 
-
-cols_merge_uncert(col_val = freq_prime_mean_valid, 
-col_uncert = freq_prime_sd_valid) |> 
-cols_merge_uncert(col_val = freq_prime_mean_excluded,
-col_uncert = freq_prime_sd_excluded) |> 
-cols_merge_uncert(col_val = freq_target_mean_valid,
-col_uncert = freq_target_sd_valid) |> 
-cols_merge_uncert(col_val = freq_target_mean_excluded,
-col_uncert = freq_target_sd_excluded) |> 
-cols_merge_uncert(col_val = familiarity_prime_mean_valid,
-col_uncert = familiarity_prime_sd_valid) |> 
-cols_merge_uncert(col_val = familiarity_prime_mean_excluded, 
-col_uncert = familiarity_prime_sd_excluded) |> 
-cols_merge_uncert(col_val = familiarity_target_mean_valid,
-col_uncert = familiarity_target_sd_valid) |>
-cols_merge_uncert(col_val = familiarity_target_mean_excluded, 
-col_uncert = familiarity_target_sd_excluded) |> 
-cols_label(n_excluded = "Exc.",
-n_valid = "Inc.",
-freq_prime_mean_valid = "Inc.",
-freq_prime_mean_excluded = "Exc.",
-freq_target_mean_valid = "Inc.",
-freq_target_mean_excluded = "Exc.",
-familiarity_prime_mean_valid = "Inc.",
-familiarity_prime_mean_excluded = "Exc.",
-familiarity_target_mean_valid = "Inc.",
-familiarity_target_mean_excluded = "Exc.") |> 
-summary_rows(groups = TRUE,
-columns = matches("freq_") ,
-fns = list("Mean" = ~mean(.)), 
-formatter = fmt_number,
-decimals = 1) |> 
-summary_rows(groups = TRUE,
-columns = matches("familiarity_"), 
-fns = list("Mean" = ~mean(.)),
-formatter = fmt_number,
-scale_by = 100,
-decimals = 1) |> 
-grand_summary_rows(columns = c(n_valid, n_excluded),
-fns = list("N" = ~sum(.)),
-formatter = fmt_number,
-decimals = 0) |> 
-grand_summary_rows(columns = matches("familiarity_"),
-fns = list("Mean" = ~mean(.)),
-formatter = fmt_number,
-scale_by = 100,
-decimals = 1) |> 
-grand_summary_rows(columns = matches("freq_"),
-fns = list("Mean" = ~mean(.)),
-formatter = fmt_number,
-decimals = 1) |> 
-tab_style(cell_text(align = "center"),
-cells_column_labels()) |> 
-# tab_style(cell_text(weight = "bold"),
-# 		  list(cells_column_spanners(),
-# 		  	 cells_grand_summary(),
-# 		  	 cells_row_groups(),
-# 		  	 cells_stub_grand_summary(),
-# 		  	 cells_stub_summary())) |> 
-tab_footnote("Included trials.", cells_column_labels(matches("_valid"))) |> 
-tab_footnote("Excluded trials.", cells_column_labels(matches("_excluded")))
 ```
 
-:::
-
-## Descriptive statistics
-
-### Aggregated target looking
-
-```{r}
-#| label: fig-descriptives-aggregated
-#| fig-width: 10
-#| fig-height: 6
-data_summary |> 
-summarise(.prop = mean(.prop),
-.by = c(id, lp, trial_type, age_group)) |> 
-ggplot(aes(trial_type, 
-.prop, 
-colour = trial_type,
-fill = trial_type)) +
-facet_grid(lp~age_group) +
-geom_hline(yintercept = 0.5, 
-size = 1, 
-colour = "grey") +
-geom_line(aes(group = id),
-colour = "grey",
-alpha = 0.25) +
-geom_dots(layout = "swarm") +
-geom_boxplot(width = 0.1,
-fill = "white", 
-colour = "black",
-outlier.colour = NA) +
-labs(x = "Trial type",
-y = "Proportion of target looking",
-colour = "Trial type", 
-fill = "Trial type") +
-scale_y_continuous(labels = \(x) scales::percent(x, accuracy = 1)) +
-theme(legend.position = "none")
-```
-
-### Time-course target looking
-
-```{r}
-#| label: fig-descriptives-time-course
-#| fig-width: 12
-#| fig-height: 8
-data_time |> 
-summarise(.logit = mean(.logit),
-.by = c(id, timebin, lp, trial_type, age_group)) |> 
-ggplot(aes(timebin, .logit,
-colour = trial_type, 
-fill = trial_type, 
-shape = trial_type)) +
-facet_grid(lp~age_group) +
-geom_hline(yintercept = 0, 
-size = 1,
-colour = "grey") +
-stat_summary(fun.data = mean_se,
-geom = "ribbon",
-colour = NA,
-alpha = 0.5) +
-stat_summary(fun = mean,
-geom = "point",
-size = 2) +
-stat_summary(fun = mean,
-geom = "line", 
-size = 0.75) +
-labs(x = "Time bin (100 ms)",
-y = "Proportion of target looking",
-colour = "Trial type", 
-fill = "Trial type", 
-shape = "Trial type") +
-scale_y_continuous(labels = \(x) scales::percent(x, accuracy = 1)) +
-scale_x_continuous(labels = \(x) format(x * 100, big.mark = ",")) +
-theme(legend.position = "top",
-legend.title = element_blank(),
-panel.grid = element_line(linetype = "dotted", 
-colour = "grey"),
-panel.grid.major = element_line(colour = "grey", 
-linetype = "dotted"))
-```
-
-
-## Model outputs
-
-### Model comparison
-
-```{r}
-#| label: tab-model-comparison
-loos |> 
-as_tibble(.name_repair = make_clean_names) |> 
-rownames_to_column("model") |> 
-relocate(
-model, 
-matches("diff"),
-matches("elpd_loo"),
-matches("p_loo"), 
-matches("looic")
-) |>
-mutate(across(everything(), as.numeric),
-model = attr(loos, "dimnames")[[1]]) |> 
-select(-matches("subsampling")) |> 
-gt(rowname_col = "model") |>
-fmt_number(is.numeric, decimals = 1) |> 
-cols_merge_uncert(col_val = elpd_diff, col_uncert = se_diff) |> 
-cols_merge_uncert(col_val = elpd_loo, col_uncert = se_elpd_loo) |> 
-cols_merge_uncert(col_val = p_loo, col_uncert = se_p_loo) |> 
-cols_merge_uncert(col_val = looic, col_uncert = se_looic) |> 
-cols_label(model = "Model",
-elpd_loo = md("*ELPD*"),
-p_loo = md("*p*"),
-looic = md("*LOO-IC*"),
-elpd_diff = md("Difference")) |> 
-tab_source_note(md("Pareto-*k* estimates of all models were acceptable (*k* < 0.5)")) |> 
-tab_style(cell_text(weight = "bold"),
-cells_column_labels()) |> 
-tab_style(cell_fill(color = "grey", alpha = 0.5),
-cells_body(matches("diff"))) |> 
-tab_style(cell_fill(color = clrs[4], alpha = 0.75),
-cells_body(everything(), 1))
-```
-
-### Fixed effects 
-
-::: {.panel-tabset}
-
-#### Table
-
-```{r}
-#| label: tbl-fixed-effects
-#| tbl-cap: "Summary of the posterior distribution of the Growth Curve Analysis model. We report the median and 95% highest density interval (*HDI*) of each fixed coefficient. The 95% interval indicates the range of values that contains the true value of the parameter with 95% probability. Values are in *logit* scale. Coefficients whose 95% HDI excludes zero are highlighted in red. Coefficients on the intercept indicate changes in overal proportion of target looking, coefficients in the linear term indicate changes in the overall slope of target looking growth across time, coefficients in the quadratic and cubic terms reflect the steepness of the rise and fall or of the rise, fall and rise, respectivey,  of the curve."
-post_draws <- gather_draws(fit_3, `b_.*`, regex = TRUE)
-
-str_repl <- c(
-"b_Intercept" = "Base",
-"b_ot1" = "Base",
-"b_ot2" = "Base",
-"b_ot3" = "Base",
-"b_age_group21_25" = "Age [21-25]",
-"b_age_group25_30" = "Age [25-30]",
-"b_lpmon_bil" = "Group",
-"b_trial_typerelated_unrelated" = "Prime (R)",
-"b_trial_typecognate_noncognate" = "Prime (C)",
-
-"b_age_group21_25:lpmon_bil" = "Age [21-25] × Group",
-"b_age_group25_30:lpmon_bil" = "Age [25-30] × Group",
-"b_age_group21_25:trial_typerelated_unrelated" = "Age [21-25] × Prime (R)",
-"b_age_group21_25:trial_typecognate_noncognate" = "Age [21-25] × Prime (C)",
-"b_age_group25_30:trial_typerelated_unrelated" = "Age [25-30] × Prime (R)",
-"b_age_group25_30:trial_typecognate_noncognate" = "Age [25-30] × Prime (C)",
-"b_lpmon_bil:trial_typerelated_unrelated" = "Group × Prime (R)",
-"b_lpmon_bil:trial_typecognate_noncognate" = "Group × Prime (C)",
-
-"b_age_group21_25:lpmon_bil:trial_typerelated_unrelated" = "Age [21-25] × Group × Prime (R)",
-"b_age_group21_25:lpmon_bil:trial_typecognate_noncognate" = "Age [21-25] × Group × Prime (C)",
-"b_age_group25_30:lpmon_bil:trial_typerelated_unrelated" = "Age [25-30] × Group × Prime (R)",
-"b_age_group25_30:lpmon_bil:trial_typecognate_noncognate" = "Age [25-30] × Group × Prime (C)"
-)
-
-post_draws |> 
-median_hdi() |>
-mutate(poly = case_when(str_detect(.variable, "ot1") ~ "Linear",
-str_detect(.variable, "ot2") ~ "Quadratic",
-str_detect(.variable, "ot3") ~ "Cubic",
-TRUE ~ "Intercept"),
-.variable_name = case_when(.variable %in% paste0("b_ot", 1:3) ~ .variable,
-TRUE ~ str_remove_all(.variable, "ot1\\:|ot2\\:|ot3\\:")) |> 
-factor(levels = names(str_repl),
-label = str_repl,
-ordered = TRUE),
-type = case_when(.variable_name %in% str_repl[1:9] ~ "Main effect",
-.variable_name %in% str_repl[10:17] ~ "Two-way interactions",
-.variable_name %in% str_repl[18:length(str_repl)] ~ "Three-way interactions")) |>
-select(.variable_name, type, poly, .value:.upper) |>
-arrange(.variable_name) |> 
-pivot_wider(names_from = poly, 
-values_from = is.numeric,
-id_cols = c(.variable_name, type),
-values_fill = NA,
-names_repair = make_clean_names) |> 
-relocate(variable_name, starts_with("value_")) |> 
-gt(rowname_col = "variable_name",
-groupname_col = "type") |> 
-fmt_number(is.numeric) |>
-tab_spanner("Intercept", matches("intercept")) |> 
-sub_missing(everything(), rows = everything(), missing_text = "--") |> 
-tab_spanner("Linear", matches("linear")) |> 
-tab_spanner("Quadratic", matches("quadratic")) |> 
-tab_spanner("Cubic", matches("cubic")) |> 
-cols_merge(c(lower_intercept, upper_intercept), pattern = "[{1}, {2}]") |> 
-cols_merge(c(lower_linear, upper_linear), pattern = "[{1}, {2}]") |> 
-cols_merge(c(lower_quadratic, upper_quadratic), pattern = "[{1}, {2}]") |> 
-cols_merge(c(lower_cubic, upper_cubic), pattern = "[{1}, {2}]") |>
-cols_label(value_intercept = md("b"),
-lower_intercept = md("95% *HDI*"),
-value_linear = md("b"),
-lower_linear = md("95% *HDI*"),
-value_quadratic = md("b"),
-lower_quadratic = md("95% *HDI*"),
-value_cubic = md("b"),
-lower_cubic = md("95% *HDI*")) |> 
-tab_style(cell_text(align = "left", indent = px(10)),
-cells_stub()) |> 
-tab_style(cell_fill(color = "grey90"),
-cells_body(matches("value"))) |> 
-tab_style(cell_text(weight = "bold"),
-cells_column_spanners()) |> 
-tab_style(cell_text(weight = "bold"),
-cells_row_groups()) |> 
-tab_style(cell_text(style = "oblique"),
-cells_column_labels(columns = matches("value"))) |> 
-tab_style(cell_fill(color = clrs[4], alpha = 0.75),
-cells_body(columns = value_intercept, 
-rows = (upper_intercept < 0) | (lower_intercept > 0))) |> 
-tab_style(cell_fill(color = clrs[4], alpha = 0.75),
-cells_body(columns = value_linear, 
-rows = (upper_linear < 0) | (lower_linear > 0))) |>
-tab_style(cell_fill(color = clrs[4], alpha = 0.75),
-cells_body(columns = value_quadratic, 
-rows = (upper_quadratic < 0) | (lower_quadratic > 0))) |>
-tab_style(cell_fill(color = clrs[4], alpha = 0.75),
-cells_body(columns = value_cubic, 
-rows = (upper_cubic < 0) | (lower_cubic > 0))) |> 
-tab_style(cell_text(size = "small"), 
-list(cells_body(), cells_stub())) |> 
-tab_footnote("Sum-coded contrast between 21 and 25 month old participants.",
-cells_stub(rows = 2)) |> 
-tab_footnote("Sum-coded contrast between 25 and 30 month old participants.",
-cells_stub(rows = 3)) |> 
-tab_footnote("Sum-coded contrast between monolingual and bilingual participants.",
-cells_stub(rows = 4)) |> 
-tab_footnote("Sum-coded contrast between related (cognate and non-cognate) and unrelated trials",
-cells_stub(rows = 5)) |> 
-tab_footnote("Sum-coded contrast between cognate and non-cognate trials",
-cells_stub(rows = 6))
-```
-
-#### Plot 
-
-```{r}
-#| label: fig-fixed-effects
-#| fig-height: 7
-#| fig-width: 13
-#| fig-cap: "Summary of the posterior of the Growth Curve Analysis model. We report the median and 95% highest density interval (*HDI*) of each fixed coefficient. The 95% interval indicates the range of values that contains the true value of the parameter with 95% probability. Values are in *logit* scale. Coefficients whose 95% HDI excludes zero are highlighted in red. Summary of the posterior distribution of the Growth Curve Analysis model. We report the median and 95% highest density interval (*HDI*) of each fixed coefficient. The 95% interval indicates the range of values that contains the true value of the parameter with 95% probability. Values are in *logit* scale. Coefficients whose 95% HDI excludes zero are highlighted in red. Coefficients on the intercept indicate changes in overal proportion of target looking, coefficients in the linear term indicate changes in the overall slope of target looking growth across time, coefficients in the quadratic and cubic terms reflect the steepness of the rise and fall or of the rise, fall and rise, respectivey,  of the curve."
-post_draws |> 
-median_hdi() |>
-mutate(poly = case_when(str_detect(.variable, "ot1") ~ "Linear",
-str_detect(.variable, "ot2") ~ "Quadratic",
-str_detect(.variable, "ot3") ~ "Cubic",
-TRUE ~ "Intercept") |> 
-factor(levels = c("Intercept", "Linear", "Quadratic", "Cubic")),
-.variable_name = case_when(.variable %in% paste0("b_ot", 1:3) ~ .variable,
-TRUE ~ str_remove_all(.variable, "ot1\\:|ot2\\:|ot3\\:")) |> 
-factor(levels = names(str_repl),
-label = str_repl,
-ordered = TRUE),
-type = case_when(.variable_name %in% str_repl[1:9] ~ "Main effect",
-.variable_name %in% str_repl[10:17] ~ "Two-way interactions",
-.variable_name %in% str_repl[18:length(str_repl)] ~ "Three-way interactions"),
-excludes_zero = ifelse((.lower > 0) | (.upper < 0), "Yes", "No")) |>
-select(.variable_name, type, poly, .value:.upper, excludes_zero) |>
-arrange(.variable_name) |> 
-ggplot(aes(x = .value, y = fct_rev(.variable_name), 
-colour = excludes_zero,
-xmin = .lower, xmax = .upper)) +
-facet_wrap(~poly, scales = "free_x", nrow = 1) +
-geom_vline(xintercept = 0, colour = "grey", size = 1) +
-geom_errorbar(width = 0.2, size = 0.75) +
-geom_point(size = 3) +
-labs(x = "Estimate (Logit scale)", 
-y = "Variable", 
-fill = "CrI", 
-alpha = "CrI",
-colour = "Interval excludes zero?") +
-theme(legend.position = "top",
-axis.title.y = element_blank(),
-axis.text.y = element_text(face = "plain", hjust = 1),
-panel.border = element_rect(colour = "black", fill = NA))
-```
-
-:::
 
 ### Marginal means
 
@@ -1020,60 +646,60 @@ panel.border = element_rect(colour = "black", fill = NA))
 #| label: fig-posterior-epred
 #| fig-width: 12
 #| fig-height: 8
-nd <- expand_grid(timebin = seq(0, 20, 0.1),
-age_group = levels(data_time$age_group),
-lp = levels(data_time$lp),
-trial_type = levels(data_time$trial_type)
-) |> 
-polypoly::poly_add_columns(timebin,
-degree = 3,
-prefix = "ot",
-scale_width = 1)
+nd <- expand_grid(timebin = seq(1, 17, 0.1),
+				  age_group = levels(data_time$age_group),
+				  lp = levels(data_time$lp),
+				  trial_type = levels(data_time$trial_type)) |> 
+	polypoly::poly_add_columns(timebin,
+							   degree = 3,
+							   prefix = "ot",
+							   scale_width = 1)
 
 m <- fitted(fit_timecourse_2 , newdata = nd, re_formula = NA) |> 
-bind_cols(nd) |> 
-mutate(across(Estimate:Q97.5, plogis))
+	bind_cols(nd) |> 
+	mutate(across(Estimate:Q97.5, plogis))
 
-m <- add_epred_draws(nd,
-fit_timecourse_2 ,
-ndraws = 200,
-re_formula = NA) |> 
-mutate(.epred = plogis(.epred))
+# m <- add_epred_draws(nd,
+# 					 fit_timecourse_2 ,
+# 					 ndraws = 200,
+# 					 re_formula = NA) |> 
+# 	mutate(.epred = plogis(.epred))
 
 ptlt_means <- data_time |> 
-summarise(.prop = mean(.prop), 
-.by = c(id, age_group, lp, trial_type, timebin)) |> 
-summarise(.prop = mean(.prop),
-.by = c(age_group, lp, trial_type, timebin))
+	summarise(.logit = mean(.logit), 
+			  .by = c(id, age_group, lp, trial_type, timebin)) |> 
+	summarise(.logit = mean(.logit),
+			  .by = c(age_group, lp, trial_type, timebin))
 
 m |> 
-ggplot(aes(timebin,
-Estimate,
-colour = trial_type,
-fill = trial_type)) +
-facet_grid(lp~age_group) +
-geom_hline(yintercept = 0.5, 
-size = 1,
-colour = "grey") +
-geom_ribbon(aes(ymin = Q2.5,
-ymax = Q97.5),
-colour = NA,
-alpha = 1/3) +
-geom_line(linewidth = 3/4) +
-# stat_summary(fun = median, geom = "line", size = 1) +
-geom_point(data = ptlt_means, aes(y = .prop)) +
-labs(x = "Time (ms)",
-y = "Proportion of target looking time",
-colour = "Prime",
-fill = "Prime",
-shape = "Prime",
-linetype = "Trial type") +
-scale_x_continuous(labels = \(x) format(250 + x*100, big.mark = ",")) +
-scale_y_continuous(limits = c(0, 1)) +
-theme(legend.position = "top",
-panel.grid = element_line(linetype = "dotted", colour = "grey"),
-panel.grid.minor = element_blank(),
-legend.title = element_blank())
+	ggplot(aes(timebin,
+			   Estimate,
+			   colour = trial_type,
+			   fill = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_hline(yintercept = 0.5, 
+			   size = 1,
+			   colour = "grey") +
+	geom_ribbon(aes(ymin = Q2.5,
+					ymax = Q97.5),
+				colour = NA,
+				alpha = 1/3) +
+	geom_line(linewidth = 3/4) +
+	stat_summary(fun = median, geom = "line", size = 1) +
+	geom_point(data = ptlt_means,
+			   aes(y = plogis(.logit))) +
+	labs(x = "Time (ms)",
+		 y = "Proportion of target looking time",
+		 colour = "Prime",
+		 fill = "Prime",
+		 shape = "Prime",
+		 linetype = "Trial type") +
+	scale_x_continuous(labels = \(x) format(250 + x*100, big.mark = ",")) +
+	scale_y_continuous(limits = c(0, 1)) +
+	theme(legend.position = "top",
+		  panel.grid = element_line(linetype = "dotted", colour = "grey"),
+		  panel.grid.minor = element_blank(),
+		  legend.title = element_blank())
 ```
 
 # Appendix
@@ -1088,42 +714,42 @@ legend.title = element_blank())
 #| label: fig-stimuli-animacy
 #| fig-height: 6
 animacy <- stimuli |>
-distinct(test_language, 
-target, 
-prime, 
-.keep_all = TRUE) |> 
-pivot_longer(c(is_animate_prime, is_animate_target), 
-names_to = "role",
-values_to = "is_animate") |> 
-mutate(role = str_to_sentence(str_remove(role, "is_animate_"))) |> 
-count(test_language,  trial_type, role, is_animate) |> 
-drop_na(is_animate) |> 
-mutate(is_animate = ifelse(is_animate, "Animate", "Inanimate"))
+	distinct(test_language, 
+			 target, 
+			 prime, 
+			 .keep_all = TRUE) |> 
+	pivot_longer(c(is_animate_prime, is_animate_target), 
+				 names_to = "role",
+				 values_to = "is_animate") |> 
+	mutate(role = str_to_sentence(str_remove(role, "is_animate_"))) |> 
+	count(test_language,  trial_type, role, is_animate) |> 
+	drop_na(is_animate) |> 
+	mutate(is_animate = ifelse(is_animate, "Animate", "Inanimate"))
 
 animacy |> 
-# filter(role=="Prime") |> 
-ggplot() +
-aes(x = trial_type, 
-y = n, 
-fill = is_animate,
-colour = is_animate) + 
-facet_grid(test_language~role) +
-geom_col(position = position_fill(), colour = "white", size = 0.75) +
-geom_hline(yintercept = 0.5,  size = 1, colour = "grey") +
-labs(title = "Prime", 
-x = "Trial type", 
-y = "# trials",
-colour = "Animacy", 
-fill = "Animacy") +
-scale_y_continuous(labels = scales::percent) +
-coord_flip() + 
-theme(legend.position = "top",
-legend.title = element_blank(),
-panel.grid = element_blank(),
-axis.title.y = element_blank(),
-axis.text = element_text(size = 7),
-axis.text.y = element_text(hjust = 1),
-strip.text = element_text(size = 11))
+	# filter(role=="Prime") |> 
+	ggplot() +
+	aes(x = trial_type, 
+		y = n, 
+		fill = is_animate,
+		colour = is_animate) + 
+	facet_grid(test_language~role) +
+	geom_col(position = position_fill(), colour = "white", size = 0.75) +
+	geom_hline(yintercept = 0.5,  size = 1, colour = "grey") +
+	labs(title = "Prime", 
+		 x = "Trial type", 
+		 y = "# trials",
+		 colour = "Animacy", 
+		 fill = "Animacy") +
+	scale_y_continuous(labels = scales::percent) +
+	coord_flip() + 
+	theme(legend.position = "top",
+		  legend.title = element_blank(),
+		  panel.grid = element_blank(),
+		  axis.title.y = element_blank(),
+		  axis.text = element_text(size = 7),
+		  axis.text.y = element_text(hjust = 1),
+		  strip.text = element_text(size = 11))
 ```
 
 
@@ -1139,42 +765,42 @@ strip.text = element_text(size = 11))
 #| eval: false
 #| fig-width: 10
 stimuli |> 
-distinct(test_language,  target,  prime, .keep_all = TRUE) |> 
-drop_na(trial_type, semantic_category_prime) |> 
-count(trial_type, test_language, semantic_category_prime, name = "sum") |> 
-right_join(expand(., trial_type,
-test_language, 
-semantic_category_prime)) |>
-replace_na(list(sum = 0)) |> 
-group_by(trial_type, test_language) |> 
-mutate(n =  sum(sum), prop = sum/n) |> 
-ungroup() |> 
-ggplot() +
-aes(x = prop,
-y = tidytext::reorder_within(semantic_category_prime, desc(prop), list(trial_type, test_language)),
-fill = test_language,
-order = prop) + 
-facet_wrap(test_language~trial_type,
-scales = "free_y",
-labeller = label_wrap_gen(multi_line = FALSE)) +
-geom_col(colour = "white",
-position = position_dodge(),
-width = 1) +
-labs(x = "% of trials",
-y = "Trial type",
-colour = "Trial type",
-fill = "Trial type") +
-scale_x_continuous(labels = \(x) scales::percent(x, accuracy = 1)) +
-scale_y_reordered() +
-theme(legend.position = "none",
-legend.title = element_blank(),
-axis.text.y = element_text(size = 9, hjust = 1),
-axis.text.x = element_text(size = 8, hjust = 1),
-axis.title.y = element_blank(),
-axis.ticks.y = element_blank(),
-plot.caption = element_text(size = 10, hjust = 0),
-panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
-strip.text = element_text(size = 10))
+	distinct(test_language,  target,  prime, .keep_all = TRUE) |> 
+	drop_na(trial_type, semantic_category_prime) |> 
+	count(trial_type, test_language, semantic_category_prime, name = "sum") |> 
+	right_join(expand(., trial_type,
+					  test_language, 
+					  semantic_category_prime)) |>
+	replace_na(list(sum = 0)) |> 
+	group_by(trial_type, test_language) |> 
+	mutate(n =  sum(sum), prop = sum/n) |> 
+	ungroup() |> 
+	ggplot() +
+	aes(x = prop,
+		y = tidytext::reorder_within(semantic_category_prime, desc(prop), list(trial_type, test_language)),
+		fill = test_language,
+		order = prop) + 
+	facet_wrap(test_language~trial_type,
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_col(colour = "white",
+			 position = position_dodge(),
+			 width = 1) +
+	labs(x = "% of trials",
+		 y = "Trial type",
+		 colour = "Trial type",
+		 fill = "Trial type") +
+	scale_x_continuous(labels = \(x) scales::percent(x, accuracy = 1)) +
+	scale_y_reordered() +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  axis.text.y = element_text(size = 9, hjust = 1),
+		  axis.text.x = element_text(size = 8, hjust = 1),
+		  axis.title.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  plot.caption = element_text(size = 10, hjust = 0),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
+		  strip.text = element_text(size = 10))
 ```
 
 #### Target
@@ -1185,40 +811,205 @@ strip.text = element_text(size = 10))
 #| fig-width: 10
 #| eval: false
 stimuli |> 
-distinct(test_language,  target,  prime, .keep_all = TRUE) |> 
-drop_na(trial_type, semantic_category_target) |> 
-count(trial_type, test_language, semantic_category_target, name = "sum") |> 
-right_join(expand(., trial_type,  test_language,  semantic_category_target)) |>
-replace_na(list(sum = 0)) |> 
-group_by(trial_type, test_language) |> 
-mutate(n =  sum(sum), prop = sum/n) |> 
-ungroup() |> 
-ggplot() +
-aes(x = prop,
-y = reorder_within(semantic_category_target, desc(prop), list(trial_type, test_language)),
-fill = test_language,
-order = prop) + 
-facet_wrap(test_language~trial_type,
-scales = "free_y",
-labeller = label_wrap_gen(multi_line = FALSE)) +
-geom_col(colour = "white",
-position = position_dodge(),
-width = 1) +
-labs(x = "% of trials",
-y = "Trial type",
-colour = "Trial type",
-fill = "Trial type") +
-scale_x_continuous(labels = ~percent(., accuracy = 1)) +
-scale_y_reordered() +
-theme(legend.position = "none",
-legend.title = element_blank(),
-axis.text.y = element_text(size = 9, hjust = 1),
-axis.text.x = element_text(size = 8, hjust = 1),
-axis.title.y = element_blank(),
-axis.ticks.y = element_blank(),
-plot.caption = element_text(size = 10, hjust = 0),
-panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
-strip.text = element_text(size = 10))
+	distinct(test_language,  target,  prime, .keep_all = TRUE) |> 
+	drop_na(trial_type, semantic_category_target) |> 
+	count(trial_type, test_language, semantic_category_target, name = "sum") |> 
+	right_join(expand(., trial_type,  test_language,  semantic_category_target)) |>
+	replace_na(list(sum = 0)) |> 
+	group_by(trial_type, test_language) |> 
+	mutate(n =  sum(sum), prop = sum/n) |> 
+	ungroup() |> 
+	ggplot() +
+	aes(x = prop,
+		y = reorder_within(semantic_category_target, desc(prop), list(trial_type, test_language)),
+		fill = test_language,
+		order = prop) + 
+	facet_wrap(test_language~trial_type,
+			   scales = "free_y",
+			   labeller = label_wrap_gen(multi_line = FALSE)) +
+	geom_col(colour = "white",
+			 position = position_dodge(),
+			 width = 1) +
+	labs(x = "% of trials",
+		 y = "Trial type",
+		 colour = "Trial type",
+		 fill = "Trial type") +
+	scale_x_continuous(labels = ~percent(., accuracy = 1)) +
+	scale_y_reordered() +
+	theme(legend.position = "none",
+		  legend.title = element_blank(),
+		  axis.text.y = element_text(size = 9, hjust = 1),
+		  axis.text.x = element_text(size = 8, hjust = 1),
+		  axis.title.y = element_blank(),
+		  axis.ticks.y = element_blank(),
+		  plot.caption = element_text(size = 10, hjust = 0),
+		  panel.grid.major.x = element_line(colour = "grey", linetype = "dotted"),
+		  strip.text = element_text(size = 10))
+```
+
+:::
+
+## Trial-level attrition by participant
+
+```{r}
+#| label: fig-attrition-participants
+#| fig-height: 4
+n_text <- participants |> 
+	drop_na(is_valid_participant) |> 
+	mutate(
+		valid_status = case_when(
+			is_valid_participant & !is_imputed ~ "Valid (observed CDI)",
+			is_valid_participant & is_imputed ~ "Valid (imputed CDI)",
+			!is_valid_participant ~ "Excluded"
+		)
+	) |> 
+	count(lp, age_group, valid_status) 
+
+
+participants |> 
+	mutate(valid_status = case_when(
+		is_valid_participant & !is_imputed ~ "valid_cdi_observed",
+		is_valid_participant & is_imputed ~ "valid_cdi_imputed",
+		!is_valid_participant ~ "excluded")) |> 
+	add_count(age_group, lp, name = "n_total") |> 
+	count(age_group, lp, n_total, valid_status) |> 
+	pivot_wider(names_from = valid_status, values_from = n, values_fill = 0) |> 
+	relocate(age_group, lp, n_total, valid_cdi_observed, valid_cdi_imputed, excluded) |> 
+	mutate(across(matches("valid_|excluded"), ~./n_total, .names = "{.col}_prop")) |> 
+	gt(rowname_col = "lp", groupname_col = "age_group") |> 
+	fmt_percent(matches("prop"), decimals = 1) |> 
+	cols_merge_n_pct(col_n = valid_cdi_observed, col_pct = valid_cdi_observed_prop) |> 
+	cols_merge_n_pct(col_n = valid_cdi_imputed, col_pct = valid_cdi_imputed_prop) |> 
+	cols_merge_n_pct(col_n = excluded, col_pct = excluded_prop) |> 
+	tab_spanner("Included participants", matches("valid")) |> 
+	tab_spanner("Excluded participants", matches("excluded")) |> 
+	cols_label(n_total = "N",
+			   valid_cdi_observed = "Collected CDI",
+			   valid_cdi_imputed = "Missing CDI",
+			   excluded = "") |> 
+	summary_rows(groups = TRUE, columns = where(is.integer), 
+				 fns = list("N" = ~sum(.)),
+				 formatter = fmt_number,
+				 decimals = 0) |> 
+	grand_summary_rows(columns = where(is.integer), 
+					   fns = list("N" = ~sum(.)),
+					   formatter = fmt_number,
+					   decimals = 0) 
+```
+
+### Trial-level attrition by stimuli properties
+
+```{r}
+#| label: tbl-attrition-predictors
+
+attrition_participants |> 
+	left_join(distinct(participants, id, age_group,
+					   test_language, list, version, list),
+			  by = join_by(id, age_group)) |> 
+	left_join(distinct(stimuli, test_language, version, list,
+					   trial_id, trial_type,
+					   freq_target, freq_prime,
+					   familiarity_prime, familiarity_target),
+			  relationship = "many-to-many",
+			  by = join_by(test_language, list, version))|> 
+	mutate(valid_status = ifelse(valid_status != "Valid",
+								 "Excluded", 
+								 valid_status)) |> 
+	summarise(n = n(),
+			  across(matches("freq_|familiarity_"), lst(mean, sd)),
+			  .by = c(trial_type, valid_status, age_group)) |> 
+	pivot_wider(names_from = valid_status,
+				values_from = c(n, matches("freq_|familiarity_")),
+				values_fill = 0,
+				names_repair = janitor::make_clean_names) |>
+	relocate(age_group, trial_type,
+			 n_valid, n_excluded, 
+			 matches("_valid")) |> 
+	gt(rowname_col = "trial_type", 
+	   groupname_col = "age_group") |> 
+	fmt_number(matches("n_"),
+			   decimals = 0) |> 
+	fmt_number(matches("freq_"),
+			   decimals = 1) |> 
+	fmt_number(matches("familiarity"),
+			   scale_by = 100,
+			   decimals = 1) |> 
+	tab_spanner("N", c(n_valid, n_excluded)) |> 
+	tab_spanner("Prime", id = 1,
+				c(freq_prime_mean_valid,
+				  freq_prime_mean_excluded)) |>
+	tab_spanner("Target", id = 2, 
+				c(freq_target_mean_valid, 
+				  freq_target_mean_excluded)) |> 
+	tab_spanner("Prime", id = 3, 
+				c(familiarity_prime_mean_valid, 
+				  familiarity_prime_mean_excluded)) |> 
+	tab_spanner("Target", id = 4, 
+				c(familiarity_target_mean_valid,
+				  familiarity_target_mean_excluded)) |>
+	tab_spanner("Frequency", starts_with("freq_")) |> 
+	tab_spanner("Familiarity (%)", starts_with("familiarity_")) |> 
+	
+	cols_merge_uncert(col_val = freq_prime_mean_valid, 
+					  col_uncert = freq_prime_sd_valid) |> 
+	cols_merge_uncert(col_val = freq_prime_mean_excluded,
+					  col_uncert = freq_prime_sd_excluded) |> 
+	cols_merge_uncert(col_val = freq_target_mean_valid,
+					  col_uncert = freq_target_sd_valid) |> 
+	cols_merge_uncert(col_val = freq_target_mean_excluded,
+					  col_uncert = freq_target_sd_excluded) |> 
+	cols_merge_uncert(col_val = familiarity_prime_mean_valid,
+					  col_uncert = familiarity_prime_sd_valid) |> 
+	cols_merge_uncert(col_val = familiarity_prime_mean_excluded, 
+					  col_uncert = familiarity_prime_sd_excluded) |> 
+	cols_merge_uncert(col_val = familiarity_target_mean_valid,
+					  col_uncert = familiarity_target_sd_valid) |>
+	cols_merge_uncert(col_val = familiarity_target_mean_excluded, 
+					  col_uncert = familiarity_target_sd_excluded) |> 
+	cols_label(n_excluded = "Exc.",
+			   n_valid = "Inc.",
+			   freq_prime_mean_valid = "Inc.",
+			   freq_prime_mean_excluded = "Exc.",
+			   freq_target_mean_valid = "Inc.",
+			   freq_target_mean_excluded = "Exc.",
+			   familiarity_prime_mean_valid = "Inc.",
+			   familiarity_prime_mean_excluded = "Exc.",
+			   familiarity_target_mean_valid = "Inc.",
+			   familiarity_target_mean_excluded = "Exc.") |> 
+	summary_rows(groups = TRUE,
+				 columns = matches("freq_") ,
+				 fns = list("Mean" = ~mean(.)), 
+				 formatter = fmt_number,
+				 decimals = 1) |> 
+	summary_rows(groups = TRUE,
+				 columns = matches("familiarity_"), 
+				 fns = list("Mean" = ~mean(.)),
+				 formatter = fmt_number,
+				 scale_by = 100,
+				 decimals = 1) |> 
+	grand_summary_rows(columns = c(n_valid, n_excluded),
+					   fns = list("N" = ~sum(.)),
+					   formatter = fmt_number,
+					   decimals = 0) |> 
+	grand_summary_rows(columns = matches("familiarity_"),
+					   fns = list("Mean" = ~mean(.)),
+					   formatter = fmt_number,
+					   scale_by = 100,
+					   decimals = 1) |> 
+	grand_summary_rows(columns = matches("freq_"),
+					   fns = list("Mean" = ~mean(.)),
+					   formatter = fmt_number,
+					   decimals = 1) |> 
+	tab_style(cell_text(align = "center"),
+			  cells_column_labels()) |> 
+	# tab_style(cell_text(weight = "bold"),
+	# 		  list(cells_column_spanners(),
+	# 		  	 cells_grand_summary(),
+	# 		  	 cells_row_groups(),
+	# 		  	 cells_stub_grand_summary(),
+	# 		  	 cells_stub_summary())) |> 
+	tab_footnote("Included trials.", cells_column_labels(matches("_valid"))) |> 
+	tab_footnote("Excluded trials.", cells_column_labels(matches("_excluded")))
 ```
 
 :::

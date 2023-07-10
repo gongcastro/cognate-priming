@@ -183,7 +183,8 @@ get_gaze_raw <- function(gaze_normalised) {
 			   !(phase=="Prime" & timestamp > 1.5), 
 			   !(phase=="Target-Distractor" & timestamp > 2.0)) |> 
 		select(id, trial, trial_id, phase, timestamp,
-			   x, y, is_valid_gaze, filename)
+			   x, y, is_valid_gaze, filename) |> 
+		arrange(filename, id, trial, phase, timestamp)
 	
 	return(gaze_raw)
 }
@@ -203,6 +204,16 @@ fix_sampling_rate <- function(x, filename, date_onset) {
 	return(x)
 }
 
+resample_time <- function(x, sampling_rate = 40, units = "milliseconds") {
+	
+	numerator <- ifelse(units=="milliseconds", 1000, 1)
+	breaks <- seq(0, max(x), numerator/sampling_rate)
+	bins <- findInterval(x,  breaks)-1
+	rescaled <- bins * numerator/sampling_rate
+	
+	return(rescaled)
+}
+
 # process gaze data ------------------------------------------------------------
 
 get_gaze_processed <- function(gaze_raw,
@@ -212,7 +223,7 @@ get_gaze_processed <- function(gaze_raw,
 	
 	participants_tmp <- select(participants, id, id_db, age_group, filename)
 	
-	gaze_processed <- gaze_raw  |>
+	gaze_processed <- gaze_raw |>
 		mutate(filename = paste0(filename, ".csv")) |>
 		right_join(participants_tmp,
 				   by = join_by(id, filename)) |> 

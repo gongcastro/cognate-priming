@@ -75,7 +75,6 @@ test_data_summary <- function(data_summary){
 			  "vocab",
 			  ".prop",
 			  ".logit",
-			  ".n",
 			  ".ntrials"))
 	})
 	
@@ -85,7 +84,6 @@ test_data_summary <- function(data_summary){
 		expect_equal(class(data_summary$lp), "factor")
 		expect_equal(class(data_summary$trial_type), "factor")
 		expect_type(data_summary$.ntrials, "integer")
-		expect_type(data_summary$.n, "integer")
 		expect_type(data_summary$.prop, "double")
 		expect_type(data_summary$.logit, "double")
 		expect_type(data_summary$vocab, "double")
@@ -97,7 +95,6 @@ test_data_summary <- function(data_summary){
 		expect_false(any(is.na(data_summary$lp)))
 		expect_false(any(is.na(data_summary$trial_type)))
 		expect_false(any(is.na(data_summary$.ntrials)))
-		expect_false(any(is.na(data_summary$.n)))
 		expect_false(any(is.na(data_summary$.prop)))
 		expect_false(any(is.na(data_summary$.logit)))
 		expect_false(any(is.na(data_summary$vocab)))
@@ -109,8 +106,6 @@ test_data_summary <- function(data_summary){
 		expect_equal(levels(data_summary$lp), c("Monolingual", "Bilingual"))
 		expect_equal(levels(data_summary$trial_type), c("Cognate", "Non-cognate", "Unrelated"))
 		expect_true(all(unique(data_summary$.ntrials) > 0))
-		expect_true(all(unique(data_summary$.n) > 0))
-		expect_true(all(data_summary$.sum <= data_summary$.n))
 		expect_true(all(between(unique(data_summary$.prop), 0, 1)))
 		expect_false(any(is.nan(unique(data_summary$.logit))))
 		expect_true(all(between(unique(data_summary$vocab), 0, 1)))

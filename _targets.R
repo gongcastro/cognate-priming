@@ -99,7 +99,7 @@ list(
 	# join datasets
 	# see R/01_participants.R for details on this function
 	tar_target(participants_file,
-			   "data-raw/barcelona/participants.csv",
+			   "data-raw/participants.csv",
 			   format = "file"),
 	tar_target(participants, get_participants(participants_file)),
 	tar_target(participants_test, test_participants(participants)),
@@ -119,7 +119,7 @@ list(
 			   	 right = c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790))),
 	
 	tar_target(gaze_files, 
-			   list.files("data-raw/barcelona/eyetracking/", 
+			   list.files("data-raw/eyetracking/", 
 			   		   pattern = ".csv$",
 			   		   full.names = TRUE),
 			   format = "file"),

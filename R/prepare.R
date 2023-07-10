@@ -90,10 +90,10 @@ get_data_time <- function(gaze_aoi,
 get_data_summary <- function(data_time){
 	
 	data_summary <- data_time |> 
-		reframe(across(c(.prop, .logit),
-					   \(x) mean(x, na.rm = TRUE)),
-				.ntrials = unique(.ntrials),
-				.by = c(id, age_group, lp, trial_type, vocab))
+		summarise(across(c(.prop, .logit),
+						 \(x) mean(x, na.rm = TRUE)),
+				  .ntrials = first(.ntrials),
+				  .by = c(id, age_group, lp, trial_type, vocab))
 	
 	return(data_summary)
 }
