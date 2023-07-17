@@ -680,12 +680,12 @@ m |>
 	geom_hline(yintercept = 0.5, 
 			   size = 1,
 			   colour = "grey") +
-	geom_ribbon(aes(ymin = Q2.5,
-					ymax = Q97.5),
-				colour = NA,
-				alpha = 1/3) +
-	geom_line(linewidth = 3/4) +
-	stat_summary(fun = median, geom = "line", size = 1) +
+	# geom_ribbon(aes(ymin = Q2.5,
+	# 				ymax = Q97.5),
+	# 			colour = NA,
+	# 			alpha = 1/3) +
+	# geom_line(linewidth = 3/4) +
+	# stat_summary(fun = median, geom = "line", size = 1) +
 	geom_point(data = ptlt_means,
 			   aes(y = plogis(.logit))) +
 	labs(x = "Time (ms)",
