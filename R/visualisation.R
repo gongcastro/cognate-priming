@@ -270,3 +270,100 @@ make_plots_gaze_processed <- function(data_time, attrition_participants){
 		cli_progress_update()
 	}
 }
+
+
+make_plots_gaze_raw <- function(gaze_imputed, aoi_coords){
+	
+	files <- unique(gaze_imputed$filename[!is.na(gaze_imputed$filename)])
+	n_files <- length(files)
+	
+	aois <- tibble(
+		phase = rep(c("Prime", "Target", "Target"), each = 2),
+		dim = rep(c("x", "y"), each = 1, times = 3),
+		xmin = -Inf,
+		xmax = -Inf,
+		ymin = c(
+			aoi_coords$center["xmin"], 
+			aoi_coords$center["ymin"], 
+			aoi_coords$right["xmin"], 
+			aoi_coords$right["ymin"], 
+			aoi_coords$left["xmin"], 
+			aoi_coords$left["ymin"]
+		),
+		ymax = c(
+			aoi_coords$center["xmax"],
+			aoi_coords$center["ymax"],
+			aoi_coords$right["xmax"],
+			aoi_coords$right["ymax"],
+			aoi_coords$left["xmax"],
+			aoi_coords$left["ymax"]
+		)
+	)
+	
+	i <- 0
+	cli_progress_bar("Plotting", total = n_files, format = "{pb_spin} Plotting {pb_current}/{pb_total} [{pb_percent}]")
+	
+	for (i in 1:n_files) {
+		plot_data <- gaze_imputed %>% 
+			filter(filename==files[i]) %>% 
+			pivot_longer(c(x, y), names_to = "dim", values_to = "value") %>% 
+			mutate(is_imputed = factor(is_imputed, 
+									   levels = c(FALSE, TRUE),
+									   labels = c("No", "Yes")),
+				   phase = factor(phase,
+				   			   levels = c("Prime", "Target-Distractor"), 
+				   			   labels = c("Prime", "Target")))
+		
+		plot <- plot_data %>% 
+			ggplot() +
+			aes(x = time, y = value, colour = is_imputed) + 
+			facet_wrap(trial+phase~dim, ncol = 4,
+					   labeller = label_wrap_gen(multi_line=FALSE)) +
+			geom_vline(xintercept = 0.3, linewidth = 0.25) +
+			geom_rect(data = aois,
+					  aes(xmin = -Inf, xmax = Inf, ymin = ymin, ymax = ymax),
+					  alpha = 0.25, colour = NA,
+					  inherit.aes = FALSE) +
+			geom_point(size = 0.1, shape = 20, 
+					   alpha = 0.5, na.rm = TRUE) +
+			labs(x = "Time (ms)",
+				 y = "Gaze position in screen",
+				 colour = "Imputed?",
+				 title = gsub(".csv", "", files[i]),
+				 caption = "Rectangles indicate the AOIs") +
+			theme_ggdist() +
+			# scale_color_manual(values = pal_d3()(4)[c(1, 4)]) +
+			scale_y_continuous(limits = c(0, 1920),
+							   breaks = seq(0, 1920, 480)) +
+			scale_x_continuous(limits = c(0, 2),
+							   breaks = seq(0, 2, 0.5),
+							   labels = function(x) {
+							   	format(x * 1000,
+							   		   big.mark = ",",
+							   		   scientific = FALSE)
+							   }) +
+			theme(legend.position = "top",
+				  legend.key = element_rect(fill = NA),
+				  legend.title = element_text(size = 10),
+				  axis.text.x = element_text(size = 7),
+				  axis.text.y = element_text(size = 7),
+				  panel.grid.major.x = element_line(colour = "grey", 
+				  								  linetype = "dotted",
+				  								  linewidth = 0.25),
+				  plot.title = element_text(size = 10),
+				  strip.text = element_text(size = 6))
+		
+		file_name <- gsub(".csv", ".png", files[i])
+		plot_height <- length(unique(plot_data$trial))*0.75
+		
+		ggsave(here("img", "01_raw", file_name),
+			   plot = plot, 
+			   height = plot_height,
+			   width = 6)
+		
+		cli_progress_update()
+	}
+	cli_progress_done(result = "done")
+}
+
+

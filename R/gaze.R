@@ -1,61 +1,51 @@
-# normalise raw eye-tracking files ---------------------------------------------
-
-get_gaze_normalised <- function(gaze_files) {
-	
-	# get file names and paths
-	file_names <- gsub(".csv$", "", basename(gaze_files))
-	
-	# prepare for loop and pre-allocate list
-	i <- 1
-	n_files <- length(file_names)
-	db <- vector(mode = "list", length = n_files)
-	names(db) <- file_names
+get_gaze_raw <- function(gaze_files){
 	
 	# name changes (see R/utils.R)
 	cols_dict <- get_name_dictionary()$col_name_changes
 	phase_dict <- get_name_dictionary()$phase_name_changes
 	keep_dict <- get_name_dictionary()$relevant_variables
 	
+	# prepare for loop and pre-allocate list
+	n_files <- length(gaze_files)
+	db <- vector(mode = "list", length = n_files)
+	names(db) <- basename(gaze_files)
+	na_strings <- c("", "NaN", "NA", "<NA>")
+	
 	# prepare progress bar
 	pb_text <- "{pb_spin} Reading {pb_current}/{pb_total} | {col_blue(pb_percent)}"
-	cli_progress_bar("Processing", total = n_files, format = pb_text)
+	cli::cli_progress_bar("Processing", total = n_files, format = pb_text)
 	
-	# read CSV and write Feather
 	for (i in 1:n_files){
-		
-		na_strings <- c("", "NaN", "NA", "<NA>")
-		db[[i]] <- x <- arrow::read_csv_arrow(gaze_files[i],
-											  na = na_strings) |> 
+		db[[i]] <- arrow::read_csv_arrow(gaze_files[i], na = na_strings) %>%
 			# rename all variables to snake case
-			janitor::clean_names() |>  
+			janitor::clean_names() %>% 
 			rename(any_of(cols_dict)) |> 
 			fix_timestamps() |> 
 			fix_validity() |> 
+			# get gaze in prime and target-distractor phases
 			mutate(
-				trial = as.integer(trial),
 				phase = str_replace_all(phase, phase_dict),
+				trial = as.integer(trial),
 				across(c(l_v, r_v), \(x) as.logical(as.integer(x))),
 				x = ifelse(is.na(l_x) | !l_v, r_x, l_x), 
 				y = ifelse(is.na(l_y) | !l_v, r_y, l_y),
 				across(c(x, y), \(x) ifelse(!between(x, 0, 1), NA_real_, x)),
 				is_valid_gaze = as.logical((!(is.na(x) | is.na(y)) & (l_v | r_v)))
-			) |> 
+			) %>%
+			dplyr::filter(phase %in% c("Target-Distractor", "Prime")) %>%
 			add_missing_cols(keep_dict) |> 
-			mutate(trial_id = as.integer(trial_id)) |> 
-			select(any_of(keep_dict), -timestamp)
+			select(any_of(keep_dict))
 		
-		cli_progress_update()
+		cli::cli_progress_update()
 	}
+	cli::cli_progress_done(result = "done")
 	
-	cli_progress_done(result = "done")
+	cli::cli_progress_step("Binding {n_files} datasets...", spinner = FALSE)
+	gaze_raw  <- bind_rows(db, .id = "filename")
+	cli::cli_progress_done(result = "done")
 	
-	cli_progress_step("Binding {n_files} datasets", spinner = FALSE)
-	gaze_normalised <- bind_rows(db, .id = "filename")
-	
-	return(gaze_normalised)
+	return(gaze_raw)
 }
-
-# helper functions
 
 # get name dictionary 
 get_name_dictionary <- function(...) {
@@ -74,10 +64,10 @@ get_name_dictionary <- function(...) {
 		l_user_coord_z = "l_user_coord_3",
 		r_user_coord_z = "r_user_coord_3",
 		is_valid_gaze = "mean_validity",
-		is_valid_gaze = "valid_sample",
+		is_valid_gaze = "is_valid_gaze",
 		id = "sujenum",
-		trial_num = "numtrial_lista",
-		trial_id = "trial_num"
+		trial_num = "numtrial_lista"
+		# trial = "trial_num"
 	)
 	
 	phase_name_changes <- c(
@@ -95,35 +85,29 @@ get_name_dictionary <- function(...) {
 		"target_distractor" = "Target-Distractor"
 	)
 	
-	relevant_variables <- c(
-		"id", "trial", "trial_id",
-		"phase", "x", "y", "is_valid_gaze"
-	)
+	relevant_variables <- c("trial", "phase", "x", "y", "is_valid_gaze")
 	
-	name_dict <- list(
-		col_name_changes = col_name_changes, 
-		phase_name_changes = phase_name_changes, 
-		relevant_variables = relevant_variables
-	)
+	name_dict <- list(col_name_changes = col_name_changes, 
+					  phase_name_changes = phase_name_changes, 
+					  relevant_variables = relevant_variables)
 	
 	return(name_dict)
 }
 
-# add missing columns, if any
-add_missing_cols <- function(x, variables) {
+
+fix_sampling_rate <- function(x, filename, date_onset) {
 	
-	cols <- colnames(x)
-	missing_col <- which(!(variables %in% cols))
-	missing_col <- variables[missing_col]
+	sp60_files <- unique(x$filename)
+	regex_pattern <- "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+	sp60_dates <- stringr::str_extract(sp60_files, pattern = regex_pattern)
+	sp60_dates <- as.Date(sp60_dates, format = "%Y-%m-%d")
+	sp60_files <- sp60_files[which(sp60_dates >= as.Date(date_onset))]
 	
-	if (length(missing_col) > 0) {
-		new <- rep(NA, length(missing_col))
-		names(new) <- missing_col
-		x <- mutate(x, !!!new)
-	}
+	x$sampling_rate <- ifelse(x$filename %in% sp60_files, 60, 120)
 	
 	return(x)
 }
+
 
 fix_timestamps <- function(x) {
 	
@@ -147,6 +131,21 @@ fix_timestamps <- function(x) {
 	return(x)
 }
 
+# add missing columns, if any
+add_missing_cols <- function(x, variables) {
+	
+	cols <- colnames(x)
+	missing_col <- which(!(variables %in% cols))
+	missing_col <- variables[missing_col]
+	
+	if (length(missing_col) > 0) {
+		new <- rep(NA, length(missing_col))
+		names(new) <- missing_col
+		x <- mutate(x, !!!new)
+	}
+	
+	return(x)
+}
 
 fix_validity <- function(x) {
 	
@@ -164,92 +163,57 @@ fix_validity <- function(x) {
 	return(x)
 }
 
-
-# import eye-tracking data -----------------------------------------------------
-
-get_gaze_raw <- function(gaze_normalised) {
+# process Barcelona gaze data
+get_gaze_processed <- function(
+		gaze_raw
+){
 	
-	# name changes (see R/utils.R)
-	names_dict <- get_name_dictionary()$col_name_changes 
+	screen_resolution <- c(x = 1920, y = 1080) # screen size in pixels
 	
-	gaze_raw <- gaze_normalised |>
+	# import gaze data ----
+	processed <- gaze_raw |> 
 		fix_sampling_rate(filename, date_onset = "2022-05-26") |> 
 		add_count(filename, name = "n_samples") |> 
+		# restart timestamps at each trial phase change, and express in seconds
 		mutate(timestamp = ((1:n())-1) / sampling_rate,
 			   timestamp = timestamp - min(timestamp),
 			   .by = c(filename, trial, phase)) |> 
-		filter(between(trial_id, 1, 32),
-			   phase %in% c("Target-Distractor", "Prime"), # get prime and target phase
+		# trim timestamps outside the 2 seconds range
+		filter(between(trial, 1, 32),
 			   !(phase=="Prime" & timestamp > 1.5), 
 			   !(phase=="Target-Distractor" & timestamp > 2.0)) |> 
-		select(id, trial, trial_id, phase, timestamp,
-			   x, y, is_valid_gaze, filename) |> 
-		arrange(filename, id, trial, phase, timestamp)
+		mutate(
+			# change gaze coordinates from 0-1 scale to screen resolution scale [1920x1080]
+			x = x*screen_resolution["x"],
+			y = y*screen_resolution["y"]
+		) %>% 
+		select(filename, trial, phase, timestamp, x, y, is_valid_gaze, filename) %>% 
+		arrange(filename, trial, phase, timestamp)
 	
-	return(gaze_raw)
-}
-
-# helper functions
-
-fix_sampling_rate <- function(x, filename, date_onset) {
 	
-	sp60_files <- unique(x$filename)
-	regex_pattern <- "[0-9]{4}-[0-9]{2}-[0-9]{2}"
-	sp60_dates <- stringr::str_extract(sp60_files, pattern = regex_pattern)
-	sp60_dates <- as.Date(sp60_dates, format = "%Y-%m-%d")
-	sp60_files <- sp60_files[which(sp60_dates >= as.Date(date_onset))]
+	# merge data ----
+	expanded <- expand(processed, filename, trial, phase, timestamp)
 	
-	x$sampling_rate <- ifelse(x$filename %in% sp60_files, 60, 120)
-	
-	return(x)
-}
-
-resample_time <- function(x, sampling_rate = 40, units = "milliseconds") {
-	
-	numerator <- ifelse(units=="milliseconds", 1000, 1)
-	breaks <- seq(0, max(x), numerator/sampling_rate)
-	bins <- findInterval(x,  breaks)-1
-	rescaled <- bins * numerator/sampling_rate
-	
-	return(rescaled)
-}
-
-# process gaze data ------------------------------------------------------------
-
-get_gaze_processed <- function(gaze_raw,
-							   participants,
-							   screen_resolution = c(x = 1920, y = 1080),
-							   ...) {
-	
-	participants_tmp <- select(participants, id, id_db, age_group, filename)
-	
-	gaze_processed <- gaze_raw |>
-		mutate(filename = paste0(filename, ".csv")) |>
-		right_join(participants_tmp,
-				   by = join_by(id, filename)) |> 
-		mutate(x = x * screen_resolution["x"], # change gaze coordinates from 0-1 scale to screen resolution scale
-			   y = y * screen_resolution["y"],
-			   filename = paste0(filename, ".csv"),
-			   age_group = as.character(age_group),
-			   is_valid_gaze = ifelse(is.na(is_valid_gaze),
-			   					   FALSE,
-			   					   is_valid_gaze)) |>
-		# impute eye-tracker samples
-		mutate(across(c(x, y),
-					  \(x) zoo::na.locf(x, maxgap = 120/3, na.rm = FALSE),
-					  .names = "{.col}_imputed"),
-			   .by = c(filename, trial, phase)) |> 
-		mutate(is_imputed = is.na(x) & !is.na(x_imputed),
-			   x = x_imputed, 
-			   y = y_imputed) |> 
-		relocate(x, y, is_imputed, .after = is_valid_gaze) |> 
-		arrange(id, age_group, trial, phase, timestamp) |>
-		select(id, age_group, trial, trial_id, phase, timestamp, 
-			   x, y, is_valid_gaze, is_imputed, filename)
+	gaze_processed <- processed %>% 
+		right_join(expanded,
+				   by = join_by(trial, phase, timestamp, filename)) %>% 
+		select(filename, trial, phase, timestamp, x, y, is_valid_gaze) %>% 
+		mutate(is_valid_gaze = ifelse(is.na(is_valid_gaze), FALSE, is_valid_gaze)) %>% 
+		dplyr::filter(
+			!(phase=="Prime" & timestamp > 1.5),
+			!(phase=="Target" & timestamp > 2.0)
+		) |> 
+		mutate(x_imputed = zoo::na.locf(x, maxgap = 20, na.rm = FALSE),
+			   y_imputed = zoo::na.locf(y, maxgap = 20, na.rm = FALSE),
+			   is_imputed = is.na(x) & !is.na(x_imputed),
+			   x = x_imputed,
+			   y = y_imputed,
+			   .by = c(filename, trial, phase)) %>% 
+		select(-c(x_imputed, y_imputed)) %>% 
+		relocate(is_imputed, .after = is_valid_gaze)
 	
 	return(gaze_processed)
 }
-
 
 # evaluate if gaze is in AOI ---------------------------------------------------
 
@@ -259,44 +223,30 @@ get_gaze_aoi <- function(gaze_processed,
 						 aoi_coords,
 						 non_aoi_as_na = FALSE) {
 	
-	participants_tmp <- select(participants, id, age_group, filename,
+	participants_tmp <- select(participants, filename,
 							   test_language, list, version)
 	
-	stimuli_tmp <- select(stimuli, test_language, list, version, trial_id,
+	stimuli_tmp <- select(stimuli, test_language, list, version, trial,
 						  target_location, trial_type)
 	
 	gaze_aoi <- gaze_processed |> 
 		mutate(filename = gsub(".csv.csv", ".csv", filename)) |> 
 		left_join(participants_tmp,
-				  by = join_by(id, age_group, filename)) |> 
+				  by = join_by(filename)) |> 
 		left_join(stimuli_tmp,
-				  by = join_by(trial_id, test_language, list, version)) |> 
-		select(id, age_group, trial, trial_id, phase, timestamp,
+				  by = join_by(trial, test_language, list, version)) |> 
+		select(filename, trial, phase, timestamp,
 			   x, y, is_valid_gaze, is_imputed,
-			   target_location, trial_type, filename) |> 
-		# evaluate if gaze coordinates are inside any AOI, and which
-		mutate(is_gaze_center = gaze_in_center(x, y, aoi_coords = aoi_coords),
-			   is_gaze_left = gaze_in_left(x, y, aoi_coords),
-			   is_gaze_right = gaze_in_right(x, y, aoi_coords)) |> 
+			   target_location, trial_type) |> 
 		make_non_aoi_as_false(non_aoi_as_na = TRUE) |> 
 		mutate(
-			is_gaze_prime = is_gaze_center,
-			is_gaze_target = ifelse(target_location=="r",
-									is_gaze_right, 
-									is_gaze_left),
-			is_gaze_distractor = ifelse(target_location=="l", 
-										is_gaze_right,
-										is_gaze_left)
+			is_gaze_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
+			is_gaze_target = gaze_in_target(x, y, target_location, aoi_coords),
+			is_gaze_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)
 		) |> 
-		select(id, age_group,
-			   trial, trial_id,
-			   phase, timestamp, x, y,
-			   is_gaze_prime,
-			   is_gaze_target,
-			   is_gaze_distractor,
-			   is_valid_gaze,
-			   is_imputed,
-			   trial_type, filename)
+		select(filename, trial, phase, timestamp, x, y,
+			   is_gaze_prime, is_gaze_target, is_gaze_distractor,
+			   is_valid_gaze, is_imputed, trial_type)
 	
 	return(gaze_aoi)
 	
@@ -317,30 +267,88 @@ make_non_aoi_as_false <- function(x, non_aoi_as_na = FALSE) {
 }
 
 # evaluate if gaze is in prime
-gaze_in_center <- function(x, y, aoi_coords){
+gaze_in_prime <- function(x, y, aoi_coords){
 	
-	x_in_range <- (x >= aoi_coords$center["xmin"] & x <= aoi_coords$center["xmax"]) 
-	y_in_range <- (y >= aoi_coords$center["ymin"] & y <= aoi_coords$center["ymax"])
-	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
+	is_gaze_in_aoi <- between(
+		x, 
+		aoi_coords$center["xmin"], 
+		aoi_coords$center["xmax"]
+	) & 
+		between(
+			y, 
+			aoi_coords$center["ymin"], 
+			aoi_coords$center["ymax"]
+		)
 	
-	return(gaze_in_range)
+	is_gaze_in_aoi <- ifelse(is.na(is_gaze_in_aoi), FALSE, TRUE)
+	
+	return(is_gaze_in_aoi)
 }
 
 # evaluate if gaze is in target
-gaze_in_right <- function(x, y, aoi_coords){
+gaze_in_target <- function(x, y, target_location, aoi_coords){
 	
-	x_in_range <- (x >= aoi_coords$right["xmin"] & x <= aoi_coords$right["xmax"]) 
-	y_in_range <- (y >= aoi_coords$right["ymin"] & y <= aoi_coords$right["ymax"])
-	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
+	is_gaze_in_aoi <- 
+		case_when(
+			target_location=="r" ~ 
+				between(
+					x,
+					aoi_coords$right["xmin"],
+					aoi_coords$right["xmax"]
+				) &
+				between(
+					y,
+					aoi_coords$right["ymin"],
+					aoi_coords$right["ymax"]
+				),
+			target_location=="l" ~ 
+				between(
+					x,
+					aoi_coords$left["xmin"],
+					aoi_coords$left["xmax"]
+				) &
+				between(
+					y,
+					aoi_coords$left["ymin"],
+					aoi_coords$left["ymax"]
+				),
+			TRUE ~ FALSE
+		)
 	
-	return(gaze_in_range)
+	return(is_gaze_in_aoi)
 }
 
-gaze_in_left <- function(x, y, aoi_coords){
+
+# evaluate if gaze is in distractor
+gaze_in_distractor <- function(x, y, target_location, aoi_coords){
 	
-	x_in_range <- (x >= aoi_coords$left["xmin"] & x <= aoi_coords$left["xmax"]) 
-	y_in_range <- (y >= aoi_coords$left["ymin"] & y <= aoi_coords$left["ymax"])
-	gaze_in_range <- rowSums(data.frame(x_in_range, y_in_range))==2
+	is_gaze_in_aoi <- 
+		case_when(
+			target_location=="l" ~
+				between(
+					x,
+					aoi_coords$right["xmin"],
+					aoi_coords$right["xmax"]
+				) &
+				between(
+					y,
+					aoi_coords$right["ymin"],
+					aoi_coords$right["ymax"]
+				),
+			target_location=="r" ~
+				between(
+					x,
+					aoi_coords$left["xmin"],
+					aoi_coords$left["xmax"]
+				) &
+				between(
+					y,
+					aoi_coords$left["ymin"],
+					aoi_coords$left["ymax"]
+				),
+			TRUE ~ FALSE
+		)
 	
-	return(gaze_in_range)
+	return(is_gaze_in_aoi)
 }
+

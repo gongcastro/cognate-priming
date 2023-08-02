@@ -6,37 +6,25 @@ get_data_time <- function(gaze_aoi,
 						  attrition_trials,
 						  attrition_participants,
 						  aoi_coords,
-						  time_subset = c(0.33, 2.00) # subset time (s)
+						  time_subset = c(0.00, 2.00)
 ){
 	
 	gaze_aoi_tmp <- filter(gaze_aoi, phase=="Target-Distractor")
 	
-	vocabulary_tmp <- vocabulary |> 
-		mutate(across(starts_with("vocab_size"), \(x) scale(x)[, 1],
-					  .names = "{.col}_center")) |> 
-		right_join(select(participants, id, id_db, age_group),
-				   by = join_by(id_db, age_group))
-	
 	clean <- participants |> 
-		select(-filename) |> 
-		full_join(stimuli,
-				  by = join_by(test_language, list, version),
-				  relationship = "many-to-many") |> 
 		inner_join(gaze_aoi_tmp,
-				   by = join_by(id, age_group, trial_id, trial_type)) |> 
-		select(id, age, age_group, trial, phase, timestamp, x, y, 
-			   target_location, filename, is_valid_gaze, matches("is_gaze")) |> 
-		# evaluate if gaze coordinates are inside any AOI, and which
-		drop_na(filename) |> 
+				   by = join_by(filename)) |> 
+		select(id, age_group, lp, trial, phase, timestamp, x, y, 
+			   filename, is_valid_gaze, matches("is_gaze_")) |> 
+	# evaluate if gaze coordinates are inside any AOI, and which
+	drop_na(filename) |> 
 		left_join(attrition_trials,
-				  by = join_by(id, age_group, trial)) |> 
+				  by = join_by(filename, trial)) |> 
 		left_join(attrition_participants,
-				  by = join_by(id, age_group)) |>
+				  by = join_by(filename)) |>
 		drop_na(trial) |> 
-		left_join(select(participants, id, age_group, lp),
-				  by = join_by(id, age_group)) |> 
 		mutate(across(c(age_group, lp, trial_type), as.factor)) |> 
-		select(id, age, age_group, lp, trial, timestamp,
+		select(id, age_group, lp, trial, timestamp,
 			   is_gaze_target, is_gaze_distractor, trial_type,
 			   cognate, noncognate, unrelated,
 			   is_valid_trial, is_valid_participant) |>
@@ -55,25 +43,18 @@ get_data_time <- function(gaze_aoi,
 				  .by = c(id, age_group, timebin, trial_type, lp)) |> 
 		mutate(.prop = .sum_target / .n,
 			   .logit = log((.sum_target + .5)/(.sum_distractor + .5))) |> 
-		left_join(vocabulary_tmp,
-				  by = join_by(id, age_group, lp)) |>  
 		mutate(across(c(age_group, lp, trial_type), 
 					  as.factor), 
 			   across(c(.n, timebin, .ntrials), as.integer),
 			   across(ends_with("_prop"), \(x) scale(x)[, 1],
 			   	   .names = "{.col}_std")) |> 
-		drop_na(l1_prop_std, 
-				total_prop_std,
-				concept_prop_std) |> 
-		rename(vocab = total_prop, 
-			   vocab_std = total_prop_std) |> 
 		# make orthogonal polynomials (see Mirman, 2014)
 		polypoly::poly_add_columns(timebin,
 								   degree = 3,
 								   prefix = "ot",
 								   scale_width = 1) |> 
 		select(id, age_group, lp,  trial_type, timebin, .prop, .logit,
-			   .ntrials, .n, vocab, ot1:ot3) |> 
+			   .ntrials, .n, ot1:ot3) |> 
 		arrange(id, age_group, timebin, trial_type) 
 	
 	# set a prior contrasts and orthogonal polynomials
@@ -93,9 +74,8 @@ get_data_summary <- function(data_time){
 		summarise(across(c(.prop, .logit),
 						 \(x) mean(x, na.rm = TRUE)),
 				  .ntrials = first(.ntrials),
-				  .by = c(id, age_group, lp, trial_type, vocab))
+				  .by = c(id, age_group, lp, trial_type))
 	
 	return(data_summary)
 }
-
 

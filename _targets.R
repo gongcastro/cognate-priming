@@ -116,28 +116,27 @@ list(
 	tar_target(aoi_coords,
 			   list(center = c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790),
 			   	 left = c(xmin = 180, xmax = 680, ymin = 290, ymax = 790),
-			   	 right = c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790))),
+			   	 right = c(xmin = 1240, xmax = 1740, ymin = 290, ymax = 790))),
 	
+	# gaze data ----
 	tar_target(gaze_files, 
-			   list.files("data-raw/eyetracking/", 
-			   		   pattern = ".csv$",
-			   		   full.names = TRUE),
+			   list.files(
+			   	path = "data-raw/eyetracking", 
+			   	pattern = ".csv$",
+			   	full.names = TRUE
+			   ), 
 			   format = "file"),
 	
-	tar_target(gaze_normalised, 
-			   get_gaze_normalised(gaze_files)),
+	tar_target(
+		gaze_raw,
+		get_gaze_raw(gaze_files)
+	),
 	
-	tar_target(gaze_raw, 
-			   get_gaze_raw(gaze_normalised)),
-	
-	tar_target(gaze_raw_test,
-			   test_gaze_raw(gaze_raw)),
-	
-	tar_target(gaze_processed, 
-			   get_gaze_processed(gaze_raw, participants)),
-	
-	tar_target(gaze_processed_test,
-			   test_gaze_processed(gaze_processed)),
+	tar_target(gaze_processed, get_gaze_processed(gaze_raw)),
+	# tar_target(
+	# 	gaze_raw_test,
+	# 	test_gaze_raw(gaze_raw)
+	# ),
 	
 	tar_target(gaze_aoi,
 			   get_gaze_aoi(gaze_processed,
@@ -145,43 +144,31 @@ list(
 			   			 stimuli, 
 			   			 aoi_coords)),
 	
-	tar_target(gaze_aoi_test, 
-			   test_gaze_aoi(gaze_aoi)),
-	# 
-	# tar_target(gaze_plots,
-	# 		   make_plots_gaze(
-	# 		   	gaze_aoi, 
-	# 		   	aoi_coords,
-	# 		   	participants,
-	# 		   	stimuli,
-	# 		   	attrition_trials,
-	# 		   	attrition_participants
-	# 		   )),
+	# attrition ----------------------------------------------------------------
 	
-	# attrition data -----------------------------------------------------------
-	# see R/04_attrition.R for details on this function
 	tar_target(attrition_trials,
-			   get_attrition_trials(participants = participants,
-			   					 aoi_coords = aoi_coords,
-			   					 gaze_aoi = gaze_aoi,
-			   					 looking_threshold = c(prime = 0.75, 
-			   					 					  test = 1,
-			   					 					  test_each = 0.1))),
-	
-	tar_target(attrition_trials_test,
-			   test_attrition_trials(attrition_trials)),
-	
+			   get_attrition_trials(
+			   	participants = participants,
+			   	aoi_coords = aoi_coords,
+			   	gaze_aoi = gaze_aoi,
+			   	looking_threshold = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0.1))),
+	# 
+	# tar_target(attrition_trials_test,
+	# 		   test_attrition_trials(attrition_trials)),
+	# 
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,
 			   						   			   unrelated = 2))),
-	tar_target(attrition_participants_test,
-			   test_attrition_participants(attrition_participants)),
+	# tar_target(attrition_participants_test,
+	# 		   test_attrition_participants(attrition_participants)),
 	
 	# prepare data for analysis ------------------------------------------------
-	# see R/05_prepare.R for details on the get_prepared() function
-	# this function returns an analysis ready dataset, with all necessary (transformed/coded) variables
+	
 	tar_target(data_time,
 			   get_data_time(gaze_aoi = gaze_aoi,
 			   			  participants = participants,
@@ -190,113 +177,119 @@ list(
 			   			  attrition_trials = attrition_trials,
 			   			  attrition_participants = attrition_participants,
 			   			  aoi_coords = aoi_coords, 
-			   			  time_subset = c(0.25, 2))),
+			   			  time_subset = c(0, 2))),
 	
-	tar_target(data_time_test,
-			   test_data_time(data_time)),
+	# tar_target(data_time_test,
+	# 		   test_data_time(data_time)),
 	
 	tar_target(data_summary,
-			   get_data_summary(data_time)),
+			   get_data_summary(data_time))
 	
-	tar_target(data_summary_test,
-			   test_data_summary(data_summary)),
+	# tar_target(data_summary_test,
+	# 		   test_data_summary(data_summary)),
+	# tar_target(
+	# 	gaze_test,
+	# 	test_gaze(gaze)
+	# ),
 	
-	tar_target(data_time_plots,
-			   make_plots_gaze_processed(data_time, attrition_participants)),
-	
-	# analyse aggregated data
-	tar_target(fit_aggregated_0,
-			   get_model_fit(
-			   	formula = .logit ~ age_group +
-			   		(1 + age_group | id),
-			   	data = data_summary,
-			   	prior = c(prior(normal(0, 1), "Intercept"),
-			   			  prior(normal(0, 1), "b"),
-			   			  prior(normal(0, 1), "sd"),
-			   			  prior(normal(0, 1), "sigma")),
-			   	file = "results/fit_aggregated_0.rds"
-			   )),
-	
-	tar_target(fit_aggregated_1,
-			   get_model_fit(
-			   	formula = .logit ~ age_group * lp +
-			   		(1 + age_group * trial_type | id),
-			   	data = data_summary,
-			   	prior = c(prior(normal(0, 1), "Intercept"),
-			   			  prior(normal(0, 1), "b"),
-			   			  prior(normal(0, 1), "sd"),
-			   			  prior(normal(0, 1), "sigma"),
-			   			  prior(lkj(5), "cor")),
-			   	file = "results/fit_aggregated_1.rds"
-			   )),
-	
-	tar_target(fit_aggregated_2,
-			   get_model_fit(
-			   	formula = .logit ~ age_group * lp * trial_type +
-			   		(1 + age_group * trial_type | id),
-			   	data = data_summary,
-			   	prior = c(prior(normal(0, 1), "Intercept"),
-			   			  prior(normal(0, 1), "b"),
-			   			  prior(normal(0, 1), "sd"),
-			   			  prior(normal(0, 1), "sigma"),
-			   			  prior(lkj(5), "cor")),
-			   	file = "results/fit_aggregated_2.rds"
-			   )),
-	
-	
-	tar_target(loos_aggregated,
-			   loo_compare(map(lst(fit_aggregated_0,
-			   					fit_aggregated_1,
-			   					fit_aggregated_2),
-			   				loo))),
-	
-	# TIMECOURSE
-	tar_target(fit_timecourse_0,
-			   get_model_fit(
-			   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group +
-			   		(1 + (ot1 + ot2 + ot3) * age_group | id),
-			   	data = data_time,
-			   	prior = c(prior(normal(0, 1), "Intercept"),
-			   			  prior(normal(0, 1), "b"),
-			   			  prior(normal(0, 1), "sd"),
-			   			  prior(normal(0, 1), "sigma"),
-			   			  prior(lkj(5), "cor")),
-			   	file = "results/fit_timecourse_0.rds"
-			   )),
-	
-	tar_target(fit_timecourse_1,
-			   get_model_fit(
-			   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group * lp +
-			   		(1 + (ot1 + ot2 + ot3) * age_group | id),
-			   	data = data_time,
-			   	prior = c(prior(normal(0, 1), "Intercept"),
-			   			  prior(normal(0, 1), "b"),
-			   			  prior(normal(0, 1), "sd"),
-			   			  prior(normal(0, 1), "sigma"),
-			   			  prior(lkj(5), "cor")),
-			   	file = "results/fit_timecourse_1.rds"
-			   )),
-	
-	tar_target(fit_timecourse_2,
-			   get_model_fit(
-			   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group * lp * trial_type +
-			   		(1 + (ot1 + ot2 + ot3) * age_group * trial_type | id),
-			   	data = data_time,
-			   	prior = c(prior(normal(0, 1), "Intercept"),
-			   			  prior(normal(0, 1), "b"),
-			   			  prior(normal(0, 1), "sd"),
-			   			  prior(normal(0, 1), "sigma"),
-			   			  prior(lkj(5), "cor")),
-			   	file = "results/fit_timecourse_2.rds"
-			   )),
-	
-	tar_target(loos_timecourse,
-			   loo_compare(map(lst(fit_timecourse_0,
-			   					fit_timecourse_1,
-			   					fit_timecourse_2),
-			   				loo)))
-	
-	
+	# # analyse aggregated data
+	# tar_target(fit_aggregated_0,
+	# 		   get_model_fit(
+	# 		   	formula = .logit ~ age_group +
+	# 		   		(1 + age_group | id),
+	# 		   	data = data_summary,
+	# 		   	prior = c(prior(normal(0, 1), "Intercept"),
+	# 		   			  prior(normal(0, 1), "b"),
+	# 		   			  prior(normal(0, 1), "sd"),
+	# 		   			  prior(normal(0, 1), "sigma")),
+	# 		   	file = "results/fit_aggregated_0.rds"
+	# 		   )),
+	# 
+	# tar_target(fit_aggregated_1,
+	# 		   get_model_fit(
+	# 		   	formula = .logit ~ age_group * lp +
+	# 		   		(1 + age_group * trial_type | id),
+	# 		   	data = data_summary,
+	# 		   	prior = c(prior(normal(0, 1), "Intercept"),
+	# 		   			  prior(normal(0, 1), "b"),
+	# 		   			  prior(normal(0, 1), "sd"),
+	# 		   			  prior(normal(0, 1), "sigma"),
+	# 		   			  prior(lkj(5), "cor")),
+	# 		   	file = "results/fit_aggregated_1.rds"
+	# 		   )),
+	# 
+	# tar_target(fit_aggregated_2,
+	# 		   get_model_fit(
+	# 		   	formula = .logit ~ age_group * lp * trial_type +
+	# 		   		(1 + age_group * trial_type | id),
+	# 		   	data = data_summary,
+	# 		   	prior = c(prior(normal(0, 1), "Intercept"),
+	# 		   			  prior(normal(0, 1), "b"),
+	# 		   			  prior(normal(0, 1), "sd"),
+	# 		   			  prior(normal(0, 1), "sigma"),
+	# 		   			  prior(lkj(5), "cor")),
+	# 		   	file = "results/fit_aggregated_2.rds"
+	# 		   )),
+	# 
+	# 
+	# tar_target(loos_aggregated,
+	# 		   loo_compare(map(lst(fit_aggregated_0,
+	# 		   					fit_aggregated_1,
+	# 		   					fit_aggregated_2),
+	# 		   				loo))),
+	# 
+	# # TIMECOURSE
+	# tar_target(fit_timecourse_0,
+	# 		   get_model_fit(
+	# 		   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group +
+	# 		   		(1 + (ot1 + ot2 + ot3) * age_group | id),
+	# 		   	data = data_time,
+	# 		   	prior = c(prior(normal(0, 1), "Intercept"),
+	# 		   			  prior(normal(0, 1), "b"),
+	# 		   			  prior(normal(0, 1), "sd"),
+	# 		   			  prior(normal(0, 1), "sigma"),
+	# 		   			  prior(lkj(5), "cor")),
+	# 		   	file = "results/fit_timecourse_0.rds"
+	# 		   )),
+	# 
+	# tar_target(fit_timecourse_1,
+	# 		   get_model_fit(
+	# 		   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group * lp +
+	# 		   		(1 + (ot1 + ot2 + ot3) * age_group | id),
+	# 		   	data = data_time,
+	# 		   	prior = c(prior(normal(0, 1), "Intercept"),
+	# 		   			  prior(normal(0, 1), "b"),
+	# 		   			  prior(normal(0, 1), "sd"),
+	# 		   			  prior(normal(0, 1), "sigma"),
+	# 		   			  prior(lkj(5), "cor")),
+	# 		   	file = "results/fit_timecourse_1.rds"
+	# 		   )),
+	# 
+	# tar_target(fit_timecourse_2,
+	# 		   get_model_fit(
+	# 		   	formula = .logit ~ (ot1 + ot2 + ot3) * age_group * lp * trial_type +
+	# 		   		(1 + (ot1 + ot2 + ot3) * age_group * trial_type | id),
+	# 		   	data = data_time,
+	# 		   	prior = c(prior(normal(0, 1), "Intercept"),
+	# 		   			  prior(normal(0, 1), "b"),
+	# 		   			  prior(normal(0, 1), "sd"),
+	# 		   			  prior(normal(0, 1), "sigma"),
+	# 		   			  prior(lkj(5), "cor")),
+	# 		   	file = "results/fit_timecourse_2.rds"
+	# 		   )),
+	# 
+	# tar_target(loos_timecourse,
+	# 		   loo_compare(map(lst(fit_timecourse_0,
+	# 		   					fit_timecourse_1,
+	# 		   					fit_timecourse_2),
+	# 		   				loo))),
+	# 
+	# # # render checks
+	# tar_quarto(checks,
+	# 		   "docs/sanity-checks.qmd",
+	# 		   execute = TRUE,
+	# 		   quiet = FALSE)
+	# 
 	# # render report
 	# tar_quarto(report,
 	# 		   "docs/index.qmd",
