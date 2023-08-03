@@ -25,7 +25,6 @@ library(kableExtra)
 library(ggplot2)
 library(gt)
 
-
 # set ggplot theme and colour palette ------------------------------------------
 
 my_theme <- theme_minimal() +
