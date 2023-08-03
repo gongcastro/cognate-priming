@@ -1,2 +1,3 @@
 targets:
-	Rscript -e "tar_make()"
+	@echo "Running targets..."
+	@Rscript -e "targets::tar_make()"

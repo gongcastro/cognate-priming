@@ -5,7 +5,6 @@ p <- bvq::bvq_participants()
 r <- bvq::bvq_responses(p)
 
 # get logs
-# merge participant data with questionnaire responses
 edu_dict <- c("noeducation" = "No education",
 			  "primary" = "Primary",
 			  "secondary" = "Secondary",
@@ -36,14 +35,12 @@ l <- bvq::bvq_logs(p, r) |>
 	left_join(select(p, id, time, id_exp),
 			  by = join_by(id, time)) |> 
 	distinct(id, age_group, .keep_all = TRUE) |> 
-	select(id, id_exp, time, age, age_group, lp, edu_parent)
+	select(id, id_exp, time, age, age_group, lp, 
+		   dominance, doe_catalan, doe_spanish, edu_parent)
 
-v_comp <- bvq::bvq_vocabulary(participants = p, 
-							  responses = r, 
-							  .scale = c("prop", "count")) |> 
+v_comp <- bvq::bvq_vocabulary(p, r) |> 
 	dplyr::filter(type=="understands") |> 
-	inner_join(distinct(l, id, time, id_exp, age_group),
-			   by = join_by(id, time)) |> 
+	inner_join(l, by = join_by(id, time)) |> 
 	select(id, id_exp, age_group, type, matches("prop|count"))
 
 v_prod <- bvq::bvq_vocabulary(participants = p, 
