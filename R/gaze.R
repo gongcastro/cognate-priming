@@ -238,7 +238,7 @@ get_gaze_aoi <- function(gaze_processed,
 		select(filename, trial, phase, timestamp,
 			   x, y, is_valid_gaze, is_imputed,
 			   target_location, trial_type) |> 
-		make_non_aoi_as_false(non_aoi_as_na = TRUE) |> 
+		make_non_aoi_as_false(non_aoi_as_na = non_aoi_as_na) |> 
 		mutate(
 			is_gaze_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
 			is_gaze_target = gaze_in_target(x, y, target_location, aoi_coords),

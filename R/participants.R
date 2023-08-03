@@ -3,9 +3,7 @@ get_participants <- function(participants_file){
 	
 	age_levels <- paste0(c(21, 25, 30), " months")
 	
-	participants <- read_csv(participants_file,
-							 na = c("NA", ""),
-							 show_col_types = FALSE) |> 
+	participants <- arrow::read_csv_arrow(participants_file, na = c("NA", "")) |> 
 		mutate(
 			id = gsub("cognatepriming", "", id),
 			across(starts_with("id"), as.character),

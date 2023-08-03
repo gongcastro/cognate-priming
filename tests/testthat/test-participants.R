@@ -65,8 +65,8 @@ test_participants <- function(participants){
 	})
 	
 	test_that("all filenames correspond to a file in data/gaze/00_raw", {
-		gaze_files <- list.files("data-raw/barcelona/eyetracking", 
-								 pattern = ".csv$")
+		gaze_files_path <- "data-raw/eyetracking"
+		gaze_files <- basename(list.files(gaze_files_path, pattern = ".csv$"))
 		expect_true(all(participants$filename %in% gaze_files))
 	})
 }

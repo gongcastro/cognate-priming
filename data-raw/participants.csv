@@ -44,7 +44,7 @@ cognatepriming42,1,30,FALSE,54993,Barcelona,Spanish,3,euro,25/02/2020,19/12/2017
 cognatepriming43,1,30,FALSE,54960,Barcelona,Spanish,2,euro,28/02/2020,14/12/2017,26.87,65.73,f,51%,49%,0%,0%,Bilingual,"New script, potentially bad calibration, second attempt",CognatePriming_043_2020-02-28_2.csv,,TRUE,,FALSE,FALSE
 cognatepriming44,1,30,FALSE,54815,Barcelona,Catalan,2,ll,29/02/2020,12/11/2017,27.97,66.80,m,58%,42%,0%,0%,Bilingual,Bad calibration,CognatePriming_044_2020-02-29_1.csv,,FALSE,,FALSE,FALSE
 cognatepriming45,1,21,FALSE,55867,Barcelona,Catalan,1,ll,07/03/2020,25/06/2018,20.70,59.30,m,44%,56%,0%,0%,Bilingual,"Second attempt, lights on",CognatePriming_045_2020-03-07_2.csv,,TRUE,,FALSE,FALSE
-cognatepriming46,1,30,TRUE,55010,Barcelona,Spanish,1,euro,07/03/2020,03/01/2018,26.47,65.07,f,79%,21%,0%,0%,Bilingual,CDI in Catalan incomplete,CognatePriming_046_2020-03-07.csv,,TRUE,,FALSE,FALSE
+cognatepriming46,1,30,FALSE,55010,Barcelona,Spanish,1,euro,07/03/2020,03/01/2018,26.47,65.07,f,79%,21%,0%,0%,Bilingual,CDI in Catalan incomplete,CognatePriming_046_2020-03-07.csv,,TRUE,,FALSE,FALSE
 cognatepriming47,1,21,FALSE,55877,Barcelona,Catalan,1,ll,11/03/2020,27/06/2018,20.77,59.23,f,0%,100%,0%,0%,Monolingual,,CognatePriming_047_2020-03-11.csv,,TRUE,,FALSE,FALSE
 cognatepriming48,1,21,FALSE,55878,Barcelona,Spanish,2,euro,11/03/2020,27/06/2018,20.77,59.23,m,49%,51%,0%,0%,Bilingual,"CDI in Catalan incomplete, bad calibration, wrong language",CognatePriming_048_2020-03-11.csv,,FALSE,,FALSE,FALSE
 cognatepriming49,1,21,FALSE,56762,Barcelona,Catalan,3,ll,06/11/2020,21/01/2019,21.83,52.30,f,0%,97%,3%,0%,Monolingual,"First baby with COVID protocol, 2nd attempt (2 trials)",CognatePriming_049_2020-11-06_2.csv,,TRUE,,FALSE,FALSE

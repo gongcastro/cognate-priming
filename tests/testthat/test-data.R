@@ -12,7 +12,6 @@ test_data_time <- function(data_time){
 			  ".logit",
 			  ".ntrials",
 			  ".n",
-			  "vocab",
 			  "ot1",
 			  "ot2",
 			  "ot3"))
@@ -28,7 +27,6 @@ test_data_time <- function(data_time){
 		expect_type(data_time$.n, "integer")
 		expect_type(data_time$.prop, "double")
 		expect_type(data_time$.logit, "double")
-		expect_type(data_time$vocab, "double")
 		expect_type(data_time$ot1, "double")
 		expect_type(data_time$ot2, "double")
 		expect_type(data_time$ot3, "double")
@@ -44,7 +42,6 @@ test_data_time <- function(data_time){
 		expect_false(any(is.na(data_time$.n)))
 		expect_false(any(is.na(data_time$.prop)))
 		expect_false(any(is.na(data_time$.logit)))
-		expect_false(any(is.na(data_time$vocab)))
 		expect_false(any(is.na(data_time$ot1)))
 		expect_false(any(is.na(data_time$ot2)))
 		expect_false(any(is.na(data_time$ot3)))
@@ -58,7 +55,6 @@ test_data_time <- function(data_time){
 		expect_true(all(unique(data_time$.n) > 0))
 		expect_true(all(between(unique(data_time$.prop), 0, 1)))
 		expect_false(any(is.nan(unique(data_time$.logit))))
-		expect_true(all(between(unique(data_time$vocab), 0, 1)))
 	})
 	
 }
@@ -72,7 +68,6 @@ test_data_summary <- function(data_summary){
 			  "age_group",
 			  "lp",
 			  "trial_type",
-			  "vocab",
 			  ".prop",
 			  ".logit",
 			  ".ntrials"))
@@ -86,7 +81,6 @@ test_data_summary <- function(data_summary){
 		expect_type(data_summary$.ntrials, "integer")
 		expect_type(data_summary$.prop, "double")
 		expect_type(data_summary$.logit, "double")
-		expect_type(data_summary$vocab, "double")
 	})
 	
 	test_that("data_summary missing data is dealt with", {
@@ -97,8 +91,6 @@ test_data_summary <- function(data_summary){
 		expect_false(any(is.na(data_summary$.ntrials)))
 		expect_false(any(is.na(data_summary$.prop)))
 		expect_false(any(is.na(data_summary$.logit)))
-		expect_false(any(is.na(data_summary$vocab)))
-		
 	})
 	
 	test_that("data_summary variables have the right values", {
@@ -108,7 +100,6 @@ test_data_summary <- function(data_summary){
 		expect_true(all(unique(data_summary$.ntrials) > 0))
 		expect_true(all(between(unique(data_summary$.prop), 0, 1)))
 		expect_false(any(is.nan(unique(data_summary$.logit))))
-		expect_true(all(between(unique(data_summary$vocab), 0, 1)))
 	})
 	
 }

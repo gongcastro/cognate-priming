@@ -3,7 +3,6 @@ get_familiarity <- function(
 		bvq_data,
 		tokens, # words to retrieve familiarity for
 		type = "understands", # understands or produces
-		update = TRUE, # should vocabulary data be updated
 		age = c(17, 19), # age range for familiarity norms (min-max)
 		.width = 0.95 # confidence level of the estimates
 ){
@@ -133,8 +132,11 @@ get_stimuli <- function(trials, # trials dataset
 			rename_at(vars(starts_with("familiarity")), function(x) paste0(x, "_prime")) |> 
 			left_join(familiarity, c("target_cdi" = "word", "test_language")
 			) |> 
-			rename_with(~paste0(., "_target"), c(starts_with("familiarity") & !ends_with("_prime"))) |> 
-			rename_with(~str_replace(., "prime_target", "prime"), everything()) |> 
+			rename_with(\(x) paste0(x, "_target"), 
+						c(starts_with("familiarity") & 
+						  	!ends_with("_prime"))) |> 
+			rename_with( \(x) gsub("prime_target", "prime", x), 
+						 everything()) |> 
 			filter(location=="Barcelona")
 		
 		# impute data
@@ -146,7 +148,7 @@ get_stimuli <- function(trials, # trials dataset
 		}
 		
 		stimuli <- stimuli_imputed |> 
-			select(trial_id = trial, test_language, version, list, trial_type,
+			select(trial, test_language, version, list, trial_type,
 				   prime, target, distractor, audio, target_location,
 				   prime_cdi, target_cdi, distractor_cdi,
 				   valid_trial, 
@@ -156,7 +158,7 @@ get_stimuli <- function(trials, # trials dataset
 				   semantic_category_prime, semantic_category_target,
 				   is_animate_prime, is_animate_target,
 				   is_animate_prime, is_animate_target) |> 
-			mutate(across(c(trial_id, list), as.integer),
+			mutate(across(c(trial, list), as.integer),
 				   across(starts_with("is_animate"), as.logical))
 	})
 	
