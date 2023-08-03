@@ -20,4 +20,5 @@ documents/
 presentations/
 
 !Data/Stimuli/*
-data/gaze/**/*.csv
+data-raw/eyetracking/*.csv
+/.luarc.json

@@ -98,16 +98,13 @@ list(
 	
 	# join datasets
 	# see R/01_participants.R for details on this function
-	tar_target(participants_file,
-			   "data-raw/participants.csv",
-			   format = "file"),
+	tar_target(participants_file, "data-raw/participants.csv", format = "file"),
 	tar_target(participants, get_participants(participants_file)),
 	tar_target(participants_test, test_participants(participants)),
 	
 	# vocabulary ---------------------------------------------------------------
 	
 	tar_target(vocabulary,
-			   # see R/02_vocabulary.R for details on this function
 			   get_vocabulary(participants = participants, 
 			   			   bvq_data = bvq_data)),
 	tar_target(vocabulary_test, test_vocabulary(vocabulary)),
@@ -127,22 +124,14 @@ list(
 			   ), 
 			   format = "file"),
 	
-	tar_target(
-		gaze_raw,
-		get_gaze_raw(gaze_files)
-	),
+	tar_target(gaze_raw, get_gaze_raw(gaze_files)),
+	tar_target(gaze_raw_test, test_gaze_raw(gaze_raw)),
 	
 	tar_target(gaze_processed, get_gaze_processed(gaze_raw)),
-	# tar_target(
-	# 	gaze_raw_test,
-	# 	test_gaze_raw(gaze_raw)
-	# ),
+	tar_target(gaze_processed_test, test_gaze_processed(gaze_processed)),
 	
-	tar_target(gaze_aoi,
-			   get_gaze_aoi(gaze_processed,
-			   			 participants,
-			   			 stimuli, 
-			   			 aoi_coords)),
+	tar_target(gaze_aoi, get_gaze_aoi(gaze_processed, participants, stimuli, aoi_coords)),
+	tar_target(gaze_aoi_test, test_gaze_aoi(gaze_aoi)),
 	
 	# attrition ----------------------------------------------------------------
 	
@@ -155,17 +144,17 @@ list(
 			   		prime = 0.75, 
 			   		test = 1,
 			   		test_each = 0.1))),
-	# 
-	# tar_target(attrition_trials_test,
-	# 		   test_attrition_trials(attrition_trials)),
-	# 
+
+	tar_target(attrition_trials_test,
+			   test_attrition_trials(attrition_trials)),
+
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,
 			   						   			   unrelated = 2))),
-	# tar_target(attrition_participants_test,
-	# 		   test_attrition_participants(attrition_participants)),
+	tar_target(attrition_participants_test,
+			   test_attrition_participants(attrition_participants)),
 	
 	# prepare data for analysis ------------------------------------------------
 	
