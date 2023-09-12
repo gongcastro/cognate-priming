@@ -36,7 +36,7 @@ get_familiarity <- function(
 # get frequencies from CHILDES
 get_childes_corpora <- function(token, languages = c("cat", "spa")) {
 	
-	if (file.exists("data/stimuli/childes.csv")){
+	if (file.exists("data/childes.csv")){
 		childes <- read_csv("data/stimuli/childes.csv")
 		cli_alert_success("Previous versions of childes loaded")
 	} else {
@@ -53,7 +53,7 @@ get_childes_corpora <- function(token, languages = c("cat", "spa")) {
 			summarise(freq_counts = sum(n), .by = c(language, gloss)) |>
 			filter(freq_counts > 0)
 		
-		write_csv_arrow(childes, "data/stimuli/childes.csv")
+		arrow::write_csv_arrow(childes, "data-raw/childes.csv")
 		
 	}
 	
