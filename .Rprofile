@@ -9,11 +9,12 @@ options(crayon.enabled = TRUE,
 if (interactive()) {
 	
 	# load packages
-	library(targets)
+	suppressWarnings({
+		library(targets)
+	})
 	
-	source("src/helpers.R")
+	source(file.path("src", "helpers.R"))
 	
-
 	resolve_conflicts()
 	
 	cli::cli_alert_info('Welcome! To execute the repository, 1) run `renv::restore()`, 2) and then `make()` in your R console.')

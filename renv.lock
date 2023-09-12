@@ -2642,6 +2642,21 @@
       ],
       "Hash": "30f0ebc41feba25691073626ff5e2cf4"
     },
+    "signal": {
+      "Package": "signal",
+      "Version": "0.7-7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "MASS",
+        "R",
+        "grDevices",
+        "graphics",
+        "stats",
+        "utils"
+      ],
+      "Hash": "b8f2ef9022ac085add25ae093754e6b3"
+    },
     "snakecase": {
       "Package": "snakecase",
       "Version": "0.11.0",
@@ -3039,6 +3054,18 @@
         "stringi"
       ],
       "Hash": "76d35ebfaaf291e08c15696c9f2ec96d"
+    },
+    "tuneR": {
+      "Package": "tuneR",
+      "Version": "1.4.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "signal"
+      ],
+      "Hash": "58b5536fe93e4b740f0e445ac4c59392"
     },
     "tzdb": {
       "Package": "tzdb",

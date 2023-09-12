@@ -1,0 +1,1632 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{tipa}
+\usepackage{booktabs}
+\hyphenpenalty=100000
+\exhyphenpenalty=100000
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\makeatother
+\makeatletter
+\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{english}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Developmental trajectories of bilingual word recognition},
+  pdfauthor={Gonzalo Garcia-Castro; Serene Siow; Nuria Sebastian-Galles; Kim Plunkett},
+  pdflang={en},
+  pdfkeywords={cognate, word recognition, lexicon, language
+acquisition, vocabulary, bilingualism, general additive mixed
+models, bayesian},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Developmental trajectories of bilingual word recognition}
+\author{Gonzalo Garcia-Castro \and Serene Siow \and Nuria
+Sebastian-Galles \and Kim Plunkett}
+\date{}
+
+\begin{document}
+\maketitle
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, frame hidden, sharp corners, enhanced, interior hidden, breakable]}{\end{tcolorbox}}\fi
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+The formation of a mental lexicon is a critical developmental
+achievement for infants\_ learning words allows infants to retrieve
+socially relevant concepts from fairly arbitrary linguistic forms
+embedded in speech.
+
+Learning words allows infants to access the rich world made of concepts
+through the recognition of fairly arbitrary linguistic forms, i.e.,
+words. This remarkable developmental achievement is
+
+The bilingual lexicon is language-non selective.
+
+The role of cognates in lexical processing.
+
+How does language co-activation shape lexical development?
+
+Implicit naming as a paradigm to study cross-language activation. (Mani
+\& Plunkett, 2010, 2011a).
+
+\hypertarget{methods}{%
+\section{Methods}\label{methods}}
+
+All materials, data, and reproducible code can be found at the OSF
+(\href{https://osf.io/ckydb/}{https://osf.io/hy984/}) and GitHub
+(\url{https://github.com/gongcastro/cognate-priming}) repositories. This
+study was conducted according to guidelines laid down in the Declaration
+of Helsinki, and was approved by the Drug Research Ethical Committee
+(CEIm) of the IMIM Parc de Salut Mar, reference 2020/9080/I. Before
+every testing session, caretakers were asked to read and sign an
+informed consent form, and were given a small gift at the end of it
+
+\hypertarget{participants}{%
+\subsection{Participants}\label{participants}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n\_participants\_total }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(participants}\SpecialCharTok{$}\NormalTok{id))}
+
+\NormalTok{n\_participants\_sessions }\OtherTok{\textless{}{-}} \FunctionTok{count}\NormalTok{(participants, id, }\AttributeTok{name =} \StringTok{"n\_sessions"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{count}\NormalTok{(n\_sessions) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_split}\NormalTok{(n\_sessions) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(}\StringTok{"session\_"}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{))}
+
+\NormalTok{n\_sessions\_total }\OtherTok{\textless{}{-}} \FunctionTok{count}\NormalTok{(participants)}
+
+\NormalTok{n\_sessions\_age\_group }\OtherTok{\textless{}{-}}\NormalTok{ participants }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_by}\NormalTok{(age\_group) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\FunctionTok{across}\NormalTok{(age, }\FunctionTok{lst}\NormalTok{(mean, sd, min, max)),}
+              \AttributeTok{n =} \FunctionTok{n}\NormalTok{(),}
+              \AttributeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(age\_mean}\SpecialCharTok{:}\NormalTok{age\_max, round, }\DecValTok{2}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_split}\NormalTok{(age\_group) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"age\_21"}\NormalTok{, }\StringTok{"age\_25"}\NormalTok{, }\StringTok{"age\_30"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: [1m[22mThere was 1 warning in `mutate()`.
+[1m[22m[36mi[39m In argument: `across(age_mean:age_max, round, 2)`.
+Caused by warning:
+[1m[22m[33m![39m The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n\_sessions\_dominance }\OtherTok{\textless{}{-}} \FunctionTok{count}\NormalTok{(participants, test\_language) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_split}\NormalTok{(test\_language) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"catalan"}\NormalTok{, }\StringTok{"spanish"}\NormalTok{))}
+
+\NormalTok{n\_sessions\_dominance\_age\_group }\OtherTok{\textless{}{-}} \FunctionTok{count}\NormalTok{(participants, age\_group, test\_language) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_split}\NormalTok{(test\_language) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"catalan"}\NormalTok{, }\StringTok{"spanish"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{map}\NormalTok{(\textbackslash{}(x) }\FunctionTok{group\_split}\NormalTok{(x, age\_group) }\SpecialCharTok{|\textgreater{}} 
+            \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"age\_21"}\NormalTok{, }\StringTok{"age\_25"}\NormalTok{, }\StringTok{"age\_30"}\NormalTok{)))}
+
+\NormalTok{n\_sessions\_lp }\OtherTok{\textless{}{-}}\NormalTok{ participants }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{count}\NormalTok{(lp) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_split}\NormalTok{(lp) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"monolingual"}\NormalTok{, }\StringTok{"bilingual"}\NormalTok{))}
+
+\NormalTok{n\_sessions\_lp\_age\_group }\OtherTok{\textless{}{-}}\NormalTok{ participants }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{count}\NormalTok{(lp, age\_group) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{group\_split}\NormalTok{(lp) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"monolingual"}\NormalTok{, }\StringTok{"bilingual"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{map}\NormalTok{(\textbackslash{}(x) }\FunctionTok{group\_split}\NormalTok{(x, age\_group) }\SpecialCharTok{|\textgreater{}} 
+            \FunctionTok{set\_names}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"age\_21"}\NormalTok{, }\StringTok{"age\_25"}\NormalTok{, }\StringTok{"age\_30"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+We collected data from 180 monolingual and bilingual participants living
+in the Metropolitan Area of Barcelona (Spain), who were exposed to at
+least Catalan and/or Spanish from birth. Families were recruited from
+maternity room in private hospitals in Barcelona, and contacted via
+phone when the child's age spanned between our age intervals of
+interest. Families were invited to participate at three age points: 21,
+25, and 30 months. 94 participants were tested at one age point, 56 at
+two age points, and 30 at the three age points. In total, we gathered
+data from 296 testing sessions: 94 at 21 months (\emph{Mean} = 20.98,
+\emph{SD} = 0.97, \emph{Range} = 20--26.35), 96 at 25 months
+(\emph{Mean} = 25.15, \emph{SD} = 0.99, \emph{Range} = 23.35--30.77),
+and 106 at 30 months (\emph{Mean} = 29.42, \emph{SD} = 0.99,
+\emph{Range} = 19.37--36.07).
+
+\hypertarget{sec-lp}{%
+\subsubsection{Language profile}\label{sec-lp}}
+
+We assessed participants' language profile using the Language Exposure
+Questionnaire (LEQ, \protect\hyperlink{ref-bosch2001evidence}{Bosch \&
+Sebastián-Gallés, 2001}). Before each experimental session, the
+experimenter asked the caretakers to estimate the amount of hours per
+day they and other people in the infant's social circle have spent
+speaking to the infant in any language since birth. The output of this
+interview is an estimated degree of exposure (DoE) to each language,
+indicated by the proportion of time the infant was reported to have
+listened to each language. According to this estimate, we classified
+participants as Catalan- or Spanish-dominant if the language with
+highest DoE was Catalan or Spanish, respectively, and tested the
+participant in the stimuli set that contained words in their native
+language. We collected data from 178 Catalan-dominant participants in
+Catalan (52 at 21 months, 62 at 25 months, and 64 at 30 months). We
+further classified participants as monolinguals if the DoE to their
+dominant language exceeded 80\% of the total DoE to Catalan and Spanish,
+and as bilinguals otherwise. Participants with DoE to language other
+than Catalan or Spanish were excluded from analyses. This divided the
+sample into 162 monolinguals ( at 21 months, at 25 months, and at 30
+months), and 134 bilinguals ( at 21 months, 2, 2, 44 at 25 months, and
+2, 3, 46 at 30 months). Table~\ref{tbl-participants-lp} shows a detailed
+description of the linguistic profile of our sample.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{participants }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{filter}\NormalTok{(is\_valid\_participant) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{select}\NormalTok{(id, age\_group, age, lp,}
+\NormalTok{           doe\_catalan, doe\_spanish, test\_language) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{id =} \FunctionTok{paste0}\NormalTok{(id, }\StringTok{" ("}\NormalTok{, age\_group, }\StringTok{")"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{add\_count}\NormalTok{(lp, }
+              \AttributeTok{name =} \StringTok{"n\_lp"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{add\_count}\NormalTok{(age\_group, }
+              \AttributeTok{name =} \StringTok{"n\_age\_group"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{pivot\_longer}\NormalTok{(}\FunctionTok{starts\_with}\NormalTok{(}\StringTok{"doe\_"}\NormalTok{),}
+                 \AttributeTok{names\_to =} \StringTok{"language"}\NormalTok{,}
+                 \AttributeTok{values\_to =} \StringTok{"doe"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{add\_count}\NormalTok{(age\_group,}
+\NormalTok{              test\_language,}
+              \AttributeTok{name =} \StringTok{"n\_age\_test"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{language =} \FunctionTok{str\_to\_sentence}\NormalTok{(}\FunctionTok{str\_remove\_all}\NormalTok{(language, }\StringTok{"doe\_"}\NormalTok{)),}
+           \AttributeTok{age\_group =} \FunctionTok{paste0}\NormalTok{(age\_group, }\StringTok{" (N = "}\NormalTok{, n\_age\_group, }\StringTok{")"}\NormalTok{),}
+           \AttributeTok{test\_language =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Tested in "}\NormalTok{, test\_language, }
+                               \StringTok{" (N = "}\NormalTok{, n\_age\_test, }\StringTok{")"}\NormalTok{),}
+           \AttributeTok{lp =} \FunctionTok{factor}\NormalTok{(lp, }\AttributeTok{levels =} \FunctionTok{rev}\NormalTok{(}\FunctionTok{unique}\NormalTok{(lp))))  }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{c}\NormalTok{(doe, age), }\FunctionTok{lst}\NormalTok{(mean, sd)),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(age\_group, lp, test\_language, language)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{pivot\_wider}\NormalTok{(}\AttributeTok{id\_cols =} \FunctionTok{c}\NormalTok{(age\_group, test\_language),}
+                \AttributeTok{names\_from =} \FunctionTok{c}\NormalTok{(language, lp),}
+                \AttributeTok{values\_from =} \FunctionTok{c}\NormalTok{(}\FunctionTok{matches}\NormalTok{(}\StringTok{"doe"}\NormalTok{), age\_mean, age\_sd),}
+                \AttributeTok{names\_repair =}\NormalTok{ janitor}\SpecialCharTok{::}\NormalTok{make\_clean\_names) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{relocate}\NormalTok{(age\_group, test\_language,}
+             \FunctionTok{matches}\NormalTok{(}\StringTok{"monolingual"}\NormalTok{),}
+             \FunctionTok{matches}\NormalTok{(}\StringTok{"bilingual"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(age\_mean\_spanish\_monolingual,}
+\NormalTok{              age\_mean\_spanish\_bilingual,}
+\NormalTok{              age\_sd\_spanish\_monolingual,}
+\NormalTok{              age\_sd\_spanish\_bilingual)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{arrange}\NormalTok{(age\_group, test\_language) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{gt}\NormalTok{(}\AttributeTok{rowname\_col =} \StringTok{"test\_language"}\NormalTok{, }
+       \AttributeTok{groupname\_col =} \StringTok{"age\_group"}\NormalTok{, }
+       \AttributeTok{row\_group.sep =} \StringTok{": "}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_spanner}\NormalTok{(}\FunctionTok{md}\NormalTok{(}\StringTok{"Monolingual (*N* = 162)"}\NormalTok{), }\FunctionTok{matches}\NormalTok{(}\StringTok{"monolingual"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_spanner}\NormalTok{(}\FunctionTok{md}\NormalTok{(}\StringTok{"Bilingual (*N* = 133)"}\NormalTok{), }\FunctionTok{matches}\NormalTok{(}\StringTok{"bilingual"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{fmt\_number}\NormalTok{(}\FunctionTok{matches}\NormalTok{(}\StringTok{"doe"}\NormalTok{), }\AttributeTok{decimals =} \DecValTok{1}\NormalTok{, }\AttributeTok{scale\_by =} \DecValTok{100}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{fmt\_number}\NormalTok{(}\FunctionTok{matches}\NormalTok{(}\StringTok{"age"}\NormalTok{), }\AttributeTok{decimals =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ age\_mean\_catalan\_monolingual, }
+                      \AttributeTok{col\_uncert =}\NormalTok{ age\_sd\_catalan\_monolingual) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ age\_mean\_catalan\_bilingual, }
+                      \AttributeTok{col\_uncert =}\NormalTok{ age\_sd\_catalan\_bilingual) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ doe\_mean\_catalan\_monolingual,}
+                      \AttributeTok{col\_uncert =}\NormalTok{ doe\_sd\_catalan\_monolingual) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ doe\_mean\_catalan\_bilingual,}
+                      \AttributeTok{col\_uncert =}\NormalTok{ doe\_sd\_catalan\_bilingual) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ doe\_mean\_spanish\_monolingual, }
+                      \AttributeTok{col\_uncert =}\NormalTok{ doe\_sd\_spanish\_monolingual) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ doe\_mean\_spanish\_bilingual, }
+                      \AttributeTok{col\_uncert =}\NormalTok{ doe\_sd\_spanish\_bilingual) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_label}\NormalTok{(}\AttributeTok{age\_mean\_catalan\_monolingual =} \StringTok{"Age (months)"}\NormalTok{,}
+               \AttributeTok{age\_mean\_catalan\_bilingual =} \StringTok{"Age (months)"}\NormalTok{,}
+               \AttributeTok{doe\_mean\_catalan\_monolingual =} \StringTok{"Catalan (\%)"}\NormalTok{,}
+               \AttributeTok{doe\_mean\_catalan\_bilingual =} \StringTok{"Catalan (\%)"}\NormalTok{,}
+               \AttributeTok{doe\_mean\_spanish\_monolingual =} \StringTok{"Spanish (\%)"}\NormalTok{,}
+               \AttributeTok{doe\_mean\_spanish\_bilingual =} \StringTok{"Spanish (\%)"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_style}\NormalTok{(}\FunctionTok{cell\_text}\NormalTok{(}\AttributeTok{weight =} \StringTok{"bold"}\NormalTok{),}
+              \FunctionTok{list}\NormalTok{(}\FunctionTok{cells\_column\_spanners}\NormalTok{())) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_style}\NormalTok{(}\FunctionTok{cell\_text}\NormalTok{(}\AttributeTok{size =} \StringTok{"medium"}\NormalTok{),}
+              \FunctionTok{list}\NormalTok{(}\FunctionTok{cells\_body}\NormalTok{(),}
+                 \FunctionTok{cells\_stub}\NormalTok{()))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{tbl-participants-lp}{}
+\begin{longtable}{l|rrrrrr}
+\caption{\label{tbl-participants-lp}Description of language profile of test participants. Data are
+summarised for each age group, and for monolinguals and bilinguals
+separately. }\tabularnewline
+
+\toprule
+\multicolumn{1}{l}{} & \multicolumn{3}{c}{Monolingual (\emph{N} = 162)} & \multicolumn{3}{c}{Bilingual (\emph{N} = 133)} \\ 
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+\multicolumn{1}{l}{} & Catalan (\%) & Spanish (\%) & Age (months) & Catalan (\%) & Spanish (\%) & Age (months) \\ 
+\midrule
+\multicolumn{7}{l}{21 months (N = 29)} \\ 
+\midrule
+Tested in Catalan (N = 38) & $98.8$ ± $1.8$ & $1.2$ ± $1.8$ & $20.8$ ± $0.4$ & $61.6$ ± $7.3$ & $38.4$ ± $7.3$ & $21.1$ ± $0.4$ \\ 
+Tested in Spanish (N = 20) & $10.1$ ± $6.2$ & $89.9$ ± $6.2$ & $20.8$ ± $0.5$ & $56.0$ ± $17.0$ & $44.0$ ± $17.0$ & $20.4$ ± $0.3$ \\ 
+\midrule
+\multicolumn{7}{l}{25 months (N = 45)} \\ 
+\midrule
+Tested in Catalan (N = 68) & $85.5$ ± $25.1$ & $14.5$ ± $25.1$ & $25.1$ ± $0.5$ & $58.9$ ± $12.7$ & $40.3$ ± $13.1$ & $24.7$ ± $0.6$ \\ 
+Tested in Spanish (N = 22) & $45.9$ ± $44.3$ & $53.7$ ± $43.9$ & $25.5$ ± $0.4$ & $43.8$ ± $6.2$ & $55.2$ ± $6.2$ & $25.3$ ± $0.6$ \\ 
+\midrule
+\multicolumn{7}{l}{30 months (N = 39)} \\ 
+\midrule
+Tested in Catalan (N = 52) & $94.7$ ± $5.9$ & $5.3$ ± $5.8$ & $30.2$ ± $1.1$ & $59.7$ ± $8.8$ & $40.0$ ± $8.7$ & $29.6$ ± $1.3$ \\ 
+Tested in Spanish (N = 26) & $9.2$ ± $7.8$ & $89.4$ ± $6.6$ & $29.7$ ± $1.0$ & $42.5$ ± $12.2$ & $55.9$ ± $13.8$ & $29.9$ ± $1.1$ \\ 
+\bottomrule
+\end{longtable}
+
+\hypertarget{vocabulary-size}{%
+\subsection{Vocabulary size}\label{vocabulary-size}}
+
+We collected vocabulary data using parental responses to the Barcelona
+Vocabulary Inventory (BVQ,
+\protect\hyperlink{ref-garcia-castro2023bvq}{\textbf{garcia-castro2023bvq?}}),
+an online vocabulary checklist inspired in several adaptations of the
+the Communicative Developmental Inventory (CDI,
+\protect\hyperlink{ref-fenson2004variability}{\textbf{fenson2004variability?}})
+developed to assess the vocabulary size of Catalan-Spanish bilingual
+toddlers. Families received a link to the BVQ immediately after each
+experimental session, and were given two weeks to fill it. Two weeks
+after being sent the link, 141 (48\% families failed to provide a
+complete response to the BVQ. We imputed their vocabulary size scores
+using multiple imputation
+(\protect\hyperlink{ref-vanbuuren2018flexible}{\textbf{vanbuuren2018flexible?}}).
+We used predictive mean matching to impute missing scores using
+participants' information about their age group and language profile. We
+obtained several receptive and expressive vocabulary size measures from
+each participant's vocabulary: Catalan vocabulary size (proportion of
+the words in the Catalan checklist reported as acquired), Spanish
+vocabulary size (proportion of the words in the Catalan checklist
+reported as acquired), and total vocabulary size (proportion of the
+words in both checklists reported as acquired).
+
+\hypertarget{stimuli}{%
+\subsubsection{Stimuli}\label{stimuli}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n\_words }\OtherTok{\textless{}{-}} \FunctionTok{unique}\NormalTok{(}\FunctionTok{with}\NormalTok{(stimuli, }\FunctionTok{unlist}\NormalTok{(prime, target, distractor)))}
+\end{Highlighting}
+\end{Shaded}
+
+We used arbre, ànec, camió, finestra, vaca, barret, osset, claus, cotxe,
+cadira, vaixell, ampolla, flor, formatge, botó, ulleres, gat, gos, mico,
+pa, moto, mitjó, avió, granota, ovella, ocell, peix, plàtan, pilota,
+poma, guitarra, maduixa, botella, globo, mono, coche, cama, zumo, pato,
+cebra, cerdo, oreja, mesa, galleta, gafas, tomate, zapato, manzana,
+vaso, queso, oveja, ojo, pelota, tele, pez, perro, barco, hoja, tren,
+tenedor, casa, gato distinct words included in the BVQ to create the
+stimuli lists. We created six stimuli lists: three in Catalan, and three
+in Spanish. Each list contained 32 trials, each involving a
+prime-target-distractor group. Each word played a role as either prime,
+\emph{or} as target and distractor across the three lists in their
+corresponding language. For instance, the Catalan word \emph{cadira}
+appeared as \emph{prime} in the three lists, but never as \emph{target}
+or \emph{distractor}; the Catalan word \emph{bici} appeared as
+\emph{target} and \emph{distractor} across the three lists, but never as
+a prime. Target-distractor pairings were held constant across the three
+lists in each language. For instance, in all Catalan lists the word
+\emph{bici} was paired with the word \emph{porta}. Target-distractor
+pairings were also yoked, so that each member of the same
+target-distractor pair appeared once as target and once as distractor in
+each list. For instance, the \emph{bici}-\emph{porta} paired appeared
+twice in each of the three Catalan lists: once with \emph{bici} as
+target and \emph{porta} as distractor, and once with \emph{porta} as
+target and \emph{bici} as distractor. This counterbalancing avoided
+participants encountering looking at the target word guided solely by
+that word having being named in a previous trial. Finally, prime words
+appeared only once in each list: each target-distractor pair was
+associated with a different prime word in both appearances. In each
+list, the same prime word was presented alongside a different
+target-distractor pair. For instance, the Catalan prime word
+\emph{barret} was presented with the \emph{bici}-\emph{porta}
+target-distractor pair in one list, with the \emph{bici}-\emph{porta}
+pair in another list, and with \emph{berenar}-\emph{amanida} in the
+remaining list. The order of the trials was randomised across
+experimental session, so that each time a participant was tested, the
+order in which the prime-target-distractor was presented was randomised.
+Each participant was randomly assigned to one of the three list in the
+corresponding language (their dominant language, see
+Section~\ref{sec-lp}), and always the same list across their
+experimental sessions in the case of a recurrent participant.
+
+In 16 of the 32 trials of the same list (henceforth \emph{related}
+trials), the prime and the target words were phonologically related,
+sharing phonological onset (at least first phoneme). In the other 16
+trials (\emph{unrelated} trials), prime and target did not share
+phonological onset. 8 of the 16 \emph{related} trials included a cognate
+prime (\emph{cognate} trials), and the other 8 included a non-cognate
+trials (\emph{non-cognate} trials). A prime word was considered cognate
+if its Catalan and Spanish translation shared phonological onset.
+Especial attention was paid to avoiding semantic or taxonomic
+relationships between prime and target words, and between prime and
+distractor words. Target and distractor word pairs were phonologically
+unrelated (did not share phonological onset). Some of them shared
+semantic features or a taxonomic relationship. This is the case of words
+associated with especially salient referents such as animals or food. To
+avoid infants guiding their gaze to these objects based on their
+saliency, we paired animals and food items together.
+
+We examined the overall equivalence of the three trial types by
+comparing them across three variables relating to the target word:
+lexical frequency, word prevalence, animacy Table~\ref{tbl-stimuli}
+shows a detailed summary of the stimuli properties, broken down by trial
+type and testing language. Lexical frequencies were extracted from the
+Catalan and Spanish corpora of the CHILDES database
+(\protect\hyperlink{ref-reference}{\textbf{reference?}};
+\protect\hyperlink{ref-reference}{\textbf{reference?}}) as counts per
+million words, and transformed into Zipf scores for easier
+cross-language comparison
+(\protect\hyperlink{ref-reference}{\textbf{reference?}};
+\protect\hyperlink{ref-reference}{\textbf{reference?}}). We defined word
+prevalence as the proportion of same-aged infants who were reported to
+understand the word in the BVQ database.
+
+\hypertarget{auditory-stimuli}{%
+\paragraph{Auditory stimuli}\label{auditory-stimuli}}
+
+The auditory stimuli were natural exemplars of the selected target
+words, spoken by Catalan-Spanish proficient bilingual female speaker who
+was instructed to pronounce each word in a toddler-directed manner.
+Recordings were made with an Audio-Tecnica 328 microphone (AT2050) at a
+sampling rate of 44100 Hz, in a soundproof room at the \emph{Laboratori
+de Recerca en Infancia} at University Pompeu Fabra. We used the Audacity
+(\protect\hyperlink{ref-reference}{\textbf{reference?}}) and Praat
+(\protect\hyperlink{ref-reference}{\textbf{reference?}}) to record and
+edit the audio files. The speaker was presented with a list of words in
+Catalan. The order of the words was pseudo-randomised, and each word was
+produced three times in a row before moving to the next word in the
+list. After going through all the words in the list, the speaker went
+through the word list again generating three tokens for each word, now
+in an inverse order (from bottom of the list to the top). We then
+repeated the same procedure for the list of Spanish words. The resulting
+audios were manually chunked into individual word-forms. For each of the
+six tokens produced for each word, the most adequate was selected for
+further processing. The audios were then transformed to stereo by
+duplicating them into two channels, denoised, and finally normalised.
+The mean duration of the final audios was 1.23 (\emph{SD} = 0.17) and
+1.08 (\emph{SD} = 0.14) seconds for the Catalan and Spanish lists.
+
+To make the pronunciation of the words as familiar as possible to each
+infant, we generated additional pronunciation variants for some words in
+Catalan and Spanish. Catalan words involving the /\textipa{L}/ phoneme
+in their Central Catalan variant (e.g., /\textipa{'Lu.n@}) were also
+recorded with such phoneme replaced by /j/ (e.g., /\textipa{'ju.n@}), a
+phonological process common in the Metropolitan Area of Barcelona
+(\protect\hyperlink{ref-reference}{\textbf{reference?}}). Spanish words
+involving the /\textipa{T}/ phoneme were also generated replacing such
+phoneme with /\textipa{s}/ to better accommodate Latin variants of
+Spanish. Before every experimental session, caregivers were asked to
+utter three written words involving the /\textipa{L}/ phoneme (in the
+case of participants tested in Catalan) or the /\textipa{T}/ phoneme (in
+the case of participants tested in Spanish). Each token contained the
+critical phoneme at onset, inter-vocalic position, and coda. The
+experimenter assigned the participant to the Catalan or Spanish stimuli
+list involving the closest variant to that of caregivers'.
+
+\hypertarget{visual-stimuli}{%
+\paragraph{Visual stimuli}\label{visual-stimuli}}
+
+For each word, we created a picture with a typical referent.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{stimuli }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\FunctionTok{matches}\NormalTok{(}\StringTok{"familiarity\_|freq\_|animate\_"}\NormalTok{), duration),}
+\NormalTok{                     tibble}\SpecialCharTok{::}\FunctionTok{lst}\NormalTok{(mean, sd, min, max)),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(test\_language, trial\_type)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\FunctionTok{matches}\NormalTok{(}\StringTok{"familiarity\_se"}\NormalTok{), }\SpecialCharTok{{-}}\FunctionTok{matches}\NormalTok{(}\StringTok{"prime"}\NormalTok{),}
+           \SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(is\_animate\_target\_sd,}
+\NormalTok{              is\_animate\_target\_min,}
+\NormalTok{              is\_animate\_target\_max)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{gt}\NormalTok{(}\AttributeTok{groupname\_col =} \StringTok{"test\_language"}\NormalTok{,}
+       \AttributeTok{rowname\_col =} \StringTok{"list"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Prevalence (\%)"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"familiarity"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Frequency (Zipf)"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"freq"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Animacy (\%)"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"animate"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Duration (s)"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"duration"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{fmt\_number}\NormalTok{(is.numeric) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_range}\NormalTok{(familiarity\_target\_min, familiarity\_target\_max) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_range}\NormalTok{(freq\_target\_min, freq\_target\_max) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_range}\NormalTok{(duration\_min, duration\_max) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(freq\_target\_mean, freq\_target\_sd) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(familiarity\_target\_mean, familiarity\_target\_sd) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(duration\_mean, duration\_sd) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_label}\NormalTok{(}\AttributeTok{trial\_type =} \StringTok{""}\NormalTok{,}
+               \AttributeTok{familiarity\_target\_mean =} \StringTok{"Mean ± SD"}\NormalTok{,}
+               \CommentTok{\# familiarity\_target\_sd = "SD",}
+               \AttributeTok{familiarity\_target\_min =} \StringTok{"Range"}\NormalTok{,}
+               \AttributeTok{freq\_target\_mean =} \StringTok{"Mean ± SD"}\NormalTok{,}
+               \CommentTok{\# freq\_target\_sd = "SD",}
+               \AttributeTok{freq\_target\_min =} \StringTok{"Range"}\NormalTok{,}
+               \AttributeTok{is\_animate\_target\_mean =} \StringTok{""}\NormalTok{,}
+               \AttributeTok{duration\_mean =} \StringTok{"Mean ± SD"}\NormalTok{,}
+               \CommentTok{\# duration\_sd = "SD",}
+               \AttributeTok{duration\_min =} \StringTok{"Range"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{tbl-stimuli}{}
+\begin{longtable}{lrrrrrrr}
+\caption{\label{tbl-stimuli}Summary of stimuli properties by trial type. }\tabularnewline
+
+\toprule
+ & \multicolumn{2}{c}{Prevalence (\%)} & \multicolumn{2}{c}{Frequency (Zipf)} & Animacy (\%) & \multicolumn{2}{c}{Duration (s)} \\ 
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-6} \cmidrule(lr){7-8}
+ & Mean ± SD & Range & Mean ± SD & Range &  & Mean ± SD & Range \\ 
+\midrule
+\multicolumn{8}{l}{Catalan} \\ 
+\midrule
+Cognate & $0.37$ ± $0.18$ & $0.09$–$0.84$ & $3.90$ ± $0.61$ & $3.04$–$5.05$ & $0.21$ & $1.20$ ± $0.17$ & $0.86$–$1.55$ \\ 
+Non-cognate & $0.38$ ± $0.16$ & $0.09$–$0.84$ & $3.90$ ± $0.52$ & $3.04$–$5.05$ & $0.25$ & $1.25$ ± $0.17$ & $0.88$–$1.55$ \\ 
+Unrelated & $0.36$ ± $0.15$ & $0.09$–$0.84$ & $3.86$ ± $0.58$ & $2.94$–$5.05$ & $0.22$ & $1.23$ ± $0.17$ & $0.86$–$1.55$ \\ 
+\midrule
+\multicolumn{8}{l}{Spanish} \\ 
+\midrule
+Cognate & $0.29$ ± $0.13$ & $0.04$–$0.50$ & $4.21$ ± $0.51$ & $2.94$–$5.11$ & $0.10$ & $1.11$ ± $0.14$ & $0.85$–$1.45$ \\ 
+Non-cognate & $0.30$ ± $0.14$ & $0.04$–$0.50$ & $4.27$ ± $0.53$ & $2.94$–$5.11$ & $0.15$ & $1.09$ ± $0.14$ & $0.83$–$1.45$ \\ 
+Unrelated & $0.28$ ± $0.14$ & $0.04$–$0.50$ & $4.23$ ± $0.46$ & $2.94$–$5.11$ & $0.17$ & $1.07$ ± $0.15$ & $0.83$–$1.54$ \\ 
+\bottomrule
+\end{longtable}
+
+\hypertarget{procedure}{%
+\subsection{Procedure}\label{procedure}}
+
+Testing took place in a sound-proof room. Participants sat on their
+caregivers' lap in a dimly lit testing booth while the experimenter
+conducted the experiment from outside. Caregivers were instructed to
+keep their eyes shut (to avoid recording their gaze, instead of the
+participant's), to be still, and to avoid interacting with the
+participant verbally or non-verbally. Participants sat at approximately
+65 cm from the eye-tracker and a XX-in screen of \(1929\times1080\)
+screen resolution. We used a custom Matlab XXXX script using the
+PsychToolbox XXX extension
+(\protect\hyperlink{ref-brainard}{\textbf{brainard?}}) to present the
+stimuli, and the Tobii Analytics SDK 3.0 to interact with the
+eye-tracking while the experiment was running. Sampling rate was set at
+120 Hz. A 5-point calibration was performed before every experimental
+session, in which the picture of a colourful beach ball was presented.
+We set a 55\% grey background for the calibration and stimuli
+presentation. Auditory stimuli were presented through two loudspeakers
+located behind the screen, one to each side. The experimenter monitored
+the experimental from outside the room using a centrally located video
+camera place above the screen. After a successful calibration the
+experimenter triggered the onset of the first trial. Trials were
+presented uninterruptedly and without intervention of the experimenter
+until the 32 trials were presented, or the experimental session had to
+be stopped because of the participant's behaviour.
+
+Each trial started with the presentation of an attention getter for
+3,000 milliseconds. Then, the prime picture was presented in silence in
+the centre of the screen for 1,500 milliseconds. Fifty milliseconds
+after the offset of the prime image, an auditory label was played from
+the loudspeakers and, 700 milliseconds after the onset of the auditory
+label, the target and distractor pictures were presented side-by-side
+during 1,000 milliseconds until the end of the trial. After this, the
+attention getter of the next trial was immediately presented. Each
+experimental session took approximately 10 minutes.
+
+\hypertarget{data-analysis}{%
+\subsection{Data analysis}\label{data-analysis}}
+
+\hypertarget{data-processing}{%
+\subsubsection{Data processing}\label{data-processing}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n\_trials }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(attrition\_trials)}
+
+\NormalTok{n\_sessions }\OtherTok{\textless{}{-}} \FunctionTok{distinct}\NormalTok{(attrition\_trials, filename) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{nrow}\NormalTok{()}
+
+\NormalTok{n\_participants }\OtherTok{\textless{}{-}} \FunctionTok{distinct}\NormalTok{(attrition\_trials, id) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{nrow}\NormalTok{()}
+
+\NormalTok{n\_trials\_prime }\OtherTok{\textless{}{-}}\NormalTok{ attrition\_trials }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{filter}\NormalTok{(is\_valid\_gaze\_prime)}
+
+\NormalTok{n\_trials\_test }\OtherTok{\textless{}{-}}\NormalTok{ n\_trials\_prime }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{filter}\NormalTok{(is\_valid\_gaze\_test)}
+
+\NormalTok{n\_trials\_each }\OtherTok{\textless{}{-}}\NormalTok{ n\_trials\_test }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{filter}\NormalTok{(is\_valid\_gaze\_test\_each)}
+
+\NormalTok{n\_trials\_vocab }\OtherTok{\textless{}{-}}\NormalTok{ n\_trials\_each }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{filter}\NormalTok{(is\_valid\_vocab)}
+
+\NormalTok{n\_trials\_participant }\OtherTok{\textless{}{-}}\NormalTok{ n\_trials\_vocab }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{inner\_join}\NormalTok{(}\FunctionTok{filter}\NormalTok{(attrition\_participants,}
+\NormalTok{                      is\_valid\_participant),}
+               \AttributeTok{by =} \FunctionTok{join\_by}\NormalTok{(filename))}
+
+\NormalTok{n\_sessions\_valid }\OtherTok{\textless{}{-}}\NormalTok{ attrition\_participants }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{filter}\NormalTok{(is\_valid\_participant)}
+
+\NormalTok{n\_participants\_valid }\OtherTok{\textless{}{-}}\NormalTok{ n\_trials\_participant }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{distinct}\NormalTok{(filename)}
+
+\NormalTok{n\_longitudinal }\OtherTok{\textless{}{-}} \FunctionTok{count}\NormalTok{(n\_sessions\_valid, filename, }\AttributeTok{name =} \StringTok{"sessions"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{count}\NormalTok{(sessions)}
+
+\NormalTok{n\_participants\_include }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"data{-}raw/participants.csv"}\NormalTok{,}
+                                   \AttributeTok{show\_col\_types =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We gathered data for 9,472 trials from 296 experimental sessions,
+provided by 180 distinct participants. Missing eye-tracker samples were
+interpolated using the last-observation-carried-forward (see
+\protect\hyperlink{ref-zettersten2022peekbank}{\textbf{zettersten2022peekbank?}}
+for a similar approach). We excluded trials in which the participant did
+not fixate the prime at least half of the time of the prime phase
+(\$\geq\(750 ms, *n* = 1,810), or the target and distractor during the test phase (\)\geq\$1,000
+ms, \emph{n} = 502). We also excluded trials in which the participant
+failed to fixate both target \emph{and} distractor pictures for at least
+100 ms (i.e., 5\% of the time) (1,304 trials excluded). We then excluded
+trials in which the participant was not reported to understand the prime
+\emph{and} the target words, according to their caregivers' responses to
+the vocabulary checklist. This resulted in the exclusion of 3,641
+trials. Finally, we excluded trials from experimental sessions in which
+the participant did not provide at least two valid trials in each of the
+three experimental conditions (cognate prime, non-cognate prime, and
+unrelated prime) which resulted in the exclusion of 34 experimental
+sessions and their 219 remaining trials. The final data set comprised 0
+from c(``CognatePriming\_019\_2019-11-28.csv'',
+``CognatePriming\_021\_2019-11-30.csv'',
+``CognatePriming\_026\_2019-12-14.csv'',
+``CognatePriming\_027\_2019-12-14\_1.csv'',
+``CognatePriming\_049\_2021-02-13.csv'',
+``CognatePriming\_050\_2020-11-07.csv'',
+``CognatePriming\_050\_2021-03-13.csv'',
+``CognatePriming\_050\_2021-10-02.csv'',
+``CognatePriming\_051\_2021-03-06\_1.csv'',
+``CognatePriming\_051\_2021-10-01.csv'',
+``CognatePriming\_053\_2021-04-17.csv'',
+``CognatePriming\_054\_2020-11-14.csv'',
+``CognatePriming\_055\_2020-11-14.csv'',
+``CognatePriming\_055\_2021-02-20\_1.csv'',
+``CognatePriming\_056\_2020-11-14.csv'',
+``CognatePriming\_058\_2020-11-17.csv'',
+``CognatePriming\_059\_2020-11-18.csv'',
+``CognatePriming\_060\_2021-04-26.csv'',
+``CognatePriming\_064\_2020-11-21.csv'',
+``CognatePriming\_065\_2020-11-25.csv'',
+``CognatePriming\_066\_2020-11-26.csv'',
+``CognatePriming\_067\_2020-11-27.csv'',
+``CognatePriming\_068\_2020-11-27.csv'',
+``CognatePriming\_069\_2020-11-28.csv'',
+``CognatePriming\_069\_2021-05-08.csv'',
+``CognatePriming\_070\_2020-12-01.csv'',
+``CognatePriming\_070\_2021-09-30\_1.csv'',
+``CognatePriming\_071\_2020-12-01.csv'',
+``CognatePriming\_072\_2020-12-04.csv'',
+``CognatePriming\_073\_2021-10-02.csv'',
+``CognatePriming\_074\_2020-12-05.csv'',
+``CognatePriming\_075\_2020-12-09.csv'',
+``CognatePriming\_076\_2021-05-08.csv'',
+``CognatePriming\_076\_2021-10-16.csv'',
+``CognatePriming\_078\_2021-04-29.csv'',
+``CognatePriming\_079\_2020-12-16.csv'',
+``CognatePriming\_079\_2021-10-07\_1.csv'',
+``CognatePriming\_080\_2021-04-10.csv'',
+``CognatePriming\_081\_2020-12-21.csv'',
+``CognatePriming\_081\_2021-05-03.csv'',
+``CognatePriming\_081\_2021-10-19.csv'',
+``CognatePriming\_084\_2021-10-15.csv'',
+``CognatePriming\_089\_2021-02-02.csv'',
+``CognatePriming\_089\_2021-07-06.csv'',
+``CognatePriming\_090\_2021-02-06\_2.csv'',
+``CognatePriming\_090\_2021-06-19.csv'',
+``CognatePriming\_091\_2021-06-18.csv'',
+``CognatePriming\_092\_2021-06-08.csv'',
+``CognatePriming\_094\_2021-02-13.csv'',
+``CognatePriming\_095\_2021-02-13\_1.csv'',
+``CognatePriming\_098\_2021-11-13.csv'',
+``CognatePriming\_100\_2021-02-20\_1.csv'',
+``CognatePriming\_100\_2021-06-14.csv'',
+``CognatePriming\_101\_2021-02-20\_1.csv'',
+``CognatePriming\_101\_2021-11-20.csv'',
+``CognatePriming\_102\_2021-02-26.csv'',
+``CognatePriming\_102\_2021-07-05.csv'',
+``CognatePriming\_102\_2021-11-12.csv'',
+``CognatePriming\_105\_2021-02-27\_1.csv'',
+``CognatePriming\_105\_2021-07-24\_1.csv'',
+``CognatePriming\_105\_2021-11-27.csv'',
+``CognatePriming\_107\_2022-02-21.csv'',
+``CognatePriming\_108\_2021-03-15.csv'',
+``CognatePriming\_108\_2022-01-26\_1.csv'',
+``CognatePriming\_110\_2022-01-22\_1.csv'',
+``CognatePriming\_112\_2022-02-18.csv'',
+``CognatePriming\_113\_2021-05-15.csv'',
+``CognatePriming\_114\_2021-05-19.csv'',
+``CognatePriming\_115\_2021-05-22.csv'',
+``CognatePriming\_115\_2021-10-23.csv'',
+``CognatePriming\_115\_2022-01-29.csv'',
+``CognatePriming\_117\_2021-11-16.csv'',
+``CognatePriming\_117\_2022-03-11\_1.csv'',
+``CognatePriming\_119\_2021-06-01.csv'',
+``CognatePriming\_119\_2022-01-26.csv'',
+``CognatePriming\_121\_2021-06-08.csv'',
+``CognatePriming\_121\_2021-10-18.csv'',
+``CognatePriming\_123\_2021-10-23.csv'',
+``CognatePriming\_124\_2022-02-18.csv'',
+``CognatePriming\_125\_2021-06-26.csv'',
+``CognatePriming\_127\_2021-06-28.csv'',
+``CognatePriming\_127\_2021-10-25.csv'',
+``CognatePriming\_128\_2021-11-02.csv'',
+``CognatePriming\_131\_2022-02-18.csv'',
+``CognatePriming\_133\_2021-07-06.csv'',
+``CognatePriming\_135\_2021-12-01.csv'',
+``CognatePriming\_136\_2021-12-03.csv'',
+``CognatePriming\_140\_2021-12-11\_2.csv'',
+``CognatePriming\_142\_2022-03-31.csv'',
+``CognatePriming\_144\_2022-01-07.csv'',
+``CognatePriming\_146\_2022-01-27.csv'',
+``CognatePriming\_146\_2022-06-14.csv'',
+``CognatePriming\_147\_2022-01-28.csv'',
+``CognatePriming\_147\_2022-06-17.csv'',
+``CognatePriming\_152\_2022-02-05.csv'',
+``CognatePriming\_154\_2022-02-08\_1.csv'',
+``CognatePriming\_154\_2022-05-24\_1.csv'',
+``CognatePriming\_157\_2022-02-10.csv'',
+``CognatePriming\_157\_2022-10-03.csv'',
+``CognatePriming\_160\_2022-02-28.csv'',
+``CognatePriming\_171\_2022-03-14.csv'',
+``CognatePriming\_172\_2022-03-15.csv'',
+``CognatePriming\_176\_2022-03-22.csv'',
+``CognatePriming\_178\_2022-03-23\_1.csv'',
+``CognatePriming\_183\_2022-10-06.csv'',
+``CognatePriming\_190\_2022-06-20.csv'',
+``CognatePriming\_192\_2022-06-21.csv'',
+``CognatePriming\_196\_2022-06-28\_2.csv'',
+``CognatePriming\_198\_2022-10-01.csv'',
+``CognatePriming\_199\_2022-10-03.csv'',
+``CognatePriming\_200\_2022-10-04.csv'',
+``CognatePriming\_201\_2022-10-07.csv'',
+``CognatePriming\_202\_2022-10-08.csv''), c(8, 5, 8, 7, 7, 6, 7, 7, 3,
+5, 4, 5, 3, 3, 2, 4, 6, 8, 4, 4, 2, 5, 7, 4, 6, 3, 6, 3, 2, 3, 6, 4, 4,
+6, 4, 3, 5, 2, 2, 5, 6, 6, 6, 5, 5, 5, 4, 2, 5, 2, 4, 6, 3, 3, 5, 6, 6,
+6, 3, 5, 6, 5, 2, 5, 5, 6, 8, 2, 5, 5, 7, 5, 7, 7, 6, 5, 4, 4, 4, 5, 2,
+4, 4, 5, 7, 5, 4, 5, 2, 7, 6, 3, 2, 7, 3, 8, 6, 2, 5, 3, 6, 3, 5, 4, 7,
+6, 7, 4, 7, 4, 7, 3, 2), c(7, 7, 7, 8, 7, 5, 8, 7, 6, 5, 5, 6, 2, 2, 2,
+4, 8, 7, 3, 4, 3, 2, 4, 2, 3, 2, 7, 5, 6, 3, 4, 5, 4, 5, 6, 2, 5, 6, 4,
+6, 3, 3, 6, 4, 6, 5, 4, 2, 3, 3, 4, 3, 5, 4, 6, 4, 6, 6, 4, 7, 8, 6, 2,
+4, 4, 7, 4, 3, 5, 4, 6, 7, 7, 6, 6, 7, 6, 4, 6, 3, 4, 5, 4, 6, 4, 5, 5,
+3, 4, 6, 6, 2, 4, 4, 5, 4, 5, 3, 7, 4, 4, 3, 6, 2, 6, 2, 5, 2, 6, 4, 6,
+3, 2), c(9, 8, 9, 10, 10, 6, 11, 14, 8, 9, 9, 9, 3, 4, 5, 10, 15, 12, 3,
+5, 5, 6, 6, 6, 6, 9, 14, 5, 10, 2, 10, 10, 7, 13, 9, 5, 8, 10, 2, 5, 7,
+10, 11, 10, 12, 10, 7, 5, 11, 4, 7, 8, 6, 4, 11, 9, 12, 14, 10, 13, 13,
+11, 3, 5, 6, 14, 11, 2, 6, 11, 12, 8, 14, 7, 10, 6, 6, 11, 8, 7, 3, 5,
+6, 6, 7, 10, 8, 7, 5, 12, 8, 14, 8, 8, 7, 7, 6, 8, 10, 9, 7, 6, 10, 7,
+10, 4, 9, 7, 12, 7, 13, 11, 3), c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE), c(TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+TRUE, TRUE, TRUE, TRUE, TRUE, TRUE), c(19, 21, 26, 27, 49, 50, 50, 50,
+51, 51, 53, 54, 55, 55, 56, 58, 59, 60, 64, 65, 66, 67, 68, 69, 69, 70,
+70, 71, 72, 73, 74, 75, 76, 76, 78, 79, 79, 80, 81, 81, 81, 84, 89, 89,
+90, 90, 91, 92, 94, 95, 98, 100, 100, 101, 101, 102, 102, 102, 105, 105,
+105, 107, 108, 108, 110, 112, 113, 114, 115, 115, 115, 117, 117, 119,
+119, 121, 121, 123, 124, 125, 127, 127, 128, 131, 133, 135, 136, 140,
+142, 144, 146, 146, 147, 147, 152, 154, 154, 157, 157, 160, 171, 172,
+176, 178, 183, 190, 192, 196, 198, 199, 200, 201, 202), c(3, 3, 3, 3, 2,
+1, 2, 3, 2, 3, 3, 1, 1, 2, 1, 2, 2, 3, 2, 2, 2, 2, 2, 2, 3, 1, 3, 1, 1,
+3, 2, 2, 2, 3, 2, 1, 3, 3, 1, 2, 3, 3, 1, 2, 1, 2, 2, 2, 1, 1, 3, 1, 2,
+1, 3, 1, 2, 3, 1, 2, 3, 3, 1, 3, 3, 3, 1, 1, 1, 2, 3, 2, 3, 1, 3, 1, 2,
+2, 3, 1, 1, 2, 2, 3, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3, 1, 2, 3, 2, 3, 1, 2,
+2, 2, 2, 3, 2, 3, 1, 3, 3, 3, 2, 3), c(2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 2, 2, 1, 1, 1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1,
+1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 2,
+2, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2,
+1, 1, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 2,
+2, 1, 1, 2, 1, 1) experimental sessions, provided by
+c(``CognatePriming\_019\_2019-11-28.csv'',
+``CognatePriming\_021\_2019-11-30.csv'',
+``CognatePriming\_026\_2019-12-14.csv'',
+``CognatePriming\_027\_2019-12-14\_1.csv'',
+``CognatePriming\_049\_2021-02-13.csv'',
+``CognatePriming\_050\_2020-11-07.csv'',
+``CognatePriming\_050\_2021-03-13.csv'',
+``CognatePriming\_050\_2021-10-02.csv'',
+``CognatePriming\_051\_2021-03-06\_1.csv'',
+``CognatePriming\_051\_2021-10-01.csv'',
+``CognatePriming\_053\_2021-04-17.csv'',
+``CognatePriming\_054\_2020-11-14.csv'',
+``CognatePriming\_055\_2020-11-14.csv'',
+``CognatePriming\_055\_2021-02-20\_1.csv'',
+``CognatePriming\_056\_2020-11-14.csv'',
+``CognatePriming\_058\_2020-11-17.csv'',
+``CognatePriming\_059\_2020-11-18.csv'',
+``CognatePriming\_060\_2021-04-26.csv'',
+``CognatePriming\_064\_2020-11-21.csv'',
+``CognatePriming\_065\_2020-11-25.csv'',
+``CognatePriming\_066\_2020-11-26.csv'',
+``CognatePriming\_067\_2020-11-27.csv'',
+``CognatePriming\_068\_2020-11-27.csv'',
+``CognatePriming\_069\_2020-11-28.csv'',
+``CognatePriming\_069\_2021-05-08.csv'',
+``CognatePriming\_070\_2020-12-01.csv'',
+``CognatePriming\_070\_2021-09-30\_1.csv'',
+``CognatePriming\_071\_2020-12-01.csv'',
+``CognatePriming\_072\_2020-12-04.csv'',
+``CognatePriming\_073\_2021-10-02.csv'',
+``CognatePriming\_074\_2020-12-05.csv'',
+``CognatePriming\_075\_2020-12-09.csv'',
+``CognatePriming\_076\_2021-05-08.csv'',
+``CognatePriming\_076\_2021-10-16.csv'',
+``CognatePriming\_078\_2021-04-29.csv'',
+``CognatePriming\_079\_2020-12-16.csv'',
+``CognatePriming\_079\_2021-10-07\_1.csv'',
+``CognatePriming\_080\_2021-04-10.csv'',
+``CognatePriming\_081\_2020-12-21.csv'',
+``CognatePriming\_081\_2021-05-03.csv'',
+``CognatePriming\_081\_2021-10-19.csv'',
+``CognatePriming\_084\_2021-10-15.csv'',
+``CognatePriming\_089\_2021-02-02.csv'',
+``CognatePriming\_089\_2021-07-06.csv'',
+``CognatePriming\_090\_2021-02-06\_2.csv'',
+``CognatePriming\_090\_2021-06-19.csv'',
+``CognatePriming\_091\_2021-06-18.csv'',
+``CognatePriming\_092\_2021-06-08.csv'',
+``CognatePriming\_094\_2021-02-13.csv'',
+``CognatePriming\_095\_2021-02-13\_1.csv'',
+``CognatePriming\_098\_2021-11-13.csv'',
+``CognatePriming\_100\_2021-02-20\_1.csv'',
+``CognatePriming\_100\_2021-06-14.csv'',
+``CognatePriming\_101\_2021-02-20\_1.csv'',
+``CognatePriming\_101\_2021-11-20.csv'',
+``CognatePriming\_102\_2021-02-26.csv'',
+``CognatePriming\_102\_2021-07-05.csv'',
+``CognatePriming\_102\_2021-11-12.csv'',
+``CognatePriming\_105\_2021-02-27\_1.csv'',
+``CognatePriming\_105\_2021-07-24\_1.csv'',
+``CognatePriming\_105\_2021-11-27.csv'',
+``CognatePriming\_107\_2022-02-21.csv'',
+``CognatePriming\_108\_2021-03-15.csv'',
+``CognatePriming\_108\_2022-01-26\_1.csv'',
+``CognatePriming\_110\_2022-01-22\_1.csv'',
+``CognatePriming\_112\_2022-02-18.csv'',
+``CognatePriming\_113\_2021-05-15.csv'',
+``CognatePriming\_114\_2021-05-19.csv'',
+``CognatePriming\_115\_2021-05-22.csv'',
+``CognatePriming\_115\_2021-10-23.csv'',
+``CognatePriming\_115\_2022-01-29.csv'',
+``CognatePriming\_117\_2021-11-16.csv'',
+``CognatePriming\_117\_2022-03-11\_1.csv'',
+``CognatePriming\_119\_2021-06-01.csv'',
+``CognatePriming\_119\_2022-01-26.csv'',
+``CognatePriming\_121\_2021-06-08.csv'',
+``CognatePriming\_121\_2021-10-18.csv'',
+``CognatePriming\_123\_2021-10-23.csv'',
+``CognatePriming\_124\_2022-02-18.csv'',
+``CognatePriming\_125\_2021-06-26.csv'',
+``CognatePriming\_127\_2021-06-28.csv'',
+``CognatePriming\_127\_2021-10-25.csv'',
+``CognatePriming\_128\_2021-11-02.csv'',
+``CognatePriming\_131\_2022-02-18.csv'',
+``CognatePriming\_133\_2021-07-06.csv'',
+``CognatePriming\_135\_2021-12-01.csv'',
+``CognatePriming\_136\_2021-12-03.csv'',
+``CognatePriming\_140\_2021-12-11\_2.csv'',
+``CognatePriming\_142\_2022-03-31.csv'',
+``CognatePriming\_144\_2022-01-07.csv'',
+``CognatePriming\_146\_2022-01-27.csv'',
+``CognatePriming\_146\_2022-06-14.csv'',
+``CognatePriming\_147\_2022-01-28.csv'',
+``CognatePriming\_147\_2022-06-17.csv'',
+``CognatePriming\_152\_2022-02-05.csv'',
+``CognatePriming\_154\_2022-02-08\_1.csv'',
+``CognatePriming\_154\_2022-05-24\_1.csv'',
+``CognatePriming\_157\_2022-02-10.csv'',
+``CognatePriming\_157\_2022-10-03.csv'',
+``CognatePriming\_160\_2022-02-28.csv'',
+``CognatePriming\_171\_2022-03-14.csv'',
+``CognatePriming\_172\_2022-03-15.csv'',
+``CognatePriming\_176\_2022-03-22.csv'',
+``CognatePriming\_178\_2022-03-23\_1.csv'',
+``CognatePriming\_183\_2022-10-06.csv'',
+``CognatePriming\_190\_2022-06-20.csv'',
+``CognatePriming\_192\_2022-06-21.csv'',
+``CognatePriming\_196\_2022-06-28\_2.csv'',
+``CognatePriming\_198\_2022-10-01.csv'',
+``CognatePriming\_199\_2022-10-03.csv'',
+``CognatePriming\_200\_2022-10-04.csv'',
+``CognatePriming\_201\_2022-10-07.csv'',
+``CognatePriming\_202\_2022-10-08.csv'') distinct participants. Of those
+participants, 1 provided data from one experimental session, 113
+provided data from two experimental sessions, and 1 provided data from
+three experimental sessions.
+
+We defined our time window of interest from 300 ms after the onset of
+the test phase (target and distractor presentation) until the end of the
+test phase (2,000 ms). For each trial, we chunked the time domain into
+17 time bins of 100 ms of duration. We then calculated, for each
+experimental session, time bin, and condition, participant's proportion
+of target and distractor fixations. Finally, we computed the empirical
+logit of target fixations, which we introduced in the statistical
+analyses as our response variable.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{attrition\_trials }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{left\_join}\NormalTok{(}\FunctionTok{select}\NormalTok{(participants, age\_group, lp, id, date\_test),}
+              \AttributeTok{by =} \FunctionTok{join\_by}\NormalTok{(id, age\_group)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{left\_join}\NormalTok{(attrition\_participants,}
+              \AttributeTok{by =} \FunctionTok{join\_by}\NormalTok{(id, age\_group)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{add\_count}\NormalTok{(age\_group, lp, }\AttributeTok{name =} \StringTok{"n\_trials"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{valid\_trial\_count =} \FunctionTok{sum}\NormalTok{(is\_valid\_trial, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(id, lp, trial\_type, date\_test,}
+\NormalTok{                    age\_group, is\_valid\_participant, n\_trials)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{pivot\_wider}\NormalTok{(}\AttributeTok{names\_from =}\NormalTok{ trial\_type, }
+                \AttributeTok{values\_from =}\NormalTok{ valid\_trial\_count, }
+                \AttributeTok{values\_fill =} \DecValTok{0}\NormalTok{,}
+                \AttributeTok{names\_repair =}\NormalTok{ janitor}\SpecialCharTok{::}\NormalTok{make\_clean\_names) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{rename}\NormalTok{(}\AttributeTok{noncognate =}\NormalTok{ non\_cognate) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{add\_count}\NormalTok{(lp, age\_group) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{summarise}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{c}\NormalTok{(cognate, noncognate, unrelated),}
+                     \FunctionTok{lst}\NormalTok{(sum, mean, sd)),}
+              \AttributeTok{n\_valid =} \FunctionTok{sum}\NormalTok{(is\_valid\_participant),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(lp, age\_group, n, n\_trials)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{relocate}\NormalTok{(n\_valid, }\AttributeTok{.after =}\NormalTok{ n) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{n\_prop =}\NormalTok{ n\_valid}\SpecialCharTok{/}\NormalTok{n) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{arrange}\NormalTok{(age\_group, lp) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{relocate}\NormalTok{(age\_group, lp, n\_valid, n\_prop, }
+             \FunctionTok{matches}\NormalTok{(}\StringTok{"cognate"}\NormalTok{),}
+             \FunctionTok{matches}\NormalTok{(}\StringTok{"noncognate"}\NormalTok{),}
+             \FunctionTok{matches}\NormalTok{(}\StringTok{"unrelated"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{gt}\NormalTok{(}\AttributeTok{groupname\_col =} \StringTok{"age\_group"}\NormalTok{,}
+       \AttributeTok{rowname\_col =} \StringTok{"lp"}\NormalTok{)  }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{cols\_hide}\NormalTok{(}\FunctionTok{c}\NormalTok{(n, n\_trials)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{fmt\_number}\NormalTok{(}\FunctionTok{matches}\NormalTok{(}\StringTok{"\_mean|\_sd"}\NormalTok{), }
+               \AttributeTok{decimals =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{fmt\_percent}\NormalTok{(}\FunctionTok{matches}\NormalTok{(}\StringTok{"\_prop"}\NormalTok{),}
+                \AttributeTok{decimals =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_n\_pct}\NormalTok{(}\AttributeTok{col\_n =}\NormalTok{ n\_valid, }
+                     \AttributeTok{col\_pct =}\NormalTok{ n\_prop,}
+                     \AttributeTok{autohide =} \ConstantTok{TRUE}\NormalTok{)  }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Non{-}cognate"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"noncognate"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Cognate"}\NormalTok{, }\FunctionTok{starts\_with}\NormalTok{(}\StringTok{"cognate"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Unrelated"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"unrelated"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{tab\_spanner}\NormalTok{(}\StringTok{"Related"}\NormalTok{, }\FunctionTok{matches}\NormalTok{(}\StringTok{"cognate"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ cognate\_mean,}
+                      \AttributeTok{col\_uncert =}\NormalTok{ cognate\_sd) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ noncognate\_mean,}
+                      \AttributeTok{col\_uncert =}\NormalTok{ noncognate\_sd) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_merge\_uncert}\NormalTok{(}\AttributeTok{col\_val =}\NormalTok{ unrelated\_mean, }
+                      \AttributeTok{col\_uncert =}\NormalTok{ unrelated\_sd) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{cols\_label}\NormalTok{(}\AttributeTok{age\_group =} \StringTok{"Age"}\NormalTok{,}
+               \AttributeTok{n\_valid =} \StringTok{"Participants (included)"}\NormalTok{,}
+               \AttributeTok{cognate\_sum =} \StringTok{"Trials"}\NormalTok{,}
+               \AttributeTok{cognate\_mean =} \StringTok{"Mean ± SD"}\NormalTok{,}
+               \AttributeTok{noncognate\_sum =} \StringTok{"Trials"}\NormalTok{,}
+               \AttributeTok{noncognate\_mean =} \StringTok{"Mean ± SD"}\NormalTok{,}
+               \AttributeTok{unrelated\_sum =} \StringTok{"Trials"}\NormalTok{,}
+               \AttributeTok{unrelated\_mean =} \StringTok{"Mean ± SD"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summary\_rows}\NormalTok{(}\AttributeTok{groups =} \ConstantTok{TRUE}\NormalTok{,}
+                 \AttributeTok{columns =} \FunctionTok{where}\NormalTok{(is.integer),}
+                 \AttributeTok{fns =} \FunctionTok{list}\NormalTok{(}\StringTok{"Sum"} \OtherTok{=} \StringTok{"sum"}\NormalTok{),}
+                 \AttributeTok{fmt =}\NormalTok{ fmt\_number,}
+                 \AttributeTok{decimals =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{summary\_rows}\NormalTok{(}\AttributeTok{groups =} \ConstantTok{TRUE}\NormalTok{,}
+                 \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\FunctionTok{where}\NormalTok{(is.numeric), }\SpecialCharTok{{-}}\NormalTok{n\_valid),}
+                 \AttributeTok{fns =} \FunctionTok{list}\NormalTok{(}\StringTok{"Mean"} \OtherTok{=} \StringTok{"mean"}\NormalTok{),}
+                 \AttributeTok{fmt =}\NormalTok{ fmt\_number,}
+                 \AttributeTok{decimals =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{grand\_summary\_rows}\NormalTok{(}\AttributeTok{columns =} \FunctionTok{where}\NormalTok{(is.integer),}
+                       \AttributeTok{fns =} \FunctionTok{list}\NormalTok{(}\StringTok{"N"} \OtherTok{=} \StringTok{"sum"}\NormalTok{),}
+                       \AttributeTok{formatter =}\NormalTok{ fmt\_integer) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: [1m[22mSince gt v0.9.0, the `formatter` argument (and associated `...`) has been
+deprecated.
+[36m*[39m Please use the `fmt` argument to provide formatting directives.
+[90mThis warning is displayed once every 8 hours.[39m
+\end{verbatim}
+
+\hypertarget{tbl-attrition-group}{}
+\begin{longtable}{l|rrrrrrr}
+\caption{\label{tbl-attrition-group}Summary of the dataset. }\tabularnewline
+
+\toprule
+\multicolumn{1}{l}{} &  & \multicolumn{4}{c}{Related} &  &  \\ 
+\cmidrule(lr){3-6}
+\multicolumn{1}{l}{} &  & \multicolumn{2}{c}{Cognate} & \multicolumn{2}{c}{Non-cognate} & \multicolumn{2}{c}{Unrelated} \\ 
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+\multicolumn{1}{l}{} & Participants (included) & Trials & Mean ± SD & Trials & Mean ± SD & Trials & Mean ± SD \\ 
+\midrule
+\multicolumn{8}{l}{21 months} \\ 
+\midrule
+Monolingual & 20 ($40.0\%$) & 103 & $2.1$ ± $2.4$ & 110 & $2.2$ ± $2.2$ & 180 & $3.6$ ± $3.6$ \\ 
+Bilingual & 9 ($20.5\%$) & 42 & $1.0$ ± $1.5$ & 52 & $1.2$ ± $1.7$ & 91 & $2.1$ ± $3.2$ \\ 
+\midrule
+\multicolumn{8}{l}{25 months} \\ 
+\midrule
+Monolingual & 29 ($55.8\%$) & 142 & $2.7$ ± $2.5$ & 142 & $2.7$ ± $2.5$ & 254 & $4.9$ ± $4.5$ \\ 
+Bilingual & 16 ($36.4\%$) & 71 & $1.6$ ± $2.3$ & 67 & $1.5$ ± $2.2$ & 123 & $2.8$ ± $3.9$ \\ 
+\midrule
+\multicolumn{8}{l}{30 months} \\ 
+\midrule
+Monolingual & 25 ($41.7\%$) & 140 & $2.3$ ± $2.8$ & 134 & $2.2$ ± $2.7$ & 255 & $4.2$ ± $5.1$ \\ 
+Bilingual & 14 ($30.4\%$) & 86 & $1.9$ ± $2.9$ & 83 & $1.8$ ± $2.8$ & 140 & $3.0$ ± $4.8$ \\ 
+\midrule 
+\midrule 
+sum & $113$ & $584$ & — & $588$ & — & $1,043$ & — \\ 
+\bottomrule
+\end{longtable}
+
+\hypertarget{modelling-approach}{%
+\subsubsection{Modelling approach}\label{modelling-approach}}
+
+We conducted two main analyses. First, we estimated the effect of
+phonological priming on participants' target looking, comparing
+\emph{related} trials with \emph{unrelated} trials. This analysis
+included all trials on the data set. Second, we estimated the effect of
+cognateness on phonological priming, comparing \emph{cognate} with
+\emph{non-cognate} trials, leaving out \emph{unrelated} trials. In both
+analyses, we used General Additive Mixed Models (GAMMs) to model the
+probability of target fixations across the time course of the trial
+using a normal distribution.
+
+In the first analysis. We included \emph{Relatedness} (\texttt{Related}
+vs.~\texttt{Unrelated}, sum-coded as \texttt{-0.5} and \texttt{+0.5}),
+\emph{Group} (\texttt{Monolingual} vs.~\texttt{Bilingual}, sum-coded as
+\texttt{-0.5} and \texttt{+0.5}), and \emph{Age} (participants'
+standardised age in months) as fixed, main effects. We also included
+cubic regression splines for the main effect of \emph{Time}, and one for
+an adjustment of the previous cubic spline by \emph{Group}
+(\protect\hyperlink{ref-wood2017generalized}{Wood, 2017}). For both
+splines, we specified \(k = 10\) basis functions or \emph{knots}--half
+the number of time bins, for computational convenience. Finally, we
+added by-participant random intercepts, and random slopes for the main
+effect of \emph{Relatedness} and the main effect of \emph{Age}, both
+including repeated measures per participant.
+
+To test the contribution of each of the predictors of
+interest--\emph{Relatedness}/\emph{Cognateness}, and \emph{Group}--, we
+compared each model (\(\mathcal{M_0}\)) against a simplified model
+dropping each of the main effects, \emph{Relatedness}/\emph{Cognateness}
+(\(\mathcal{M}_1\)) or \emph{Group} (\(\mathcal{M_2}\)). In both
+simplified models, the interaction term was dropped. We used
+leave-one-out cross-validation (LOO-CV) as a benchmark of model
+performance, using Pareto-smoothed importance sampling (PSIS) to
+approximate it. We then examined the posterior predictions of the
+best-performing model for interpretation.
+
+\[
+\begin{aligned}
+\textbf{Likelihood:} \\
+y_i &\sim \mathcal{N}(\mu_i, \sigma_i) \\ \\
+\textbf{Linear model} \\
+\text{logit}(\mu_i) &= (\beta_0 + u _{0_{i}}) + (\beta_1 + u _{1_{i}}) \cdot \text{Relatedness} + \beta_{2} \cdot \text{Group} + \\
+&\beta_{3} \cdot (\text{Relatedness} \times \text{Group}) + (\beta_4 + u_{3_{i}}) \cdot \text{Age} + \\
+&\sum_{j = 1}^k b_{j_{1}}(\beta_{5_{k}} + u_{4_{i}}) \cdot \text{Time} + \\
+&\sum_{j = 1}^k b_{j_{1}} (\beta_{6_{k }} + u_{5_{i}}) \cdot (\text{Time} \times \text{Group}) \\
+\text{where:} \\
+&k \text{ is the number of knots in the spline (10)} \\
+\textbf{Prior:} \\
+\beta_{0-6} &\sim \mathcal{N}(0, 1) \\
+b_{0-1} &\sim MVN(0, 1) \\
+\sigma_i &\sim Exp(4) 
+\end{aligned}
+\]
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+\hypertarget{phonological-priming-related-vs.-unrelated}{%
+\subsection{Phonological priming: Related
+vs.~Unrelated}\label{phonological-priming-related-vs.-unrelated}}
+
+A model including the \emph{Relatedness} \(\times\) \emph{Group}
+interaction showed the best of-of-sample predictive performance,
+although the model including only \emph{Relatedness} performed
+equivalently
+(\(\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}\) = -0.724,
+\emph{SE} = 3.487). Both models showed substantially better predictive
+performance than the model including only \emph{Group}
+(\(\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}\) =
+-48.179, \emph{SE} = 11.672). This indicates that including the
+\emph{Relatedness} predictor improved the predictive performance of the
+model significantly, that including its interaction with \emph{Group}
+slightly increased the performance of the model, and that the main
+effect of \emph{Group} by itself barely changed the predictive
+performance of the model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{epreds }\OtherTok{\textless{}{-}} \FunctionTok{expand\_grid}\NormalTok{(}\AttributeTok{relatedness =} \FunctionTok{levels}\NormalTok{(data\_time}\SpecialCharTok{$}\NormalTok{relatedness),}
+                      \AttributeTok{timebin =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{100}\NormalTok{),}
+                      \AttributeTok{age =} \FunctionTok{mean}\NormalTok{(data\_time}\SpecialCharTok{$}\NormalTok{age),}
+                      \AttributeTok{lp =} \FunctionTok{levels}\NormalTok{(data\_time}\SpecialCharTok{$}\NormalTok{lp)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{add\_epred\_draws}\NormalTok{(model\_fit\_related,}
+                    \AttributeTok{ndraws =} \ConstantTok{NULL}\NormalTok{,}
+                    \AttributeTok{re\_formula =} \ConstantTok{NA}\NormalTok{) }
+
+\NormalTok{data\_time }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{logit\_t =} \FunctionTok{mean}\NormalTok{(logit\_t),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(id, timebin, lp, relatedness, age)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(timebin, logit\_t, }
+               \AttributeTok{colour =}\NormalTok{ relatedness,}
+               \AttributeTok{fill =}\NormalTok{ relatedness,}
+               \AttributeTok{shape =}\NormalTok{ relatedness)) }\SpecialCharTok{+}
+    \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{lp) }\SpecialCharTok{+}
+    \CommentTok{\# geom\_line(data = epreds,}
+    \CommentTok{\#         aes(y = .epred,}
+    \CommentTok{\#           group = interaction(relatedness, .draw)),}
+    \CommentTok{\#         linetype = "solid",}
+    \CommentTok{\#         alpha = 0.1,}
+    \CommentTok{\#         linewidth = 3/4) +}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred),}
+                 \AttributeTok{fun.data =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{mean\_qi}\NormalTok{(x, }\AttributeTok{.width =} \FloatTok{0.95}\NormalTok{),}
+                 \AttributeTok{geom =} \StringTok{"ribbon"}\NormalTok{,}
+                 \AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred,}
+                    \AttributeTok{linetype =}\NormalTok{ relatedness),}
+                 \AttributeTok{fun =} \StringTok{"mean"}\NormalTok{,}
+                 \AttributeTok{geom =} \StringTok{"line"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ mean,}
+                 \AttributeTok{geom =} \StringTok{"point"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{size =} \FloatTok{2.5}\NormalTok{,}
+                 \AttributeTok{stroke =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Time (ms)"}\NormalTok{,}
+         \AttributeTok{y =} \StringTok{"P(Target looking)"}\NormalTok{,}
+         \AttributeTok{colour =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{fill =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{linetype =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{shape =} \StringTok{"Prime type"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{rev}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"solid"}\NormalTok{, }\StringTok{"dashed"}\NormalTok{))) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{end =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.85}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.35}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_shape\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{format}\NormalTok{(x }\SpecialCharTok{*} \FloatTok{1e2}\NormalTok{, }\AttributeTok{big.mark =} \StringTok{","}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{,}
+          \AttributeTok{legend.title =} \FunctionTok{element\_blank}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/fig-related-1.pdf}
+
+}
+
+\caption{\label{fig-related}\textbf{?(caption)}}
+
+\end{figure}
+
+\hypertarget{cognate-priming-cognate-vs.-non-cognate}{%
+\subsection{Cognate priming: Cognate
+vs.~Non-cognate}\label{cognate-priming-cognate-vs.-non-cognate}}
+
+A model including the \emph{Cognateness} \(\times\) \emph{Group}
+interaction showed the best of-of-sample predictive performance,
+although the model including only \emph{Cognateness} performed
+equivalently
+(\(\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}\) = -1.835,
+\emph{SE} = 2.279). Both models showed substantially better predictive
+performance than the model including only \emph{Group}
+(\(\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}\) =
+-43.201, \emph{SE} = 10.598). This indicates that including the
+\emph{Cognateness} predictor improved the predictive performance of the
+model significantly, that including its interaction with \emph{Group}
+slightly increased the performance of the model, and that the main
+effect of \emph{Group} by itself barely changed the predictive
+performance of the model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{epreds }\OtherTok{\textless{}{-}} \FunctionTok{expand\_grid}\NormalTok{(}\AttributeTok{cognateness =} \FunctionTok{levels}\NormalTok{(data\_time\_cognateness\_alt}\SpecialCharTok{$}\NormalTok{cognateness),}
+                      \AttributeTok{timebin =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{100}\NormalTok{),}
+                      \AttributeTok{age =} \FunctionTok{mean}\NormalTok{(data\_time\_cognateness\_alt}\SpecialCharTok{$}\NormalTok{age),}
+                      \AttributeTok{lp =} \FunctionTok{levels}\NormalTok{(data\_time\_cognateness\_alt}\SpecialCharTok{$}\NormalTok{lp)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{add\_epred\_draws}\NormalTok{(model\_fit\_cognate\_alt,}
+                    \AttributeTok{ndraws =} \ConstantTok{NULL}\NormalTok{,}
+                    \AttributeTok{re\_formula =} \ConstantTok{NA}\NormalTok{) }
+
+\NormalTok{data\_time\_cognateness\_alt }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{logit\_t =} \FunctionTok{mean}\NormalTok{(logit\_t),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(id, timebin, lp, cognateness, age)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(timebin, logit\_t, }
+               \AttributeTok{colour =}\NormalTok{ cognateness,}
+               \AttributeTok{fill =}\NormalTok{ cognateness,}
+               \AttributeTok{shape =}\NormalTok{ cognateness)) }\SpecialCharTok{+}
+    \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{lp) }\SpecialCharTok{+}
+    \CommentTok{\# geom\_line(data = epreds,}
+    \CommentTok{\#         aes(y = .epred,}
+    \CommentTok{\#           group = interaction(cognateness, .draw)),}
+    \CommentTok{\#         linetype = "solid",}
+    \CommentTok{\#         alpha = 0.1,}
+    \CommentTok{\#         linewidth = 3/4) +}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred),}
+                 \AttributeTok{fun.data =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{mean\_qi}\NormalTok{(x, }\AttributeTok{.width =} \FloatTok{0.95}\NormalTok{),}
+                 \AttributeTok{geom =} \StringTok{"ribbon"}\NormalTok{,}
+                 \AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred,}
+                    \AttributeTok{linetype =}\NormalTok{ cognateness),}
+                 \AttributeTok{fun =} \StringTok{"mean"}\NormalTok{,}
+                 \AttributeTok{geom =} \StringTok{"line"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ mean,}
+                 \AttributeTok{geom =} \StringTok{"point"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{size =} \FloatTok{2.5}\NormalTok{,}
+                 \AttributeTok{stroke =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Time (ms)"}\NormalTok{,}
+         \AttributeTok{y =} \StringTok{"P(Target looking)"}\NormalTok{,}
+         \AttributeTok{colour =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{fill =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{linetype =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{shape =} \StringTok{"Prime type"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{rev}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"solid"}\NormalTok{, }\StringTok{"dashed"}\NormalTok{))) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{end =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.85}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.35}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_shape\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{format}\NormalTok{(x }\SpecialCharTok{*} \FloatTok{1e2}\NormalTok{, }\AttributeTok{big.mark =} \StringTok{","}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{,}
+          \AttributeTok{legend.title =} \FunctionTok{element\_blank}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/fig-cognate-1.pdf}
+
+}
+
+\caption{\label{fig-cognate}\textbf{?(caption)}}
+
+\end{figure}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+\hypertarget{appendix}{%
+\section{Appendix}\label{appendix}}
+
+\hypertarget{relaxing-trial-inclusion-criteria}{%
+\subsection{Relaxing trial inclusion
+criteria}\label{relaxing-trial-inclusion-criteria}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{epreds }\OtherTok{\textless{}{-}} \FunctionTok{expand\_grid}\NormalTok{(}\AttributeTok{relatedness =} \FunctionTok{levels}\NormalTok{(data\_time\_alt}\SpecialCharTok{$}\NormalTok{relatedness),}
+                      \AttributeTok{timebin =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{100}\NormalTok{),}
+                      \AttributeTok{age =} \FunctionTok{mean}\NormalTok{(data\_time}\SpecialCharTok{$}\NormalTok{age),}
+                      \AttributeTok{lp =} \FunctionTok{levels}\NormalTok{(data\_time\_alt}\SpecialCharTok{$}\NormalTok{lp)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{add\_epred\_draws}\NormalTok{(model\_fit\_related\_alt,}
+                    \AttributeTok{ndraws =} \ConstantTok{NULL}\NormalTok{,}
+                    \AttributeTok{re\_formula =} \ConstantTok{NA}\NormalTok{) }
+
+\NormalTok{data\_time\_alt }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{logit\_t =} \FunctionTok{mean}\NormalTok{(logit\_t),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(id, timebin, lp, relatedness, age)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(timebin, logit\_t, }
+               \AttributeTok{colour =}\NormalTok{ relatedness,}
+               \AttributeTok{fill =}\NormalTok{ relatedness,}
+               \AttributeTok{shape =}\NormalTok{ relatedness)) }\SpecialCharTok{+}
+    \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{lp) }\SpecialCharTok{+}
+    \CommentTok{\# geom\_line(data = epreds,}
+    \CommentTok{\#         aes(y = .epred,}
+    \CommentTok{\#           group = interaction(relatedness, .draw)),}
+    \CommentTok{\#         linetype = "solid",}
+    \CommentTok{\#         alpha = 0.1,}
+    \CommentTok{\#         linewidth = 3/4) +}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred),}
+                 \AttributeTok{fun.data =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{mean\_qi}\NormalTok{(x, }\AttributeTok{.width =} \FloatTok{0.95}\NormalTok{),}
+                 \AttributeTok{geom =} \StringTok{"ribbon"}\NormalTok{,}
+                 \AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred,}
+                    \AttributeTok{linetype =}\NormalTok{ relatedness),}
+                 \AttributeTok{fun =} \StringTok{"mean"}\NormalTok{,}
+                 \AttributeTok{geom =} \StringTok{"line"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ mean,}
+                 \AttributeTok{geom =} \StringTok{"point"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{size =} \FloatTok{2.5}\NormalTok{,}
+                 \AttributeTok{stroke =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Time (ms)"}\NormalTok{,}
+         \AttributeTok{y =} \StringTok{"P(Target looking)"}\NormalTok{,}
+         \AttributeTok{colour =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{fill =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{linetype =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{shape =} \StringTok{"Prime type"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{rev}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"solid"}\NormalTok{, }\StringTok{"dashed"}\NormalTok{))) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{end =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.85}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.35}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_shape\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{format}\NormalTok{(x }\SpecialCharTok{*} \FloatTok{1e2}\NormalTok{, }\AttributeTok{big.mark =} \StringTok{","}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{,}
+          \AttributeTok{legend.title =} \FunctionTok{element\_blank}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/fig-related-alt-1.pdf}
+
+}
+
+\caption{\label{fig-related-alt}\textbf{?(caption)}}
+
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{epreds }\OtherTok{\textless{}{-}} \FunctionTok{expand\_grid}\NormalTok{(}\AttributeTok{cognateness =} \FunctionTok{levels}\NormalTok{(data\_time\_cognateness\_alt}\SpecialCharTok{$}\NormalTok{cognateness),}
+                      \AttributeTok{timebin =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{100}\NormalTok{),}
+                      \AttributeTok{age =} \FunctionTok{mean}\NormalTok{(data\_time\_cognateness\_alt}\SpecialCharTok{$}\NormalTok{age),}
+                      \AttributeTok{lp =} \FunctionTok{levels}\NormalTok{(data\_time\_cognateness\_alt}\SpecialCharTok{$}\NormalTok{lp)) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{add\_epred\_draws}\NormalTok{(model\_fit\_cognate\_alt,}
+                    \AttributeTok{ndraws =} \ConstantTok{NULL}\NormalTok{,}
+                    \AttributeTok{re\_formula =} \ConstantTok{NA}\NormalTok{) }
+
+\NormalTok{data\_time\_cognateness\_alt }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{logit\_t =} \FunctionTok{mean}\NormalTok{(logit\_t),}
+              \AttributeTok{.by =} \FunctionTok{c}\NormalTok{(id, timebin, lp, cognateness, age)) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(timebin, logit\_t, }
+               \AttributeTok{colour =}\NormalTok{ cognateness,}
+               \AttributeTok{fill =}\NormalTok{ cognateness,}
+               \AttributeTok{shape =}\NormalTok{ cognateness)) }\SpecialCharTok{+}
+    \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{lp) }\SpecialCharTok{+}
+    \CommentTok{\# geom\_line(data = epreds,}
+    \CommentTok{\#         aes(y = .epred,}
+    \CommentTok{\#           group = interaction(cognateness, .draw)),}
+    \CommentTok{\#         linetype = "solid",}
+    \CommentTok{\#         alpha = 0.1,}
+    \CommentTok{\#         linewidth = 3/4) +}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred),}
+                 \AttributeTok{fun.data =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{mean\_qi}\NormalTok{(x, }\AttributeTok{.width =} \FloatTok{0.95}\NormalTok{),}
+                 \AttributeTok{geom =} \StringTok{"ribbon"}\NormalTok{,}
+                 \AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{data =}\NormalTok{ epreds,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .epred,}
+                    \AttributeTok{linetype =}\NormalTok{ cognateness),}
+                 \AttributeTok{fun =} \StringTok{"mean"}\NormalTok{,}
+                 \AttributeTok{geom =} \StringTok{"line"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{linewidth =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ mean,}
+                 \AttributeTok{geom =} \StringTok{"point"}\NormalTok{,}
+                 \AttributeTok{colour =} \StringTok{"black"}\NormalTok{,}
+                 \AttributeTok{size =} \FloatTok{2.5}\NormalTok{,}
+                 \AttributeTok{stroke =} \DecValTok{3}\SpecialCharTok{/}\DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Time (ms)"}\NormalTok{,}
+         \AttributeTok{y =} \StringTok{"P(Target looking)"}\NormalTok{,}
+         \AttributeTok{colour =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{fill =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{linetype =} \StringTok{"Prime type"}\NormalTok{,}
+         \AttributeTok{shape =} \StringTok{"Prime type"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{rev}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"solid"}\NormalTok{, }\StringTok{"dashed"}\NormalTok{))) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{end =} \DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_grey}\NormalTok{(}\AttributeTok{start =} \FloatTok{0.85}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.35}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_shape\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ \textbackslash{}(x) }\FunctionTok{format}\NormalTok{(x }\SpecialCharTok{*} \FloatTok{1e2}\NormalTok{, }\AttributeTok{big.mark =} \StringTok{","}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{,}
+          \AttributeTok{legend.title =} \FunctionTok{element\_blank}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/fig-cognate-alt-1.pdf}
+
+}
+
+\caption{\label{fig-cognate-alt}\textbf{?(caption)}}
+
+\end{figure}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-bosch2001evidence}{}}%
+Bosch, L., \& Sebastián-Gallés, N. (2001). Evidence of early language
+discrimination abilities in infants from bilingual environments.
+\emph{Infancy}, \emph{2}(1), 29--49.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wood2017generalized}{}}%
+Wood, S. N. (2017). \emph{Generalized additive models: An introduction
+with r}. CRC press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-bosch2001evidence}{}}%
+Bosch, L., \& Sebastián-Gallés, N. (2001). Evidence of early language
+discrimination abilities in infants from bilingual environments.
+\emph{Infancy}, \emph{2}(1), 29--49.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wood2017generalized}{}}%
+Wood, S. N. (2017). \emph{Generalized additive models: An introduction
+with r}. CRC press.
+
+\end{CSLReferences}
+
+
+
+\end{document}

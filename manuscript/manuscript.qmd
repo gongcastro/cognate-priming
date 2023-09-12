@@ -1,8 +1,3 @@
----
-
----
-
-
 ```{r setup}
 #| label: setup
 #| echo: false
@@ -17,19 +12,32 @@ targets::tar_load_globals()
 
 targets::tar_load(c(participants, stimuli, vocabulary,
 					attrition_trials, attrition_participants,
-					gaze_aoi,
-					data_time, data_summary))
+					bvq_data, gaze_aoi, 
+					data_time_related, data_time_cognate,
+					data_summary))
+
+targets::tar_load(c(model_fit_related_0,
+					model_fit_related_1,
+					model_fit_related_2,
+					model_fit_related_3,
+					model_fit_cognate_0,
+					model_fit_cognate_1,
+					model_fit_cognate_2,
+					model_fit_cognate_3,
+					model_loo_related,
+					model_loo_cognate))
+
 
 library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(gt)
+library(patchwork)
 
 # set ggplot theme and colour palette ------------------------------------------
 
 my_theme <- theme_minimal() +
-	theme(panel.grid = element_line(colour = "grey",
-									linetype = "dotted"),
+	theme(panel.grid = element_blank(),
 		  axis.line = element_line(colour = "black"),
 		  text = element_text(size = 12, colour = "black"),
 		  axis.text = element_text(colour = "black"))
@@ -39,25 +47,37 @@ theme_set(my_theme)
 set.seed(888)
 
 # prepare data
-attrition_participant <- attrition_participants |> 
-	mutate(
-		valid_status = case_when(
-			!is_valid_gaze ~ "Invalid gaze",
-			!is_valid_participant ~ "Invalid participant",
-			TRUE ~ "Valid"
-		))
+attrition_participants <- attrition_participants |> 
+	left_join(select(participants, id, age_group, lp, filename))
+
+attrition_trials <- left_join(attrition_trials, 
+							  select(participants, id, age_group, lp, filename))
 
 participants <- participants |> 
 	left_join(distinct(attrition_participants,
-					   id, age_group, is_valid_participant)) |> 
-	drop_na(id) |> 
-	left_join(vocabulary) |> 
-	mutate(prop_l1_c = scale(prop_l1)[,1])
+					   filename, is_valid_participant)) |> 
+	drop_na(id)
 
 ```
 
 
 # Introduction
+
+The formation of a mental lexicon is a critical developmental achievement for infants_ learning words allows infants to retrieve socially relevant concepts from fairly arbitrary linguistic forms embedded in speech.
+
+Learning words allows infants to access the rich world made of concepts through the recognition of fairly arbitrary linguistic forms, i.e., words. This remarkable developmental achievement is 
+
+The bilingual lexicon is language-non selective. 
+
+The role of cognates in lexical processing.
+
+How does language co-activation shape lexical development?
+
+Implicit naming as a paradigm to study cross-language activation. (Mani & Plunkett, 2010, 2011a).
+
+
+
+
 
 # Methods
 
@@ -68,39 +88,49 @@ All materials, data, and reproducible code can be found at the OSF ([https://osf
 ```{r}
 #| label: participants-numbers
 n_participants_total <- length(unique(participants$id))
+
 n_participants_sessions <- count(participants, id, name = "n_sessions") |> 
 	count(n_sessions) |> 
-	split(.$n_sessions)
+	group_split(n_sessions) |> 
+	set_names(paste0("session_", 1:3))
+
 n_sessions_total <- count(participants)
+
 n_sessions_age_group <- participants |> 
 	group_by(age_group) |> 
 	summarise(across(age, lst(mean, sd, min, max)),
 			  n = n(),
 			  .groups = "drop") |> 
-	mutate(across(age_mean:age_max, round, 2)) |> 
-	split(f = .$age_group) |> 
+	mutate(across(age_mean:age_max, \(x) round(x, 2))) |> 
+	group_split(age_group) |> 
 	set_names(c("age_21", "age_25", "age_30"))
+
 n_sessions_dominance <- count(participants, test_language) |> 
-	split(f = .$test_language) |> 
+	group_split(test_language) |> 
 	set_names(c("catalan", "spanish"))
+
 n_sessions_dominance_age_group <- count(participants, age_group, test_language) |> 
-	split(f = .$test_language) |> 
+	group_split(test_language) |> 
 	set_names(c("catalan", "spanish")) |> 
-	map(~split(., f = .$age_group) |> 
+	map(\(x) group_split(x, age_group) |> 
 			set_names(c("age_21", "age_25", "age_30")))
+
 n_sessions_lp <- participants |> 
 	count(lp) |> 
-	split(f = .$lp) |> 
+	group_split(lp) |> 
 	set_names(c("monolingual", "bilingual"))
+
 n_sessions_lp_age_group <- participants |> 
 	count(lp, age_group) |> 
-	split(f = .$lp) |> 
+	group_split(lp) |> 
 	set_names(c("monolingual", "bilingual")) |> 
-	map(~split(., f = .$age_group) |> 
+	map(\(x) group_split(x, age_group) |> 
 			set_names(c("age_21", "age_25", "age_30")))
 ```
 
 We collected data from `r n_participants_total` monolingual and bilingual participants living in the Metropolitan Area of Barcelona (Spain), who were exposed to at least Catalan and/or Spanish from birth. Families were recruited from maternity room in private hospitals in Barcelona, and contacted via phone when the child's age spanned between our age intervals of interest. Families were invited to participate at three age points: 21, 25, and 30 months. `r n_participants_sessions[[1]]$n` participants were tested at one age point,  `r n_participants_sessions[[2]]$n` at two age points, and `r n_participants_sessions[[3]]$n` at the three age points. In total, we gathered data from `r n_sessions_total$n` testing sessions: `r n_sessions_age_group$age_21$n` at 21 months (*Mean* = `r round(n_sessions_age_group$age_21$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_21$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_21$age_min`--`r n_sessions_age_group$age_21$age_max`), `r n_sessions_age_group$age_25$n` at 25 months (*Mean* = `r round(n_sessions_age_group$age_25$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_25$age_min`--`r n_sessions_age_group$age_25$age_max`), and `r n_sessions_age_group$age_30$n` at 30 months (*Mean* = `r round(n_sessions_age_group$age_30$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_30$age_min`--`r n_sessions_age_group$age_30$age_max`). 
+
+### Language profile {#sec-lp}
 
 We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (DoE) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan- or Spanish-dominant if the language with highest DoE was Catalan or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. We collected data from `r n_sessions_dominance$catalan$n` Catalan-dominant participants in Catalan (`r n_sessions_dominance_age_group$catalan$age_21$n` at 21 months, `r n_sessions_dominance_age_group$catalan$age_25$n` at 25 months, and `r n_sessions_dominance_age_group$catalan$age_30$n` at 30 months). We further classified participants as monolinguals if the DoE to their dominant language exceeded 80% of the total DoE to Catalan and Spanish, and as bilinguals otherwise. Participants with DoE to language other than Catalan or Spanish were excluded from analyses. This divided the sample into `r n_sessions_lp$monolingual$n` monolinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$monolinguals$age_25` at 25 months, and `r n_sessions_lp_age_group$monolinguals$age_30` at 30 months), and `r n_sessions_lp$bilingual$n` bilinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$bilingual$age_25` at 25 months, and `r n_sessions_lp_age_group$bilingual$age_30` at 30 months). @tbl-participants-lp shows a detailed description of the linguistic profile of our sample.
 
@@ -109,10 +139,6 @@ We assessed participants' language profile using the Language Exposure Questionn
 #| label: tbl-participants-lp
 #| tbl-cap: "Description of language profile of test participants. Data are summarised for each age group, and for monolinguals and bilinguals separately."
 participants |> 
-	left_join(attrition_participants,
-			  by = join_by(id, 
-			  			 age_group,
-			  			 is_valid_participant)) |> 
 	filter(is_valid_participant) |> 
 	select(id, age_group, age, lp,
 		   doe_catalan, doe_spanish, test_language) |> 
@@ -179,71 +205,135 @@ participants |>
 ```
 
 
-We collected vocabulary data using parental responses to the Barcelona Vocabulary Inventory [BVQ, @garcia-castro2023bvq], an online vocabulary checklist inspired in several adaptations of the the Communicative Developmental Inventory [CDI, @fenson2004variability] developed to assess the vocabulary size of Catalan-Spanish bilingual toddlers. Families received a link to the BVQ immediately after each experimental session, and were given two weeks to fill it. Two weeks after being sent the link, `r table(vocabulary$is_imputed)[2]` (`r scales::percent(table(vocabulary$is_imputed)[2]/nrow(vocabulary))` families failed to provide a complete response to the BVQ. We imputed their vocabulary size scores using multiple imputation [@vanbuuren2018flexible]. We used predictive mean matching to impute missing scores using participants' information about their age group and language profile. We obtained several receptive and expressive vocabulary size measures from each participant's vocabulary: Catalan vocabulary size (proportion of the words in the Catalan checklist reported as acquired), Spanish vocabulary size (proportion of the words in the Catalan checklist reported as acquired), and total vocabulary size (proportion of the words in both checklists reported as acquired). @tbl-participants-vocabulary shows a detailed description of participants' observed and imputed vocabulary size scores.
+## Vocabulary size
 
-```{r tbl-participants-vocabulary}
-participants |> 
-	mutate(is_imputed = ifelse(is_imputed, "Imputed", "Observed"),
-		   cat_prop = ifelse(test_language=="Catalan",
-		   				  l1_prop, 
-		   				  l2_prop),
-		   spa_prop = ifelse(test_language=="Spanish",
-		   				  l1_prop,
-		   				  l2_prop)) |> 
-	select(id, age_group, lp, matches("prop"), is_imputed,
-		   -c(matches("l1|l2"), starts_with("te_"))) |> 
-	summarise(across(matches("prop"), lst(mean, sd)),
-			  .by = c(age_group, lp, is_imputed)) |> 
-	pivot_wider(names_from = is_imputed,
-				values_from = matches("prop"),
-				names_repair = janitor::make_clean_names) |> 
-	select(-matches("concept")) |> 
+```{r vocab-values}
+n_imputed <- table(vocabulary$is_imputed)[2]
+prop_imputed <- scales::percent(n_imputed/nrow(vocabulary))
+n_pool <- nrow(bvq_data$vocabulary)
+```
+
+We collected vocabulary data using parental responses to the Barcelona Vocabulary Inventory [BVQ, @garcia-castro2023bvq], an online vocabulary checklist inspired in several adaptations of the the Communicative Developmental Inventory [CDI, @fenson2004variability] developed to assess the vocabulary size of Catalan-Spanish bilingual toddlers. Families received a link to the BVQ immediately after each experimental session, and were given two weeks to fill it.
+
+We calculated several measures of receptive vocabulary size from each participant's vocabulary: L1 vocabulary size (proportion of words  reported as acquired in the checklist of the dominant language), L2 vocabulary size (proportion of words  reported as acquired in the checklist of the non-dominant language), total vocabulary size (proportion of the words in both checklists reported as acquired), conceptual vocabulary (proportion of concepts for which the participant was reported to have acquired at least one label, in any language), and translation equivalent vocabulary (proportion of concepts for which the participant was reported to have acquired at two labels, one in each language).
+
+
+`r n_imputed` (`r prop_imputed`) Families failed to provide a complete response to the BVQ within the two-week time limit, or did not provide a successful response to the questionnaire. For missing questionnaire responses, we imputed the vocabulary size of the participant using multiple imputation [@vanbuuren2018flexible], using the vocabulary size scores of a pool of `r n_pool` additional participants for which a successful response for the questionnaire had been gathered. We used participants age in months and their language profile (monolingual/bilingual) as predictors. We used the `mice` R package [@mice] to perform imputation using the Bayesian linear regression method. 
+
+```{r tbl-vocabulary}
+vocabulary |> 
+	left_join(select(participants, filename, id, age_group, lp),
+			  by = join_by(filename)) |> 
+	summarise(across(matches("prop"), 
+					 tibble::lst(mean, sd, min, max)),
+			  .by = c(age_group, lp)) |>
 	arrange(age_group, lp) |> 
-	gt(rowname_col = "lp",
-	   groupname_col = "age_group") |> 
-	fmt_number(matches("prop"), 
-			   decimals = 1,
-			   scale_by = 100) |> 
-	cols_merge(c(total_prop_mean_observed,
-				 total_prop_sd_observed), 
-				 pattern = "{1} ({2})") |> 
-	cols_merge(c(total_prop_mean_imputed, 
-				 total_prop_sd_imputed),
-				 pattern = "{1} ({2})") |> 
-	cols_merge(c(cat_prop_mean_observed,
-				 cat_prop_sd_observed),
-				 pattern = "{1} ({2})") |> 
-	cols_merge(c(cat_prop_mean_imputed, 
-				 cat_prop_sd_imputed),
-				 pattern = "{1} ({2})") |> 
-	cols_merge(c(spa_prop_mean_observed,
-				 spa_prop_sd_observed),
-				 pattern = "{1} ({2})") |> 
-	cols_merge(c(spa_prop_mean_imputed,
-				 spa_prop_sd_imputed),
-				 pattern = "{1} ({2})") |> 
-	tab_spanner("Total", matches("total")) |> 
-	tab_spanner("Catalan", matches("cat")) |> 
-	tab_spanner("Spanish", matches("spa")) |> 
-	cols_label(total_prop_mean_observed = "Observed",
-			   cat_prop_mean_observed = "Observed",
-			   spa_prop_mean_observed = "Observed",
-			   total_prop_mean_imputed = "Imputed",
-			   cat_prop_mean_imputed = "Imputed",
-			   spa_prop_mean_imputed = "Imputed") |> 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners())) |> 
-	tab_style(cell_text(size = "medium"),
-			  list(cells_body(),
-			  	 cells_stub()))
+	gt(groupname_col = "age_group",
+	   rowname_col = "lp") |> 
+	cols_hide(lp) |> 
+	tab_spanner("Total ", matches("total")) |> 
+	tab_spanner("L1", matches("l1")) |> 
+	tab_spanner("L2", matches("l2")) |> 
+	tab_spanner("Conceptual", matches("concept")) |> 
+	tab_spanner("TE", matches("te_")) |> 
+	tab_spanner("Vocabulary size (%)", matches("prop_")) |> 
+	cols_merge_uncert(total_prop_mean, total_prop_sd) |> 
+	cols_merge_uncert(l1_prop_mean, l1_prop_sd) |> 
+	cols_merge_uncert(l2_prop_mean, l2_prop_sd) |> 
+	cols_merge_uncert(concept_prop_mean, concept_prop_sd) |> 
+	cols_merge_uncert(te_prop_mean, te_prop_sd) |> 
+	cols_merge_range(total_prop_min, total_prop_max) |> 
+	cols_merge_range(l1_prop_min, l1_prop_max) |> 
+	cols_merge_range(l2_prop_min, l2_prop_max) |> 
+	cols_merge_range(concept_prop_min, concept_prop_max) |> 
+	cols_merge_range(te_prop_min, te_prop_max) |> 
+	fmt_number(is.numeric, 
+			   drop_trailing_zeros = FALSE) |> 
+	cols_label(total_prop_mean = "Mean (SD)",
+			   total_prop_min = "Range",
+			   l1_prop_mean = "Mean (SD)",
+			   l1_prop_min = "Range",
+			   l2_prop_mean = "Mean (SD)",
+			   l2_prop_min = "Range",
+			   concept_prop_mean = "Mean (SD)",
+			   concept_prop_min = "Range",
+			   te_prop_mean = "Mean (SD)",
+			   te_prop_min = "Range") |> 
+	tab_stub_indent(rows = everything(),
+					indent = 2) |> 
+	tab_style(cell_text(align = "left"),
+			  cells_stub())
 ```
 
 
-## Stimuli
+### Stimuli
+
+```{r stimuli-values}
+n_words <- length(unique(with(stimuli, unlist(prime, target, distractor))))
+```
+
+We used `r n_words` distinct words included in the BVQ to create the stimuli lists. We created six stimuli lists: three in Catalan, and three in Spanish. Each list contained 32 trials, each involving a prime-target-distractor group. Each word played a role as either prime, *or* as target and distractor across the three lists in their corresponding language. For instance, the Catalan word *cadira* appeared as *prime* in the three lists, but never as *target* or *distractor*; the Catalan word *bici* appeared as *target* and *distractor* across the three lists, but never as a prime. Target-distractor pairings were held constant across the three lists in each language. For instance, in all Catalan lists the word *bici* was paired with the word *porta*. Target-distractor pairings were also yoked, so that each member of the same target-distractor pair appeared once as target and once as distractor in each list. For instance, the *bici*-*porta* paired appeared twice in each of the three Catalan lists: once with *bici* as target and *porta* as distractor, and once with *porta* as target and *bici* as distractor. This counterbalancing avoided participants encountering looking at the target word guided solely by that word having being named in a previous trial. Finally, prime words appeared only once in each list: each target-distractor pair was associated with a different prime word in both appearances. In each list, the same prime word was presented alongside a different target-distractor pair. For instance, the Catalan prime word *barret* was presented with the *bici*-*porta* target-distractor pair in one list, with the *bici*-*porta* pair in another list, and with *berenar*-*amanida* in the remaining list. The order of the trials was randomised across experimental session, so that each time a participant was tested, the order in which the prime-target-distractor was presented was randomised. Each participant was randomly assigned to one of the three list in the corresponding language (their dominant language, see @sec-lp), and always the same list across their experimental sessions in the case of a recurrent participant.
+
+In 16 of the 32 trials of the same list (henceforth *related* trials), the prime and the target words were phonologically related, sharing phonological onset (at least first phoneme). In the other 16 trials (*unrelated* trials), prime and target did not share phonological onset. 8 of the 16 *related* trials included a cognate prime (*cognate* trials), and the other 8 included a non-cognate trials (*non-cognate* trials). A prime word was considered cognate if its Catalan and Spanish translation shared phonological onset. Especial attention was paid to avoiding semantic or taxonomic relationships between prime and target words, and between prime and distractor words. Target and distractor word pairs were phonologically unrelated (did not share phonological onset). Some of them shared semantic features or a taxonomic relationship. This is the case of words associated with especially salient referents such as animals or food. To avoid infants guiding their gaze to these objects based on their saliency, we paired animals and food items together.
+
+We examined the overall equivalence of the three trial types by comparing them across three variables relating to the target word: lexical frequency, word prevalence, animacy
+@tbl-stimuli shows a detailed summary of the stimuli properties, broken down by trial type and testing language. Lexical frequencies were extracted from the Catalan and Spanish corpora of the CHILDES database [@reference; @reference] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@reference; @reference]. We defined word prevalence as the proportion of same-aged infants who were reported to understand the word in the BVQ database.
+
+
+#### Auditory stimuli
+
+The auditory stimuli were natural exemplars of the selected target words, spoken by Catalan-Spanish proficient bilingual female speaker who was instructed to pronounce each word in a toddler-directed manner. Recordings were made with an Audio-Tecnica 328 microphone (AT2050) at a sampling rate of 44100 Hz, in a soundproof room at the *Laboratori de Recerca en Infancia* at University Pompeu Fabra. We used the Audacity [@reference] and Praat [@reference] to record and edit the audio files. The speaker was presented with a list of words in Catalan. The order of the words was pseudo-randomised, and each word was produced three times in a row before moving to the next word in the list. After going through all the words in the list, the speaker went through the word list again generating three tokens for each word, now in an inverse order (from bottom of the list to the top). We then repeated the same procedure for the list of Spanish words. The resulting audios were manually chunked into individual word-forms. For each of the six tokens produced for each word, the most adequate was selected for further processing. The audios were then transformed to stereo by duplicating them into two channels, denoised, and finally normalised. The mean duration of the final audios was `r round(mean(stimuli$duration[stimuli$test_language=="Catalan"]), 2)` (*SD* = `r round(sd(stimuli$duration[stimuli$test_language=="Catalan"]), 2)`) and `r round(mean(stimuli$duration[stimuli$test_language=="Spanish"]), 2)` (*SD* = `r round(sd(stimuli$duration[stimuli$test_language=="Spanish"]), 2)`) seconds for the Catalan and Spanish lists.
+
+To make the pronunciation of the words as familiar as possible to each infant, we generated additional pronunciation variants for some words in Catalan and Spanish. Catalan words involving the /\textipa{L}/ phoneme in their Central Catalan variant (e.g., /\textipa{'Lu.n@}) were also recorded with such phoneme replaced by /j/ (e.g., /\textipa{'ju.n@}), a phonological process common in the Metropolitan Area of Barcelona [@reference]. Spanish words involving the /\textipa{T}/ phoneme were also generated replacing such phoneme with /\textipa{s}/ to better accommodate Latin variants of Spanish. Before every experimental session, caregivers were asked to utter three written words involving the /\textipa{L}/ phoneme (in the case of participants tested in Catalan) or the /\textipa{T}/ phoneme (in the case of participants tested in Spanish). Each token contained the critical phoneme at onset, inter-vocalic position, and coda. The experimenter assigned the participant to the Catalan or Spanish stimuli list involving the closest variant to that of caregivers'.
+
+
+#### Visual stimuli
+
+For each word, we created a picture with a typical referent.
+
+```{r tbl-stimuli}
+#| label: tbl-stimuli
+#| tbl-cap: "Summary of stimuli properties by trial type."
+stimuli |> 
+	summarise(across(c(matches("familiarity_|freq_|animate_"), duration),
+					 tibble::lst(mean, sd, min, max)),
+			  .by = c(test_language, trial_type)) |> 
+	select(-matches("familiarity_se"), -matches("prime"),
+		   -c(is_animate_target_sd,
+		      is_animate_target_min,
+		      is_animate_target_max)) |> 
+	gt(groupname_col = "test_language",
+	   rowname_col = "list") |> 
+	tab_spanner("Prevalence (%)", matches("familiarity")) |> 
+	tab_spanner("Frequency (Zipf)", matches("freq")) |>
+	tab_spanner("Animacy (%)", matches("animate")) |> 
+	tab_spanner("Duration (s)", matches("duration")) |> 
+	fmt_number(is.numeric) |> 
+	cols_merge_range(familiarity_target_min, familiarity_target_max) |> 
+	cols_merge_range(freq_target_min, freq_target_max) |> 
+	cols_merge_range(duration_min, duration_max) |>
+	cols_merge_uncert(freq_target_mean, freq_target_sd) |> 
+	cols_merge_uncert(familiarity_target_mean, familiarity_target_sd) |> 
+	cols_merge_uncert(duration_mean, duration_sd) |> 
+	cols_label(trial_type = "",
+			   familiarity_target_mean = "Mean ± SD",
+			   # familiarity_target_sd = "SD",
+			   familiarity_target_min = "Range",
+			   freq_target_mean = "Mean ± SD",
+			   # freq_target_sd = "SD",
+			   freq_target_min = "Range",
+			   is_animate_target_mean = "",
+			   duration_mean = "Mean ± SD",
+			   # duration_sd = "SD",
+			   duration_min = "Range") 
+```
+
 
 ## Procedure
 
-## Apparatus
+Testing took place in a sound-proof room. Participants sat on their caregivers' lap in a dimly lit testing booth while the experimenter conducted the experiment from outside. Caregivers were instructed to keep their eyes shut (to avoid recording their gaze, instead of the participant's), to be still, and to avoid interacting with the participant verbally or non-verbally. Participants sat at approximately 65 cm from the eye-tracker and a XX-in screen of $1929\times1080$ screen resolution. We used a custom Matlab XXXX script using the PsychToolbox XXX extension [@brainard] to present the stimuli, and the Tobii Analytics SDK 3.0 to interact with the eye-tracking while the experiment was running. Sampling rate was set at 120 Hz. A 5-point calibration was performed before every experimental session, in which the picture of a colourful beach ball was presented. We set a 55% grey background for the calibration and stimuli presentation. Auditory stimuli were presented through two loudspeakers located behind the screen, one to each side. The experimenter monitored the experimental from outside the room using a centrally located video camera place above the screen. After a successful calibration the experimenter triggered the onset of the first trial. Trials were presented uninterruptedly and  without intervention of the experimenter until the 32 trials were presented, or the experimental session had to be stopped because of the participant's behaviour.
+
+Each trial started with the presentation of an attention getter for 3,000 milliseconds. Then, the prime picture was presented in silence in the centre of the screen for 1,500 milliseconds. Fifty milliseconds after the offset of the prime image, an auditory label was played from the loudspeakers and, 700 milliseconds after the onset of the auditory label, the target and distractor pictures were presented side-by-side during 1,000 milliseconds until the end of the trial. After this, the attention getter of the next trial was immediately presented. Each experimental session took approximately 10 minutes.
 
 ## Data analysis
 
@@ -251,8 +341,10 @@ participants |>
 
 ```{r attrition-numbers}
 n_trials <- nrow(attrition_trials)
-n_sessions <- distinct(attrition_trials, id, age_group) |> 
+
+n_sessions <- distinct(attrition_trials, filename) |> 
 	nrow()
+
 n_participants <- distinct(attrition_trials, id) |> 
 	nrow()
 
@@ -265,27 +357,35 @@ n_trials_test <- n_trials_prime |>
 n_trials_each <- n_trials_test |> 
 	filter(is_valid_gaze_test_each)
 
-n_trials_participant <- n_trials_each |> 
+n_trials_vocab <- n_trials_each |> 
+	filter(is_valid_vocab)
+
+n_trials_participant <- n_trials_vocab |> 
 	inner_join(filter(attrition_participants,
 					  is_valid_participant),
-			   by = join_by(id, age_group))
+			   by = join_by(filename))
 
 n_sessions_valid <- attrition_participants |> 
 	filter(is_valid_participant)
 
 n_participants_valid <- n_trials_participant |> 
-	distinct(id)
+	distinct(filename)
 
-n_longitudinal <- count(n_sessions_valid, id, name = "sessions") |> 
+n_longitudinal <- n_sessions_valid |> 
+	left_join(select(participants, id, age_group, filename),
+			  by = join_by(filename, id, age_group)) |> 
+	count(id, name = "sessions") |> 
 	count(sessions)
 
-n_participants_include <- read_csv("data-raw/participants.csv",
-								   show_col_types = FALSE)
+n_participants_include <- read_csv(
+	file.path("data-raw", "participants.csv"),
+	show_col_types = FALSE
+)
 ```
 
-We gathered data for `r format(n_trials, big.mark = ",")` trials from `r n_sessions` experimental sessions, provided by `r n_participants` distinct participants. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach]. We excluded trials in which the participant did not fixate the prime at least half of the time of the prime phase ($\geq$750 ms, *n* = `r format(n_trials - nrow(n_trials_prime), big.mark = ",")`), or the target and distractor during the test phase ($\geq$1,000 ms, *n* = `r format(nrow(n_trials_prime) - nrow(n_trials_test), big.mark = ",")`). Additionally, we also excluded trials in which the participant failed to fixate both target *and* distractor pictures for at least 100 ms (5% of the time, `r format(nrow(n_trials_test) - nrow(n_trials_each), big.mark = ",")`). Finally we excluded trials from experimental sessions in which the participant did not provide at least two valid trials in each of the three experimental conditions (cognate prime, non-cognate prime, and unrelated prime) which resulted in the exclusion of `r nrow(distinct(n_trials_each, id, age_group)) - nrow(n_sessions_valid)` experimental sessions and their `r nrow(n_trials_each) - nrow(n_trials_participant)` remaining trials. The final data set comprised `r format(sum(data_summary$.ntrials), big.mark = ",")` from `r n_sessions_valid` experimental sessions, provided by `r n_participants_valid` distinct participants. Of those participants, `r n_longitudinal[1]` provided data from one experimental session, `r n_longitudinal[2]` provided data from two experimental sessions, and `r n_longitudinal[1]` provided data from three experimental sessions.
+We gathered data for `r format(n_trials, big.mark = ",")` trials from `r n_sessions` experimental sessions, provided by `r n_participants` distinct participants. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach]. We excluded trials in which the participant did not fixate the prime at least half of the time of the prime phase ($\geq$ 750 ms, *n* = `r format(n_trials - nrow(n_trials_prime), big.mark = ",")`), or the target and distractor during the test phase ($\geq$ 1,000 ms, *n* = `r format(nrow(n_trials_prime) - nrow(n_trials_test), big.mark = ",")`). We also excluded trials in which the participant failed to fixate both target *and* distractor pictures for at least 100 ms (i.e., 5% of the time) (`r format(nrow(n_trials_test) - nrow(n_trials_each), big.mark = ",")` trials excluded). We then excluded trials in which the participant was not reported to understand the prime *and* the target words, according to their caregivers' responses to the vocabulary checklist. This resulted in the exclusion of `r format(nrow(n_trials_each) - nrow(n_trials_vocab), big.mark = ",")` trials. Finally, we excluded trials from experimental sessions in which the participant did not provide at least two valid trials in each of the three experimental conditions (cognate prime, non-cognate prime, and unrelated prime) which resulted in the exclusion of `r nrow(distinct(n_trials_vocab, id, age_group)) - nrow(n_sessions_valid)` experimental sessions and their `r nrow(n_trials_vocab) - nrow(n_trials_participant)` remaining trials.  The final data set comprised `r format(sum(with(attrition_trials, is_valid_trial)), big.mark = ",")` from `r nrow(n_sessions_valid)` experimental sessions, provided by `r nrow(n_participants_valid)` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions.
 
-We defined our time window of interest from 300 ms after the onset of the test phase (target and distractor presentation) until the end of the test phase (2,000 ms). For each trial, we chunked the time domain into 17 time bins of 100 ms of duration. We then calculated, for each experimental session, time bin, and condition, participant's proportion of target and distractor fixations. Finally, we computed the empirical log-odds of target and distractor fixations, which we introduced in the statistical analyses as our response variable.
+We defined our time window of interest from 300 ms after the onset of the test phase (target and distractor presentation) until the end of the test phase (2,000 ms). For each trial, we chunked the time domain into 17 time bins of 100 ms of duration. We then calculated, for each experimental session, time bin, and condition, participant's proportion of target and distractor fixations. Finally, we computed the empirical logit of target fixations, which we introduced in the statistical analyses as our response variable.
 
 
 ```{r} 
@@ -361,6 +461,310 @@ attrition_trials |>
 ```
 
 
+### Modelling approach
+
+We conducted two main analyses. First, we estimated the effect of phonological priming on participants' target looking, comparing *related* trials with *unrelated* trials. This analysis included all trials on the data set. Second, we estimated the effect of cognateness on phonological priming, comparing *cognate* with *non-cognate* trials, leaving out *unrelated* trials. In both analyses, we used General Additive Mixed Models (GAMMs) to model the probability of target fixations across the time course of the trial using a normal distribution.
+
+In the first analysis. We included *Relatedness* (`Related` vs. `Unrelated`, sum-coded as `-0.5` and `+0.5`), *Group* (`Monolingual` vs. `Bilingual`, sum-coded as `-0.5` and `+0.5`), and *Age* (participants' standardised age in months) as fixed, main effects. We also included cubic regression splines for the main effect of *Time*, and one for an adjustment of the previous cubic spline by *Group* [@wood2017generalized]. For both splines, we specified $k = 10$ basis functions or *knots*--half the number of time bins, for computational convenience. Finally, we added by-participant random intercepts, and random slopes for the main effect of *Relatedness* and the main effect of *Age*, both including repeated measures per participant.
+
+To test the contribution of each of the predictors of interest--*Relatedness*/*Cognateness*, and *Group*--, we compared each model ($\mathcal{M_0}$) against a simplified model dropping each of the main effects, *Relatedness*/*Cognateness* ($\mathcal{M}_1$) or *Group* ($\mathcal{M_2}$). In both simplified models, the interaction term was dropped. We used leave-one-out cross-validation (LOO-CV) as a benchmark of model performance, using Pareto-smoothed importance sampling (PSIS) to approximate it. We then examined the posterior predictions of the best-performing model for interpretation.
+
+$$
+\begin{aligned}
+\textbf{Likelihood:} \\
+y_i &\sim \mathcal{N}(\mu_i, \sigma_i) \\ \\
+\textbf{Linear model} \\
+\text{logit}(\mu_i) &= (\beta_0 + u _{0_{i}}) + (\beta_1 + u _{1_{i}}) \cdot \text{Relatedness} + \beta_{2} \cdot \text{Group} + \\
+&\beta_{3} \cdot (\text{Relatedness} \times \text{Group}) + (\beta_4 + u_{3_{i}}) \cdot \text{Age} + \\
+&\sum_{j = 1}^k b_{j_{1}}(\beta_{5_{k}} + u_{4_{i}}) \cdot \text{Time} + \\
+&\sum_{j = 1}^k b_{j_{1}} (\beta_{6_{k }} + u_{5_{i}}) \cdot (\text{Time} \times \text{Group}) \\
+\text{where:} \\
+&k \text{ is the number of knots in the spline (10)} \\
+\textbf{Prior:} \\
+\beta_{0-6} &\sim \mathcal{N}(0, 1) \\
+b_{0-1} &\sim MVN(0, 1) \\
+\sigma_i &\sim Exp(4) 
+\end{aligned}
+$$
+
 # Results
 
+## Phonological priming: Related vs. Unrelated
+
+A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related[2, 1], 3)`, *SE* = `r round(model_loo_related[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related[3, 1], 3)`, *SE* = `r round(model_loo_related[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+
+```{r fig-related}
+#| label: fig-related
+#| fig-height: 6
+#| fig-width: 8
+#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
+epreds <- expand_grid(condition = levels(data_time_related$condition),
+					  timebin = seq(0, 17, length.out = 100),
+					  age = mean(data_time_related$age),
+					  lp = levels(data_time_related$lp),
+					  .nsamples = 1) |>
+	add_epred_draws(model_fit_related_3,
+					ndraws = NULL,
+					re_formula = NA, 
+					value = ".value") |> 
+	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
+
+epreds_diff <- epreds |> 
+	pivot_wider(names_from = condition,
+				values_from = .value,
+				id_cols = c(timebin, age, lp, .draw),
+				names_repair = janitor::make_clean_names) |> 
+	mutate(diff = related - unrelated) 
+
+diff_rect <- epreds_diff |> 
+	mean_qi(diff) |> 
+	mutate(is_cluster = .lower > 0 | .upper < 0) 
+
+clusters <- rle(diff(diff_rect$is_cluster))
+diff_rect$cluster_id <- c(0, rep(clusters$values, clusters$lengths))
+
+diff_rect <- diff_rect |> 
+		arrange(lp, timebin)
+
+diff_rect <- 
+	cluster_number = 
+	summarise(xmin = min(timebin),
+			  xmax = max(timebin),
+			  .by = c(lp, is_cluster)) |> 
+	filter(is_cluster)
+
+# diff_obs <- data_time_related |>
+# 	pivot_wider(names_from = condition, 
+# 				values_from = elog,
+# 				names_repair = janitor::make_clean_names) |> mutate(diff = related - unrelated)
+
+data_time_related |> 
+	summarise(.prop = mean(.prop),
+			  .by = c(id, timebin, lp, condition, age)) |> 
+	ggplot(aes(timebin, .prop, 
+			   colour = condition,
+			   fill = condition,
+			   shape = condition,
+			   linetype = condition)) +
+	facet_wrap(~lp) +
+	geom_rect(data = diff_rect,
+			  aes(xmin = xmin,
+			  	xmax = xmax,
+			  	ymin = -Inf,
+			  	ymax = Inf),
+			  colour = NA,
+			  fill = "orange",
+			  alpha = 1/2,
+			  inherit.aes = FALSE) +
+	# geom_line(data = epreds,
+	# 		  aes(y = .epred,
+	# 		  	group = interaction(condition, .draw)),
+	# 		  linetype = "solid",
+	# 		  alpha = 0.1,
+	# 		  linewidth = 3/4) +
+	stat_summary(data = epreds,
+				 aes(y = .value),
+				 fun.data = \(x) mean_qi(x, .width = 0.95),
+				 geom = "ribbon",
+				 alpha = 0.5,
+				 linewidth = 0) +
+	stat_summary(data = epreds,
+				 aes(y = .value,
+				 	linetype = condition),
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 1/2, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	stat_summary(fun = mean,
+				 geom = "point",
+				 colour = "black",
+				 size = 2.5,
+				 stroke = 3/4) +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 colour = "Condition",
+		 fill = "Condition",
+		 linetype = "Condition",
+		 shape = "Condition") +
+	theme(legend.title = element_blank(),
+		  axis.title.x = element_blank()) +
+	
+	epreds_diff |> 
+	ggplot(aes(timebin, diff)) +
+	facet_wrap(~lp) +
+	geom_rect(data = diff_rect,
+			  aes(xmin = xmin,
+			  	xmax = xmax,
+			  	ymin = -Inf,
+			  	ymax = Inf),
+			  colour = NA,
+			  fill = "orange",
+			  alpha = 1/2,
+			  inherit.aes = FALSE) +
+	stat_lineribbon(.width = 0.95,
+					linewidth = 0) +
+	stat_summary(data = epreds_diff,
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 0, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	# geom_point(data = diff_obs) +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 fill = "CrI") +
+	theme(strip.text = element_blank(),
+		  legend.position = "none") +
+	
+	plot_layout(ncol = 1) &
+	plot_annotation(tag_levels = "A") +
+	scale_linetype_manual(values = rev(c("solid", "dashed"))) &
+	scale_colour_grey(start = 0.8, end = 0) &
+	scale_fill_grey(start = 0.85, end = 0.35) &
+	scale_shape_manual(values = c(1, 2)) &
+	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
+											big.mark = ",")) &
+	theme(panel.grid = element_blank(),
+		  legend.position = "top") 
+```
+
+
+
+## Cognate priming: Cognate vs. Non-cognate
+
+A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[2, 1], 3)`, *SE* = `r round(model_loo_cognate[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[3, 1], 3)`, *SE* = `r round(model_loo_cognate[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+
+
+```{r fig-cognate}
+#| label: fig-cognate
+#| fig-height: 6
+#| fig-width: 8
+#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
+epreds <- expand_grid(condition = levels(data_time_cognate$condition),
+					  timebin = seq(0, 20, length.out = 100),
+					  age = mean(data_time_cognate$age),
+					  lp = levels(data_time_cognate$lp)) |>
+	add_epred_draws(model_fit_cognate_3,
+					ndraws = NULL,
+					re_formula = NA) |> 
+	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
+
+epreds_diff <- epreds |> 
+	pivot_wider(names_from = condition,
+				values_from = .epred,
+				id_cols = c(timebin, age, lp, .draw),
+				names_repair = janitor::make_clean_names) |> 
+	mutate(diff = cognate - non_cognate) 
+
+diff_rect <- epreds_diff |> 
+	mean_qi(diff) |> 
+	filter(.lower > 0 | .upper < 0) |> 
+	summarise(xmin = min(timebin),
+			  xmax = max(timebin),
+			  .by = lp)
+
+data_time_cognate |> 
+	summarise(.prop = mean(.prop),
+			  .by = c(id, timebin, lp, condition, age)) |> 
+	ggplot(aes(timebin, .prop, 
+			   colour = condition,
+			   fill = condition,
+			   shape = condition)) +
+	facet_wrap(~lp) +
+	geom_rect(data = diff_rect,
+			  aes(xmin = xmin,
+			  	xmax = xmax,
+			  	ymin = -1.5,
+			  	ymax = 1.5),
+			  colour = NA,
+			  fill = "orange",
+			  alpha = 1/2,
+			  inherit.aes = FALSE) +
+	# geom_line(data = epreds,
+	# 		  aes(y = .epred,
+	# 		  	group = interaction(condition, .draw)),
+	# 		  linetype = "solid",
+	# 		  alpha = 0.1,
+	# 		  linewidth = 3/4) +
+	stat_summary(data = epreds,
+				 aes(y = .epred),
+				 fun.data = \(x) mean_qi(x, .width = 0.95),
+				 geom = "ribbon",
+				 alpha = 0.5,
+				 linewidth = 0) +
+	stat_summary(data = epreds,
+				 aes(y = .epred,
+				 	linetype = condition),
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 0, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	stat_summary(fun = mean,
+				 geom = "point",
+				 colour = "black",
+				 size = 2.5,
+				 stroke = 3/4) +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 colour = "Prime type",
+		 fill = "Prime type",
+		 linetype = "Prime type",
+		 shape = "Prime type") +
+	theme(legend.title = element_blank(),
+		  axis.title.x = element_blank()) +
+	
+	epreds_diff |> 
+	ggplot(aes(timebin, diff)) +
+	facet_wrap(~lp) +
+	geom_rect(data = diff_rect,
+			  aes(xmin = xmin,
+			  	xmax = xmax,
+			  	ymin = -3/4,
+			  	ymax = 3/4),
+			  colour = NA,
+			  fill = "orange",
+			  alpha = 1/2,
+			  inherit.aes = FALSE) +
+	stat_lineribbon(.width = 0.95,
+					linewidth = 0) +
+	stat_summary(data = epreds_diff,
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 0, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 fill = "CrI") +
+	theme(strip.text = element_blank(),
+		  legend.position = "none") +
+	
+	plot_layout(ncol = 1) &
+	plot_annotation(tag_levels = "A") +
+	scale_linetype_manual(values = rev(c("solid", "dashed"))) &
+	scale_colour_grey(start = 0.8, end = 0) &
+	scale_fill_grey(start = 0.85, end = 0.35) &
+	scale_shape_manual(values = c(1, 2)) &
+	scale_x_continuous(labels = \(x) format(x * 1e2, 
+											big.mark = ",")) &
+	theme(panel.grid = element_blank()) 
+```
+
 # Discussion
+
+# Appendix
+
