@@ -14,7 +14,10 @@ test_gaze_aoi <- function(gaze_aoi){
 			  "is_gaze_distractor",
 			  "is_valid_gaze",
 			  "is_imputed",
-			  "trial_type")
+			  "trial_type",
+			  "prime_cdi",
+			  "target_cdi",
+			  "distractor_cdi")
 		)
 	})
 	
@@ -31,6 +34,7 @@ test_gaze_aoi <- function(gaze_aoi){
 		expect_type(gaze_aoi$is_valid_gaze, "logical")
 		expect_type(gaze_aoi$is_imputed, "logical")
 		expect_type(gaze_aoi$trial_type, "character")
+
 		
 	})
 	
@@ -41,6 +45,10 @@ test_gaze_aoi <- function(gaze_aoi){
 		expect_false(any(is.na(unique(gaze_aoi$timestamp))))
 		expect_false(any(is.na(gaze_aoi$is_valid_gaze)))
 		expect_false(any(is.na(gaze_aoi$trial_type)))
+		expect_false(any(is.na(gaze_aoi$prime_cdi)))
+		expect_false(any(is.na(gaze_aoi$target_cdi)))
+		expect_false(any(is.na(gaze_aoi$distractor_cdi)))
+		
 	})
 	
 	test_that("gaze_aoi variables have the right values", {

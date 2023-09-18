@@ -44,7 +44,9 @@ tar_load(c(participants, stimuli,
 		   attrition_participants,
 		   gaze_aoi, vocabulary,
 		   loos_aggregated, loos_timecourse,
-		   data_time, data_summary))
+		   data_time, data_summary,
+		   model_fits_related,
+		   model_fits_cognate))
 
 # set ggplot theme and colour palette
 theme_set(theme_ggdist()) # set custom ggplot theme
@@ -500,14 +502,10 @@ $p$ is then estimated using a logit regression model as indicated in @eq-linear.
 $$
 \begin{aligned}
 \textbf{Linear model:} \\
-logit(p) = \text{ln} \frac{p}{1-p} &= (\beta_{0} + u_{0_{i}}) + \\
-& (\beta_{1} + u_{1_{i}}) · \text{Age group}_{i} + & \\
-& \beta_{2} · \text{Language Profile}_{i} + & \\
-& (\beta_{3} + u_{2_{i}}) · \text{Trial type}_{i} + & \\
-& \beta_{4} · (\text{Age group}_{i} \times \text{Language Profile}_{i}) & \\
-& (\beta_{5} + u_{3_{i}}) · (\text{Age group}_{i} \times \text{Trial type}_{i}) + & \\
-& \beta_{6} · (\text{Language Profile}_{ij} \times \text{Trial type}_{i}) & \\
-& \beta_{7} · (\text{Age group}_{i} \times \text{Language Profile}_{i} \times \text{Trial type}_{i}) & \\
+\text{Logit}(p) = \text{ln} \frac{p}{1-p} &= (\beta_{0} + u_{0_{i}}) + (\beta_{1} + u_{1_{i}}) · \text{Age}_{i} + \beta_{2} · \text{Group}_{i} + & \\
+& (\beta_{3} + u_{2_{i}}) · \text{Condition}_{i} + \beta_{4} · (\text{Age}_{i} \times \text{Group}_{i}) & \\
+& (\beta_{5} + u_{3_{i}}) · (\text{Age}_{i} \times \text{Condition}_{i}) + \beta_{6} · (\text{Group}_{ij} \times \text{Condition}_{i}) & \\
+& \beta_{7} · (\text{Age}_{i} \times \text{Group}_{i} \times \text{Condition}_{i}) & \\
 \end{aligned}
 $$ {#eq-linear}
 

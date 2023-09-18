@@ -9,6 +9,8 @@ test_attrition_trials <- function(attrition_trials){
 			  "is_valid_gaze_prime",
 			  "is_valid_gaze_test",
 			  "is_valid_gaze_test_each",
+			  "is_valid_gaze",
+			  "is_valid_vocab",
 			  "is_valid_trial"))
 	})
 	
@@ -25,6 +27,7 @@ test_attrition_trials <- function(attrition_trials){
 		expect_type(attrition_trials$is_valid_gaze_prime, "logical")
 		expect_type(attrition_trials$is_valid_gaze_test, "logical")
 		expect_type(attrition_trials$is_valid_gaze_test_each, "logical")
+		expect_type(attrition_trials$is_valid_vocab, "logical")
 		expect_type(attrition_trials$is_valid_trial, "logical")
 	})
 	
@@ -35,6 +38,7 @@ test_attrition_trials <- function(attrition_trials){
 		expect_false(any(is.na(attrition_trials$is_valid_gaze_prime)))
 		expect_false(any(is.na(attrition_trials$is_valid_gaze_test)))
 		expect_false(any(is.na(attrition_trials$is_valid_gaze_test_each)))
+		expect_false(any(is.na(attrition_trials$is_valid_vocab)))
 		expect_false(any(is.na(attrition_trials$is_valid_trial)))
 		
 	})

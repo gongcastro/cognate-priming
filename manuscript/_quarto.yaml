@@ -3,21 +3,35 @@ project:
     - manuscript.qmd
 
 format:
-  arxiv-pdf:
-    keep-tex: true  
-    linenumbers: true
-    doublespacing: false
-    runninghead: "Parallel "
-    include-in-header: 
-      text: |
-        \usepackage{tipa}
-        \usepackage{booktabs}
-    knitr:
-      opts_chunk:
-        dev: "cairo_pdf"
-    filters: 
-      - "_extensions/andrewheiss/wordcount/citeproc.lua"
-      - "_extensions/andrewheiss/wordcount/wordcount.lua"
+  html:
+    code-fold: true
+    code-overflow: scroll
+    code-line-numbers: true
+    code-copy: hover
+    code-link: true
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    fig-dpi: 800
+    footnotes-hover: true
+    link-external-newwindow: true
+  # pdf:
+  #   keep-tex: true  
+  #   linenumbers: true
+  #   doublespacing: false
+  #   runninghead: "Developmental trajectories of bilingual word recognition" 
+  #   include-in-header: 
+  #     text: |
+  #       \usepackage{tipa}
+  #       \usepackage{booktabs}
+  #       \hyphenpenalty=100000
+  #       \exhyphenpenalty=100000
+  #   knitr:
+  #     opts_chunk:
+  #       dev: "cairo_pdf"
+  #   filters: 
+  #     - "_extensions/andrewheiss/wordcount/citeproc.lua"
+  #     - "_extensions/andrewheiss/wordcount/wordcount.lua"
 
 title: "Developmental trajectories of bilingual word recognition"
 short-title: "Developmental trajectories of bilingual word recognition"
@@ -35,7 +49,7 @@ author:
     orcid: 0000-0001-6482-2191
     email: siow.serene@gmail.com
     affiliations: 
-      - id: ul
+      - id: oxf
         name: University of Oxford
         department: Department of Experimental Psychology
         city: Oxford, OX2 6GG
@@ -52,9 +66,11 @@ author:
 keywords:
   - cognate
   - word recognition
+  - lexicon
+  - language acquisition
   - vocabulary
   - bilingualism
-  - growth curve analysis
+  - general additive mixed models
   - bayesian
 csl: "../assets/apa7.csl"
 bibliography: "../assets/references.bib"
@@ -62,4 +78,5 @@ link-citations: true
 editor: source
 lang: en
 freeze: true
+warning: false
 fig-dpi: 1000

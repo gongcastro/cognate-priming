@@ -1,8 +1,11 @@
+
+library(bvq)
+
 # get participants
-p <- bvq::bvq_participants()
+p <- bvq_participants()
 
 # get responses
-r <- bvq::bvq_responses(p)
+r <- bvq_responses(p)
 
 # get logs
 edu_dict <- c("noeducation" = "No education",
@@ -12,7 +15,7 @@ edu_dict <- c("noeducation" = "No education",
 			  "vocational" = "Vocational",
 			  "university" = "University")
 
-l <- bvq::bvq_logs(p, r) |> 
+l <- bvq_logs(p, r) |> 
 	mutate(age_group = case_when(age>=19 & age<24 ~ "21 months",
 								 age>=24 & age<28 ~ "25 months",
 								 age>=28 & age<=34 ~ "30 months",
@@ -38,24 +41,19 @@ l <- bvq::bvq_logs(p, r) |>
 	select(id, id_exp, time, age, age_group, lp, 
 		   dominance, doe_catalan, doe_spanish, edu_parent)
 
-v_comp <- bvq::bvq_vocabulary(p, r) |> 
+v <- bvq_vocabulary(p, r, .scale = c("count", "prop")) |> 
 	dplyr::filter(type=="understands") |> 
+	inner_join(logs_tmp, by = join_by(id, time)) |> 
+	filter(type=="understands") |> 
+	select(id, age, lp, matches("prop")) 
 	inner_join(l, by = join_by(id, time)) |> 
-	select(id, id_exp, age_group, type, matches("prop|count"))
+	select(id, id_exp, age_group, type, matches("prop|count")) 
 
-v_prod <- bvq::bvq_vocabulary(participants = p, 
-							  responses = r, 
-							  .scale = c("prop", "count")) |> 
-	dplyr::filter(type=="produces") |> 
-	inner_join(distinct(l, id, time, id_exp, age_group),
-			   by = join_by(id, time)) |> 
-	select(id, id_exp, age_group, type, matches("prop|count"))
 
 bvq_data <- list(participants = p, 
 				 responses = r, 
 				 logs = l, 
-				 vocabulary_comp = v_comp,
-				 vocabulary_prod = v_prod,
-				 pool = bvq::pool)
+				 vocabulary = v,
+				 pool = pool)
 
 saveRDS(bvq_data, "data-raw/bvq.rds")
