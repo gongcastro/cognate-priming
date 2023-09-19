@@ -223,11 +223,8 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	# tar_target(model_loo_related,
-	# 		   get_model_loos(model_fit_related_0,
-	# 		   			   model_fit_related_1,
-	# 		   			   model_fit_related_2,
-	# 		   			   model_fit_related_3)),
+	tar_target(model_loo_related,
+			   get_model_loos(model_fits_related)),
 	
 	# cognate vs. non-cognate models	
 	tar_target(model_fits_cognate,
@@ -236,14 +233,203 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	# tar_target(model_loo_cognate,
-	# 		   get_model_loos(model_fit_cognate_0,
-	# 		   			   model_fit_cognate_1,
-	# 		   			   model_fit_cognate_2,
-	# 		   			   model_fit_cognate_3)),
+	tar_target(model_loo_cognate,
+			   get_model_loos(model_fits_cognate)),
 	
 	
-	# render report ------------------------------------------------------------
+	# FILTER BY ONLY TARGET WORD
+	# attrition ----------------------------------------------------------------
+	
+	tar_target(attrition_trials_vtarget,
+			   get_attrition_trials(
+			   	participants = participants,
+			   	vocabulary = vocabulary,
+			   	vocabulary_by = c("target"),
+			   	aoi_coords = aoi_coords,
+			   	gaze_aoi = gaze_aoi,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0.1))),
+	
+	tar_target(attrition_participants_vtarget,
+			   get_attrition_participants(attrition_trials_vtarget,
+			   						   min_trials = c(cognate = 2, 
+			   						   			   noncognate = 2,
+			   						   			   unrelated = 2))),
+	
+	# prepare data for analysis ------------------------------------------------
+	
+	tar_target(data_time_related_vtarget,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials_vtarget,
+			   			  attrition_participants = attrition_participants_vtarget,
+			   			  time_subset = c(0.3, 2.0),
+			   			  contrast = "related")),
+	
+	tar_target(data_time_cognate_vtarget,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials_vtarget,
+			   			  attrition_participants = attrition_participants_vtarget,
+			   			  time_subset = c(0.3, 2),
+			   			  contrast = "cognate")),
+	
+	# tar_target(data_time_test, test_data_time(data_time)),
+	
+	tar_target(model_fits_related_vtarget,
+			   get_model_fit(model_formulas,
+			   			  data = data_time_related_vtarget,
+			   			  family = binomial("logit"),
+			   			  prior = model_prior)),
+	
+	tar_target(model_loo_related_vtarget,
+			   get_model_loos(model_fits_related_vtarget)),
+	
+	# cognate vs. non-cognate models	
+	tar_target(model_fits_cognate_vtarget,
+			   get_model_fit(model_formulas,
+			   			  data = data_time_cognate_vtarget,
+			   			  family = binomial("logit"),
+			   			  prior = model_prior)),
+	
+	tar_target(model_loo_cognate_vtarget,
+			   get_model_loos(model_fits_cognate_vtarget)),
+	
+	# FILTER BY NONE
+	# attrition ----------------------------------------------------------------
+	
+	tar_target(attrition_trials_vnone,
+			   get_attrition_trials(
+			   	participants = participants,
+			   	vocabulary = vocabulary,
+			   	vocabulary_by = "none",
+			   	aoi_coords = aoi_coords,
+			   	gaze_aoi = gaze_aoi,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0.1))),
+	
+	tar_target(attrition_participants_vnone,
+			   get_attrition_participants(attrition_trials_vnone,
+			   						   min_trials = c(cognate = 2, 
+			   						   			   noncognate = 2,
+			   						   			   unrelated = 2))),
+	
+	# prepare data for analysis ------------------------------------------------
+	
+	tar_target(data_time_related_vnone,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials_vnone,
+			   			  attrition_participants = attrition_participants_vnone,
+			   			  time_subset = c(0.3, 2.0),
+			   			  contrast = "related")),
+	
+	tar_target(data_time_cognate_vnone,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials_vnone,
+			   			  attrition_participants = attrition_participants_vnone,
+			   			  time_subset = c(0.3, 2),
+			   			  contrast = "cognate")),
+	
+	# tar_target(data_time_test, test_data_time(data_time)),
+	
+	tar_target(model_fits_related_vnone,
+			   get_model_fit(model_formulas,
+			   			  data = data_time_related_vnone,
+			   			  family = binomial("logit"),
+			   			  prior = model_prior)),
+	
+	tar_target(model_loo_related_vnone,
+			   get_model_loos(model_fits_related_vnone)),
+	
+	# cognate vs. non-cognate models	
+	tar_target(model_fits_cognate_vnone,
+			   get_model_fit(model_formulas,
+			   			  data = data_time_cognate_vnone,
+			   			  family = binomial("logit"),
+			   			  prior = model_prior)),
+	
+	tar_target(model_loo_cognate_vnone,
+			   get_model_loos(model_fits_cognate_vnone)),
+	
+	# FILTER BY NO EACH
+	# attrition ----------------------------------------------------------------
+	
+	tar_target(attrition_trials_noeach,
+			   get_attrition_trials(
+			   	participants = participants,
+			   	vocabulary = vocabulary,
+			   	vocabulary_by = "none",
+			   	aoi_coords = aoi_coords,
+			   	gaze_aoi = gaze_aoi,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1.00,
+			   		test_each = 0.00))),
+	
+	tar_target(attrition_participants_noeach,
+			   get_attrition_participants(attrition_trials_noeach,
+			   						   min_trials = c(cognate = 2, 
+			   						   			   noncognate = 2,
+			   						   			   unrelated = 2))),
+	
+	# prepare data for analysis ------------------------------------------------
+	
+	tar_target(data_time_related_noeach,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials_noeach,
+			   			  attrition_participants = attrition_participants_noeach,
+			   			  time_subset = c(0.3, 2.0),
+			   			  contrast = "related")),
+	
+	tar_target(data_time_cognate_noeach,
+			   get_data_time(gaze_aoi = gaze_aoi,
+			   			  participants = participants,
+			   			  stimuli = stimuli, 
+			   			  vocabulary = vocabulary,
+			   			  attrition_trials = attrition_trials_noeach,
+			   			  attrition_participants = attrition_participants_noeach,
+			   			  time_subset = c(0.3, 2),
+			   			  contrast = "cognate")),
+	
+	# tar_target(data_time_test, test_data_time(data_time)),
+	
+	tar_target(model_fits_related_noeach,
+			   get_model_fit(model_formulas,
+			   			  data = data_time_related_noeach,
+			   			  family = binomial("logit"),
+			   			  prior = model_prior)),
+	
+	tar_target(model_loo_related_noeach,
+			   get_model_loos(model_fits_related_noeach)),
+	
+	# cognate vs. non-cognate models	
+	tar_target(model_fits_cognate_noeach,
+			   get_model_fit(model_formulas,
+			   			  data = data_time_cognate_noeach,
+			   			  family = binomial("logit"),
+			   			  prior = model_prior)),
+	
+	tar_target(model_loo_cognate_noeach,
+			   get_model_loos(model_fits_cognate_noeach)),
+	
+	# # render report ------------------------------------------------------------
 	tar_quarto(report,
 			   file.path("manuscript", "manuscript.qmd"),
 			   execute = TRUE,
