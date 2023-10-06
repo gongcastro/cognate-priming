@@ -10,6 +10,10 @@ get_attrition_trials <- function(gaze_aoi,
                                      test = 1.00,
                                      test_each = 0.10
                                  )) {
+	
+	# check input
+	check_args_attrition_trials()
+	
     attrition_trials <- gaze_aoi |>
         fix_sampling_rate(filename, date_onset = "2022-05-26") |>
         summarise(
@@ -44,8 +48,43 @@ get_attrition_trials <- function(gaze_aoi,
     return(attrition_trials)
 }
 
+#' Check arguments for `get_attrition_trials()`
+check_args_attrition_trials <- function() {
+	
+	pf <- parent.frame()
+	
+	if (!is.data.frame(pf$gaze_aoi)) {
+		cli_abort("gaze_aoi must be a data.frame")
+	}
+	if (!is.data.frame(pf$participants)) {
+		cli_abort("participants must be a data.frame")
+	}
+	if (!is.data.frame(pf$vocabulary)) {
+		cli_abort("participants must be a data.frame")
+	}
+	if (!is.list(pf$aoi_coords) || length(pf$aoi_coords) != 3) {
+		cli_abort("aoi_coords must be a list of length three")
+	}
+	if (!all(purrr::map_dbl(pf$aoi_coords, length)==4) || !all(purrr::map_chr(pf$aoi_coords, class)=="numeric")) {
+		cli_abort("aoi_coords nested vectors should should be of length four")
+	}
+	if (!all(pf$vocabulary_by %in% c("prime", "target", "distractor", "none"))) {
+		cli_abort("vocabulary_by must be one of 'prime', 'target', 'distractor', or 'none'")
+	}
+	if (("none" %in% pf$vocabulary_by) && (length(pf$vocabulary_by) > 1)) {
+		cli_abort("vocabulary_by must be either 'none', or any combination of 'prime', 'target', and 'distractor', but not both")
+	}
+	if (!is.numeric(pf$min_looking)) {
+		cli_abort("min_looking must be a numeric vector of length three")
+	}
+	if (!setequal(names(pf$min_looking), c("prime", "test", "test_each"))) {
+		cli_abort("min_looking must be a numeric vector of length three")
+	}
+}
+
 #' Apply gaze validity inclusion criteria
 validate_gaze <- function(data, min_looking) {
+	
     # validate arg values
     if (!length(min_looking != 3) | !is.numeric(min_looking)) {
         cli_abort("min_looking must be a numeric vector of length 3")

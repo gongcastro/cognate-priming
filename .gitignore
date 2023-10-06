@@ -19,10 +19,10 @@ img/**/*.png
 documents/
 presentations/
 
-!Data/Stimuli/*
 data-raw/eyetracking/*.csv
 /.luarc.json
 nul
 _targets.yaml
 docs/_targets.yaml
 manuscript/_targets.yaml
+results/fits/*.rds

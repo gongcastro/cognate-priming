@@ -9,7 +9,7 @@ get_vocabulary <- function(participants, # participants dataset (get_participant
 	# get vocabulary contents
 	vocab_contents <- get_vocabulary_contents(participants, bvq_data)
 	
-	vocabulary <- bvq_data$vocabulary_comp |>
+	vocabulary <- bvq_data$vocabulary |>
 		mutate(id_db = id) |> 
 		right_join(select(participants_tmp, id_db, age_group, lp),
 				   by = join_by(id_db, age_group)) |> 
@@ -55,7 +55,7 @@ impute_vocabulary <- function(x,
 	
 	# prepare dataset for imputation
 	x_tmp <- x[, c(key.cols)]
-	db <- inner_join(bvq_data$vocabulary_comp, 
+	db <- inner_join(bvq_data$vocabulary, 
 					 bvq_data$logs,
 					 by = join_by(id, id_exp, age_group))
 	db <- db[, c(key.cols)]

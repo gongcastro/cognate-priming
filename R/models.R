@@ -1,8 +1,8 @@
 #' Fit multiple models given a list of formulas
-get_model_fit <- function(formula, data, family, prior, ...) {
+get_model_fit <- function(names, formulas, data, family, prior, ...) {
 	
 	# check args
-	if (is.null(names(formula)) || !is.list(formula)) {
+	if (is.null(names(formulas)) || !is.list(formulas)) {
 		cli_abort("formula must be a named list")
 	}
 	if (!is.data.frame(data)) {
@@ -10,10 +10,10 @@ get_model_fit <- function(formula, data, family, prior, ...) {
 	}
 	
 	# fit models
-	fit <- purrr::map2(.x = names(formula),
-					   .y = formula,
-					   .f = \(name, formula) {
-					   	fit_single_model(name, formula, data, family, prior, ...)
+	fit <- purrr::map2(.x = names,
+					   .y = formulas,
+					   .f = \(names, formulas) {
+					   	fit_single_model(names, formulas, data, family, prior, ...)
 					   },
 					   .progress = TRUE)
 	
@@ -29,7 +29,7 @@ fit_single_model <- function(name, formula, data, family, prior, ...) {
 					 cores = 6,
 					 init = 0.1,
 					 file_refit = "on_change",
-					 file = file.path("results", paste0(name, ".rds")),
+					 file = file.path("results/fits/", paste0(name, ".rds")),
 					 seed = 1234,
 					 ...)
 	

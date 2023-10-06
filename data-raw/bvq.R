@@ -38,16 +38,16 @@ l <- bvq_logs(p, r) |>
 	left_join(select(p, id, time, id_exp),
 			  by = join_by(id, time)) |> 
 	distinct(id, age_group, .keep_all = TRUE) |> 
-	select(id, id_exp, time, age, age_group, lp, 
-		   dominance, doe_catalan, doe_spanish, edu_parent)
+	select(id, id_exp, time, age, age_group, lp, version,  
+		   dominance, doe_catalan, doe_spanish, doe_others, edu_parent)
 
 v <- bvq_vocabulary(p, r, .scale = c("count", "prop")) |> 
 	dplyr::filter(type=="understands") |> 
-	inner_join(logs_tmp, by = join_by(id, time)) |> 
-	filter(type=="understands") |> 
-	select(id, age, lp, matches("prop")) 
 	inner_join(l, by = join_by(id, time)) |> 
-	select(id, id_exp, age_group, type, matches("prop|count")) 
+	filter(type=="understands") |> 
+	select(id, time, age, lp, matches("prop")) |> 
+	inner_join(l, by = join_by(id, time)) |> 
+	select(id, id_exp, age_group, matches("prop|count")) 
 
 
 bvq_data <- list(participants = p, 

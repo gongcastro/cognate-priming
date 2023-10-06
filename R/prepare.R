@@ -45,22 +45,7 @@ get_data_time <- function(gaze_aoi,
 #' Agrgegate eye-tracking data into time bins
 aggregate_timecourse <- function(x, contrast) {
 	
-	# check args
-	if (!(contrast %in% c("related", "cognate"))) {
-		cli_abort("contrast must be 'related' or 'cognate'")
-	}
 	
-	# define vars
-	if (contrast=="related") {
-		exclude_condition <- "Cognate"
-		condition_levels <- c("Non-cognate", "Unrelated")
-		condition_labels <- c("Related", "Unrelated")
-	} else {
-		exclude_condition <- "Unrelated"
-		condition_levels <- c("Cognate", "Non-cognate")
-		condition_labels <- c("Cognate", "Non-cognate")
-		
-	}
 	
 	# aggregate data
 	data_time <- x |> 
@@ -77,8 +62,8 @@ aggregate_timecourse <- function(x, contrast) {
 			   across(c(.nsamples, timebin), as.integer),
 			   across(c(id, lp), as.factor), 
 			   condition = factor(trial_type, 
-			   				   levels = condition_levels,
-			   				   labels = condition_labels)) |>
+			   				   levels = get_conditions()$condition_levels,
+			   				   labels = get_conditoins()$condition_labels)) |>
 		rename(.sum = sum_target) |> 
 		arrange(desc(id), age, timebin) |> 
 		select(id, age, lp, condition, timebin, 
@@ -89,6 +74,28 @@ aggregate_timecourse <- function(x, contrast) {
 	contrasts(data_time$lp) <- c(0.5, -0.5)
 	
 	return(data_time)
+}
+
+#' Get experimental conditions
+#' 
+get_conditions <- function(contrast) {
+	# check args
+	if (!(contrast %in% c("related", "cognate"))) {
+		cli_abort("contrast must be 'related' or 'cognate'")
+	}
+	
+	# define vars
+	if (contrast=="related") {
+		exclude_condition <- "Cognate"
+		condition_levels <- c("Non-cognate", "Unrelated")
+		condition_labels <- c("Related", "Unrelated")
+	} else {
+		exclude_condition <- "Unrelated"
+		condition_levels <- c("Cognate", "Non-cognate")
+		condition_labels <- c("Cognate", "Non-cognate")
+	}
+	
+	return(tibble::lst(condition_levels, condition_labels))
 }
 
 #' Prepare aggregated data for modelling
@@ -224,6 +231,46 @@ aggregate_data_oxf <- function(df_timecourse){
 	return(df_aggregated)
 }
 
-
-
+#' Get looking times
+#' 
+get_looking_times <- function(gaze_aoi, 
+							  participants,
+							  stimuli
+) {
+	gaze_aoi_tmp <- gaze_aoi
+	
+	stimuli_tmp <- select(stimuli, test_language, list, version,
+						  ends_with("_cdi"), duration)
+	
+	looking_times <- gaze_aoi_tmp |>
+		fix_sampling_rate(filename, date_onset = "2022-05-26") |>
+		summarise(
+			prime_time = sum(is_gaze_prime[phase == "Prime"], na.rm = TRUE),
+			target_time = sum(is_gaze_target[phase == "Target-Distractor"], na.rm = TRUE),
+			distractor_time = sum(is_gaze_distractor[phase == "Target-Distractor"], na.rm = TRUE),
+			.by = c(
+				filename, trial_type, filename, trial, sampling_rate,
+				matches("_cdi")
+			)
+		) |> 
+		mutate(across(ends_with("_time"), \(x) x / sampling_rate),
+			   across(ends_with("_time"), \(x) ifelse(x > 1.5, 1.5, x)),
+			   test_time = target_time + distractor_time
+		) |>
+		select(-sampling_rate) |> 
+		left_join(select(participants, filename, id, age_group, lp,
+						 test_language, version, list),
+				  by = join_by(filename)) |> 
+		left_join(stimuli_tmp,
+				  by = join_by(prime_cdi, target_cdi, distractor_cdi, test_language,
+				  			 version, list)) |> 
+		select(id, age_group, lp, filename, trial, trial_type, 
+			   prime_time, 
+			   target_time, 
+			   distractor_time,
+			   duration)
+	
+	return(looking_times)
+	
+}
 
