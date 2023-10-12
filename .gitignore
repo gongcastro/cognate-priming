@@ -26,3 +26,4 @@ _targets.yaml
 docs/_targets.yaml
 manuscript/_targets.yaml
 results/fits/*.rds
+*.zip
