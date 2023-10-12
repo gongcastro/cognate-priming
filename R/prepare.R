@@ -42,14 +42,14 @@ get_data_time <- function(gaze_aoi,
 	
 }
 
-#' Agrgegate eye-tracking data into time bins
+#' Aggregate eye-tracking data into time bins
 aggregate_timecourse <- function(x, contrast) {
 	
-	
+	conditions <- get_conditions(contrast)
 	
 	# aggregate data
 	data_time <- x |> 
-		filter(trial_type != exclude_condition) |> 
+		filter(trial_type != conditions$exclude_condition) |> 
 		# aggregated by participant, see Chow et al. (2018)
 		summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
 				  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
@@ -62,8 +62,8 @@ aggregate_timecourse <- function(x, contrast) {
 			   across(c(.nsamples, timebin), as.integer),
 			   across(c(id, lp), as.factor), 
 			   condition = factor(trial_type, 
-			   				   levels = get_conditions()$condition_levels,
-			   				   labels = get_conditoins()$condition_labels)) |>
+			   				   levels = conditions$condition_levels,
+			   				   labels = conditions$condition_labels)) |>
 		rename(.sum = sum_target) |> 
 		arrange(desc(id), age, timebin) |> 
 		select(id, age, lp, condition, timebin, 
@@ -95,7 +95,9 @@ get_conditions <- function(contrast) {
 		condition_labels <- c("Cognate", "Non-cognate")
 	}
 	
-	return(tibble::lst(condition_levels, condition_labels))
+	return(tibble::lst(exclude_condition, 
+					   condition_levels,
+					   condition_labels))
 }
 
 #' Prepare aggregated data for modelling

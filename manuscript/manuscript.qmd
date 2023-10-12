@@ -22,6 +22,8 @@ targets::tar_load(
 	  attrition_participants_vnone,
 	  attrition_trials_noeach,
 	  attrition_participants_noeach,
+	  attrition_trials_vnoeach,
+	  attrition_participants_vnoeach,
 	  bvq_data, 
 	  gaze_aoi, 
 	  looking_times,
@@ -32,7 +34,9 @@ targets::tar_load(
 	  data_time_related_vnone,
 	  data_time_cognate_vnone,
 	  data_time_related_noeach, 
-	  data_time_cognate_noeach))
+	  data_time_cognate_noeach,
+	  data_time_related_vnoeach,
+	  data_time_cognate_vnoeach))
 
 targets::tar_load(
 	c(model_fits_related,
@@ -43,6 +47,8 @@ targets::tar_load(
 	  model_fits_cognate_vnone,
 	  model_fits_related_noeach,
 	  model_fits_cognate_noeach,
+	  model_fits_related_vnoeach,
+	  model_fits_cognate_vnoeach,
 	  model_loo_related,
 	  model_loo_cognate,
 	  model_loo_related_vtarget,
@@ -50,7 +56,9 @@ targets::tar_load(
 	  model_loo_related_vnone,
 	  model_loo_cognate_vnone,
 	  model_loo_related_noeach,
-	  model_loo_cognate_noeach
+	  model_loo_cognate_noeach,
+	  model_loo_related_vnoeach,
+	  model_loo_cognate_vnoeach
 	))
 
 
@@ -1894,6 +1902,368 @@ epreds_diff <- epreds |>
 # 			  .by = lp)
 
 data_time_cognate_noeach |> 
+	summarise(.prop = mean(.prop),
+			  .by = c(id, timebin, lp, condition, age)) |> 
+	ggplot(aes(timebin, .prop, 
+			   colour = condition,
+			   fill = condition,
+			   shape = condition)) +
+	facet_wrap(~lp) +
+	# geom_rect(data = diff_rect,
+	# 		  aes(xmin = xmin,
+	# 		  	xmax = xmax,
+	# 		  	ymin = -1.5,
+	# 		  	ymax = 1.5),
+	# 		  colour = NA,
+	# 		  fill = "orange",
+	# 		  alpha = 1/2,
+	# 		  inherit.aes = FALSE) +
+	# geom_line(data = epreds,
+	# 		  aes(y = .epred,
+# 		  	group = interaction(condition, .draw)),
+# 		  linetype = "solid",
+# 		  alpha = 0.1,
+# 		  linewidth = 3/4) +
+stat_summary(data = epreds,
+			 aes(y = .epred),
+			 fun.data = \(x) mean_qi(x, .width = 0.95),
+			 geom = "ribbon",
+			 alpha = 0.5,
+			 linewidth = 0) +
+	stat_summary(data = epreds,
+				 aes(y = .epred,
+				 	linetype = condition),
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 0.5, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	stat_summary(fun = mean,
+				 geom = "point",
+				 colour = "black",
+				 size = 2.5,
+				 stroke = 3/4) +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 colour = "Prime type",
+		 fill = "Prime type",
+		 linetype = "Prime type",
+		 shape = "Prime type") +
+	theme(legend.title = element_blank(),
+		  axis.title.x = element_blank()) +
+	
+	epreds_diff |> 
+	ggplot(aes(timebin, diff)) +
+	facet_wrap(~lp) +
+	# geom_rect(data = diff_rect,
+	# 		  aes(xmin = xmin,
+	# 		  	xmax = xmax,
+	# 		  	ymin = -3/4,
+	# 		  	ymax = 3/4),
+	# 		  colour = NA,
+	# 		  fill = "orange",
+	# 		  alpha = 1/2,
+	# 		  inherit.aes = FALSE) +
+	stat_lineribbon(.width = 0.95,
+					linewidth = 0,
+					fill = "grey") +
+	stat_summary(data = epreds_diff,
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 0, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 fill = "CrI") +
+	theme(strip.text = element_blank(),
+		  legend.position = "none") +
+	
+	plot_layout(ncol = 1) &
+	plot_annotation(tag_levels = "A") +
+	scale_linetype_manual(values = rev(c("solid", "dashed"))) &
+	scale_shape_manual(values = c(1, 2)) &
+	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
+											big.mark = ",")) &
+	theme(panel.grid = element_blank(),
+		  legend.position = "top") 
+```
+
+## Analysis 5
+
+Participants need to know the prime or target words, and do not need to look to both pictures.
+
+```{r dataset-vnoeach}
+n_trials <- nrow(attrition_trials_vnoeach)
+n_trials_valid <- inner_join(attrition_participants_vnoeach,
+							 attrition_trials_vnoeach) |> 
+	filter(is_valid_participant) |> 
+	pull(is_valid_trial) |> 
+	sum()
+n_participants_valid <- sum(attrition_participants_vnoeach$is_valid_participant)
+n_exc_prime <- sum(!attrition_trials_vnoeach$is_valid_gaze_prime)
+n_exc_test <- sum(!attrition_trials_vnoeach$is_valid_gaze_test)
+n_exc_test_each <- sum(!attrition_trials_vnoeach$is_valid_gaze_test_each)
+n_exc_vocab <- sum(!attrition_trials_vnoeach$is_valid_vocab)
+n_exc_cognate <- sum(!attrition_participants_vnoeach$is_valid_cognate)
+n_exc_noncognate <- sum(!attrition_participants_vnoeach$is_valid_noncognate)
+n_exc_unrelated <- sum(!attrition_participants_vnoeach$is_valid_unrelated)
+
+n_longitudinal <- attrition_participants_vnoeach |>
+	filter(is_valid_participant) |>
+	count(id, name = "times") |> 
+	count(times)
+```
+
+
+We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_total` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). After applying these trial-level inclusion criteria, we excluded participants who did not provide at least two valid trials in the *cognate prime* condition (*n* = `r n_exc_cognate`), the *non-cognate prime* condition (*n* = `r n_exc_noncognate`), or the *unrelated prime* condition (*n* = `r n_exc_unrelated`). The resulting dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_participants_valid` participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
+
+
+```{r tbl-attrition-trials-vnoeach}
+#| label: tbl-attrition-trials-vnoeach
+#| tbl-cap: "Trial attrition rate by condition for included participants. Additional excluded trials are indicated between parentheses."
+attrition_trials_vnoeach |> 
+	filter(id %in% attrition_participants_vnoeach$id[attrition_participants_vnoeach$is_valid_participant]) |> 
+	left_join(select(participants, filename, id, age_group),
+			  by = join_by(filename, id, age_group)) |> 
+	summarise(n_valid = sum(is_valid_trial),
+			  n_total = n(),
+			  .by = c(id, age_group, trial_type)) |> 
+	summarise(across(n_valid, lst(sum, mean, sd),
+					 .names = "{.fn}"),
+			  n_total = sum(n_total),
+			  .by = c(age_group, trial_type)) |> 
+	mutate(n_excluded = n_total-sum) |> 
+	select(-c(n_total)) |> 
+	pivot_wider(names_from = trial_type,
+				values_from = c(sum:sd, n_excluded),
+				names_repair = janitor::make_clean_names) |> 
+	rename_with(\(x) gsub("non_cognate", 
+						  "noncognate",
+						  x)) |> 
+	arrange(age_group) |> 
+	relocate(age_group,
+			 matches("_cognate"),
+			 matches("noncognate")) |> 
+	gt(rowname_col = "age_group") |> 
+	grand_summary_rows(columns = matches("mean_"),
+					   fns = lst(Mean ~ mean(.)),
+					   fmt = ~fmt_number(.)) |>
+	grand_summary_rows(columns = matches("sum_"),
+					   fns = lst(Sum ~ sum(.)),
+					   fmt = ~fmt_integer(.)) |>
+	cols_merge(c(sum_cognate, n_excluded_cognate), 
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(sum_noncognate, n_excluded_noncognate), 
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(sum_unrelated, n_excluded_unrelated),
+			   pattern = "{1} ({2})") |> 
+	cols_merge_uncert(mean_cognate, sd_cognate) |> 
+	cols_merge_uncert(mean_noncognate, sd_noncognate) |> 
+	cols_merge_uncert(mean_unrelated, sd_unrelated) |> 
+	tab_spanner("Cognate trials", ends_with("_cognate")) |>
+	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
+	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
+	tab_spanner("Related trials", matches("cognate")) |>
+	fmt_number(matches("mean|sd")) |> 
+	fmt_integer(matches("sum"), sep_mark = ",") |> 
+	cols_label(sum_cognate = "N",
+			   sum_noncognate = "N",
+			   sum_unrelated = "N",
+			   mean_cognate = "Mean",
+			   mean_noncognate = "Mean",
+			   mean_unrelated = "Mean")
+```
+
+
+### Phonological priming: Related vs. Unrelated
+
+A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related_vnoeach[2, 1], 3)`, *SE* = `r round(model_loo_related_vnoeach[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related_vnoeach[3, 1], 3)`, *SE* = `r round(model_loo_related[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+
+```{r fig-related-vnoeach}
+#| label: fig-related-vnoeach
+#| fig-height: 6
+#| fig-width: 8
+#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
+epreds <- expand_grid(condition = levels(data_time_related_vnoeach$condition),
+					  timebin = seq(0, 17, length.out = 100),
+					  age = mean(data_time_related_vnoeach$age),
+					  lp = levels(data_time_related_vnoeach$lp),
+					  .nsamples = 1) |>
+	add_epred_draws(model_fits_related_vnoeach[[4]],
+					ndraws = NULL,
+					re_formula = NA, 
+					value = ".value") |> 
+	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
+
+epreds_diff <- epreds |> 
+	pivot_wider(names_from = condition,
+				values_from = .value,
+				id_cols = c(timebin, age, lp, .draw),
+				names_repair = janitor::make_clean_names) |> 
+	mutate(diff = related - unrelated) 
+
+# diff_rect <- epreds_diff |> 
+# 	mean_qi(diff) |> 
+# 	mutate(is_cluster = .lower > 0 | .upper < 0) 
+# 
+# clusters <- rle(diff(diff_rect$is_cluster))
+# diff_rect$cluster_id <- c(0, rep(clusters$values, clusters$lengths))
+# 
+# diff_rect <- diff_rect |> 
+# 	arrange(lp, timebin)
+# 
+# diff_rect <- 
+# 	cluster_number = 
+# 	summarise(xmin = min(timebin),
+# 			  xmax = max(timebin),
+# 			  .by = c(lp, is_cluster)) |> 
+# 	filter(is_cluster)
+
+# diff_obs <- data_time_related |>
+# 	pivot_wider(names_from = condition, 
+# 				values_from = elog,
+# 				names_repair = janitor::make_clean_names) |> mutate(diff = related - unrelated)
+
+data_time_related_vnoeach |> 
+	summarise(.prop = mean(.prop),
+			  .by = c(id, timebin, lp, condition, age)) |> 
+	ggplot(aes(timebin, .prop, 
+			   colour = condition,
+			   fill = condition,
+			   shape = condition,
+			   linetype = condition)) +
+	facet_wrap(~lp) +
+	# geom_rect(data = diff_rect,
+	# 		  aes(xmin = xmin,
+	# 		  	xmax = xmax,
+	# 		  	ymin = -Inf,
+	# 		  	ymax = Inf),
+	# 		  colour = NA,
+	# 		  fill = "orange",
+	# 		  alpha = 1/2,
+	# 		  inherit.aes = FALSE) +
+	# geom_line(data = epreds,
+	# 		  aes(y = .epred,
+# 		  	group = interaction(condition, .draw)),
+# 		  linetype = "solid",
+# 		  alpha = 0.1,
+# 		  linewidth = 3/4) +
+stat_summary(data = epreds,
+			 aes(y = .value),
+			 fun.data = \(x) mean_qi(x, .width = 0.95),
+			 geom = "ribbon",
+			 alpha = 0.5,
+			 linewidth = 0) +
+	stat_summary(data = epreds,
+				 aes(y = .value,
+				 	linetype = condition),
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 1/2, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	stat_summary(fun = mean,
+				 geom = "point",
+				 colour = "black",
+				 size = 2.5,
+				 stroke = 3/4) +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 colour = "Condition",
+		 fill = "Condition",
+		 linetype = "Condition",
+		 shape = "Condition") +
+	theme(legend.title = element_blank(),
+		  axis.title.x = element_blank()) +
+	
+	epreds_diff |> 
+	ggplot(aes(timebin, diff)) +
+	facet_wrap(~lp) +
+	# geom_rect(data = diff_rect,
+	# 		  aes(xmin = xmin,
+	# 		  	xmax = xmax,
+	# 		  	ymin = -Inf,
+	# 		  	ymax = Inf),
+	# 		  colour = NA,
+	# 		  fill = "orange",
+	# 		  alpha = 1/2,
+	# 		  inherit.aes = FALSE) +
+	stat_lineribbon(.width = 0.95,
+					linewidth = 0,
+					fill = "grey") +
+	stat_summary(data = epreds_diff,
+				 fun = "mean",
+				 geom = "line",
+				 colour = "black",
+				 linewidth = 3/4) +
+	geom_hline(yintercept = 0, 
+			   linewidth = 1/2,
+			   colour = "black",
+			   linetype = "dotted") +
+	# geom_point(data = diff_obs) +
+	labs(x = "Time (ms)",
+		 y = "P(Target looking)",
+		 fill = "CrI") +
+	theme(strip.text = element_blank(),
+		  legend.position = "none") +
+	
+	plot_layout(ncol = 1) &
+	plot_annotation(tag_levels = "A") +
+	scale_linetype_manual(values = rev(c("solid", "dashed"))) &
+	scale_shape_manual(values = c(1, 2)) &
+	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
+											big.mark = ",")) &
+	theme(panel.grid = element_blank(),
+		  legend.position = "top") 
+```
+
+
+
+### Cognate priming: Cognate vs. Non-cognate
+
+A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[2, 1], 3)`, *SE* = `r round(model_loo_cognate[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[3, 1], 3)`, *SE* = `r round(model_loo_cognate[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+
+
+```{r fig-cognate-vnoeach}
+#| label: fig-cognate-vnoeach
+#| fig-height: 6
+#| fig-width: 8
+#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
+epreds <- expand_grid(condition = levels(data_time_cognate_vnoeach$condition),
+					  timebin = seq(0, 17, length.out = 100),
+					  age = mean(data_time_cognate_vnoeach$age),
+					  lp = levels(data_time_cognate_vnoeach$lp),
+					  .nsamples = 1) |>
+	add_epred_draws(model_fits_cognate_vnoeach[[4]],
+					ndraws = NULL,
+					re_formula = NA) |> 
+	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
+
+epreds_diff <- epreds |> 
+	pivot_wider(names_from = condition,
+				values_from = .epred,
+				id_cols = c(timebin, age, lp, .draw),
+				names_repair = janitor::make_clean_names) |> 
+	mutate(diff = cognate - non_cognate) 
+# 
+# diff_rect <- epreds_diff |> 
+# 	mean_qi(diff) |> 
+# 	filter(.lower > 0 | .upper < 0) |> 
+# 	summarise(xmin = min(timebin),
+# 			  xmax = max(timebin),
+# 			  .by = lp)
+
+data_time_cognate_vnoeach |> 
 	summarise(.prop = mean(.prop),
 			  .by = c(id, timebin, lp, condition, age)) |> 
 	ggplot(aes(timebin, .prop, 
