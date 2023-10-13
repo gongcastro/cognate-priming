@@ -217,9 +217,9 @@ list(
 	
 	tar_target(model_names, 
 			   list(
-			   	related = apply(expand.grid("fit_related_", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -249,9 +249,9 @@ list(
 
 	tar_target(model_names_vtarget, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vtarget", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_vtarget_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vtarget", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_vtarget_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -320,9 +320,9 @@ list(
 
 	tar_target(model_names_vnone, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vnone", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_vnone_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vnone", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_vnone_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -393,9 +393,9 @@ list(
 
 	tar_target(model_names_noeach, 
 			   list(
-			   	related = apply(expand.grid("fit_related_noeach", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_noeach_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_noeach", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_noeach_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -464,9 +464,9 @@ list(
 
 	tar_target(model_names_vnoeach, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vnoeach", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_vnoeach_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vnoeach", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_vnoeach_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
