@@ -162,8 +162,6 @@ list(
 	tar_target(attrition_participants_test,
 			   test_attrition_participants(attrition_participants)),
 	
-	# prepare data for analysis ------------------------------------------------
-	
 	tar_target(data_time_related,
 			   get_data_time(gaze_aoi = gaze_aoi,
 			   			  participants = participants,
@@ -247,9 +245,8 @@ list(
 			   get_model_loos(model_fits_cognate)),
 	
 	
-	# FILTER BY ONLY TARGET WORD
-	# attrition ----------------------------------------------------------------
-	
+	# FILTER BY ONLY TARGET WORD -----------------------------------------------
+
 	tar_target(model_names_vtarget, 
 			   list(
 			   	related = apply(expand.grid("fit_related_vtarget", 1:4), 1,
@@ -275,8 +272,6 @@ list(
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,
 			   						   			   unrelated = 2))),
-	
-	# prepare data for analysis ------------------------------------------------
 	
 	tar_target(data_time_related_vtarget,
 			   get_data_time(gaze_aoi = gaze_aoi,
@@ -321,9 +316,8 @@ list(
 	tar_target(model_loo_cognate_vtarget,
 			   get_model_loos(model_fits_cognate_vtarget)),
 	
-	# FILTER BY NONE
-	# attrition ----------------------------------------------------------------
-	
+	# FILTER BY NONE -----------------------------------------------------------
+
 	tar_target(model_names_vnone, 
 			   list(
 			   	related = apply(expand.grid("fit_related_vnone", 1:4), 1,
@@ -395,9 +389,8 @@ list(
 	tar_target(model_loo_cognate_vnone,
 			   get_model_loos(model_fits_cognate_vnone)),
 	
-	# FILTER BY NO EACH
-	# attrition ----------------------------------------------------------------
-	
+	# FILTER BY NO EACH --------------------------------------------------------
+
 	tar_target(model_names_noeach, 
 			   list(
 			   	related = apply(expand.grid("fit_related_noeach", 1:4), 1,
@@ -423,8 +416,6 @@ list(
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,
 			   						   			   unrelated = 2))),
-	
-	# prepare data for analysis ------------------------------------------------
 	
 	tar_target(data_time_related_noeach,
 			   get_data_time(gaze_aoi = gaze_aoi,
@@ -469,9 +460,8 @@ list(
 	tar_target(model_loo_cognate_noeach,
 			   get_model_loos(model_fits_cognate_noeach)),
 	
-	# FILTER BY PRIME TARGET, NO EACH
-	# attrition ----------------------------------------------------------------
-	
+	# FILTER BY PRIME TARGET, NO EACH ------------------------------------------
+
 	tar_target(model_names_vnoeach, 
 			   list(
 			   	related = apply(expand.grid("fit_related_vnoeach", 1:4), 1,
@@ -497,8 +487,6 @@ list(
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,
 			   						   			   unrelated = 2))),
-	
-	# prepare data for analysis ------------------------------------------------
 	
 	tar_target(data_time_related_vnoeach,
 			   get_data_time(gaze_aoi = gaze_aoi,
