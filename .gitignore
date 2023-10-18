@@ -17,6 +17,7 @@ _targets/objects/
 img/**/*.png
 **/data-raw/eyetracking-barcelona/*.csv
 **/data-raw/eyetracking-oxford/*.csv
+**/data-raw/eyetracking/*.csv
 
 documents/
 presentations/
