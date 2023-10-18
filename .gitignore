@@ -5,8 +5,7 @@
 .Renviron
 
 _targets/
-_targets/meta/
-_targets/objects/
+_targets.yaml
 
 **/*.pptx
 **/*.pdf
@@ -25,7 +24,6 @@ presentations/
 data-raw/eyetracking/*.csv
 /.luarc.json
 nul
-_targets.yaml
 docs/_targets.yaml
 manuscript/_targets.yaml
 results/fits/*.rds
