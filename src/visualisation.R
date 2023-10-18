@@ -465,52 +465,52 @@ make_plots_gaze_processed <- function(data_time,
 	}
 }
 
-plot_data <- gaze_aoi |> 
-	left_join(attrition_trials,
-			  by = join_by(id, age_group, trial, trial_type)) |> 
-	left_join(attrition_participants,
-			  by = join_by(id, age_group)) |> 
-	left_join(select(participants, id, filename, test_language, list, version),
-			  by = join_by(id, filename)) |> 
-	mutate(target_y = ifelse(target_location=="l", 
-							 mean(c(aoi_coords$left[["xmin"]],
-							 	   aoi_coords$left[["xmax"]])), 
-							 mean(c(aoi_coords$right[["xmin"]],
-							 	   aoi_coords$right[["xmax"]]))), 
-		   target_y = ifelse(phase=="Prime", NA, target_y)) |> 
-	pivot_longer(c(x, y), names_to = "dim", values_to = "value") |> 
-	mutate(
-		target_y = ifelse(dim=="y", NA, target_y),
-		id_age_group = paste0(id, " (", age_group, ")"),
-		is_imputed = factor(is_imputed, 
-							levels = c(FALSE, TRUE),
-							labels = c("Observed", "Imputed")),
-		is_phase_valid = ifelse(phase=="Prime", 
-								is_valid_gaze_prime,
-								is_valid_gaze_test & is_valid_gaze_test_each),
-		phase = factor(phase,
-					   levels = c("Prime", "Target-Distractor"), 
-					   labels = c("Prime", "Target")),
-		phase_dim = paste0(phase, " - ", dim)
-	) |> 
-	arrange(id, age_group, trial, phase, timestamp)
+# plot_data <- gaze_aoi |> 
+# 	left_join(attrition_trials,
+# 			  by = join_by(id, age_group, trial, trial_type)) |> 
+# 	left_join(attrition_participants,
+# 			  by = join_by(id, age_group)) |> 
+# 	left_join(select(participants, id, filename, test_language, list, version),
+# 			  by = join_by(id, filename)) |> 
+# 	mutate(target_y = ifelse(target_location=="l", 
+# 							 mean(c(aoi_coords$left[["xmin"]],
+# 							 	   aoi_coords$left[["xmax"]])), 
+# 							 mean(c(aoi_coords$right[["xmin"]],
+# 							 	   aoi_coords$right[["xmax"]]))), 
+# 		   target_y = ifelse(phase=="Prime", NA, target_y)) |> 
+# 	pivot_longer(c(x, y), names_to = "dim", values_to = "value") |> 
+# 	mutate(
+# 		target_y = ifelse(dim=="y", NA, target_y),
+# 		id_age_group = paste0(id, " (", age_group, ")"),
+# 		is_imputed = factor(is_imputed, 
+# 							levels = c(FALSE, TRUE),
+# 							labels = c("Observed", "Imputed")),
+# 		is_phase_valid = ifelse(phase=="Prime", 
+# 								is_valid_gaze_prime,
+# 								is_valid_gaze_test & is_valid_gaze_test_each),
+# 		phase = factor(phase,
+# 					   levels = c("Prime", "Target-Distractor"), 
+# 					   labels = c("Prime", "Target")),
+# 		phase_dim = paste0(phase, " - ", dim)
+# 	) |> 
+# 	arrange(id, age_group, trial, phase, timestamp)
+# 
+# saveRDS(plot_data, "docs/plot_data.rds")
 
-saveRDS(plot_data, "docs/plot_data.rds")
-
-job::job(
-	title = "Gaze plots", 
-	{
-		make_plots_gaze(gaze_aoi, 
-						aoi_coords,
-						participants,
-						stimuli,
-						attrition_trials,
-						attrition_participants)
-		
-		make_plots_heatmap(gaze_aoi, 
-						   aoi_coords,
-						   participants,
-						   stimuli,
-						   attrition_trials,
-						   attrition_participants)
-	})
+# job::job(
+# 	title = "Gaze plots", 
+# 	{
+# 		make_plots_gaze(gaze_aoi, 
+# 						aoi_coords,
+# 						participants,
+# 						stimuli,
+# 						attrition_trials,
+# 						attrition_participants)
+# 		
+# 		make_plots_heatmap(gaze_aoi, 
+# 						   aoi_coords,
+# 						   participants,
+# 						   stimuli,
+# 						   attrition_trials,
+# 						   attrition_participants)
+# 	})
