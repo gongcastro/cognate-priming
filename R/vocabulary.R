@@ -35,6 +35,8 @@ get_vocabulary <- function(participants, # participants dataset (get_participant
 		select(filename, is_imputed, matches("prop|count|contents")) |> 
 		distinct(filename, .keep_all = TRUE)
 	
+	test_vocabulary(vocabulary)
+	
 	return(vocabulary)
 }
 
@@ -169,3 +171,190 @@ get_vocabulary_contents <- function(participants,
 	return(contents)
 	
 }
+
+
+# Oxford functions -------------------------------------------------------------
+
+#' Import and process vocabulary data
+get_vocabulary_oxf <- function(vocabulary_file, participants) {
+	
+	participants_tmp <- participants |> 
+		select(id, id_vocab, id_vocab_response) |> 
+		drop_na()
+	
+	cdi_full <- get_cdi_full_oxf(vocabulary_file)
+	cdi_extended <- get_cdi_extended_oxf(vocabulary_file)
+	cdi_supplementary <- get_supplementary_oxf(vocabulary_file)
+	
+	vocabulary_tmp <- lst(cdi_full, cdi_extended) |> 
+		bind_rows(.id = "version") |> 
+		relocate(unique_id, response_id, semantic_category, item, response) |> 
+		rename(id_vocab = unique_id,
+			   id_vocab_response = response_id) |> 
+		summarise(n_total = n(),
+				  total_prop = mean(response, na.rm = TRUE),
+				  total_count = sum(response, na.rm = TRUE),
+				  vocab_contents = list(item[response]),
+				  .by = c(id_vocab, id_vocab_response)) 
+	
+	vocabulary_id <- vocabulary_tmp |> 
+		select(-id_vocab_response) |>
+		distinct(id_vocab, .keep_all = TRUE) |> 
+		inner_join(select(participants_tmp, id, id_vocab),
+				   by = join_by(id_vocab)) |>  
+		select(-id_vocab)
+	
+	vocabulary_id_response <- vocabulary_tmp |> 
+		distinct(id_vocab_response, .keep_all = TRUE) |> 
+		inner_join(select(participants_tmp, id, id_vocab_response),
+				   by = join_by(id_vocab_response)) |>  
+		select(-c(id_vocab, id_vocab_response))
+	
+	vocabulary <- cdi_supplementary |> 
+		left_join(vocabulary_id, by = join_by(id)) |> 
+		left_join(vocabulary_id_response,
+				  by = join_by(id, n_total, total_prop, total_count,
+				  			 vocab_contents)) |> 
+		relocate(id)
+	
+	return(vocabulary)
+	
+}
+
+#' Get responses from CDI (full version)
+get_cdi_full_oxf <- function(vocabulary_file) {
+	
+	# cdi_full ---------------------------------------------------------------------
+	
+	category_names <- c("sounds",
+						"animals",
+						"vehicles",
+						"toys",
+						"food_and_drink",
+						"body_parts",
+						"clothes",
+						"furniture",
+						"outside",
+						"household_items",
+						"people",
+						"games_and_routines",
+						"action_words",
+						"descriptive_words",
+						"question_words",
+						"time",
+						"pronouns_and_possessives",
+						"prepositions_and_location_words",
+						"quantifiers")
+	
+	cdi_full <- readxl::read_xlsx(vocabulary_file, 
+								  sheet = "CDI_full",
+								  .name_repair = janitor::make_clean_names,
+								  na = c("N/A", "NA", "", "?", "none")) |> 
+		relocate(unique_id, premature_birth, hearing_problems, comments) |>  
+		mutate(across(sounds_baa_baa_sheep:quantifiers_some,
+					  recode_responses),
+			   across(c(premature_birth, hearing_problems),
+			   	   \(x) !grepl("no", tolower(x))),
+			   age_in_months = as.numeric(gsub("[^0-9.-]", "", age_in_months))) |> 
+		filter(finished) |> 
+		select(unique_id, response_id, recorded_date,
+			   sounds_baa_baa_sheep:quantifiers_some) |> 
+		drop_na(unique_id, response_id) |> 
+		pivot_longer(sounds_baa_baa_sheep:quantifiers_some,
+					 names_to = "item",
+					 values_to = "response") |> 
+		mutate(semantic_category = str_extract(item,
+											   paste0(category_names, 
+											   	   collapse = "|")),
+			   item = gsub(paste0(paste0(category_names, "_"),
+			   				   collapse = "|"), "", item))
+	
+	return(cdi_full)
+}
+
+#' Get CDI extended
+get_cdi_extended_oxf <- function(vocabulary_file) {
+	
+	category_names_2 <- c("animal_sounds",
+						  "animals",
+						  "vehicles",
+						  "toys",
+						  "food_and_drink",
+						  "body_parts",
+						  "clothes",
+						  "furniture_and_rooms",
+						  "outside",
+						  "household_items",
+						  "people",
+						  "games_and_routines",
+						  "action_words",
+						  "action",
+						  "descriptive_words",
+						  "question_words",
+						  "time",
+						  "pronouns",
+						  "prepositions",
+						  "quantifiers")
+	
+	cdi_ext <- readxl::read_xlsx(vocabulary_file, 
+								 sheet = "CDI_ext",
+								 .name_repair = janitor::make_clean_names,
+								 na = c("N/A", "NA", "", "?", "none")) |> 
+		relocate(premature_birth, hearing_problems, comments) |>  
+		mutate(across(animal_sounds_baa_baa:online_youtube,
+					  recode_responses),
+			   across(c(premature_birth, hearing_problems),
+			   	   \(x) !grepl("no", tolower(x)))) |> 
+		filter(finished) |> 
+		select(response_id, recorded_date,
+			   animal_sounds_baa_baa:online_youtube) |> 
+		drop_na(response_id) |> 
+		pivot_longer(animal_sounds_baa_baa:online_youtube,
+					 names_to = "item",
+					 values_to = "response") |> 
+		mutate(semantic_category = str_extract(item,
+											   paste0(category_names_2, 
+											   	   collapse = "|")),
+			   item = gsub(paste0(paste0(category_names_2, "_"),
+			   				   collapse = "|"), "", item))
+	
+	return(cdi_ext)
+}
+
+#' Get supplementary vocabulary
+get_supplementary_oxf <- function(vocabulary_file) {
+	
+	supplementary <- readxl::read_xlsx(vocabulary_file, 
+									   col_types = "text",
+									   sheet = "Supplementary",
+									   .name_repair = janitor::make_clean_names,
+									   na = c("N/A", "NA", "", "?", "none")) |> 
+		drop_na(participant_id) |> 
+		mutate(across(-participant_id, recode_responses)) |> 
+		pivot_longer(-participant_id,
+					 names_to = "item",
+					 values_to = "response") |> 
+		rename(id = participant_id) |> 
+		summarise(vocab_contents_supp = list(item[response]),
+				  vocab_sum_supp = sum(response, na.rm = TRUE),
+				  vocab_n_supp = n(), 
+				  .by = id)
+	
+	return(supplementary)
+}
+
+#' Recode CDI responses
+recode_responses <- function(x) {
+	
+	suppressWarnings({
+		y <- case_when(x %in% c("N", "No") ~ "0",
+					   x %in% c("U", "U/S") ~ "1",
+					   .default = x)
+		y <- as.logical(as.numeric(y))
+	})
+	
+	return(y)
+}
+
+
+
