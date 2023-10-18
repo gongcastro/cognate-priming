@@ -12,8 +12,11 @@ targets::tar_load_globals()
 
 targets::tar_load(
 	c(participants,
+	  participants_oxf,
 	  stimuli,
+	  stimuli_oxf,
 	  vocabulary,
+	  vocabulary_oxf,
 	  attrition_trials, 
 	  attrition_participants,
 	  attrition_trials_vtarget,
@@ -24,6 +27,16 @@ targets::tar_load(
 	  attrition_participants_noeach,
 	  attrition_trials_vnoeach,
 	  attrition_participants_vnoeach,
+	  attrition_trials_oxf, 
+	  attrition_participants_oxf,
+	  attrition_trials_vtarget_oxf,
+	  attrition_participants_vtarget_oxf,
+	  attrition_trials_vnone_oxf, 
+	  attrition_participants_vnone_oxf,
+	  attrition_trials_noeach_oxf,
+	  attrition_participants_noeach_oxf,
+	  attrition_trials_vnoeach_oxf,
+	  attrition_participants_vnoeach_oxf,
 	  bvq_data, 
 	  gaze_aoi, 
 	  looking_times,
@@ -36,7 +49,18 @@ targets::tar_load(
 	  data_time_related_noeach, 
 	  data_time_cognate_noeach,
 	  data_time_related_vnoeach,
-	  data_time_cognate_vnoeach))
+	  data_time_cognate_vnoeach,
+	  data_time_related_oxf, 
+	  data_time_cognate_oxf,
+	  data_time_related_vtarget_oxf,
+	  data_time_cognate_vtarget_oxf,
+	  data_time_related_vnone_oxf,
+	  data_time_cognate_vnone_oxf,
+	  data_time_related_noeach_oxf, 
+	  data_time_cognate_noeach_oxf,
+	  data_time_related_vnoeach_oxf,
+	  data_time_cognate_vnoeach_oxf
+	))
 
 targets::tar_load(
 	c(model_fits_related,
@@ -48,17 +72,17 @@ targets::tar_load(
 	  model_fits_related_noeach,
 	  model_fits_cognate_noeach,
 	  model_fits_related_vnoeach,
-	  model_fits_cognate_vnoeach,
-	  model_loo_related,
-	  model_loo_cognate,
-	  model_loo_related_vtarget,
-	  model_loo_cognate_vtarget,
-	  model_loo_related_vnone,
-	  model_loo_cognate_vnone,
-	  model_loo_related_noeach,
-	  model_loo_cognate_noeach,
-	  model_loo_related_vnoeach,
-	  model_loo_cognate_vnoeach
+	  model_fits_cognate_vnoeach
+	  # model_loo_related,
+	  # model_loo_cognate,
+	  # model_loo_related_vtarget,
+	  # model_loo_cognate_vtarget,
+	  # model_loo_related_vnone,
+	  # model_loo_cognate_vnone,
+	  # model_loo_related_noeach,
+	  # model_loo_cognate_noeach,
+	  # model_loo_related_vnoeach,
+	  # model_loo_cognate_vnoeach
 	))
 
 
@@ -105,20 +129,26 @@ participants <- participants |>
 attrition_participants_vtarget <- attrition_participants_vtarget |> 
 	left_join(select(participants, id, age_group, lp, filename))
 
-attrition_trials_vtarget <- left_join(attrition_trials_vtarget, 
-									  select(participants, id, age_group, lp, filename))
+attrition_trials_vtarget <- attrition_trials_vtarget |> 
+	left_join(select(participants, id, age_group, lp, filename))
 
 attrition_participants_vnone <- attrition_participants_vnone |> 
 	left_join(select(participants, id, age_group, lp, filename))
 
-attrition_trials_vnone <- left_join(attrition_trials_vnone, 
-									select(participants, id, age_group, lp, filename))
+attrition_trials_vnone <- attrition_trials_vnone |> 
+	left_join(select(participants, id, age_group, lp, filename))
 
 attrition_participants_noeach <- attrition_participants_noeach |> 
 	left_join(select(participants, id, age_group, lp, filename))
 
-attrition_trials_noeach <- left_join(attrition_trials_noeach, 
-									 select(participants, id, age_group, lp, filename))
+attrition_trials_noeach <- attrition_trials_noeach |> 
+	left_join(select(participants, id, age_group, lp, filename))
+
+attrition_participants_vnoeach <- attrition_participants_vnoeach |> 
+	left_join(select(participants, id, age_group, lp, filename))
+
+attrition_trials_vnoeach <- attrition_trials_vnoeach |> 
+	left_join(select(participants, id, age_group, lp, filename))
 
 ```
 
@@ -204,65 +234,54 @@ We assessed participants' language profile using the Language Exposure Questionn
 ```{r}
 #| label: tbl-participants-lp
 #| tbl-cap: "Description of language profile of test participants. Data are summarised for each age group, and for monolinguals and bilinguals separately."
-participants |> 
+participants_oxf |> 
+	left_join(attrition_participants_oxf,
+			  by = join_by(id)) |> 
+	mutate(lp = "Monolingual (English)",
+		   id = as.character(id)) |> 
+	bind_rows(mutate(participants, id = as.character(id))) |> 
 	filter(is_valid_participant) |> 
-	select(id, age_group, age, lp,
-		   doe_catalan, doe_spanish, test_language) |> 
-	mutate(id = paste0(id, " (", age_group, ")")) |>
+	select(id, age_group, age, lp, test_language) |> 
 	add_count(lp, 
 			  name = "n_lp") |> 
 	add_count(age_group, 
 			  name = "n_age_group") |> 
-	pivot_longer(starts_with("doe_"),
-				 names_to = "language",
-				 values_to = "doe") |>
 	add_count(age_group,
 			  test_language,
 			  name = "n_age_test") |> 
-	mutate(language = str_to_sentence(str_remove_all(language, "doe_")),
-		   age_group = paste0(age_group, " (N = ", n_age_group, ")"),
-		   test_language = paste0("Tested in ", test_language, 
-		   					   " (N = ", n_age_test, ")"),
-		   lp = factor(lp, levels = rev(unique(lp))))  |> 
-	summarise(across(c(doe, age), lst(mean, sd)),
-			  .by = c(age_group, lp, test_language, language)) |> 
-	pivot_wider(id_cols = c(age_group, test_language),
-				names_from = c(language, lp),
-				values_from = c(matches("doe"), age_mean, age_sd),
+	mutate(lp = factor(lp, levels = rev(unique(lp))))  |> 
+	summarise(across(c(age), lst(mean, sd)),
+			  n = n(),
+			  .by = c(age_group, lp, test_language)) |> 
+	pivot_wider(id_cols = c(test_language, lp),
+				names_from = c(age_group),
+				values_from = c(matches("doe"), age_mean, age_sd, n),
 				names_repair = janitor::make_clean_names) |> 
-	relocate(age_group, test_language,
-			 matches("monolingual"),
-			 matches("bilingual")) |> 
-	select(-c(age_mean_spanish_monolingual,
-			  age_mean_spanish_bilingual,
-			  age_sd_spanish_monolingual,
-			  age_sd_spanish_bilingual)) |> 
-	arrange(age_group, test_language) |> 
+	relocate(lp, test_language,
+			 matches("21"),
+			 matches("25"),
+			 matches("30"),
+	) |> 
+	arrange(lp, test_language) |> 
 	gt(rowname_col = "test_language", 
-	   groupname_col = "age_group", 
+	   groupname_col = "lp", 
 	   row_group.sep = ": ") |> 
-	tab_spanner(md("Monolingual (*N* = 162)"), matches("monolingual")) |> 
-	tab_spanner(md("Bilingual (*N* = 133)"), matches("bilingual")) |>
-	fmt_number(matches("doe"), decimals = 1, scale_by = 100) |> 
-	fmt_number(matches("age"), decimals = 1) |> 
-	cols_merge_uncert(col_val = age_mean_catalan_monolingual, 
-					  col_uncert = age_sd_catalan_monolingual) |> 
-	cols_merge_uncert(col_val = age_mean_catalan_bilingual, 
-					  col_uncert = age_sd_catalan_bilingual) |> 
-	cols_merge_uncert(col_val = doe_mean_catalan_monolingual,
-					  col_uncert = doe_sd_catalan_monolingual) |> 
-	cols_merge_uncert(col_val = doe_mean_catalan_bilingual,
-					  col_uncert = doe_sd_catalan_bilingual) |> 
-	cols_merge_uncert(col_val = doe_mean_spanish_monolingual, 
-					  col_uncert = doe_sd_spanish_monolingual) |> 
-	cols_merge_uncert(col_val = doe_mean_spanish_bilingual, 
-					  col_uncert = doe_sd_spanish_bilingual) |> 
-	cols_label(age_mean_catalan_monolingual = "Age (months)",
-			   age_mean_catalan_bilingual = "Age (months)",
-			   doe_mean_catalan_monolingual = "Catalan (%)",
-			   doe_mean_catalan_bilingual = "Catalan (%)",
-			   doe_mean_spanish_monolingual = "Spanish (%)",
-			   doe_mean_spanish_bilingual = "Spanish (%)") |> 
+	tab_spanner(md("21 months"), matches("21")) |> 
+	tab_spanner(md("25 months"), matches("25")) |>
+	tab_spanner(md("30 months"), matches("30")) |> 
+	fmt_number(matches("age"), decimals = 1) |>
+	cols_merge(c(age_mean_21_months, age_sd_21_months),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(age_mean_25_months, age_sd_25_months),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(age_mean_30_months, age_sd_30_months),
+			   pattern = "{1} ({2})") |> 
+	cols_label(n_21_months = md("*N*"),
+			   n_25_months = md("*N*"),
+			   n_30_months = md("*N*"),
+			   age_mean_21_months = "Age (months)",
+			   age_mean_25_months = "Age (months)",
+			   age_mean_30_months = "Age (months)") |> 
 	tab_style(cell_text(weight = "bold"),
 			  list(cells_column_spanners())) |> 
 	tab_style(cell_text(size = "medium"),
@@ -271,7 +290,7 @@ participants |>
 ```
 
 
-## Vocabulary size
+### Vocabulary size
 
 ```{r vocab-values}
 n_imputed <- table(vocabulary$is_imputed)[2]
@@ -288,7 +307,8 @@ We calculated several measures of receptive vocabulary size from each participan
 
 ```{r tbl-vocabulary}
 #| label: tbl-vocabulary
-#| tbl-cap: "Vocabulary sizes. Total: proportion of words in both languages marked as *Understands*. L1: proportion of words in the dominant language marked as *Understands*. L2: proportion of words in the non-cominant language marked as *Understands*. Conceptual: proportion of translation equivalents for which at least one of the words has ben marked as *Understands*. TE: proportion of translation equivalents for which *both* words have been marked as *Understands*."
+#| tbl-cap: "Summary of participant vocabulary sizes. vocabulary sizes are expressed as percentage points, and summarised as the mean (*M*) and the standard deviation (*SD*). Total: proportion of words in both languages marked as *Understands*. L1: proportion of words in the dominant language marked as *Understands*. L2: proportion of words in the non-cominant language marked as *Understands*. Conceptual: proportion of translation equivalents for which at least one of the words has ben marked as *Understands*. TE: proportion of translation equivalents for which *both* words have been marked as *Understands*."
+#| eval: false
 vocabulary |> 
 	left_join(select(participants, filename, id, age_group, lp),
 			  by = join_by(filename)) |> 
@@ -299,24 +319,26 @@ vocabulary |>
 	gt(groupname_col = "age_group",
 	   rowname_col = "lp") |> 
 	cols_hide(lp) |> 
-	tab_spanner("Total ", matches("total")) |> 
-	tab_spanner("L1", matches("l1")) |> 
-	tab_spanner("L2", matches("l2")) |> 
-	tab_spanner("Conceptual", matches("concept")) |> 
-	tab_spanner("TE", matches("te_")) |> 
-	tab_spanner("Vocabulary size (%)", matches("prop_")) |> 
-	cols_merge_uncert(total_prop_mean, total_prop_sd) |> 
-	cols_merge_uncert(l1_prop_mean, l1_prop_sd) |> 
-	cols_merge_uncert(l2_prop_mean, l2_prop_sd) |> 
-	cols_merge_uncert(concept_prop_mean, concept_prop_sd) |> 
-	cols_merge_uncert(te_prop_mean, te_prop_sd) |> 
-	fmt_number(is.numeric, 
-			   drop_trailing_zeros = FALSE) |> 
-	cols_label(total_prop_mean = "Mean (SD)",
-			   l1_prop_mean = "Mean (SD)",
-			   l2_prop_mean = "Mean (SD)",
-			   concept_prop_mean = "Mean (SD)",
-			   te_prop_mean = "Mean (SD)") |> 
+	tab_spanner("Vocabulary size ", matches("prop")) |> 
+	cols_merge(c(total_prop_mean, total_prop_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(l1_prop_mean, l1_prop_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(l2_prop_mean, l2_prop_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(concept_prop_mean, concept_prop_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(te_prop_mean, te_prop_sd),
+			   pattern = "{1} ({2})") |> 
+	fmt_number(is.numeric,
+			   decimals = 1,
+			   scale_by = 100,
+			   drop_trailing_zeros = FALSE) |>
+	cols_label(total_prop_mean = "Total",
+			   l1_prop_mean = "L1",
+			   l2_prop_mean = "L2",
+			   concept_prop_mean = "Concept",
+			   te_prop_mean = "TE") |> 
 	tab_stub_indent(rows = everything(),
 					indent = 2) |> 
 	tab_style(cell_text(align = "left"),
@@ -359,31 +381,26 @@ stimuli |>
 	select(-matches("familiarity_se"), -matches("prime"),
 		   -c(is_animate_target_sd,
 		      is_animate_target_min,
-		      is_animate_target_max)) |> 
+		      is_animate_target_max),
+		   -matches("min"), -matches("max")) |> 
 	gt(groupname_col = "test_language",
 	   rowname_col = "list") |> 
-	tab_spanner("Prevalence (%)", matches("familiarity")) |> 
-	tab_spanner("Frequency (Zipf)", matches("freq")) |>
-	tab_spanner("Animacy (%)", matches("animate")) |> 
-	tab_spanner("Duration (s)", matches("duration")) |> 
-	fmt_number(is.numeric) |> 
-	cols_merge_range(familiarity_target_min, familiarity_target_max) |> 
-	cols_merge_range(freq_target_min, freq_target_max) |> 
-	cols_merge_range(duration_min, duration_max) |>
-	cols_merge_uncert(freq_target_mean, freq_target_sd) |> 
-	cols_merge_uncert(familiarity_target_mean, familiarity_target_sd) |> 
-	cols_merge_uncert(duration_mean, duration_sd) |> 
+	fmt_number(is.numeric,
+			   decimals = 1) |> 
+	fmt_number(matches("familiarity|animate"),
+			   scale_by = 100,
+			   decimals = 1) |> 
+	cols_merge(c(freq_target_mean, freq_target_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(familiarity_target_mean, familiarity_target_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(duration_mean, duration_sd),
+			   pattern = "{1} ({2})") |> 
 	cols_label(trial_type = "",
-			   familiarity_target_mean = "Mean ± SD",
-			   # familiarity_target_sd = "SD",
-			   familiarity_target_min = "Range",
-			   freq_target_mean = "Mean ± SD",
-			   # freq_target_sd = "SD",
-			   freq_target_min = "Range",
-			   is_animate_target_mean = "",
-			   duration_mean = "Mean ± SD",
-			   # duration_sd = "SD",
-			   duration_min = "Range") 
+			   familiarity_target_mean = "Prevalence (%)",
+			   freq_target_mean = "Frequency",
+			   is_animate_target_mean = "Animacy (%)",
+			   duration_mean = "Duration (s)") 
 ```
 
 
@@ -427,28 +444,92 @@ We know present the results under four different trial-level inclusion criteria 
 
 For reference:
 
-* [@floccia2020] requires participants to know prime and target, but not to look at target *and* distractor (looking at at least one of them is enough).
+* [@floccia2020translation] requires participants to know prime and target, but not to look at target *and* distractor (looking at at least one of them is enough).
 
 The fact that in some time course analyses participants seem to be looking predominantly towards one of the objects (despite the target and distractor pictures having been presented less than 300 ms before) is a common finding in previous studies using preferential looking procedures [e.g., @floccia2020translation].
 
+```{r tbl-multi-trials}
+tibble::lst(data_time_related,
+			data_time_related_oxf,
+			data_time_related_vtarget,
+			data_time_related_vtarget_oxf,
+			data_time_related_vnone,
+			data_time_related_vnone_oxf,
+			data_time_related_noeach,
+			data_time_related_noeach_oxf,
+			data_time_related_vnoeach,
+			data_time_related_vnoeach_oxf) |> 
+	bind_rows(.id = "analysis") |>
+	mutate(analysis_lab = case_when(
+		analysis=="data_time_related" ~ "Analysis 1",
+		grepl("_vtarget", analysis) ~ "Analysis 2",
+		grepl("_vnone", analysis) ~ "Analysis 3",
+		grepl("_noeach", analysis) ~ "Analysis 4",
+		grepl("_vnoeach", analysis) ~ "Analysis 5",
+		.default = "Analysis 1"
+	),
+	lp = case_when(grepl("_oxf", analysis) ~ "Monolingual (Oxford)", 
+				   lp=="Bilingual" ~ "Bilingual (Barcelona)",
+				   .default = "Monolingual (Barcelona)"),
+	lp = factor(lp, 
+				levels = c("Monolingual (Oxford)",
+						   "Monolingual (Barcelona)",
+						   "Bilingual (Barcelona)")),
+	condition = factor(condition, levels = c("Related", "Unrelated"))) |> 
+	distinct(analysis, analysis_lab, lp, condition, .ntrials) |> 
+	summarise(.ntrials = sum(.ntrials),
+			  .by = c(lp, analysis_lab, condition)) |> 
+	pivot_wider(names_from = c(lp, condition),
+				values_from = .ntrials,
+				names_repair = janitor::make_clean_names) |> 
+	relocate(matches("oxford"), matches("barcelona")) |> 
+	gt(rowname_col = "analysis_lab") |> 
+	tab_spanner("Monolingual", matches("monolingual")) |> 
+	tab_spanner("Bilingual", matches("bilingual")) |> 
+	tab_spanner("Barcelona", matches("barcelona")) |> 
+	tab_spanner("Oxford", matches("oxford")) |> 
+	
+	
+	cols_label(monolingual_oxford_related = "Related",
+			   monolingual_oxford_unrelated = "Unrelated",
+			   monolingual_barcelona_related = "Related",
+			   monolingual_barcelona_unrelated = "Unrelated",
+			   bilingual_barcelona_related = "Related",
+			   bilingual_barcelona_unrelated = "Unrelated")
+
+
+```
+
 ```{r fig-related-summary}
 #| label: fig-related-summary
-#| fig-height: 10
+#| fig-height: 6.5
 #| fig-width: 8
 #| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
 tibble::lst(data_time_related,
+			data_time_related_oxf,
 			data_time_related_vtarget,
+			data_time_related_vtarget_oxf,
 			data_time_related_vnone,
+			data_time_related_vnone_oxf,
 			data_time_related_noeach,
-			data_time_related_vnoeach) |> 
+			data_time_related_noeach_oxf,
+			data_time_related_vnoeach,
+			data_time_related_vnoeach_oxf) |> 
 	bind_rows(.id = "analysis") |>
-	mutate(analysis = case_when(
+	mutate(analysis_lab = case_when(
 		analysis=="data_time_related" ~ "Analysis 1",
-		analysis=="data_time_related_vtarget" ~ "Analysis 2",
-		analysis=="data_time_related_vnone" ~ "Analysis 3",
-		analysis=="data_time_related_noeach" ~ "Analysis 4",
-		analysis=="data_time_related_vnoeach" ~ "Analysis 5"
-	)) |> 
+		grepl("_vtarget", analysis) ~ "Analysis 2",
+		grepl("_vnone", analysis) ~ "Analysis 3",
+		grepl("_noeach", analysis) ~ "Analysis 4",
+		grepl("_vnoeach", analysis) ~ "Analysis 5",
+		.default = "Analysis 1"
+	),
+	lp = ifelse(grepl("_oxf", analysis), 
+				"Monolingual (English)", 
+				as.character(lp)),
+	lp = factor(lp, levels = c("Monolingual (English)",
+							   "Monolingual",
+							   "Bilingual"))) |> 
 	# summarise(.elog_mean = mean(.elog),
 	# 		  n = n(),
 	# 		  .elog_std = sd(.elog),
@@ -458,7 +539,7 @@ tibble::lst(data_time_related,
 			   colour = condition,
 			   fill = condition,
 			   shape = condition)) +
-	facet_grid(analysis~lp) +
+	facet_grid(analysis_lab~lp) +
 	geom_hline(yintercept = 0.5, 
 			   linewidth = 1/2,
 			   colour = "black",
@@ -486,27 +567,42 @@ tibble::lst(data_time_related,
 	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
 											big.mark = ",")) +
 	theme(legend.title = element_blank(),
-		  axis.title.x = element_blank()) 
+		  axis.title.x = element_blank(),
+		  panel.border = element_rect(fill = NA),
+		  axis.line = element_line(),
+		  legend.position = "top") 
 ```
 
 ```{r fig-cognate-summary}
 #| label: fig-cognate-summary
-#| fig-height: 10
+#| fig-height: 6.5
 #| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
+#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
 tibble::lst(data_time_cognate,
+			data_time_cognate_oxf,
 			data_time_cognate_vtarget,
+			data_time_cognate_vtarget_oxf,
 			data_time_cognate_vnone,
+			data_time_cognate_vnone_oxf,
 			data_time_cognate_noeach,
-			data_time_cognate_vnoeach) |> 
+			data_time_cognate_noeach_oxf,
+			data_time_cognate_vnoeach,
+			data_time_cognate_vnoeach_oxf) |> 
 	bind_rows(.id = "analysis") |>
-	mutate(analysis = case_when(
+	mutate(analysis_lab = case_when(
 		analysis=="data_time_cognate" ~ "Analysis 1",
-		analysis=="data_time_cognate_vtarget" ~ "Analysis 2",
-		analysis=="data_time_cognate_vnone" ~ "Analysis 3",
-		analysis=="data_time_cognate_noeach" ~ "Analysis 4",
-		analysis=="data_time_cognate_vnoeach" ~ "Analysis 5"
-	)) |> 
+		grepl("_vtarget", analysis) ~ "Analysis 2",
+		grepl("_vnone", analysis) ~ "Analysis 3",
+		grepl("_noeach", analysis) ~ "Analysis 4",
+		grepl("_vnoeach", analysis) ~ "Analysis 5",
+		.default = "Analysis 1"
+	),
+	lp = ifelse(grepl("_oxf", analysis), 
+				"Monolingual (English)", 
+				as.character(lp)),
+	lp = factor(lp, levels = c("Monolingual (English)",
+							   "Monolingual",
+							   "Bilingual"))) |> 
 	# summarise(.elog_mean = mean(.elog),
 	# 		  n = n(),
 	# 		  .elog_std = sd(.elog),
@@ -516,7 +612,7 @@ tibble::lst(data_time_cognate,
 			   colour = condition,
 			   fill = condition,
 			   shape = condition)) +
-	facet_grid(analysis~lp) +
+	facet_grid(analysis_lab~lp) +
 	geom_hline(yintercept = 0.5, 
 			   linewidth = 1/2,
 			   colour = "black",
@@ -544,8 +640,12 @@ tibble::lst(data_time_cognate,
 	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
 											big.mark = ",")) +
 	theme(legend.title = element_blank(),
-		  axis.title.x = element_blank()) 
+		  axis.title.x = element_blank(),
+		  panel.border = element_rect(fill = NA),
+		  axis.line = element_line(),
+		  legend.position = "top")
 ```
+
 ## Analysis 1
 
 Participants must know **prime** *and* **target** words, and must look at least 10 ms to each target and distractor.
@@ -617,14 +717,17 @@ attrition_trials |>
 			   pattern = "{1} ({2})") |> 
 	cols_merge(c(sum_unrelated, n_excluded_unrelated),
 			   pattern = "{1} ({2})") |> 
-	cols_merge_uncert(mean_cognate, sd_cognate) |> 
-	cols_merge_uncert(mean_noncognate, sd_noncognate) |> 
-	cols_merge_uncert(mean_unrelated, sd_unrelated) |> 
+	cols_merge(c(mean_cognate, sd_cognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_noncognate, sd_noncognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_unrelated, sd_unrelated),
+			   pattern = "{1} ({2})") |>
 	tab_spanner("Cognate trials", ends_with("_cognate")) |>
 	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
 	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
 	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd")) |> 
+	fmt_number(matches("mean|sd"), decimals = 1) |> 
 	fmt_integer(matches("sum"), sep_mark = ",") |> 
 	cols_label(sum_cognate = "N",
 			   sum_noncognate = "N",
@@ -637,7 +740,8 @@ attrition_trials |>
 
 ### Phonological priming: Related vs. Unrelated
 
-A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related[2, 1], 3)`, *SE* = `r round(model_loo_related[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related[3, 1], 3)`, *SE* = `r round(model_loo_related[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
 
 ```{r fig-related}
 #| label: fig-related
@@ -649,7 +753,7 @@ epreds <- expand_grid(condition = levels(data_time_related$condition),
 					  age = mean(data_time_related$age),
 					  lp = levels(data_time_related$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_related[[4]],
+	add_epred_draws(model_fits_related[[1]],
 					ndraws = NULL,
 					re_formula = NA, 
 					value = ".value") |> 
@@ -784,7 +888,8 @@ stat_summary(data = epreds,
 
 ### Cognate priming: Cognate vs. Non-cognate
 
-A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[2, 1], 3)`, *SE* = `r round(model_loo_cognate[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[3, 1], 3)`, *SE* = `r round(model_loo_cognate[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
 
 
 ```{r fig-cognate}
@@ -797,7 +902,7 @@ epreds <- expand_grid(condition = levels(data_time_cognate$condition),
 					  age = mean(data_time_cognate$age),
 					  lp = levels(data_time_cognate$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_cognate[[4]],
+	add_epred_draws(model_fits_cognate[[1]],
 					ndraws = NULL,
 					re_formula = NA) |> 
 	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
@@ -979,14 +1084,17 @@ attrition_trials_vtarget |>
 			   pattern = "{1} ({2})") |> 
 	cols_merge(c(sum_unrelated, n_excluded_unrelated),
 			   pattern = "{1} ({2})") |> 
-	cols_merge_uncert(mean_cognate, sd_cognate) |> 
-	cols_merge_uncert(mean_noncognate, sd_noncognate) |> 
-	cols_merge_uncert(mean_unrelated, sd_unrelated) |> 
+	cols_merge(c(mean_cognate, sd_cognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_noncognate, sd_noncognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_unrelated, sd_unrelated),
+			   pattern = "{1} ({2})") |>
 	tab_spanner("Cognate trials", ends_with("_cognate")) |>
 	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
 	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
 	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd")) |> 
+	fmt_number(matches("mean|sd"), decimals = 1) |> 
 	fmt_integer(matches("sum"), sep_mark = ",") |> 
 	cols_label(sum_cognate = "N",
 			   sum_noncognate = "N",
@@ -999,7 +1107,9 @@ attrition_trials_vtarget |>
 
 ### Phonological priming: Related vs. Unrelated
 
-A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related_vtarget[2, 1], 3)`, *SE* = `r round(model_loo_related_vtarget[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related_vtarget[3, 1], 3)`, *SE* = `r round(model_loo_related_vtarget[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
+
 
 ```{r fig-related-vtarget}
 #| label: fig-related-vtarget
@@ -1011,7 +1121,7 @@ epreds <- expand_grid(condition = levels(data_time_related_vtarget$condition),
 					  age = mean(data_time_related_vtarget$age),
 					  lp = levels(data_time_related_vtarget$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_related_vtarget[[4]],
+	add_epred_draws(model_fits_related_vtarget[[1]],
 					ndraws = NULL,
 					re_formula = NA, 
 					value = ".value") |> 
@@ -1146,7 +1256,9 @@ stat_summary(data = epreds,
 
 ### Cognate priming: Cognate vs. Non-cognate
 
-A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate_vtarget[2, 1], 3)`, *SE* = `r round(model_loo_cognate_vtarget[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate_vtarget[3, 1], 3)`, *SE* = `r round(model_loo_cognate_vtarget[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
+
 
 
 ```{r fig-cognate-vtarget}
@@ -1159,7 +1271,7 @@ epreds <- expand_grid(condition = levels(data_time_cognate_vtarget$condition),
 					  age = mean(data_time_cognate_vtarget$age),
 					  lp = levels(data_time_cognate_vtarget$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_cognate_vtarget[[4]],
+	add_epred_draws(model_fits_cognate_vtarget[[1]],
 					ndraws = NULL,
 					re_formula = NA) |> 
 	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
@@ -1341,14 +1453,17 @@ attrition_trials_vnone |>
 			   pattern = "{1} ({2})") |> 
 	cols_merge(c(sum_unrelated, n_excluded_unrelated),
 			   pattern = "{1} ({2})") |> 
-	cols_merge_uncert(mean_cognate, sd_cognate) |> 
-	cols_merge_uncert(mean_noncognate, sd_noncognate) |> 
-	cols_merge_uncert(mean_unrelated, sd_unrelated) |> 
+	cols_merge(c(mean_cognate, sd_cognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_noncognate, sd_noncognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_unrelated, sd_unrelated),
+			   pattern = "{1} ({2})") |>
 	tab_spanner("Cognate trials", ends_with("_cognate")) |>
 	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
 	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
 	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd")) |> 
+	fmt_number(matches("mean|sd"), decimals = 1) |> 
 	fmt_integer(matches("sum"), sep_mark = ",") |> 
 	cols_label(sum_cognate = "N",
 			   sum_noncognate = "N",
@@ -1361,7 +1476,10 @@ attrition_trials_vnone |>
 
 ### Phonological priming: Related vs. Unrelated
 
-A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related_vnone[2, 1], 3)`, *SE* = `r round(model_loo_related_vnone[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related_vnone[3, 1], 3)`, *SE* = `r round(model_loo_related_vnone[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
+
+
 
 ```{r fig-related-vnone}
 #| label: fig-related-vnone
@@ -1373,7 +1491,7 @@ epreds <- expand_grid(condition = levels(data_time_related_vnone$condition),
 					  age = mean(data_time_related_vnone$age),
 					  lp = levels(data_time_related_vnone$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_related_vnone[[4]],
+	add_epred_draws(model_fits_related_vnone[[1]],
 					ndraws = NULL,
 					re_formula = NA, 
 					value = ".value") |> 
@@ -1508,7 +1626,10 @@ stat_summary(data = epreds,
 
 ### Cognate priming: Cognate vs. Non-cognate
 
-A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate_vnone[2, 1], 3)`, *SE* = `r round(model_loo_cognate_vnone[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate_vnone[3, 1], 3)`, *SE* = `r round(model_loo_cognate_vnone[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+
+<!--
+-->
+
 
 
 ```{r fig-cognate-vnone}
@@ -1521,7 +1642,7 @@ epreds <- expand_grid(condition = levels(data_time_cognate_vnone$condition),
 					  age = mean(data_time_cognate_vnone$age),
 					  lp = levels(data_time_cognate_vnone$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_cognate_vnone[[4]],
+	add_epred_draws(model_fits_cognate_vnone[[1]],
 					ndraws = NULL,
 					re_formula = NA) |> 
 	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
@@ -1702,14 +1823,17 @@ attrition_trials_noeach |>
 			   pattern = "{1} ({2})") |> 
 	cols_merge(c(sum_unrelated, n_excluded_unrelated),
 			   pattern = "{1} ({2})") |> 
-	cols_merge_uncert(mean_cognate, sd_cognate) |> 
-	cols_merge_uncert(mean_noncognate, sd_noncognate) |> 
-	cols_merge_uncert(mean_unrelated, sd_unrelated) |> 
+	cols_merge(c(mean_cognate, sd_cognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_noncognate, sd_noncognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_unrelated, sd_unrelated),
+			   pattern = "{1} ({2})") |>
 	tab_spanner("Cognate trials", ends_with("_cognate")) |>
 	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
 	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
 	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd")) |> 
+	fmt_number(matches("mean|sd"), decimals = 1) |> 
 	fmt_integer(matches("sum"), sep_mark = ",") |> 
 	cols_label(sum_cognate = "N",
 			   sum_noncognate = "N",
@@ -1722,7 +1846,10 @@ attrition_trials_noeach |>
 
 ### Phonological priming: Related vs. Unrelated
 
-A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related_noeach[2, 1], 3)`, *SE* = `r round(model_loo_related_noeach[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related_noeach[3, 1], 3)`, *SE* = `r round(model_loo_related[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
+
+
 
 ```{r fig-related-noeach}
 #| label: fig-related-noeach
@@ -1734,7 +1861,7 @@ epreds <- expand_grid(condition = levels(data_time_related_noeach$condition),
 					  age = mean(data_time_related_noeach$age),
 					  lp = levels(data_time_related_noeach$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_related_noeach[[4]],
+	add_epred_draws(model_fits_related_noeach[[1]],
 					ndraws = NULL,
 					re_formula = NA, 
 					value = ".value") |> 
@@ -1869,7 +1996,8 @@ stat_summary(data = epreds,
 
 ### Cognate priming: Cognate vs. Non-cognate
 
-A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[2, 1], 3)`, *SE* = `r round(model_loo_cognate[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[3, 1], 3)`, *SE* = `r round(model_loo_cognate[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
 
 
 ```{r fig-cognate-noeach}
@@ -1882,7 +2010,7 @@ epreds <- expand_grid(condition = levels(data_time_cognate_noeach$condition),
 					  age = mean(data_time_cognate_noeach$age),
 					  lp = levels(data_time_cognate_noeach$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_cognate_noeach[[4]],
+	add_epred_draws(model_fits_cognate_noeach[[1]],
 					ndraws = NULL,
 					re_formula = NA) |> 
 	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
@@ -2064,14 +2192,17 @@ attrition_trials_vnoeach |>
 			   pattern = "{1} ({2})") |> 
 	cols_merge(c(sum_unrelated, n_excluded_unrelated),
 			   pattern = "{1} ({2})") |> 
-	cols_merge_uncert(mean_cognate, sd_cognate) |> 
-	cols_merge_uncert(mean_noncognate, sd_noncognate) |> 
-	cols_merge_uncert(mean_unrelated, sd_unrelated) |> 
+	cols_merge(c(mean_cognate, sd_cognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_noncognate, sd_noncognate),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(mean_unrelated, sd_unrelated),
+			   pattern = "{1} ({2})") |>
 	tab_spanner("Cognate trials", ends_with("_cognate")) |>
 	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
 	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
 	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd")) |> 
+	fmt_number(matches("mean|sd"), decimals = 1) |> 
 	fmt_integer(matches("sum"), sep_mark = ",") |> 
 	cols_label(sum_cognate = "N",
 			   sum_noncognate = "N",
@@ -2084,7 +2215,9 @@ attrition_trials_vnoeach |>
 
 ### Phonological priming: Related vs. Unrelated
 
-A model including the *Relatedness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Relatedness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_related_vnoeach[2, 1], 3)`, *SE* = `r round(model_loo_related_vnoeach[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_2}}$ = `r round(model_loo_related_vnoeach[3, 1], 3)`, *SE* = `r round(model_loo_related[3, 2], 3)`). This indicates that including the *Relatedness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
+
 
 ```{r fig-related-vnoeach}
 #| label: fig-related-vnoeach
@@ -2096,7 +2229,7 @@ epreds <- expand_grid(condition = levels(data_time_related_vnoeach$condition),
 					  age = mean(data_time_related_vnoeach$age),
 					  lp = levels(data_time_related_vnoeach$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_related_vnoeach[[4]],
+	add_epred_draws(model_fits_related_vnoeach[[1]],
 					ndraws = NULL,
 					re_formula = NA, 
 					value = ".value") |> 
@@ -2231,7 +2364,8 @@ stat_summary(data = epreds,
 
 ### Cognate priming: Cognate vs. Non-cognate
 
-A model including the *Cognateness* $\times$ *Group* interaction showed the best of-of-sample predictive performance, although the model including only *Cognateness* performed equivalently ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[2, 1], 3)`, *SE* = `r round(model_loo_cognate[2, 2], 3)`). Both models showed substantially better predictive performance than the model including only *Group* ($\text{ELPD}_{\mathcal{M_0}} - \text{ELPD}_{\mathcal{M_1}}$ = `r round(model_loo_cognate[3, 1], 3)`, *SE* = `r round(model_loo_cognate[3, 2], 3)`). This indicates that including the *Cognateness* predictor improved the predictive performance of the model significantly, that including its interaction with *Group* slightly increased the performance of the model, and that the main effect of *Group* by itself barely changed the predictive performance of the model.
+<!--
+-->
 
 
 ```{r fig-cognate-vnoeach}
@@ -2244,7 +2378,7 @@ epreds <- expand_grid(condition = levels(data_time_cognate_vnoeach$condition),
 					  age = mean(data_time_cognate_vnoeach$age),
 					  lp = levels(data_time_cognate_vnoeach$lp),
 					  .nsamples = 1) |>
-	add_epred_draws(model_fits_cognate_vnoeach[[4]],
+	add_epred_draws(model_fits_cognate_vnoeach[[1]],
 					ndraws = NULL,
 					re_formula = NA) |> 
 	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
@@ -2359,22 +2493,28 @@ stat_summary(data = epreds,
 
 # Discussion
 
+# References
+
+
+{{< pagebreak >}}
+
 # Appendix
 
 ## Appendix A: imputing voabulary size scores
 
 ```{r fig-vocabulary-imputation}
 vocabulary_tmp <- vocabulary |> 
-	left_join(select(participants, id = id_db, age, age_group, filename),
+	left_join(select(participants, child_id = id_db, age, age_group, filename),
 			  by = join_by(filename)) |> 
-	relocate(id, age) |> 
+	relocate(child_id) |> 
 	select(-filename) |> 
 	filter(is_imputed) |> 
-	mutate(id = as.character(id))
+	mutate(child_id = as.character(child_id))
 
 bvq_data$vocabulary |> 
 	inner_join(distinct(bvq_data$logs, id, age_group, age),
 			   by = join_by(id, age_group)) |> 
+	rename(child_id = id) |> 
 	mutate(is_imputed = FALSE) |> 
 	bind_rows(vocabulary_tmp) |> 
 	pivot_longer(ends_with("_prop"),
@@ -2405,6 +2545,7 @@ bvq_data$vocabulary |>
 				size = 1) +
 	labs(x = "Age (months)",
 		 y = "Vocabulary size",
+		 fill = "Imputed",
 		 colour = "Imputed") +
 	theme(legend.position = c(1, 0),
 		  legend.justification = c(1, 0),
@@ -2412,9 +2553,15 @@ bvq_data$vocabulary |>
 
 ```
 
+{{< pagebreak >}}
+
+
 ## Appendix B: distribution of prime and target looking times
 
-```{fig-dist-prime}
+```{r fig-dist-prime}
+#| label: fig-dist-prime
+#| fig-height: 4
+#| fig-width: 8
 looking_times |> 
 	mutate(prime_time = cut(prime_time, 
 							seq(0, 1.5, 0.1),
@@ -2445,12 +2592,15 @@ looking_times |>
 											colour = "grey"))
 ```
 
-```{fig-dist-target}
+```{r fig-dist-target}
+#| label: fig-dist-target
+#| fig-height: 4
+#| fig-width: 8
 looking_times |> 
 	mutate(target_time = cut(target_time, 
-							seq(0, 2, 0.1),
-							labels = FALSE,
-							include.lowest = TRUE)) |> 
+							 seq(0, 2, 0.1),
+							 labels = FALSE,
+							 include.lowest = TRUE)) |> 
 	add_count(lp, age_group, name = "n_total") |> 
 	count(lp, age_group, target_time, n_total) |> 
 	mutate(n = n / n_total) |> 
@@ -2468,13 +2618,16 @@ looking_times |>
 											colour = "grey"))
 ```
 
+{{< pagebreak >}}
+
 ## Appendix C: prime and test looking times
 
-```{r fig-prime-times}
+```{r fig-looking-times}
 #| label: fig-looking-times
-#| fig-height: 6
+#| fig-height: 8
 #| fig-width: 8
-#| fig-cap: "Looking time (s) to the prime AOI against audio duration. In longer audios, participants are expected to look longer to the target picture."
+#| fig-cap: "Looking time (s) to the prime and target AOI against audio duration. In longer audios, participants are expected to look longer to the prime and target picture."
+
 looking_times |>
 	left_join(select(attrition_trials, 
 					 filename, trial, is_valid_trial),
@@ -2487,21 +2640,11 @@ looking_times |>
 			   shape = trial_type)) +
 	facet_grid(lp~age_group) +
 	geom_point(alpha = 0.5, 
-			   size = 0.5) +
+			   size = 1) +
 	geom_smooth(method = "lm") +
-	labs(x = "Audio duration (s)",
-		 y = "Looking time (1.0-2.0 seconds)",
-		 colour = "Prime type",
-		 fill = "Prime type",
-		 shape = "Prime type")
-```
-
-```{r fig-prime-times}
-#| label: fig-target-times
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Looking time (s) to the prime AOI against audio duration. In longer audios, participants are expected to look longer to the target picture."
-looking_times |>
+	theme(axis.title.x = element_blank()) +
+	
+	looking_times |>
 	left_join(select(attrition_trials, 
 					 filename, trial, is_valid_trial),
 			  by = join_by(filename, trial)) |>
@@ -2513,13 +2656,16 @@ looking_times |>
 			   shape = trial_type)) +
 	facet_grid(lp~age_group) +
 	geom_point(alpha = 0.5,
-			   size = 0.5) +
+			   size = 1) +
 	geom_smooth(method = "lm",
 				formula = "y ~ x") +
+	plot_layout(ncol = 1, guides = "collect") &
+	plot_annotation(tag_levels = "A") &
 	labs(x = "Audio duration (s)",
 		 y = "Looking time (1.0-2.0 seconds)",
 		 colour = "Prime type",
 		 fill = "Prime type",
-		 shape = "Prime type")
+		 shape = "Prime type") 
 ```
+
 
