@@ -94,24 +94,43 @@ list(
 					semantic_category = semantic_category,
 					animacy = animacy,
 					duration = duration)), 
-	# tar_target(stimuli_test, test_stimuli(stimuli)),
+	
+	# Oxford stimuli
+	tar_target(stimuli_cdi_file_oxf,
+			   file.path("data-raw", "stimuli-cdi-oxford.csv"),
+			   format = "file"),
+	tar_target(stimuli_cdi_oxf,
+			   read_csv(stimuli_cdi_file_oxf, show_col_types = FALSE)),
+	tar_target(stimuli_oxf, get_stimuli_oxf(gaze_processed_oxf, stimuli_cdi_oxf)),
 	
 	# participants -------------------------------------------------------------
 	
-	# join datasets
-	# see R/01_participants.R for details on this function
+	# Barcelona participants
 	tar_target(participants_file, 
 			   file.path("data-raw", "participants.csv"),
 			   format = "file"),
 	tar_target(participants, get_participants(participants_file)),
-	tar_target(participants_test, test_participants(participants)),
+	
+	# Oxford participants
+	tar_target(participants_file_oxf, 
+			   file.path("data-raw", "participants-oxford.csv"),
+			   format = "file"),
+	tar_target(participants_oxf, get_participants_oxf(participants_file_oxf)),
 	
 	# vocabulary ---------------------------------------------------------------
 	
+	# Barcelona vocabulary 
 	tar_target(vocabulary,
 			   get_vocabulary(participants = participants, 
 			   			   bvq_data = bvq_data)),
-	# tar_target(vocabulary_test, test_vocabulary(vocabulary)),
+	
+	# Oxford vocabulary
+	tar_target(vocabulary_file_oxf,
+			   file.path("data-raw", "Oxford_ESRC_participant.xlsx"),
+			   format = "file"),
+	tar_target(vocabulary_oxf,
+			   get_vocabulary_oxf(vocabulary_file_oxf, 
+			   				   participants_oxf)),
 	
 	# gaze data ----------------------------------------------------------------
 	tar_target(aoi_coords,
@@ -121,24 +140,34 @@ list(
 	
 	# gaze data ----
 	tar_target(gaze_files, 
-			   list.files(
-			   	path = "data-raw/eyetracking", 
-			   	pattern = ".csv$",
-			   	full.names = TRUE
-			   ), 
+			   list.files(path = "data-raw/eyetracking-barcelona", 
+			   		   pattern = ".csv$",
+			   		   full.names = TRUE), 
 			   format = "file"),
 	
 	tar_target(gaze_raw, get_gaze_raw(gaze_files)),
-	tar_target(gaze_raw_test, test_gaze_raw(gaze_raw)),
-	
 	tar_target(gaze_processed, get_gaze_processed(gaze_raw)),
-	tar_target(gaze_processed_test, test_gaze_processed(gaze_processed)),
-	
 	tar_target(gaze_aoi, get_gaze_aoi(gaze_processed, participants, stimuli, aoi_coords)),
-	tar_target(gaze_aoi_test, test_gaze_aoi(gaze_aoi)),
+	
+	# Oxford gaze data ----
+	tar_target(aoi_coords_oxf,
+			   list(center = c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790),
+			   	 left = c(xmin = 180, xmax = 680, ymin = 290, ymax = 790),
+			   	 right = c(xmin = 1240, xmax = 1640, ymin = 290, ymax = 790))),
+	
+	tar_target(gaze_files_oxf,
+			   list.files("data-raw/eyetracking-oxford/", 
+			   		   pattern = ".csv",
+			   		   full.names = TRUE),
+			   format = "file"),
+	
+	tar_target(gaze_raw_oxf, get_gaze_raw_oxf(gaze_files_oxf)),
+	tar_target(gaze_processed_oxf, get_gaze_processed_oxf(gaze_raw_oxf, 
+														  participants_oxf)),
 	
 	# attrition ----------------------------------------------------------------
 	
+	# Barcelona
 	tar_target(attrition_trials,
 			   get_attrition_trials(
 			   	participants = participants,
@@ -151,17 +180,35 @@ list(
 			   		test = 1,
 			   		test_each = 0.1))),
 	
-	tar_target(attrition_trials_test,
-			   test_attrition_trials(attrition_trials)),
-	
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,
 			   						   			   unrelated = 2))),
-	tar_target(attrition_participants_test,
-			   test_attrition_participants(attrition_participants)),
 	
+	# Oxford
+	tar_target(attrition_trials_oxf,
+			   get_attrition_trials_oxf(
+			   	participants = participants_oxf,
+			   	stimuli = stimuli_oxf,
+			   	vocabulary = vocabulary_oxf,
+			   	vocabulary_by = c("prime", "target"),
+			   	aoi_coords = aoi_coords_oxf,
+			   	gaze_processed = gaze_processed_oxf,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0.1))),
+	
+	tar_target(attrition_participants_oxf,
+			   get_attrition_participants_oxf(attrition_trials_oxf,
+			   							   min_trials = c(cognate = 2, 
+			   							   			   noncognate = 2,
+			   							   			   unrelated = 2))),
+	
+	# Modelling data -----------------------------------------------------------
+	
+	# Barcelona 
 	tar_target(data_time_related,
 			   get_data_time(gaze_aoi = gaze_aoi,
 			   			  participants = participants,
@@ -182,12 +229,29 @@ list(
 			   			  time_subset = c(0.3, 2),
 			   			  contrast = "cognate")),
 	
-	# tar_target(data_time_test, test_data_time(data_time)),
+	# Oxford
+	tar_target(data_time_related_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_oxf,
+			   				  attrition_participants = attrition_participants_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "related")),
 	
-	# tar_target(data_summary_related, get_data_summary(data_time)),
-	# tar_target(data_summary_test, test_data_summary(data_summary)),
+	tar_target(data_time_cognate_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_oxf,
+			   				  attrition_participants = attrition_participants_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "cognate")),
 	
-	# growth curve analysis
+	
+	# Modelling ----------------------------------------------------------------
 	tar_target(model_prior,
 			   prior(normal(0, 0.5), class = "Intercept") +
 			   	prior(normal(0, 0.5), class = "b") +
@@ -197,18 +261,18 @@ list(
 	
 	tar_target(model_formulas,
 			   list(
-			   	model_0 = .sum | trials(.nsamples) ~ 1 + lp + age + 
-			   		s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = lp, bs = "cr", k = 10) + 
-			   		(1 + timebin + age | id),
-			   	model_1 = .sum | trials(.nsamples) ~ 1 + condition + age + 
-			   		s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = condition, bs = "cr", k = 10) + 
-			   		(1 + timebin + age + condition | id),
-			   	model_2 = .sum | trials(.nsamples) ~ 1 + condition + lp + age + 
-			   		s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) + 
-			   		(1 + timebin + age + condition | id),
+			   	# model_0 = .sum | trials(.nsamples) ~ 1 + lp + age + 
+			   	# 	s(timebin, bs = "cr", k = 10) +
+			   	# 	s(timebin, by = lp, bs = "cr", k = 10) + 
+			   	# 	(1 + timebin + age | id),
+			   	# model_1 = .sum | trials(.nsamples) ~ 1 + condition + age + 
+			   	# 	s(timebin, bs = "cr", k = 10) +
+			   	# 	s(timebin, by = condition, bs = "cr", k = 10) + 
+			   	# 	(1 + timebin + age + condition | id),
+			   	# model_2 = .sum | trials(.nsamples) ~ 1 + condition + lp + age + 
+			   	# 	s(timebin, bs = "cr", k = 10) +
+			   	# 	s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) + 
+			   	# 	(1 + timebin + age + condition | id),
 			   	model_3 = .sum | trials(.nsamples) ~ 1 + condition * lp + age + 
 			   		s(timebin, bs = "cr", k = 10) +
 			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) + 
@@ -217,9 +281,11 @@ list(
 	
 	tar_target(model_names, 
 			   list(
-			   	related = apply(expand.grid("fit_related_", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_", 
+			   								seq(1, length(model_formulas))-1), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_",
+			   								seq(1, length(model_formulas))-1), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -230,8 +296,8 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_related,
-			   get_model_loos(model_fits_related)),
+	# tar_target(model_loo_related,
+	# 		   get_model_loos(model_fits_related)),
 	
 	# cognate vs. non-cognate models	
 	tar_target(model_fits_cognate,
@@ -241,17 +307,17 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_cognate,
-			   get_model_loos(model_fits_cognate)),
+	# tar_target(model_loo_cognate,
+	# 		   get_model_loos(model_fits_cognate)),
 	
 	
 	# FILTER BY ONLY TARGET WORD -----------------------------------------------
-
+	
 	tar_target(model_names_vtarget, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vtarget", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_vtarget_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vtarget", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_vtarget_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -293,8 +359,6 @@ list(
 			   			  time_subset = c(0.3, 2),
 			   			  contrast = "cognate")),
 	
-	# tar_target(data_time_test, test_data_time(data_time)),
-	
 	tar_target(model_fits_related_vtarget,
 			   get_model_fit(model_names_vtarget$related,
 			   			  model_formulas,
@@ -302,8 +366,8 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_related_vtarget,
-			   get_model_loos(model_fits_related_vtarget)),
+	# tar_target(model_loo_related_vtarget,
+	# 		   get_model_loos(model_fits_related_vtarget)),
 	
 	# cognate vs. non-cognate models	
 	tar_target(model_fits_cognate_vtarget,
@@ -313,16 +377,57 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_cognate_vtarget,
-			   get_model_loos(model_fits_cognate_vtarget)),
+	# tar_target(model_loo_cognate_vtarget,
+	# 		   get_model_loos(model_fits_cognate_vtarget)),
+	
+	# Oxford
+	tar_target(attrition_trials_vtarget_oxf,
+			   get_attrition_trials_oxf(
+			   	stimuli = stimuli_oxf,
+			   	participants = participants_oxf,
+			   	vocabulary = vocabulary_oxf,
+			   	vocabulary_by = c("target"),
+			   	aoi_coords = aoi_coords_oxf,
+			   	gaze_processed = gaze_processed_oxf,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0.1))),
+	
+	tar_target(attrition_participants_vtarget_oxf,
+			   get_attrition_participants_oxf(attrition_trials_vtarget_oxf,
+			   							   min_trials = c(cognate = 2, 
+			   							   			   noncognate = 2,
+			   							   			   unrelated = 2))),
+	
+	tar_target(data_time_related_vtarget_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_vtarget_oxf,
+			   				  attrition_participants = attrition_participants_vtarget_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "related")),
+	
+	tar_target(data_time_cognate_vtarget_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_vtarget_oxf,
+			   				  attrition_participants = attrition_participants_vtarget_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "cognate")),
+	
 	
 	# FILTER BY NONE -----------------------------------------------------------
-
+	
 	tar_target(model_names_vnone, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vnone", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_vnone_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vnone", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_vnone_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -366,8 +471,6 @@ list(
 			   			  time_subset = c(0.3, 2),
 			   			  contrast = "cognate")),
 	
-	# tar_target(data_time_test, test_data_time(data_time)),
-	
 	tar_target(model_fits_related_vnone,
 			   get_model_fit(model_names_vnone$cognate,
 			   			  model_formulas,
@@ -375,8 +478,8 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_related_vnone,
-			   get_model_loos(model_fits_related_vnone)),
+	# tar_target(model_loo_related_vnone,
+	# 		   get_model_loos(model_fits_related_vnone)),
 	
 	# cognate vs. non-cognate models	
 	tar_target(model_fits_cognate_vnone,
@@ -386,16 +489,56 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_cognate_vnone,
-			   get_model_loos(model_fits_cognate_vnone)),
+	# tar_target(model_loo_cognate_vnone,
+	# 		   get_model_loos(model_fits_cognate_vnone)),
+	
+	# Oxford
+	tar_target(attrition_trials_vnone_oxf,
+			   get_attrition_trials_oxf(
+			   	stimuli = stimuli_oxf,
+			   	participants = participants_oxf,
+			   	vocabulary = vocabulary_oxf,
+			   	vocabulary_by = c("none"),
+			   	aoi_coords = aoi_coords_oxf,
+			   	gaze_processed = gaze_processed_oxf,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0.1))),
+	
+	tar_target(attrition_participants_vnone_oxf,
+			   get_attrition_participants_oxf(attrition_trials_vnone_oxf,
+			   							   min_trials = c(cognate = 2, 
+			   							   			   noncognate = 2,
+			   							   			   unrelated = 2))),
+	
+	tar_target(data_time_related_vnone_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_vnone_oxf,
+			   				  attrition_participants = attrition_participants_vnone_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "related")),
+	
+	tar_target(data_time_cognate_vnone_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_vnone_oxf,
+			   				  attrition_participants = attrition_participants_vnone_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "cognate")),
 	
 	# FILTER BY NO EACH --------------------------------------------------------
-
+	
 	tar_target(model_names_noeach, 
 			   list(
-			   	related = apply(expand.grid("fit_related_noeach", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_noeach_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_noeach", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_noeach_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -437,8 +580,6 @@ list(
 			   			  time_subset = c(0.3, 2),
 			   			  contrast = "cognate")),
 	
-	# tar_target(data_time_test, test_data_time(data_time)),
-	
 	tar_target(model_fits_related_noeach,
 			   get_model_fit(model_names_noeach$related,
 			   			  model_formulas,
@@ -446,8 +587,8 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_related_noeach,
-			   get_model_loos(model_fits_related_noeach)),
+	# tar_target(model_loo_related_noeach,
+	# 		   get_model_loos(model_fits_related_noeach)),
 	
 	# cognate vs. non-cognate models	
 	tar_target(model_fits_cognate_noeach,
@@ -457,16 +598,56 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_cognate_noeach,
-			   get_model_loos(model_fits_cognate_noeach)),
+	# tar_target(model_loo_cognate_noeach,
+	# 		   get_model_loos(model_fits_cognate_noeach)),
+	
+	# Oxford
+	tar_target(attrition_trials_noeach_oxf,
+			   get_attrition_trials_oxf(
+			   	stimuli = stimuli_oxf,
+			   	participants = participants_oxf,
+			   	vocabulary = vocabulary_oxf,
+			   	vocabulary_by = c("none"),
+			   	aoi_coords = aoi_coords_oxf,
+			   	gaze_processed = gaze_processed_oxf,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0))),
+	
+	tar_target(attrition_participants_noeach_oxf,
+			   get_attrition_participants_oxf(attrition_trials_noeach_oxf,
+			   							   min_trials = c(cognate = 2, 
+			   							   			   noncognate = 2,
+			   							   			   unrelated = 2))),
+	
+	tar_target(data_time_related_noeach_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_noeach_oxf,
+			   				  attrition_participants = attrition_participants_noeach_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "related")),
+	
+	tar_target(data_time_cognate_noeach_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_noeach_oxf,
+			   				  attrition_participants = attrition_participants_noeach_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "cognate")),
 	
 	# FILTER BY PRIME TARGET, NO EACH ------------------------------------------
-
+	
 	tar_target(model_names_vnoeach, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vnoeach", 1:4), 1,
+			   	related = apply(expand.grid("fit_related_vnoeach_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vnoeach", 1:4), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_vnoeach_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -508,8 +689,6 @@ list(
 			   			  time_subset = c(0.3, 2),
 			   			  contrast = "cognate")),
 	
-	# tar_target(data_time_test, test_data_time(data_time)),
-	
 	tar_target(model_fits_related_vnoeach,
 			   get_model_fit(model_names_vnoeach$related,
 			   			  model_formulas,
@@ -517,8 +696,8 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_related_vnoeach,
-			   get_model_loos(model_fits_related_vnoeach)),
+	# tar_target(model_loo_related_vnoeach,
+	# 		   get_model_loos(model_fits_related_vnoeach)),
 	
 	# cognate vs. non-cognate models	
 	tar_target(model_fits_cognate_vnoeach,
@@ -528,8 +707,48 @@ list(
 			   			  family = binomial("logit"),
 			   			  prior = model_prior)),
 	
-	tar_target(model_loo_cognate_vnoeach,
-			   get_model_loos(model_fits_cognate_vnoeach)),
+	# tar_target(model_loo_cognate_vnoeach,
+	# 		   get_model_loos(model_fits_cognate_vnoeach)),
+	
+	# Oxford
+	tar_target(attrition_trials_vnoeach_oxf,
+			   get_attrition_trials_oxf(
+			   	stimuli = stimuli_oxf,
+			   	participants = participants_oxf,
+			   	vocabulary = vocabulary_oxf,
+			   	vocabulary_by = c("prime", "target"),
+			   	aoi_coords = aoi_coords_oxf,
+			   	gaze_processed = gaze_processed_oxf,
+			   	min_looking = c(
+			   		prime = 0.75, 
+			   		test = 1,
+			   		test_each = 0))),
+	
+	tar_target(attrition_participants_vnoeach_oxf,
+			   get_attrition_participants_oxf(attrition_trials_vnoeach_oxf,
+			   							   min_trials = c(cognate = 2, 
+			   							   			   noncognate = 2,
+			   							   			   unrelated = 2))),
+	
+	tar_target(data_time_related_vnoeach_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_vnoeach_oxf,
+			   				  attrition_participants = attrition_participants_vnoeach_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "related")),
+	
+	tar_target(data_time_cognate_vnoeach_oxf,
+			   get_data_time_oxf(gaze_processed = gaze_processed_oxf,
+			   				  participants = participants_oxf,
+			   				  stimuli = stimuli_oxf, 
+			   				  vocabulary = vocabulary_oxf,
+			   				  attrition_trials = attrition_trials_vnoeach_oxf,
+			   				  attrition_participants = attrition_participants_vnoeach_oxf,
+			   				  time_subset = c(0.3, 2),
+			   				  contrast = "cognate")),
 	
 	# appendix -----------------------------------------------------------------
 	
