@@ -472,7 +472,7 @@ list(
 			   			  contrast = "cognate")),
 	
 	tar_target(model_fits_related_vnone,
-			   get_model_fit(model_names_vnone$cognate,
+			   get_model_fit(model_names_vnone$related,
 			   			  model_formulas,
 			   			  data = data_time_related_vnone,
 			   			  family = binomial("logit"),

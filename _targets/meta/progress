@@ -79,14 +79,4 @@ data_time_related_vtarget|stem|data_time_related_vtarget|0|skipped
 data_time_cognate_vtarget|stem|data_time_cognate_vtarget|0|skipped
 data_time_cognate_noeach|stem|data_time_cognate_noeach|0|skipped
 data_time_related_noeach|stem|data_time_related_noeach|0|skipped
-model_fits_related_vnone|stem|model_fits_related_vnone|0|skipped
-model_fits_cognate_vnone|stem|model_fits_cognate_vnone|0|skipped
-model_fits_related_vnoeach|stem|model_fits_related_vnoeach|0|skipped
-model_fits_cognate_vnoeach|stem|model_fits_cognate_vnoeach|0|skipped
-model_fits_cognate|stem|model_fits_cognate|0|skipped
-model_fits_related|stem|model_fits_related|0|skipped
-model_fits_related_vtarget|stem|model_fits_related_vtarget|0|skipped
-model_fits_cognate_vtarget|stem|model_fits_cognate_vtarget|0|skipped
-model_fits_cognate_noeach|stem|model_fits_cognate_noeach|0|skipped
-model_fits_related_noeach|stem|model_fits_related_noeach|0|skipped
-manuscript|stem|manuscript|0|skipped
+model_fits_related_vnone|stem|model_fits_related_vnone|0|started
