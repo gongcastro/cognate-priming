@@ -3,35 +3,36 @@ project:
     - manuscript.qmd
 
 format:
-  html:
-    code-fold: true
-    code-overflow: scroll
-    code-line-numbers: true
-    code-copy: hover
-    code-link: true
-    toc: true
-    toc-depth: 3
-    number-sections: true
-    fig-dpi: 800
-    footnotes-hover: true
-    link-external-newwindow: true
-  # pdf:
-  #   keep-tex: true
-  #   linenumbers: true
-  #   doublespacing: false
-  #   runninghead: "Developmental trajectories of bilingual word recognition"
-  #   include-in-header:
-  #     text: |
-  #       \usepackage{tipa}
-  #       \usepackage{booktabs}
-  #       \hyphenpenalty=100000
-  #       \exhyphenpenalty=100000
-  #   knitr:
-  #     opts_chunk:
-  #       dev: "cairo_pdf"
-  #   filters:
-  #     - "_extensions/andrewheiss/wordcount/citeproc.lua"
-  #     - "_extensions/andrewheiss/wordcount/wordcount.lua"
+  # html:
+  #   code-fold: true
+  #   code-overflow: scroll
+  #   code-line-numbers: true
+  #   code-copy: hover
+  #   code-link: true
+  #   toc: true
+  #   toc-depth: 3
+  #   number-sections: true
+  #   fig-dpi: 800
+  #   footnotes-hover: true
+  #   link-external-newwindow: true
+  arxiv-pdf:
+    keep-tex: false
+    linenumbers: true
+    doublespacing: false
+    linestretch: 1.5
+    runninghead: "Developmental trajectories of bilingual word recognition"
+    include-in-header:
+      text: |
+        \usepackage{tipa}
+        \usepackage{booktabs}
+        \hyphenpenalty=100000
+        \exhyphenpenalty=100000
+    knitr:
+      opts_chunk:
+        dev: "cairo_pdf"
+    filters:
+      - "_extensions/andrewheiss/wordcount/citeproc.lua"
+      - "_extensions/andrewheiss/wordcount/wordcount.lua"
 
 title: "Developmental trajectories of bilingual word recognition"
 short-title: "Developmental trajectories of bilingual word recognition"
@@ -72,11 +73,12 @@ keywords:
   - bilingualism
   - general additive mixed models
   - bayesian
-csl: "../assets/apa7.csl"
-bibliography: "../assets/references.bib"
+csl: "_assets/apa7.csl"
+bibliography: "_assets/references.bib"
 link-citations: true
 editor: source
 lang: en
 freeze: true
 warning: false
 fig-dpi: 1000
+echo: false

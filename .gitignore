@@ -5,8 +5,8 @@
 .Renviron
 
 _targets/
-_targets/meta/
-_targets/objects/
+_targets.yaml
+!.gitignore
 
 **/*.pptx
 **/*.pdf
@@ -15,6 +15,9 @@ _targets/objects/
 **/*.parquet
 **/*.html
 img/**/*.png
+**/data-raw/eyetracking-barcelona/*.csv
+**/data-raw/eyetracking-oxford/*.csv
+**/data-raw/eyetracking/*.csv
 
 documents/
 presentations/
@@ -22,7 +25,6 @@ presentations/
 data-raw/eyetracking/*.csv
 /.luarc.json
 nul
-_targets.yaml
 docs/_targets.yaml
 manuscript/_targets.yaml
 results/fits/*.rds

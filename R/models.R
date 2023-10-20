@@ -29,7 +29,7 @@ fit_single_model <- function(name, formula, data, family, prior, ...) {
 					 cores = 6,
 					 init = 0.1,
 					 file_refit = "on_change",
-					 file = file.path("results/fits/", paste0(name, ".rds")),
+					 file = file.path("results", "fits", paste0(name, ".rds")),
 					 seed = 1234,
 					 ...)
 	

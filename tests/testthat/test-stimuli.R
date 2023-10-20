@@ -1,7 +1,7 @@
 test_stimuli <- function(stimuli){
 	
 	test_that("stimuli has the right columns", {
-		expect_equal(
+		expect_setequal(
 			colnames(stimuli),
 			c("trial",
 			  "test_language",
@@ -12,6 +12,7 @@ test_stimuli <- function(stimuli){
 			  "target",
 			  "distractor",
 			  "audio",
+			  "duration",
 			  "target_location",
 			  "prime_cdi",
 			  "target_cdi",
