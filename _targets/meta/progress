@@ -61,3 +61,5 @@ model_fits_related_noeach|stem|model_fits_related_noeach|0|skipped
 model_fits_cognate_vtarget|stem|model_fits_cognate_vtarget|0|skipped
 model_fits_related_vtarget|stem|model_fits_related_vtarget|0|skipped
 model_fits_cognate_vnone|stem|model_fits_cognate_vnone|0|started
+model_fits_cognate_vnone|stem|model_fits_cognate_vnone|0|built
+model_fits_related_vnone|stem|model_fits_related_vnone|0|started

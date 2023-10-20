@@ -38,6 +38,10 @@ options(mc.cores = 2,
 		knitr.duplicate.label = "allow",
 		cli.progress_bar_style = "dot")
 
+tar_option_set(
+	seed = 1234
+)
+
 # define targets (see https://books.ropensci.org/targets/)
 # in each target, the value returned by a function (second argument) is assigned to 
 # a variable name (first argument). This object is stored in in the _targets folder
@@ -320,9 +324,9 @@ list(
 
 	tar_target(model_names_vnone, 
 			   list(
-			   	related = apply(expand.grid("fit_related_vnone_", 0:3), 1,
+			   	related = apply(expand.grid("fit_related_none_", 0:3), 1,
 			   					\(x) paste0(x[1], x[2])),
-			   	cognate = apply(expand.grid("fit_cognate_vnone_", 0:3), 1, 
+			   	cognate = apply(expand.grid("fit_cognate_none_", 0:3), 1, 
 			   					\(x) paste0(x[1], x[2]))
 			   )),
 	
@@ -338,7 +342,7 @@ list(
 			   		test = 1,
 			   		test_each = 0.1))),
 	
-	tar_target(attrition_participants_vnone,
+	tar_target(attrition_participants_none,
 			   get_attrition_participants(attrition_trials_vnone,
 			   						   min_trials = c(cognate = 2, 
 			   						   			   noncognate = 2,

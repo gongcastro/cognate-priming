@@ -211,3 +211,4 @@ get_familiarity|function|4f66c9c38e93f6ec
 get_items|function|1fad9158a03a278f
 posterior_epreds|function|f5ed3d5724ce2ade
 get_responses|function|36742355b5263122
+model_fits_cognate_vnone|stem|444490f26c97f7aa|2a55a2cfe87343ee|b0e63a94bc731f57|-1112649812||t19643.6197322886s|a0cb443a268f8254|29209054|rds|local|vector|||61013.98||
