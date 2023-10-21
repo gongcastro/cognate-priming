@@ -77,7 +77,7 @@ get_familiarity <- function(
 
 #' Get frequencies from CHILDES
 get_childes_corpora <- function(token, languages = c("cat", "spa")) {
-
+	
 	# if CHILDES exists, load
 	childes.path <- file.path("data-raw", "childes.csv")
 	if (file.exists(childes.path)){
@@ -100,7 +100,7 @@ get_childes_corpora <- function(token, languages = c("cat", "spa")) {
 		filter(freq_counts > 0)
 	
 	arrow::write_csv_arrow(childes, childes.path)
-
+	
 	return(childes)
 }
 

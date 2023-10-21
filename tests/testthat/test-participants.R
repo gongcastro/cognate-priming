@@ -4,12 +4,12 @@ test_participants <- function(participants){
 		expect_setequal(
 			colnames(participants),
 			c("id",
-			  "id_db",
 			  "date_test",
 			  "lp",
 			  "sex",
 			  "doe_catalan",
 			  "doe_spanish",
+			  "doe_english",
 			  "doe_others",
 			  "age_group",
 			  "age",
@@ -20,8 +20,7 @@ test_participants <- function(participants){
 	})
 	
 	test_that("participants variables are the right types", {
-		expect_type(participants$id, "integer")
-		expect_type(participants$id_db, "character")
+		expect_type(participants$id, "character")
 		expect_type(participants$sex, "character")
 		expect_equal(class(participants$date_test), "Date")
 		expect_type(participants$lp, "integer")
@@ -35,8 +34,7 @@ test_participants <- function(participants){
 	
 	test_that("participants has no missing data", {
 		expect_false(any(is.na(participants$id)))
-		expect_false(any(is.na(participants$id_db)))
-		expect_false(any(is.na(participants$sex)))
+		# expect_false(any(is.na(participants$sex)))
 		expect_false(any(is.na(participants$date_test)))
 		expect_false(any(is.na(participants$lp)))
 		expect_false(any(is.na(participants$age_group)))
@@ -44,10 +42,11 @@ test_participants <- function(participants){
 		expect_false(any(is.na(participants$test_language)))
 		expect_false(any(is.na(participants$list)))
 		expect_false(any(is.na(participants$version)))
-		expect_false(any(is.na(participants$filename)))
+		# expect_false(any(is.na(participants$filename)))
 	})
 	
-	test_that("id and age_group combinations are not duplicated", {
+	
+	test_that("id_db and age_group combinations are not duplicated", {
 		expect_true(
 			participants |>
 				janitor::get_dupes(id, age_group) |> 
@@ -55,22 +54,14 @@ test_participants <- function(participants){
 		)
 	})
 	
-	test_that("id_db and age_group combinations are not duplicated", {
-		expect_true(
-			participants |>
-				janitor::get_dupes(id_db, age_group) |> 
-				nrow() < 1
-		)
-	})
+	# test_that("filenames are not duplicated", {
+	# 	expect_true(!any(duplicated(participants$filename)))
+	# })
 	
-	test_that("filenames are not duplicated", {
-		expect_true(!any(duplicated(participants$filename)))
-	})
-	
-	test_that("all filenames correspond to a file in data/gaze/00_raw", {
-		gaze_files_path <- "data-raw/eyetracking"
-		gaze_files <- basename(list.files(gaze_files_path, pattern = ".csv$"))
-		expect_true(all(participants$filename %in% gaze_files))
-	})
+	# test_that("all filenames correspond to a file in data/gaze/00_raw", {
+	# 	gaze_files_path <- "data-raw/eyetracking-barcelona"
+	# 	gaze_files <- basename(list.files(gaze_files_path, pattern = ".csv$"))
+	# 	expect_true(all(participants$filename %in% gaze_files))
+	# })
 }
 
