@@ -62,46 +62,31 @@ list(
 	# stimuli ------------------------------------------------------------------
 	
 	# import data
-	tar_target(trials_file, file.path("stimuli", "stimuli.xlsx"), format = "file"),
-	tar_target(trials, readxl::read_xlsx(trials_file)),
-	tar_target(childes_tokens, unique(unlist(distinct(trials, prime, target)))),
-	tar_target(animacy_file, file.path("data-raw", "animacy.csv"), format = "file"),
-	tar_target(animacy, get_animacy(animacy_file)),
-	tar_target(familiarity, 
-			   get_familiarity(
-			   	tokens = unique(unlist(distinct(trials, prime_cdi, target_cdi))),
-			   	type = "understands",
-			   	bvq_data = bvq_data)),
-	tar_target(childes, 
-			   get_childes_corpora(
-			   	token = childes_tokens,
-			   	languages = c("cat", "spa"))),
-	tar_target(frequencies,
-			   get_frequency_childes(
-			   	childes,
-			   	token = childes_tokens)),
-	tar_target(semantic_category,
-			   bvq_data$pool |>
-			   	select(word = item, language, semantic_category) |>
-			   	rename(test_language = language)),
-	tar_target(duration, get_audio_duration(trials)),
+	tar_target(trials_file_bcn, file.path("stimuli", "stimuli.xlsx"), format = "file"),
+	tar_target(trials_bcn, readxl::read_xlsx(trials_file_bcn)),
+	
+	tar_target(duration, get_audio_duration(trials_bcn)),
+	
 	# join all stimuli datasets
-	tar_target(
-		stimuli, 
-		get_stimuli(trials = trials,
-					familiarity = familiarity,
-					frequencies = frequencies,
-					semantic_category = semantic_category,
-					animacy = animacy,
-					duration = duration)), 
+	tar_target(stimuli_bcn, 
+			   get_stimuli_bcn(trials = trials_bcn,
+			   				duration = duration)), 
 	
 	# Oxford stimuli
+	tar_target(stimuli_oxf_file,
+			   list.files("stimuli/lists/oxford", 
+			   		   full.names = TRUE, 
+			   		   pattern = "\\.xlsx"),
+			   format = "file"),
+	tar_target(stimuli_oxf, 
+			   get_stimuli_oxf(stimuli_oxf_file)),
+	
 	tar_target(stimuli_cdi_file_oxf,
 			   file.path("data-raw", "stimuli-cdi-oxford.csv"),
 			   format = "file"),
 	tar_target(stimuli_cdi_oxf,
 			   read_csv(stimuli_cdi_file_oxf, show_col_types = FALSE)),
-	tar_target(stimuli_oxf, get_stimuli_oxf(gaze_processed_oxf, stimuli_cdi_oxf)),
+	# tar_target(stimuli_oxf, get_stimuli_oxf(gaze_processed_oxf, stimuli_cdi_oxf)),
 	
 	# participants -------------------------------------------------------------
 	
@@ -114,11 +99,11 @@ list(
 			   format = "file"),
 	tar_target(participants, get_participants(participants_bcn_file,
 											  participants_oxf_file)),
-
+	
 	# vocabulary ---------------------------------------------------------------
 	
 	# Barcelona vocabulary 
-	tar_target(vocabulary,
+	tar_target(vocabulary_bcn,
 			   get_vocabulary(participants = participants, 
 			   			   bvq_data = bvq_data)),
 	
@@ -143,7 +128,11 @@ list(
 			   		   full.names = TRUE), 
 			   format = "file"),
 	
-	tar_target(gaze_bcn, get_gaze_bcn(gaze_files_bcn, participants, stimuli, aoi_coords)),
+	tar_target(gaze_bcn,
+			   get_gaze_bcn(gaze_files_bcn,
+			   			 participants, 
+			   			 stimuli_bcn,
+			   			 aoi_coords)),
 	
 	# Oxford
 	tar_target(gaze_files_oxf,
@@ -200,7 +189,7 @@ list(
 	tar_target(data_time_related,
 			   get_data_time(gaze_aoi = gaze_aoi,
 			   			  participants = participants,
-			   			  stimuli = stimuli, 
+			   			  stimuli = stimuli_bcn, 
 			   			  vocabulary = vocabulary,
 			   			  attrition_trials = attrition_trials,
 			   			  attrition_participants = attrition_participants,

@@ -1,30 +1,36 @@
 # vocabulary size
-get_vocabulary <- function(participants, # participants dataset (get_participants output)
-						   bvq_data
+get_vocabulary_bcn <- function(participants, # participants dataset (get_participants output)
+							   bvq_data
 ){
 	
 	# vocabulary sizes BVQ database and Cognate Priming
-	participants_tmp <- subset(participants, select = c(id_db, age_group, age, lp, filename))
+	participants_tmp <- select(participants, id, id_vocab,
+							   age_group, age, lp, filename) |> 
+		mutate(id_vocab = if_else(is.na(id_vocab),
+								  paste0(id, "_na"),
+								  id_vocab))
 	
 	# get vocabulary contents
-	vocab_contents <- get_vocabulary_contents(participants, bvq_data)
 	
 	vocabulary <- bvq_data$vocabulary |>
-		mutate(id_db = id) |> 
-		right_join(select(participants_tmp, id_db, age_group, lp),
-				   by = join_by(id_db, age_group)) |> 
+		rename(id = child_id,
+			   id_vocab = response_id) |> 
+		right_join(select(participants_tmp, id, id_vocab),
+				   by = join_by(id, id_vocab)) |> 
 		rowwise() |> 
 		mutate(is_imputed = any(is.na(c_across(total_prop:te_prop)))) |> 
 		ungroup() |> 
-		relocate(id, age_group, is_imputed) |> 
-		left_join(select(participants_tmp, id_db, age_group, age),
-				  by = join_by(age_group, id_db)) |> 
-		# multiple imputation
-		impute_vocabulary(cols_impute = c("total_prop", "l1_prop",
-										  "l2_prop", "concept_prop",
-										  "te_prop"), 
-						  cols_predictor = c("age", "lp"), 
-						  bvq_data = bvq_data) |> 
+		relocate(id, id_vocab, is_imputed) |> 
+		full_join(select(participants_tmp, id, id_vocab, age),
+				  by = join_by(id, id_vocab),
+				  na_matches = c("never"),
+		) 
+	# multiple imputation
+	impute_vocabulary(cols_impute = c("total_prop", "l1_prop",
+									  "l2_prop", "concept_prop",
+									  "te_prop"), 
+					  cols_predictor = c("age", "lp"), 
+					  bvq_data = bvq_data) |> 
 		# merge both datasets
 		right_join(participants_tmp, imputed,
 				   by = join_by(id_db, age_group, lp)) |> 
@@ -180,7 +186,7 @@ get_vocabulary_oxf <- function(vocabulary_file, participants) {
 	
 	participants_tmp <- participants |> 
 		filter(location=="Oxford")
-		select(id, id_vocab) |> 
+	select(id, id_vocab) |> 
 		drop_na()
 	
 	cdi_full <- get_cdi_full_oxf(vocabulary_file)

@@ -246,7 +246,7 @@ get_gaze_bcn <- function(gaze_files,
 			is_gaze_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
 			is_gaze_target = gaze_in_target(x, y, target_location, aoi_coords),
 			is_gaze_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)) |> 
-		select(filename, trial, phase, timestamp, x, y,
+		select(id, trial, phase, timestamp, x, y,
 			   is_gaze_prime, is_gaze_target, is_gaze_distractor,
 			   is_valid_gaze, is_imputed, trial_type, matches("_cdi"))
 	
@@ -422,7 +422,9 @@ get_gaze_oxf <- function(gaze_files, participants) {
 			   phase = factor(phase, levels = c("Prime", "Target-Distractor")),
 			   .by = c(id, trial, phase)) |> 
 		relocate(phase, timebin, .after = trial) |> 
-		relocate(ends_with("_stm"), .after = everything()) 
+		relocate(ends_with("_stm"), .after = everything()) |> 
+		left_join(participants) |> 
+		select(id, session, location)
 	
 	return(gaze)
 }
