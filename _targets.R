@@ -105,11 +105,16 @@ list(
 	
 	# participants -------------------------------------------------------------
 	
-	tar_target(participants_file, 
-			   file.path("data", "participants.csv"),
+	# Barcelona participants
+	tar_target(participants_bcn_file, 
+			   file.path("data-raw", "participants", "participants-barcelona.csv"),
 			   format = "file"),
-	tar_target(participants, arrow::read_csv_arrow(participants_file)),
-	
+	tar_target(participants_oxf_file, 
+			   file.path("data-raw", "participants", "participants-oxford.csv"),
+			   format = "file"),
+	tar_target(participants, get_participants(participants_bcn_file,
+											  participants_oxf_file)),
+
 	# vocabulary ---------------------------------------------------------------
 	
 	# Barcelona vocabulary 
@@ -119,11 +124,11 @@ list(
 	
 	# Oxford vocabulary
 	tar_target(vocabulary_file_oxf,
-			   file.path("data-raw", "Oxford_ESRC_participant.xlsx"),
+			   file.path("data-raw", "participants", "Oxford_ESRC_participant.xlsx"),
 			   format = "file"),
 	tar_target(vocabulary_oxf,
 			   get_vocabulary_oxf(vocabulary_file_oxf, 
-			   				   participants_oxf)),
+			   				   participants)),
 	
 	# gaze data ----------------------------------------------------------------
 	tar_target(aoi_coords,
@@ -132,22 +137,22 @@ list(
 			   	 right = c(xmin = 1240, xmax = 1740, ymin = 290, ymax = 790))),
 	
 	# Barcelona
-	tar_target(gaze_files, 
+	tar_target(gaze_files_bcn, 
 			   list.files(path = "data-raw/eyetracking-barcelona", 
-			   		   pattern = ".csv$",
+			   		   pattern = "\\csv$",
 			   		   full.names = TRUE), 
 			   format = "file"),
 	
-	tar_target(gaze_aoi_bcn, get_gaze_bcn(gaze_files, participants, stimuli, aoi_coords)),
+	tar_target(gaze_bcn, get_gaze_bcn(gaze_files_bcn, participants, stimuli, aoi_coords)),
 	
 	# Oxford
 	tar_target(gaze_files_oxf,
-			   list.files("data-raw/eyetracking-oxford/", 
-			   		   pattern = ".csv",
+			   list.files("data-raw/eyetracking-oxford", 
+			   		   pattern = "\\.csv",
 			   		   full.names = TRUE),
 			   format = "file"),
 	
-	tar_target(gaze_oxf, get_gaze_oxf(gaze_files_oxf, participants_oxf)),
+	tar_target(gaze_oxf, get_gaze_oxf(gaze_files_oxf, participants)),
 	
 	# attrition ----------------------------------------------------------------
 	

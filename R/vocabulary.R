@@ -179,7 +179,8 @@ get_vocabulary_contents <- function(participants,
 get_vocabulary_oxf <- function(vocabulary_file, participants) {
 	
 	participants_tmp <- participants |> 
-		select(id, id_vocab, id_vocab_response) |> 
+		filter(location=="Oxford")
+		select(id, id_vocab) |> 
 		drop_na()
 	
 	cdi_full <- get_cdi_full_oxf(vocabulary_file)

@@ -1,4 +1,3 @@
-
 library(bvq)
 
 # get participants
@@ -35,19 +34,19 @@ l <- bvq_logs(p, r) |>
 		   edu_parent = factor(edu_parent,
 		   					levels = 1:6, 
 		   					labels = edu_dict)) |>
-	left_join(select(p, id, time, id_exp),
-			  by = join_by(id, time)) |> 
-	distinct(id, age_group, .keep_all = TRUE) |> 
-	select(id, id_exp, time, age, age_group, lp, version,  
+	left_join(select(p, child_id, response_id, time),
+			  by = join_by(child_id, response_id, time)) |> 
+	distinct(response_id, .keep_all = TRUE) |> 
+	select(child_id, response_id, time, age, age_group, lp, version,  
 		   dominance, doe_catalan, doe_spanish, doe_others, edu_parent)
 
 v <- bvq_vocabulary(p, r, .scale = c("count", "prop")) |> 
 	dplyr::filter(type=="understands") |> 
-	inner_join(l, by = join_by(id, time)) |> 
+	inner_join(l, by = join_by(child_id, response_id)) |> 
 	filter(type=="understands") |> 
-	select(id, time, age, lp, matches("prop")) |> 
-	inner_join(l, by = join_by(id, time)) |> 
-	select(id, id_exp, age_group, matches("prop|count")) 
+	select(child_id, response_id, time, matches("prop")) |> 
+	inner_join(l, by = join_by(child_id, response_id, time)) |> 
+	select(child_id, response_id, age_group, age, lp, matches("prop|count")) 
 
 
 bvq_data <- list(participants = p, 
