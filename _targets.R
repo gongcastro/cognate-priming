@@ -106,14 +106,14 @@ list(
 	# participants -------------------------------------------------------------
 	
 	# Barcelona participants
-	tar_target(participants_file, 
-			   file.path("data-raw", "participants.csv"),
+	tar_target(participants_file_bcn, 
+			   file.path("data-raw", "participants-bcn.csv"),
 			   format = "file"),
-	tar_target(participants, get_participants(participants_file)),
+	tar_target(participants_bcn, get_participants(participants_file_bcn)),
 	
 	# Oxford participants
 	tar_target(participants_file_oxf, 
-			   file.path("data-raw", "participants-oxford.csv"),
+			   file.path("data-raw", "participants-oxf.csv"),
 			   format = "file"),
 	tar_target(participants_oxf, get_participants_oxf(participants_file_oxf)),
 	

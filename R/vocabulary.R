@@ -4,21 +4,21 @@ get_vocabulary <- function(participants, # participants dataset (get_participant
 ){
 	
 	# vocabulary sizes BVQ database and Cognate Priming
-	participants_tmp <- subset(participants, select = c(id_db, age_group, age, lp, filename))
+	participants_tmp <- select(participants, id_db, age_group, age, lp, filename)
 	
 	# get vocabulary contents
 	vocab_contents <- get_vocabulary_contents(participants, bvq_data)
 	
 	vocabulary <- bvq_data$vocabulary |>
-		mutate(id_db = id) |> 
-		right_join(select(participants_tmp, id_db, age_group, lp),
+		mutate(id_db = child_id) |> 
+		right_join(select(participants_tmp, id_db, age, lp),
 				   by = join_by(id_db, age_group)) |> 
 		rowwise() |> 
 		mutate(is_imputed = any(is.na(c_across(total_prop:te_prop)))) |> 
 		ungroup() |> 
-		relocate(id, age_group, is_imputed) |> 
+		relocate(id_db, age, is_imputed) |> 
 		left_join(select(participants_tmp, id_db, age_group, age),
-				  by = join_by(age_group, id_db)) |> 
+				  by = join_by(id_db, age)) 
 		# multiple imputation
 		impute_vocabulary(cols_impute = c("total_prop", "l1_prop",
 										  "l2_prop", "concept_prop",

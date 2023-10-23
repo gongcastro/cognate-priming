@@ -1,4 +1,4 @@
-id,age_group,id_db,id_db_response,age_days,lp,gender,date_test,test_language,list,doe_english,doe_spanish,doe_catalan,doe_other,include,comments
+child_id,age_group,vocab_id,vocab_id_response,age_days,lp,gender,date_test,test_language,list,doe_english,doe_spanish,doe_catalan,doe_other,include,comments
 210090,21,EX01UK01ML001,R_1FD2VnFG1nIj0JQ,646,Monolingual,Female,17/11/2020,English,1,100,0,0,0,TRUE,"Fidgeted and had to be adjusted several times, halfway through mother got up to give child snack, the child was eating during the task"
 210092,21,EX01UK01ML003,R_3smINGFNCSzbi4F,648,Monolingual,Male,19/11/2020,English,2,100,0,0,0,TRUE,
 210093,21,EX01UK01ML004,R_1FxOAQdfRzSgOjW,665,Monolingual,Female,20/11/2020,English,3,100,0,0,0,TRUE,
