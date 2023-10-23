@@ -40,7 +40,7 @@ get_participants <- function(participants_file){
 get_participants <- function(participants_file_bcn,
 							 participants_file_oxf){
 	
-	lp_levels <- c("Monolingual", "Bilingual")
+	lp_levels <- c("Monolingual (English)", "Monolingual", "Bilingual")
 	lang_levels <- c("Catalan", "English", "Spanish")
 	sex_levels <- c("f", "m")
 	
@@ -60,25 +60,45 @@ get_participants <- function(participants_file_bcn,
 			   doe_english, doe_spanish, doe_others,
 			   test_language, list, filename) 
 	
-	participants_oxf <- read_csv(participants_file_oxf,
-								 na = c("NA", ""),
-								 name_repair = janitor::make_clean_names,
-								 show_col_types = FALSE) |> 
-		mutate(across(matches("id"), as.character),
-			   across(starts_with("date_"), dmy),
-			   across(starts_with("doe_"), 
-			   	   \(x) as.numeric(gsub("%", "", x)) * 0.01),
+	
+	participants_oxf <- participants_file_oxf |> 
+		read_csv(name_repair = janitor::make_clean_names, 
+				 show_col_types = FALSE,
+				 progress = FALSE) |> 
+		slice(-c(1, 45:50, 84:91, 149:155)) |> 
+		rename(child_id = participant_id,
+			   vocab_id = unique_id_for_cdi_matching,
+			   age_group = test_cohort,
+			   lp = group,
+			   sex = gender,
+			   date_test = dot,
+			   comments = notes,
+			   list = cp_ver) |> 
+		mutate(across(starts_with("date_"), dmy),
+			   across(matches("_id"), as.character),
+			   id_session = child_id,
+			   child_id = if_else(!is.na(previous_id_if_applicable),
+			   				   previous_id_if_applicable,
+			   				   child_id),
+			   age_group = paste0(age_group, " months"),
+			   sex = tolower(substr(sex, 1, 1)),
+			   date_birth = date_test - days(age_days),
+			   age = difftime(date_test, date_test - days(age_days)) |> 
+			   	time_length(unit = "months"),
+			   location = "Oxford",
+			   list = as.integer(list),
+			   doe_english = 1,
+			   doe_catalan = 0,
+			   doe_spanish = 0,
+			   doe_others = 0,
+			   test_language = "English",
 			   version = "British",
-			   test_language=="English",
-			   date_birth = date_test - days(age_days)) |> 
-		filter(lp=="Monolingual",
-			   !is.na(child_id), 
-			   !is.na(list),
-			   include) |> 
-		select(child_id, session,vocab_id, vocab_id_response, date_test, lp, 
-			   doe_english, doe_spanish, doe_other, version, date_birth,
-			   test_language, list, include, sex = gender) |> 
-		arrange(desc(date_test))
+			   lp = "Monolingual (English)") |>
+		filter(!is.na(list), !is.na(age)) |> 
+		mutate(session = 1:n(), .by = child_id) |> 
+		select(child_id, session, vocab_id, date_test, lp, 
+			   doe_english, doe_spanish, doe_others, version, date_birth,
+			   test_language, list, sex) 
 	
 	participants <- list(Barcelona = participants_bcn,
 						 Oxford = participants_oxf) |> 
