@@ -1,42 +1,5 @@
-# get participant information
-get_participants <- function(participants_file){
-	
-	age_levels <- paste0(c(21, 25, 30), " months")
-	
-	participants <- read_csv(participants_file,
-							 na = c("NA", ""),
-							 show_col_types = FALSE) |> 
-		mutate(
-			id = gsub("cognatepriming", "", id),
-			across(starts_with("id"), as.character),
-			across(where(is.logical), 
-				   \(x) ifelse(is.na(x), FALSE, x)),
-			across(starts_with("date_"), dmy),
-			across(starts_with("doe_"),
-				   \(x) as.numeric(gsub("%", "", x)) * 0.01),
-			age = time_length(interval(date_birth, date_test), 
-							  unit = "months"),
-			age_group = factor(paste0(age_group, " months"),
-							   levels = age_levels),
-			date_test = as_date(date_test),
-			lp = factor(lp, levels = c("Monolingual", "Bilingual")),
-			test_language = factor(test_language, levels = c("Catalan", "Spanish")),
-			across(c(id, list), as.integer)
-		) |> 
-		filter(!pilot) |> # remove pilot participants
-		drop_na(id, filename)|> # remove participants with no gaze data
-		select(id, id_db, date_test, sex, lp, 
-			   doe_catalan, doe_spanish, doe_others,
-			   age_group, age, test_language, 
-			   list, version, filename)
-	
-	test_participants(participants)
-	
-	return(participants)
-	
-}
-
-#' Get participant-level
+#' Get participant-level information
+#'
 get_participants <- function(participants_file_bcn,
 							 participants_file_oxf){
 	
@@ -55,10 +18,10 @@ get_participants <- function(participants_file_bcn,
 			   vocab_id_response = vocab_id,
 			   valid_participant = as.logical(valid_participant)) |> 
 		filter(!pilot, !is.na(child_id), !is.na(filename), valid_participant) |> 
-		select(child_id, session, vocab_id, vocab_id_response,
+		select(child_id, session_id, session_n = session,
+			   vocab_id, vocab_id_response,
 			   date_test, date_birth, lp, age, sex, version,
-			   doe_english, doe_spanish, doe_others,
-			   test_language, list, filename) 
+			   matches("doe"), test_language, list, filename) 
 	
 	
 	participants_oxf <- participants_file_oxf |> 
@@ -74,9 +37,12 @@ get_participants <- function(participants_file_bcn,
 			   date_test = dot,
 			   comments = notes,
 			   list = cp_ver) |> 
-		mutate(across(starts_with("date_"), dmy),
+		mutate(across(starts_with("date_"), 
+					  \(x) suppressWarnings(dmy(x))),
 			   across(matches("_id"), as.character),
-			   id_session = child_id,
+			   vocab_id_response = if_else(grepl("^R_", vocab_id),
+			   							vocab_id, NA_character_),
+			   session_id = child_id,
 			   child_id = if_else(!is.na(previous_id_if_applicable),
 			   				   previous_id_if_applicable,
 			   				   child_id),
@@ -95,9 +61,9 @@ get_participants <- function(participants_file_bcn,
 			   version = "British",
 			   lp = "Monolingual (English)") |>
 		filter(!is.na(list), !is.na(age)) |> 
-		mutate(session = 1:n(), .by = child_id) |> 
-		select(child_id, session, vocab_id, date_test, lp, 
-			   doe_english, doe_spanish, doe_others, version, date_birth,
+		mutate(session_n = 1:n(), .by = child_id) |> 
+		select(child_id, session_id, session_n, vocab_id, vocab_id_response, date_test, lp, 
+			   doe_english, doe_catalan, doe_spanish, doe_others, version, date_birth,
 			   test_language, list, sex) 
 	
 	participants <- list(Barcelona = participants_bcn,
@@ -112,9 +78,10 @@ get_participants <- function(participants_file_bcn,
 			   sex = factor(sex, levels = sex_levels),
 			   test_language = factor(test_language, levels = lang_levels)) |> 
 		rowwise() |> 
-		mutate(doe = list(across(matches("doe_")))) |> 
+		mutate(doe = list(unlist(across(matches("doe_"))))) |> 
 		ungroup() |> 
-		select(child_id, location, date_test, age, sex, lp, doe,
+		select(child_id, location, session_id, session_n, 
+			   date_test, age, sex, lp, doe,
 			   test_language, list, version,
 			   vocab_id, vocab_id_response, filename)
 	
@@ -124,12 +91,3 @@ get_participants <- function(participants_file_bcn,
 	
 }
 
-#' Get participant information in Oxford
-get_participants_oxf <- function(participants_file){
-	
-	
-	
-	
-	return(participants)
-	
-}

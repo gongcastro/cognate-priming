@@ -1,43 +1,89 @@
+#' Get vocabulary data
+get_vocabulary <- function(participants, 
+						   bvq_data, 
+						   vocabulary_supp_bcn_file,
+						   vocabulary_file_oxf,
+						   cdi_file_oxf) {
+	
+	vocab_bcn <- get_vocabulary_bcn(participants, bvq_data, vocabulary_supp_bcn_file)
+	vocab_oxf <- get_vocabulary_oxf(vocabulary_file_oxf,
+									participants,
+									cdi_file_oxf)
+	
+	vocabulary <- bind_rows(vocab_bcn, vocab_oxf)
+	
+	return(vocabulary)
+}
+
 # vocabulary size
-get_vocabulary <- function(participants, # participants dataset (get_participants output)
-						   bvq_data
+get_vocabulary_bcn <- function(participants, # participants dataset (get_participants output)
+							   bvq_data,
+							   vocabulary_supp_bcn_file
 ){
 	
 	# vocabulary sizes BVQ database and Cognate Priming
-	participants_tmp <- select(participants, id_db, age_group, age, lp, filename)
+	participants_tmp <- participants |> 
+		filter(location=="Barcelona") |> 
+		select(child_id, session_id, vocab_id, age, lp)
 	
-	# get vocabulary contents
-	vocab_contents <- get_vocabulary_contents(participants, bvq_data)
+	vocab_supp <- get_vocabulary_supp_bcn(vocabulary_supp_bcn_file) 
 	
 	vocabulary <- bvq_data$vocabulary |>
-		mutate(id_db = child_id) |> 
-		right_join(select(participants_tmp, id_db, age, lp),
-				   by = join_by(id_db, age_group)) |> 
+		mutate(vocab_id = response_id) |> 
+		right_join(select(participants_tmp, session_id, child_id, vocab_id, age, lp),
+				   by = join_by(vocab_id)) |> 
 		rowwise() |> 
 		mutate(is_imputed = any(is.na(c_across(total_prop:te_prop)))) |> 
 		ungroup() |> 
-		relocate(id_db, age, is_imputed) |> 
-		left_join(select(participants_tmp, id_db, age_group, age),
-				  by = join_by(id_db, age)) 
+		relocate(child_id, vocab_id, age, is_imputed) |> 
+		left_join(select(participants_tmp, child_id, session_id, vocab_id, age, lp),
+				  by = join_by(child_id, session_id, vocab_id, age, lp)) |> 
 		# multiple imputation
 		impute_vocabulary(cols_impute = c("total_prop", "l1_prop",
 										  "l2_prop", "concept_prop",
 										  "te_prop"), 
 						  cols_predictor = c("age", "lp"), 
-						  bvq_data = bvq_data) |> 
+						  bvq_data = bvq_data) |>
 		# merge both datasets
 		right_join(participants_tmp, imputed,
-				   by = join_by(id_db, age_group, lp)) |> 
-		mutate(age_group = factor(age_group,
-								  levels = paste0(c(21, 25, 30), " months")),
-			   lp = factor(lp, levels = c("Monolingual", "Bilingual"))) |> 
-		left_join(vocab_contents, by = join_by(id_db, age_group, lp)) |> 
-		select(filename, is_imputed, matches("prop|count|contents")) |> 
-		distinct(filename, .keep_all = TRUE)
+				   by = join_by(child_id, vocab_id, session_id, lp, age)) |> 
+		mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual"))) |> 
+		select(child_id, session_id, vocab_id, is_imputed, matches("prop|count|contents")) |> 
+		distinct(child_id, session_id, vocab_id, .keep_all = TRUE) |> 
+		mutate(add_vocab_supp = map_int(contents, length) < 1) |> 
+		left_join(vocab_supp, by = join_by(session_id)) |> 
+		mutate(contents = if_else(add_vocab_supp & !is.na(contents_supp),
+								  contents_supp, contents)) |> 
+		select(-matches("supp"))
 	
-	test_vocabulary(vocabulary)
+	
+	# test_vocabulary(vocabulary)
 	
 	return(vocabulary)
+}
+
+#' Get vocabulary supplement
+#' 
+get_vocabulary_supp_bcn <- function(vocabulary_supp_bcn_file) {
+	
+	x <- vocabulary_supp_bcn_file |> 
+		set_names(c("Catalan", "Spanish")) |> 
+		map_dfr(function(x) {
+			read_csv(file = x,
+					 show_col_types = FALSE, 
+					 name_repair = janitor::make_clean_names) |> 
+				mutate(across(2:last_col(), as.character)) |> 
+				pivot_longer(-x,
+							 names_to = "session_id",
+							 values_to = "response") |>
+				mutate(response = !is.na(response),
+					   session_id = gsub("x", "", session_id)) |> 
+				rename(item = x)
+		}, .id = "language") |> 
+		summarise(contents_supp = list(item[response]),
+				  .by = session_id)
+	
+	return(x)
 }
 
 #' Impute vocabulary size based on the whole BVQ database
@@ -59,7 +105,7 @@ impute_vocabulary <- function(x,
 	x_tmp <- x[, c(key.cols)]
 	db <- inner_join(bvq_data$vocabulary, 
 					 bvq_data$logs,
-					 by = join_by(id, id_exp, age_group))
+					 by = join_by(response_id))
 	db <- db[, c(key.cols)]
 	to.impute <- rbind(x_tmp, db)
 	
@@ -104,118 +150,74 @@ impute_vocabulary <- function(x,
 	
 }
 
-#' Get vocabulary contents
-get_vocabulary_contents <- function(participants,
-									bvq_data) {
-	
-	# total vocabulary contents
-	contents_total <- bvq_data$responses |> 
-		dplyr::filter(response > 1) |> 
-		summarise(total_contents = list(item[response > 1]),
-				  .by = c(id, time, code)) 
-	
-	# L1 and L2 vocabulary contents
-	contents_dominance <- bvq_data$responses |> 
-		dplyr::filter(response > 1) |> 
-		mutate(language = ifelse(grepl("^cat_", item), "Catalan", "Spanish"),
-			   dominance = ifelse(doe_catalan >= doe_spanish, "Catalan", "Spanish"),
-			   item_dominance = ifelse(language==dominance, "L1", "L2")) |> 
-		summarise(contents = list(item[response > 1]),
-				  .by = c(id, time, code, item_dominance)) |> 
-		pivot_wider(names_from = item_dominance,
-					values_from = contents,
-					names_repair = janitor::make_clean_names,
-					names_glue = "{item_dominance}_contents") 
-	
-	# conceptual vocabulary contents
-	contents_concept <- bvq_data$responses |> 
-		dplyr::filter(response > 1) |> 
-		left_join(select(bvq::pool, te, item),
-				  relationship = "many-to-many",
-				  by = join_by(item)) |> 
-		distinct(id, time, code, te) |> 
-		summarise(concept_contents = list(te),
-				  .by = c(id, time, code))
-	
-	# translation equivalent contents
-	contents_te <- bvq_data$responses |> 
-		dplyr::filter(response > 1) |> 
-		left_join(select(bvq::pool, te, item),
-				  relationship = "many-to-many",
-				  by = join_by(item)) |> 
-		count(id, time, code, te) |> 
-		summarise(te_contents = list(te[n > 1]),
-				  .by = c(id, time, code))
-	
-	# join datasets
-	logs_tmp <- bvq::bvq_logs(bvq_data$participants,
-							  bvq_data$responses) |> 
-		mutate(age_group = case_when(age>=19 & age<24 ~ "21 months",
-									 age>=24 & age<28 ~ "25 months",
-									 age>=28 & age<=34 ~ "30 months",
-									 TRUE ~ "Other"),
-			   age_group = as.factor(age_group)) |> 
-		select(id, time, age_group)
-	
-	participants_tmp <- select(participants, id = id_db, age_group, lp) |>
-		left_join(logs_tmp, by = join_by(id, age_group))
-	
-	contents <- list(contents_total,
-					 contents_dominance,
-					 contents_concept,
-					 contents_te) |> 
-		purrr::reduce(full_join, by = join_by(id, time, code)) |> 
-		right_join(participants_tmp, by = join_by(id, time)) |> 
-		rename(id_db = id)
-	
-	return(contents)
-	
-}
 
 
 # Oxford functions -------------------------------------------------------------
 
 #' Import and process vocabulary data
-get_vocabulary_oxf <- function(vocabulary_file, participants) {
+get_vocabulary_oxf <- function(vocabulary_file,	participants,cdi_file_oxf) {
 	
 	participants_tmp <- participants |> 
-		select(id, id_vocab, id_vocab_response) |> 
-		drop_na()
+		filter(location=="Oxford") |> 
+		select(matches("_id"))
 	
-	cdi_full <- get_cdi_full_oxf(vocabulary_file)
-	cdi_extended <- get_cdi_extended_oxf(vocabulary_file)
-	cdi_supplementary <- get_supplementary_oxf(vocabulary_file)
+	stimuli_cdi_oxf <- read_csv(cdi_file_oxf,
+								show_col_types = FALSE,
+								na = c("", NA)) |> 
+		pivot_longer(matches("item"),
+					 names_to = "version",
+					 values_to = "item_cdi") |> 
+		group_split(version) |> 
+		set_names(c("full", "supp"))
 	
-	vocabulary_tmp <- lst(cdi_full, cdi_extended) |> 
+	cdi_full <- get_cdi_full_oxf(vocabulary_file) |> 
+		left_join(stimuli_cdi_oxf$full, by = c("item" = "item_cdi")) |> 
+		mutate(item = if_else(!is.na(stimulus), stimulus, item)) |> 
+		rename(vocab_id = unique_id,
+			   vocab_id_response = response_id) |> 
+		summarise(total_prop = mean(response),
+				  contents = list(item[response]),
+				  .by = c(vocab_id, vocab_id_response)) |> 
+		left_join(select(participants_tmp, session_id, vocab_id),
+				  by = join_by(vocab_id)) |> 
+		drop_na(session_id) |> 
+		select(session_id, total_prop, contents)
+	
+	cdi_extended <- get_cdi_extended_oxf(vocabulary_file) |> 
+		left_join(stimuli_cdi_oxf$full, by = c("item" = "item_cdi")) |> 
+		mutate(item = if_else(!is.na(stimulus), stimulus, item)) |>  
+		rename(vocab_id_response = response_id) |> 
+		summarise(total_prop = mean(response),
+				  contents = list(item[response]),
+				  .by = c(vocab_id_response)) |> 
+		left_join(select(participants_tmp, session_id, vocab_id_response),
+				  by = join_by(vocab_id_response)) |> 
+		drop_na(session_id) |> 
+		select(session_id, total_prop, contents)
+	
+	cdi_supplementary <- get_supplementary_oxf(vocabulary_file) |> 
+		left_join(stimuli_cdi_oxf$supp, by = c("item" = "item_cdi")) |> 
+		mutate(item = if_else(!is.na(stimulus), stimulus, item)) |>  
+		rename(session_id = child_id) |> 
+		summarise(total_prop = mean(response, na.rm = TRUE),
+				  contents = list(item[response]),
+				  .by = c(session_id)) |> 
+		select(session_id, total_prop, contents) 
+	
+	
+	vocabulary <- lst(cdi_full, cdi_extended, cdi_supplementary) |> 
 		bind_rows(.id = "version") |> 
-		relocate(unique_id, response_id, semantic_category, item, response) |> 
-		rename(id_vocab = unique_id,
-			   id_vocab_response = response_id) |> 
-		summarise(n_total = n(),
-				  total_prop = mean(response, na.rm = TRUE),
-				  total_count = sum(response, na.rm = TRUE),
-				  vocab_contents = list(item[response]),
-				  .by = c(id_vocab, id_vocab_response)) 
-	
-	vocabulary_id <- vocabulary_tmp |> 
-		select(-id_vocab_response) |>
-		distinct(id_vocab, .keep_all = TRUE) |> 
-		inner_join(select(participants_tmp, id, id_vocab),
-				   by = join_by(id_vocab)) |>  
-		select(-id_vocab)
-	
-	vocabulary_id_response <- vocabulary_tmp |> 
-		distinct(id_vocab_response, .keep_all = TRUE) |> 
-		inner_join(select(participants_tmp, id, id_vocab_response),
-				   by = join_by(id_vocab_response)) |>  
-		select(-c(id_vocab, id_vocab_response))
-	
-	vocabulary <- cdi_supplementary |> 
-		left_join(vocabulary_id, by = join_by(id)) |> 
-		left_join(vocabulary_id_response,
-				  by = join_by(id, n_total, total_prop, total_count,
-				  			 vocab_contents)) |> 
-		relocate(id)
+		arrange(version) |> 
+		distinct(session_id, .keep_all = TRUE) |> 
+		left_join(participants_tmp,
+				  by = join_by(session_id)) |> 
+		mutate(is_imputed = FALSE,
+			   l1_prop = total_prop,
+			   l2_prop = 0,
+			   concept_prop = total_prop,
+			   te_prop = 0) |> 
+		select(child_id, session_id, vocab_id, is_imputed, matches("prop"), contents) |> 
+		distinct(child_id, session_id, vocab_id, .keep_all = TRUE)
 	
 	return(vocabulary)
 	
@@ -231,9 +233,11 @@ get_cdi_full_oxf <- function(vocabulary_file) {
 						"vehicles",
 						"toys",
 						"food_and_drink",
+						"and_rooms",
 						"body_parts",
 						"clothes",
-						"furniture",
+						"furniture_bathroom",
+						"furniture_and_rooms",
 						"outside",
 						"household_items",
 						"people",
@@ -264,9 +268,9 @@ get_cdi_full_oxf <- function(vocabulary_file) {
 					 names_to = "item",
 					 values_to = "response") |> 
 		mutate(semantic_category = str_extract(item,
-											   paste0(category_names, 
+											   paste0(rev(category_names), 
 											   	   collapse = "|")),
-			   item = gsub(paste0(paste0(category_names, "_"),
+			   item = gsub(paste0(paste0(rev(category_names), "_"),
 			   				   collapse = "|"), "", item))
 	
 	return(cdi_full)
@@ -278,21 +282,30 @@ get_cdi_extended_oxf <- function(vocabulary_file) {
 	category_names_2 <- c("animal_sounds",
 						  "animals",
 						  "vehicles",
+						  "adventures",
 						  "toys",
+						  "food",
+						  "action",
 						  "food_and_drink",
 						  "body_parts",
 						  "clothes",
 						  "furniture_and_rooms",
+						  "furniture",
 						  "outside",
 						  "household_items",
+						  "household_objects",
 						  "people",
+						  "food",
 						  "games_and_routines",
 						  "action_words",
-						  "action",
 						  "descriptive_words",
 						  "question_words",
+						  "parts_of_things",
+						  "parts_of_animals",
 						  "time",
+						  "household_objects",
 						  "pronouns",
+						  "online",
 						  "prepositions",
 						  "quantifiers")
 	
@@ -313,9 +326,9 @@ get_cdi_extended_oxf <- function(vocabulary_file) {
 					 names_to = "item",
 					 values_to = "response") |> 
 		mutate(semantic_category = str_extract(item,
-											   paste0(category_names_2, 
+											   paste0(rev(category_names_2), 
 											   	   collapse = "|")),
-			   item = gsub(paste0(paste0(category_names_2, "_"),
+			   item = gsub(paste0(paste0(rev(category_names_2), "_"),
 			   				   collapse = "|"), "", item))
 	
 	return(cdi_ext)
@@ -334,12 +347,7 @@ get_supplementary_oxf <- function(vocabulary_file) {
 		pivot_longer(-participant_id,
 					 names_to = "item",
 					 values_to = "response") |> 
-		rename(id = participant_id) |> 
-		summarise(vocab_contents_supp = list(item[response]),
-				  vocab_sum_supp = sum(response, na.rm = TRUE),
-				  vocab_n_supp = n(), 
-				  .by = id)
-	
+		rename(child_id = participant_id) 
 	return(supplementary)
 }
 

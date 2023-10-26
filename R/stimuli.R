@@ -77,7 +77,7 @@ get_familiarity <- function(
 
 #' Get frequencies from CHILDES
 get_childes_corpora <- function(token, languages = c("cat", "spa")) {
-
+	
 	# if CHILDES exists, load
 	childes.path <- file.path("data-raw", "childes.csv")
 	if (file.exists(childes.path)){
@@ -100,7 +100,7 @@ get_childes_corpora <- function(token, languages = c("cat", "spa")) {
 		filter(freq_counts > 0)
 	
 	arrow::write_csv_arrow(childes, childes.path)
-
+	
 	return(childes)
 }
 
@@ -248,21 +248,4 @@ prop_adj_ci <- function(y, n, conf = 0.95) {
 	return(ci)
 }
 
-# Oxford -----------------------------------------------------------------------
 
-#' Get stimuli information
-get_stimuli_oxf <- function(gaze_processed, stimuli_cdi){
-	
-	stimuli <- gaze_processed |> 
-		distinct(pick(matches("_stm"))) |> 
-		left_join(stimuli_cdi, by = c("prime_stm" = "stimulus")) |> 
-		rename_with(\(x) gsub("item_", "prime_", x)) |> 
-		left_join(stimuli_cdi, by = c("target_stm" = "stimulus")) |> 
-		rename_with(\(x) gsub("item_", "target_", x)) |> 
-		left_join(stimuli_cdi, by = c("distractor_stm" = "stimulus")) |> 
-		rename_with(\(x) gsub("item_", "distractor_", x)) |> 
-		mutate(trial_id = row_number()) |> 
-		relocate(trial_id)
-	
-	return(stimuli)
-}

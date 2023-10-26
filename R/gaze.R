@@ -1,5 +1,114 @@
+#' Get eye-tracker data
+#'
+get_gaze <- function(gaze_files_bcn,
+					 gaze_files_oxf,
+					 participants,
+					 aoi_coords,
+					 stimuli,
+					 non_aoi_as_na = TRUE) {
+	
+	# get eye-tracking data in Barcelona
+	gaze_bcn <- get_gaze_bcn(gaze_files_bcn,
+							 participants,
+							 stimuli, 
+							 aoi_coords = aoi_coords,
+							 non_aoi_as_na = non_aoi_as_na)
+	
+	# get eye-tracking data in Oxford
+	gaze_oxf <- get_gaze_oxf(gaze_files_oxf, participants)
+	
+	# merge datasets
+	gaze <- bind_rows(gaze_bcn, gaze_oxf) |> 
+		mutate(trial = as.integer(trial))
+	
+	test_gaze(gaze)
+	
+	return(gaze)
+}
+
+# Barcelona --------------------------------------------------------------------
+
+get_gaze_bcn <- function(gaze_files,
+						 participants,
+						 stimuli,
+						 aoi_coords,
+						 non_aoi_as_na = TRUE) {
+	
+	participants_tmp <- select(participants, filename, child_id, session_id,
+							   test_language, list, version)
+	
+	stimuli_tmp <- select(stimuli, test_language, list, version, trial,
+						  target_location, trial_type, matches("_cdi")) |> 
+		mutate(list = as.integer(list))
+	
+	gaze_processed <- get_gaze_processed_bcn(gaze_files)
+	
+	gaze_bcn <- gaze_processed |> 
+		mutate(filename = gsub(".csv.csv", ".csv", filename))  |> 
+		inner_join(participants_tmp, by = join_by(filename)) |> 
+		left_join(stimuli_tmp,
+				  by = join_by(trial, test_language, list, version)) |>  
+		make_non_aoi_as_false(non_aoi_as_na = non_aoi_as_na) |> 
+		mutate(
+			is_gaze_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
+			is_gaze_target = gaze_in_target(x, y, target_location, aoi_coords),
+			is_gaze_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)
+		) |> 
+		select(child_id, session_id, trial, phase, timestamp, x, y,
+			   is_gaze_prime, is_gaze_target, is_gaze_distractor,
+			   is_valid_gaze, is_imputed, trial_type, matches("_cdi"))
+	
+	return(gaze_bcn)
+	
+}
+
+#' Process Barcelona gaze data
+get_gaze_processed_bcn <- function(gaze_files){
+	
+	screen_resolution <- c(x = 1920, y = 1080) # screen size in pixels
+	
+	# import gaze data ----
+	gaze_processed <- get_gaze_raw_bcn(gaze_files) |> 
+		fix_sampling_rate(filename, date_onset = "2022-05-26") |> 
+		add_count(filename, name = "n_samples") |> 
+		# restart timestamps at each trial phase change, and express in seconds
+		mutate(timestamp = ((1:n())-1) / sampling_rate,
+			   timestamp = timestamp - min(timestamp),
+			   .by = c(filename, trial, phase)) |> 
+		# trim timestamps outside the 2 seconds range
+		filter(between(trial, 1, 32),
+			   !(phase=="Prime" & timestamp > 1.5), 
+			   !(phase=="Target-Distractor" & timestamp > 2.0)) |> 
+		# change gaze coordinates from 0-1 scale to screen resolution scale [1920x1080]
+		mutate(x = x*screen_resolution["x"],
+			   y = y*screen_resolution["y"]) |> 
+		select(filename, trial, phase, timestamp, x, y, is_valid_gaze, filename) |> 
+		arrange(filename, trial, phase, timestamp)
+	
+	# merge data
+	expanded <- expand(gaze_processed, filename, trial, phase, timestamp)
+	
+	gaze_processed <- gaze_processed |>
+		right_join(expanded,
+				   by = join_by(trial, phase, timestamp, filename)) |> 
+		select(filename, trial, phase, timestamp, x, y, is_valid_gaze) |> 
+		mutate(is_valid_gaze = ifelse(is.na(is_valid_gaze), FALSE, is_valid_gaze)) |> 
+		dplyr::filter(!(phase=="Prime" & timestamp > 1.5),
+					  !(phase=="Target" & timestamp > 2.0)) |> 
+		mutate(x_imputed = zoo::na.locf(x, maxgap = 20, na.rm = FALSE),
+			   y_imputed = zoo::na.locf(y, maxgap = 20, na.rm = FALSE),
+			   is_imputed = is.na(x) & !is.na(x_imputed),
+			   x = x_imputed,
+			   y = y_imputed,
+			   .by = c(filename, trial, phase)) |> 
+		select(-c(x_imputed, y_imputed)) |> 
+		relocate(is_imputed, .after = is_valid_gaze)
+	
+	return(gaze_processed)
+}
+
 #' Get raw eye-tracker gaze
-get_gaze_raw <- function(gaze_files){
+get_gaze_raw_bcn <- function(gaze_files){
 	
 	# name changes (see R/utils.R)
 	cols_dict <- get_name_dictionary()$col_name_changes
@@ -14,12 +123,12 @@ get_gaze_raw <- function(gaze_files){
 	
 	# prepare progress bar
 	pb_text <- "{pb_spin} Reading {pb_current}/{pb_total} | {col_blue(pb_percent)}"
-	cli::cli_progress_bar("Processing", total = n_files, format = pb_text)
+	cli_progress_bar("Processing", total = n_files, format = pb_text)
 	
 	for (i in 1:n_files){
-		db[[i]] <- arrow::read_csv_arrow(gaze_files[i], na = na_strings) %>%
+		db[[i]] <- arrow::read_csv_arrow(gaze_files[i], na = na_strings) |>
 			# rename all variables to snake case
-			janitor::clean_names() %>% 
+			janitor::clean_names() |> 
 			rename(any_of(cols_dict)) |> 
 			fix_timestamps() |> 
 			fix_validity() |> 
@@ -32,18 +141,18 @@ get_gaze_raw <- function(gaze_files){
 				y = ifelse(is.na(l_y) | !l_v, r_y, l_y),
 				across(c(x, y), \(x) ifelse(!between(x, 0, 1), NA_real_, x)),
 				is_valid_gaze = as.logical((!(is.na(x) | is.na(y)) & (l_v | r_v)))
-			) %>%
-			dplyr::filter(phase %in% c("Target-Distractor", "Prime")) %>%
+			) |>
+			dplyr::filter(phase %in% c("Target-Distractor", "Prime")) |>
 			add_missing_cols(keep_dict) |> 
 			select(any_of(keep_dict))
 		
-		cli::cli_progress_update()
+		cli_progress_update()
 	}
-	cli::cli_progress_done(result = "done")
+	cli_progress_done(result = "done")
 	
-	cli::cli_progress_step("Binding {n_files} datasets...", spinner = FALSE)
+	cli_progress_step("{n_files} datasets retrieved", spinner = FALSE)
 	gaze_raw  <- bind_rows(db, .id = "filename")
-	cli::cli_progress_done(result = "done")
+	cli_progress_done(result = "done")
 	
 	test_gaze_raw(gaze_raw)
 	
@@ -170,93 +279,7 @@ fix_validity <- function(x) {
 	return(x)
 }
 
-#' Process Barcelona gaze data
-get_gaze_processed <- function(gaze_raw){
-	
-	screen_resolution <- c(x = 1920, y = 1080) # screen size in pixels
-	
-	# import gaze data ----
-	processed <- gaze_raw |> 
-		fix_sampling_rate(filename, date_onset = "2022-05-26") |> 
-		add_count(filename, name = "n_samples") |> 
-		# restart timestamps at each trial phase change, and express in seconds
-		mutate(timestamp = ((1:n())-1) / sampling_rate,
-			   timestamp = timestamp - min(timestamp),
-			   .by = c(filename, trial, phase)) |> 
-		# trim timestamps outside the 2 seconds range
-		filter(between(trial, 1, 32),
-			   !(phase=="Prime" & timestamp > 1.5), 
-			   !(phase=="Target-Distractor" & timestamp > 2.0)) |> 
-		mutate(
-			# change gaze coordinates from 0-1 scale to screen resolution scale [1920x1080]
-			x = x*screen_resolution["x"],
-			y = y*screen_resolution["y"]
-		) %>% 
-		select(filename, trial, phase, timestamp, x, y, is_valid_gaze, filename) %>% 
-		arrange(filename, trial, phase, timestamp)
-	
-	
-	# merge data ----
-	expanded <- expand(processed, filename, trial, phase, timestamp)
-	
-	gaze_processed <- processed %>% 
-		right_join(expanded,
-				   by = join_by(trial, phase, timestamp, filename)) %>% 
-		select(filename, trial, phase, timestamp, x, y, is_valid_gaze) %>% 
-		mutate(is_valid_gaze = ifelse(is.na(is_valid_gaze), FALSE, is_valid_gaze)) %>% 
-		dplyr::filter(
-			!(phase=="Prime" & timestamp > 1.5),
-			!(phase=="Target" & timestamp > 2.0)
-		) |> 
-		mutate(x_imputed = zoo::na.locf(x, maxgap = 20, na.rm = FALSE),
-			   y_imputed = zoo::na.locf(y, maxgap = 20, na.rm = FALSE),
-			   is_imputed = is.na(x) & !is.na(x_imputed),
-			   x = x_imputed,
-			   y = y_imputed,
-			   .by = c(filename, trial, phase)) %>% 
-		select(-c(x_imputed, y_imputed)) %>% 
-		relocate(is_imputed, .after = is_valid_gaze)
-	
-	test_gaze_processed(gaze_processed)
-	
-	return(gaze_processed)
-}
 
-# evaluate if gaze is in AOI ---------------------------------------------------
-
-get_gaze_aoi <- function(gaze_processed,
-						 participants,
-						 stimuli,
-						 aoi_coords,
-						 non_aoi_as_na = TRUE) {
-	
-	participants_tmp <- select(participants, filename,
-							   test_language, list, version)
-	
-	stimuli_tmp <- select(stimuli, test_language, list, version, trial,
-						  target_location, trial_type, matches("_cdi"))
-	
-	gaze_aoi <- gaze_processed |> 
-		mutate(filename = gsub(".csv.csv", ".csv", filename)) |> 
-		left_join(participants_tmp,
-				  by = join_by(filename)) |> 
-		left_join(stimuli_tmp,
-				  by = join_by(trial, test_language, list, version)) |> 
-		make_non_aoi_as_false(non_aoi_as_na = non_aoi_as_na) |> 
-		mutate(
-			is_gaze_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
-			is_gaze_target = gaze_in_target(x, y, target_location, aoi_coords),
-			is_gaze_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)
-		) |> 
-		select(filename, trial, phase, timestamp, x, y,
-			   is_gaze_prime, is_gaze_target, is_gaze_distractor,
-			   is_valid_gaze, is_imputed, trial_type, matches("_cdi"))
-	
-	test_gaze_aoi(gaze_aoi)
-	
-	return(gaze_aoi)
-	
-}
 
 # helper functions -------------------------------------------------------------
 
@@ -411,68 +434,55 @@ get_gaze_raw_oxf <- function(gaze_files) {
 						 show_col_types = FALSE,
 						 progress = FALSE, id = "file",
 						 name_repair = janitor::make_clean_names) |> 
-		mutate(
-			id = as.character(id),
-			prime_stm = coalesce(
-				vis_cp_stm,
-				vis_np_stm,
-				vis_un_stm
-			),
-			trial_type = case_when(
-				!is.na(vis_cp_stm) ~ "Cognate",
-				!is.na(vis_np_stm) ~ "Non-cognate",
-				!is.na(vis_un_stm) ~ "Unrelated",
-			),
-			is_gaze_prime = coalesce(
-				vis_cp_isfxt,
-				vis_np_isfxt,
-				vis_un_isfxt
-			),
-			trial = ifelse(block==2, trial + 16, trial)
-		) |> 
-		select(id,
-			   trial,
-			   timestamp,
-			   trial_type,
-			   x = gaze_filtered_x,
-			   y = gaze_filtered_y,
-			   prime_stm,
-			   target_stm = vis_target_stm,
+		mutate(session_id = as.character(id),
+			   prime_stm = coalesce(vis_cp_stm,
+			   					 vis_np_stm,
+			   					 vis_un_stm),
+			   trial_type = case_when(!is.na(vis_cp_stm) ~ "Cognate",
+			   					   !is.na(vis_np_stm) ~ "Non-cognate",
+			   					   !is.na(vis_un_stm) ~ "Unrelated",),
+			   is_gaze_prime = coalesce(vis_cp_isfxt,
+			   						 vis_np_isfxt,
+			   						 vis_un_isfxt),
+			   trial = ifelse(block==2, trial + 16, trial)) |> 
+		select(session_id, trial, timestamp, trial_type,
+			   x = gaze_filtered_x, y = gaze_filtered_y,
+			   prime_stm, target_stm = vis_target_stm,
 			   distractor_stm = vis_distr_stm,
-			   is_gaze_prime,
-			   is_gaze_target = vis_target_isfxt,
+			   is_gaze_prime, is_gaze_target = vis_target_isfxt,
 			   is_gaze_distractor = vis_distr_isfxt,
-			   is_gaze_valid = overall_validity
-		) |> 
-		mutate(
-			across(matches("is_gaze"),
-				   function(x) {
-				   	y <- as.logical(ifelse(x==-1, 1, x))
-				   	ifelse(is.na(y), FALSE, y)
-				   })
-		)
+			   is_gaze_valid = overall_validity) |> 
+		mutate(across(matches("is_gaze"),
+					  function(x) {
+					  	y <- as.logical(ifelse(x==-1, 1, x))
+					  	ifelse(is.na(y), FALSE, y)
+					  }))
 	
 	return(gaze_raw)
 }
 
 # process gaze
-get_gaze_processed_oxf <- function(gaze_raw, participants) {
+get_gaze_oxf <- function(gaze_files, 
+						 participants) {
 	
 	phase_onsets <- c(0, 2.50, 4.00, 4.05, 4.75, 6.75)
 	phase_labels <- c("Getter", "Prime", "Blank", "Audio", "Target-Distractor")
 	
-	gaze_processed <- gaze_raw |> 
-		mutate(
-			timestamp = ((timestamp * 1e-3) - min(timestamp)),
-			phase = cut(timestamp, 
-						breaks = phase_onsets,
-						labels = phase_labels,
-						include.lowest = TRUE),
-			.by = c(id, trial)
-		) |>
+	gaze_raw <- get_gaze_raw_oxf(gaze_files) 
+	
+	gaze_oxf <- gaze_raw |> 
+		rename(is_valid_gaze = is_gaze_valid) |> 
+		rename_with(\(x) gsub("_stm", "_cdi", x)) |> 
+		mutate(timestamp = ((timestamp * 1e-3) - min(timestamp)),
+			   is_imputed = FALSE,
+			   phase = cut(timestamp, 
+			   			breaks = phase_onsets,
+			   			labels = phase_labels,
+			   			include.lowest = TRUE),
+			   .by = c(session_id, trial)) |>
 		filter(phase %in% c("Prime", "Target-Distractor"),
 			   !is.na(phase),
-			   id %in% participants$id) |> 
+			   session_id %in% participants$session_id) |> 
 		mutate(timestamp = timestamp - min(timestamp),
 			   timebin = cut(timestamp,
 			   			  breaks = seq(0.00, 7.00, 0.1),
@@ -480,9 +490,15 @@ get_gaze_processed_oxf <- function(gaze_raw, participants) {
 			   			  include.lowest = TRUE),
 			   timebin = as.integer(timebin)-1,
 			   phase = factor(phase, levels = c("Prime", "Target-Distractor")),
-			   .by = c(id, trial, phase)) |> 
+			   .by = c(session_id, trial, phase)) |> 
 		relocate(phase, timebin, .after = trial) |> 
-		relocate(ends_with("_stm"), .after = everything()) 
+		relocate(ends_with("_cdi"), .after = everything()) |> 
+		left_join(participants,
+				  by = join_by(session_id)) |> 
+		select(child_id, session_id, trial, phase, timestamp,
+			   x, y, is_gaze_prime, is_gaze_target, is_gaze_distractor,
+			   is_valid_gaze, is_imputed, trial_type,
+			   prime_cdi, target_cdi, distractor_cdi)
 	
-	return(gaze_processed)
+	return(gaze_oxf)
 }
