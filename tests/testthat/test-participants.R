@@ -1,11 +1,13 @@
-test_participants <- function(participants){
+test_participants <- function(x){
 	
-	test_that("participants has the right columns", {
+	test_that("x has the right columns", {
 		expect_setequal(
-			colnames(participants),
+			colnames(x),
 			c("child_id",
 			  "location",
 			  "date_test",
+			  "session_id",
+			  "session_n",
 			  "age",
 			  "sex",
 			  "lp",
@@ -19,30 +21,30 @@ test_participants <- function(participants){
 			  "filename"))
 	})
 	
-	test_that("participants variables are the right types", {
-		expect_type(participants$child_id, "character")
-		expect_type(participants$vocab_id, "character")
-		expect_type(participants$sex, "integer")
-		expect_equal(class(participants$date_test), "Date")
-		expect_type(participants$lp, "integer")
-		expect_type(participants$age, "double")
-		expect_type(participants$test_language, "integer")
-		expect_type(participants$list, "integer")
-		expect_type(participants$version, "character")
-		expect_type(participants$filename, "character")
-		expect_type(participants$doe, "list")
+	test_that("x variables are the right types", {
+		expect_type(x$child_id, "character")
+		expect_type(x$vocab_id, "character")
+		expect_type(x$sex, "integer")
+		expect_equal(class(x$date_test), "Date")
+		expect_type(x$lp, "integer")
+		expect_type(x$age, "double")
+		expect_type(x$test_language, "integer")
+		expect_type(x$list, "integer")
+		expect_type(x$version, "character")
+		expect_type(x$filename, "character")
+		expect_type(x$doe, "list")
 	})
 	
-	test_that("participants has no missing data", {
-		expect_false(any(is.na(participants$child_id)))
-		expect_false(any(is.na(participants$date_test)))
-		expect_false(any(is.na(participants$lp)))
-		expect_false(any(is.na(participants$age)))
-		expect_false(any(is.na(participants$test_language)))
-		expect_false(any(is.na(participants$list)))
-		expect_false(any(is.na(participants$version)))
-		expect_false(any(is.na(participants$filename[
-			participants$location=="Barcelona"
+	test_that("x has no missing data", {
+		expect_false(any(is.na(x$child_id)))
+		expect_false(any(is.na(x$date_test)))
+		expect_false(any(is.na(x$lp)))
+		expect_false(any(is.na(x$age)))
+		expect_false(any(is.na(x$test_language)))
+		expect_false(any(is.na(x$list)))
+		expect_false(any(is.na(x$version)))
+		expect_false(any(is.na(x$filename[
+			x$location=="Barcelona"
 		])))
 	})
 	

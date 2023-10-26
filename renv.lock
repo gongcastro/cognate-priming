@@ -11,7 +11,7 @@
         "URL": "https://gongcastro.r-universe.dev"
       },
       {
-        "Name": "stan",
+        "Name": "stan-dev",
         "URL": "https://mc-stan.org/r-packages"
       }
     ]
@@ -105,16 +105,6 @@
       "Repository": "CRAN",
       "Hash": "45f0398006e83a5b10b72a90663d8d8c",
       "Requirements": []
-    },
-    "RMySQL": {
-      "Package": "RMySQL",
-      "Version": "0.10.25",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c93263945d2ae96aaee33dd0e16bfe99",
-      "Requirements": [
-        "DBI"
-      ]
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -443,16 +433,16 @@
     },
     "bvq": {
       "Package": "bvq",
-      "Version": "0.3.2",
+      "Version": "0.4.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "gongcastro",
       "RemoteRepo": "bvq",
       "RemoteRef": "main",
-      "RemoteSha": "6f859f451ead339bc561c28bfb4264f4fc61dfe5",
+      "RemoteSha": "d3312bcd4c26b96ab925459cd0143e7a65fb4702",
       "RemoteHost": "api.github.com",
       "Remotes": "github::rubenarslan/formr",
-      "Hash": "3f62ce32c94a764d58b6e0911625039e",
+      "Hash": "320cf86ceaf94377dda300f5bfd0d39d",
       "Requirements": [
         "cli",
         "dplyr",
@@ -462,6 +452,7 @@
         "lifecycle",
         "lubridate",
         "magrittr",
+        "purrr",
         "rlang",
         "tibble",
         "tidyr"
@@ -508,22 +499,6 @@
       "Hash": "ca9c113196136f4a9ca9ce6079c2c99e",
       "Requirements": [
         "backports"
-      ]
-    },
-    "childesr": {
-      "Package": "childesr",
-      "Version": "0.2.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c6f89789ce5a2e1c4b87672dee9091d0",
-      "Requirements": [
-        "DBI",
-        "RMySQL",
-        "dbplyr",
-        "dplyr",
-        "jsonlite",
-        "magrittr",
-        "purrr"
       ]
     },
     "cli": {
@@ -696,10 +671,10 @@
     },
     "dbplyr": {
       "Package": "dbplyr",
-      "Version": "2.3.3",
+      "Version": "2.3.4",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "d6fd1b1440c1cacc6623aaa4e9fe352b",
+      "Hash": "63534894354af6b2587b7aa518a5193a",
       "Requirements": [
         "DBI",
         "R6",
@@ -828,6 +803,14 @@
       "Requirements": [
         "rlang"
       ]
+    },
+    "english": {
+      "Package": "english",
+      "Version": "1.2-6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "eae5ce5432c3e995bc4aab2e612df7a5",
+      "Requirements": []
     },
     "evaluate": {
       "Package": "evaluate",
@@ -1196,6 +1179,27 @@
         "xml2"
       ]
     },
+    "gtExtras": {
+      "Package": "gtExtras",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "654cdd2db0d2d1c2ab4ae8ee8af63168",
+      "Requirements": [
+        "cli",
+        "commonmark",
+        "dplyr",
+        "fontawesome",
+        "ggplot2",
+        "glue",
+        "gt",
+        "htmltools",
+        "knitr",
+        "paletteer",
+        "rlang",
+        "scales"
+      ]
+    },
     "gtable": {
       "Package": "gtable",
       "Version": "0.3.4",
@@ -1358,6 +1362,16 @@
       "Repository": "CRAN",
       "Hash": "1deaf1de3eac7e1d3377954b3a283652",
       "Requirements": []
+    },
+    "ipa": {
+      "Package": "ipa",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a088dab8d8630acfe5dee20928321733",
+      "Requirements": [
+        "stringi"
+      ]
     },
     "isoband": {
       "Package": "isoband",
@@ -1839,6 +1853,19 @@
       "Hash": "55ddd2d4a1959535f18393478b0c14a6",
       "Requirements": []
     },
+    "paletteer": {
+      "Package": "paletteer",
+      "Version": "1.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2cc72e89c9f4dc12c38d848914aac313",
+      "Requirements": [
+        "prismatic",
+        "rematch2",
+        "rlang",
+        "rstudioapi"
+      ]
+    },
     "pan": {
       "Package": "pan",
       "Version": "1.9",
@@ -1992,6 +2019,16 @@
       "Repository": "CRAN",
       "Hash": "95ef9167b75dde9d2ccc3c7528393e7e",
       "Requirements": []
+    },
+    "prismatic": {
+      "Package": "prismatic",
+      "Version": "1.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "faa2193fdec94a45b4390aefc1280a62",
+      "Requirements": [
+        "farver"
+      ]
     },
     "processx": {
       "Package": "processx",

@@ -3,86 +3,33 @@
 #| echo: false
 #| message: false
 #| warning: false
-# load objects -----------------------------------------------------------------
-
-targets::tar_config_set(store = here::here('_targets'),
-						script = here::here('_targets.R'))
+# load objects
+targets::tar_config_set(store = here::here("_targets"),
+						script = here::here("_targets.R"))
 
 targets::tar_load_globals()
 
 targets::tar_load(
 	c(participants,
-	  participants_oxf,
 	  stimuli,
-	  stimuli_oxf,
 	  vocabulary,
-	  vocabulary_oxf,
 	  attrition_trials, 
 	  attrition_participants,
-	  attrition_trials_vtarget,
-	  attrition_participants_vtarget,
-	  attrition_trials_vnone, 
-	  attrition_participants_vnone,
-	  attrition_trials_noeach,
-	  attrition_participants_noeach,
-	  attrition_trials_vnoeach,
-	  attrition_participants_vnoeach,
-	  attrition_trials_oxf, 
-	  attrition_participants_oxf,
-	  attrition_trials_vtarget_oxf,
-	  attrition_participants_vtarget_oxf,
-	  attrition_trials_vnone_oxf, 
-	  attrition_participants_vnone_oxf,
-	  attrition_trials_noeach_oxf,
-	  attrition_participants_noeach_oxf,
-	  attrition_trials_vnoeach_oxf,
-	  attrition_participants_vnoeach_oxf,
 	  bvq_data, 
 	  gaze_aoi, 
-	  looking_times,
+	  data_related,
+	  data_cognate,
 	  data_time_related, 
 	  data_time_cognate,
-	  data_time_related_vtarget,
-	  data_time_cognate_vtarget,
-	  data_time_related_vnone,
-	  data_time_cognate_vnone,
-	  data_time_related_noeach, 
-	  data_time_cognate_noeach,
-	  data_time_related_vnoeach,
-	  data_time_cognate_vnoeach,
-	  data_time_related_oxf, 
-	  data_time_cognate_oxf,
-	  data_time_related_vtarget_oxf,
-	  data_time_cognate_vtarget_oxf,
-	  data_time_related_vnone_oxf,
-	  data_time_cognate_vnone_oxf,
-	  data_time_related_noeach_oxf, 
-	  data_time_cognate_noeach_oxf,
-	  data_time_related_vnoeach_oxf,
-	  data_time_cognate_vnoeach_oxf
 	))
 
 targets::tar_load(
 	c(model_fits_related,
 	  model_fits_cognate,
-	  model_fits_related_vtarget,
-	  model_fits_cognate_vtarget,
-	  model_fits_related_vnone,
-	  model_fits_cognate_vnone,
-	  model_fits_related_noeach,
-	  model_fits_cognate_noeach,
-	  model_fits_related_vnoeach,
-	  model_fits_cognate_vnoeach
+	  # model_fits_related_time,
+	  # model_fits_cognate_time,
 	  # model_loo_related,
 	  # model_loo_cognate,
-	  # model_loo_related_vtarget,
-	  # model_loo_cognate_vtarget,
-	  # model_loo_related_vnone,
-	  # model_loo_cognate_vnone,
-	  # model_loo_related_noeach,
-	  # model_loo_cognate_noeach,
-	  # model_loo_related_vnoeach,
-	  # model_loo_cognate_vnoeach
 	))
 
 
@@ -92,8 +39,9 @@ library(ggplot2)
 library(gt)
 library(patchwork)
 library(english)
+library(gtExtras)
 
-# set ggplot theme and colour palette ------------------------------------------
+# set ggplot theme and colour palette
 
 my_theme <- theme_minimal() +
 	theme(panel.grid = element_blank(),
@@ -118,53 +66,8 @@ set.seed(888)
 attrition <- lst(participants,
 				 attrition_participants,
 				 attrition_trials) |> 
-	purrr::reduce(left_join, by = join_by(filename))
-
-attrition_vtarget <- lst(participants,
-						 attrition_participants_vtarget,
-						 attrition_trials_vtarget) |> 
-	purrr::reduce(left_join, by = join_by(filename))
-
-attrition_vnone <- lst(participants,
-					   attrition_participants_vnone,
-					   attrition_trials_vnone) |> 
-	purrr::reduce(left_join, by = join_by(filename))
-
-attrition_noeach <- lst(participants,
-						attrition_participants_noeach,
-						attrition_trials_noeach) |> 
-	purrr::reduce(left_join, by = join_by(filename))
-
-attrition_vnoeach <- lst(participants,
-						 attrition_participants_vnoeach,
-						 attrition_trials_vnoeach) |> 
-	purrr::reduce(left_join, by = join_by(filename))
-
-attrition_oxf <- lst(participants_oxf,
-					 attrition_participants_oxf,
-					 attrition_trials_oxf) |> 
-	purrr::reduce(left_join, by = join_by(id))
-
-attrition_vtarget_oxf <- lst(participants_oxf,
-							 attrition_participants_vtarget_oxf,
-							 attrition_trials_vtarget_oxf) |> 
-	purrr::reduce(left_join, by = join_by(id))
-
-attrition_vnone_oxf <- lst(participants_oxf,
-						   attrition_participants_vnone_oxf,
-						   attrition_trials_vnone_oxf) |> 
-	purrr::reduce(left_join, by = join_by(id))
-
-attrition_noeach_oxf <- lst(participants_oxf,
-							attrition_participants_noeach_oxf,
-							attrition_trials_noeach_oxf) |> 
-	purrr::reduce(left_join, by = join_by(id))
-
-attrition_vnoeach_oxf <- lst(participants_oxf,
-							 attrition_participants_vnoeach_oxf,
-							 attrition_trials_vnoeach_oxf) |> 
-	purrr::reduce(left_join, by = join_by(id))
-
+	reduce(inner_join, by = join_by(session_id)) |> 
+	unnest_wider(matches("all"), names_sep = "_")
 
 ```
 
@@ -231,53 +134,91 @@ All materials, data, and reproducible code can be found at the OSF ([https://osf
 
 ```{r}
 #| label: participants-numbers
-n_participants_total <- length(unique(participants$id))
+n_participants_total <- participants |> 
+	distinct(location, child_id) |> 
+	count(location)
 
-n_participants_sessions <- count(participants, id, name = "n_sessions") |> 
+n_participants_sex <- participants |> 
+	distinct(location, sex, child_id) |> 
+	count(location, sex)
+
+n_participants_sessions <- count(participants,
+								 child_id,
+								 name = "n_sessions") |> 
 	count(n_sessions) |> 
 	group_split(n_sessions) |> 
 	set_names(paste0("session_", 1:3))
 
 n_sessions_total <- count(participants)
 
-n_sessions_age_group <- participants |> 
+n_sessions_lp <- participants |> 
 	summarise(across(age, lst(mean, sd, min, max)),
 			  n = n(),
-			  .by = c(age_group)) |> 
+			  .by = c(lp)) |> 
 	mutate(across(age_mean:age_max, \(x) round(x, 2))) |> 
-	group_split(age_group) |> 
-	set_names(c("age_21", "age_25", "age_30"))
+	group_split(lp) |> 
+	set_names(janitor::make_clean_names(unique(participants$lp)))
 
-n_sessions_dominance <- count(participants, test_language) |> 
+n_sessions_dominance_lp <- count(participants, lp, test_language) |> 
 	group_split(test_language) |> 
-	set_names(c("catalan", "spanish"))
-
-n_sessions_dominance_age_group <- count(participants, age_group, test_language) |> 
-	group_split(test_language) |> 
-	set_names(c("catalan", "spanish")) |> 
-	map(\(x) group_split(x, age_group) |> 
-			set_names(c("age_21", "age_25", "age_30")))
+	set_names(c("catalan", "english", "spanish")) |> 
+	map(group_split, lp)
 
 n_sessions_lp <- participants |> 
 	count(lp) |> 
 	group_split(lp) |> 
-	set_names(c("monolingual", "bilingual"))
-
-n_sessions_lp_age_group <- participants |> 
-	count(lp, age_group) |> 
-	group_split(lp) |> 
-	set_names(c("monolingual", "bilingual")) |> 
-	map(\(x) group_split(x, age_group) |> 
-			set_names(c("age_21", "age_25", "age_30")))
+	set_names(c("monolingual_eng", "monolingual", "bilingual"))
 ```
 
-We collected data from `r n_participants_total` monolingual and bilingual participants living in the Metropolitan Area of Barcelona (Spain), who were exposed to at least Catalan and/or Spanish from birth. Families were recruited from maternity room in private hospitals in Barcelona, and contacted via phone when the child's age spanned between our age intervals of interest. Families were invited to participate at three age points: 21, 25, and 30 months. `r n_participants_sessions[[1]]$n` participants were tested at one age point,  `r n_participants_sessions[[2]]$n` at two age points, and `r n_participants_sessions[[3]]$n` at the three age points. In total, we gathered data from `r n_sessions_total$n` testing sessions: `r n_sessions_age_group$age_21$n` at 21 months (*Mean* = `r round(n_sessions_age_group$age_21$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_21$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_21$age_min`--`r n_sessions_age_group$age_21$age_max`), `r n_sessions_age_group$age_25$n` at 25 months (*Mean* = `r round(n_sessions_age_group$age_25$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_25$age_min`--`r n_sessions_age_group$age_25$age_max`), and `r n_sessions_age_group$age_30$n` at 30 months (*Mean* = `r round(n_sessions_age_group$age_30$age_mean, 2)`, *SD* = `r round(n_sessions_age_group$age_25$age_sd, 2)`, *Range* = `r n_sessions_age_group$age_30$age_min`--`r n_sessions_age_group$age_30$age_max`). 
+We collected data from `r n_participants_total$n[1]` participants living in the Metropolitan Area of Barcelona (Spain) tested at the Laboratori de recerca en Infància at the Universitat Pompeu Fabra (`r n_participants_sex$n[1]` female, `n_participants_sex$n[2]` male), and `r n_participants_total$n[2]` participants living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford (`r n_participants_sex$n[3]` female, `n_participants_sex$n[4]`, `n_participants_sex$n[5]` not reported). Families were recruited from maternity room in private hospitals or from social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r sum(n_participants_total$n)` children that participated, `r n_participants_sessions$session_1$n` participated once, `r n_participants_sessions$session_2$n` participated twice, and `r n_participants_sessions$session_3$n` participated three times. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions: `r n_sessions_lp$monolingual_english$n` from participants in Oxford, and `r n_sessions_lp$monolingual$n + n_sessions_lp$bilingual$n` from participants in Barcelona.
 
-### Language profile {#sec-lp}
-
-We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (DoE) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan- or Spanish-dominant if the language with highest DoE was Catalan or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. We collected data from `r n_sessions_dominance$catalan$n` Catalan-dominant participants in Catalan (`r n_sessions_dominance_age_group$catalan$age_21$n` at 21 months, `r n_sessions_dominance_age_group$catalan$age_25$n` at 25 months, and `r n_sessions_dominance_age_group$catalan$age_30$n` at 30 months). We further classified participants as monolinguals if the DoE to their dominant language exceeded 80% of the total DoE to Catalan and Spanish, and as bilinguals otherwise. Participants with DoE to language other than Catalan or Spanish were excluded from analyses. This divided the sample into `r n_sessions_lp$monolingual$n` monolinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$monolinguals$age_25` at 25 months, and `r n_sessions_lp_age_group$monolinguals$age_30` at 30 months), and `r n_sessions_lp$bilingual$n` bilinguals (`r n_sessions_lp_age_group$monolinguals$age_21` at 21 months, `r n_sessions_lp_age_group$bilingual$age_25` at 25 months, and `r n_sessions_lp_age_group$bilingual$age_30` at 30 months). @tbl-participants-lp shows a detailed description of the linguistic profile of our sample.
+We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (*DoE*) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan-, English-, or Spanish-dominant if the language with highest *DoE* was Catalan, English, or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. From the `r n_sessions_total$n` testing sessions, `r n_sessions_lp$monolingual_english$n` belonged to English monolinguals,  `r n_sessions_lp$monolingual$n` to Catalan or Spanish monolinguals, and  `r n_sessions_lp$bilingual$n` to Catalan-Spanish bilinguals. @tbl-participants shows a detailed description of the linguistic profile of our sample.
 
 
+```{r tbl-participants}
+#| label: tbl-partiicpants
+#| tbl-cap: "Demographic and linguistic profile of participants."
+participants |> 
+	unnest_wider(doe) |> 
+	select(-matches("others")) |> 
+	mutate(lp = case_when(
+		lp=="Monolingual" ~ "Monolingual (Catalan or Spanish)",
+		lp=="Bilingual" ~ "Bilingual (Catalan-Spanish)",
+		.default = lp)) |> 
+	arrange(desc(lp)) |> 
+	summarise(n = n(),
+			  across(age, lst(mean, sd, min, max)),
+			  across(matches("doe_"), lst(mean, sd)),
+			  age_vctr = list(age),
+			  .by = c(lp, test_language)) |> 
+	gt(rowname_col = "test_language",
+	   groupname_col = "lp") |> 
+	gt_plt_dist(age_vctr, type = "histogram") |> 
+	fmt_number(is.numeric, decimals = 1) |> 
+	fmt_integer(n) |> 
+	fmt_number(matches("doe"), decimals = 1, scale_by = 100) |> 
+	cols_merge_range(age_min, age_max) |> 
+	cols_merge_uncert(age_mean, age_sd) |> 
+	cols_merge_uncert(doe_catalan_mean, doe_catalan_sd) |> 
+	cols_merge_uncert(doe_english_mean, doe_english_sd) |> 
+	cols_merge_uncert(doe_spanish_mean, doe_spanish_sd) |> 
+	tab_spanner("Age (months)", matches("age")) |> 
+	tab_spanner("Catalan", matches("catalan")) |> 
+	tab_spanner("English", matches("english")) |> 
+	tab_spanner("Spanish", matches("spanish")) |> 
+	tab_spanner("Degree of Exposure (%)", matches("doe")) |> 
+	cols_label(n = "N",
+			   age_mean = "M (SD)",
+			   age_min = "Range",
+			   age_vctr = "Distribution",
+			   doe_catalan_mean = "M (SD)",
+			   doe_english_mean = "M (SD)",
+			   doe_spanish_mean = "M (SD)") |> 
+	tab_style(cell_text(style = "italic"),
+			  cells_column_labels()) |> 
+	tab_style(cell_text(weight = "bold"),
+			  cells_column_spanners())
+```
 
 
 ### Vocabulary size
@@ -297,42 +238,39 @@ We calculated several measures of receptive vocabulary size from each participan
 
 ```{r tbl-vocabulary}
 #| label: tbl-vocabulary
-#| tbl-cap: "Summary of participant vocabulary sizes. vocabulary sizes are expressed as percentage points, and summarised as the mean (*M*) and the standard deviation (*SD*). Total: proportion of words in both languages marked as *Understands*. L1: proportion of words in the dominant language marked as *Understands*. L2: proportion of words in the non-cominant language marked as *Understands*. Conceptual: proportion of translation equivalents for which at least one of the words has ben marked as *Understands*. TE: proportion of translation equivalents for which *both* words have been marked as *Understands*."
+#| tbl-cap: "Participant vocabulary sizes across ages and language profiles. Vocabulary size scores are presented using two measures: L1 vocabulary size (proportion of words marked as *Understands* in the vocabulary checklist of the dominant language), and total vocabulary size (proportion of words marked as *Understands* in vocabulary checklists of both dominant and non-dominant languages). Vocabulary size scores from the recurrent participants are shown linked."
 #| eval: false
 vocabulary |> 
-	left_join(select(participants, filename, id, age_group, lp),
-			  by = join_by(filename)) |> 
-	summarise(across(matches("prop"), 
-					 tibble::lst(mean, sd)),
-			  .by = c(age_group, lp)) |>
-	arrange(age_group, lp) |> 
-	gt(groupname_col = "age_group",
-	   rowname_col = "lp") |> 
-	cols_hide(lp) |> 
-	tab_spanner("Vocabulary size ", matches("prop")) |> 
-	cols_merge(c(total_prop_mean, total_prop_sd),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(l1_prop_mean, l1_prop_sd),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(l2_prop_mean, l2_prop_sd),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(concept_prop_mean, concept_prop_sd),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(te_prop_mean, te_prop_sd),
-			   pattern = "{1} ({2})") |> 
-	fmt_number(is.numeric,
-			   decimals = 1,
-			   scale_by = 100,
-			   drop_trailing_zeros = FALSE) |>
-	cols_label(total_prop_mean = "Total",
-			   l1_prop_mean = "L1",
-			   l2_prop_mean = "L2",
-			   concept_prop_mean = "Concept",
-			   te_prop_mean = "TE") |> 
-	tab_stub_indent(rows = everything(),
-					indent = 2) |> 
-	tab_style(cell_text(align = "left"),
-			  cells_stub())
+	inner_join(select(participants, child_id, session_id, age, lp),
+			   by = join_by(child_id, session_id)) |> 
+	pivot_longer(c(total_prop, l1_prop),
+				 names_to = "measure",
+				 values_to = "prop",
+				 names_transform = \(x) gsub("_prop", "", x)) |> 
+	mutate(lp = case_when(
+		lp=="Monolingual" ~ "Monolingual (Catalan or Spanish)",
+		lp=="Bilingual" ~ "Bilingual (Catalan-Spanish)",
+		.default = lp) |> 
+			factor(levels = c("Monolingual (English)",
+							  "Monolingual (Catalan or Spanish)",
+							  "Bilingual (Catalan-Spanish)")),
+		measure = if_else(measure=="l1", 
+						  "L1 vocabulary", 
+						  "Total vocabulary"),
+		is_imputed = if_else(is_imputed, "Imputed", "Observed") |> 
+			factor(levels = c("Observed", "Imputed"))) |> 
+	ggplot(aes(age, prop, colour = is_imputed)) +
+	facet_grid(measure ~ lp) +
+	geom_line(aes(group = child_id),
+			  alpha = 1/2,
+			  colour = "grey") +
+	geom_point() +
+	labs(x = "Age (months)",
+		 y = "Vocabulary size (%)") +
+	theme(panel.grid = element_line(linetype = "dotted",
+									colour = "grey"),
+		  legend.position = "right",
+		  legend.title = element_blank())
 ```
 
 
@@ -402,13 +340,110 @@ Testing took place in a sound-proof room. Participants sat on their caregivers' 
 
 Each trial started with the presentation of an attention getter for 3,000 milliseconds. Then, the prime picture was presented in silence in the centre of the screen for 1,500 milliseconds. Fifty milliseconds after the offset of the prime image, an auditory label was played from the loudspeakers and, 700 milliseconds after the onset of the auditory label, the target and distractor pictures were presented side-by-side during 1,000 milliseconds until the end of the trial. After this, the attention getter of the next trial was immediately presented. Each experimental session took approximately 10 minutes.
 
+## Data processing
+
+```{r dataset}
+n_trials <- nrow(attrition)
+n_sessions <- n_distinct(attrition$session_id)
+n_participants <- n_distinct(attrition$child_id)
+n_trials_valid <- nrow(filter(attrition,
+							  is_valid_participant,
+							  is_valid_trial))
+n_sessions_valid <- sum(attrition_participants$is_valid_participant)
+n_participants_valid <- n_distinct(
+	attrition[attrition$is_valid_participant, ]$child_id)
+
+n_exc_prime <- sum(!attrition$is_valid_gaze_all_prime)
+n_exc_test <- sum(!attrition$is_valid_gaze_all_test)
+n_exc_test_each <- sum(!attrition$is_valid_gaze_all_test_each)
+n_exc_vocab <- sum(!attrition$is_valid_vocab)
+n_exc_participants <- sum(!attrition_participants$is_valid_participant) 
+
+n_longitudinal <- attrition |>
+	filter(is_valid_participant,
+		   is_valid_trial) |>
+	distinct(child_id, session_n) |> 
+	count(child_id, name = "times") |> 
+	count(times)
+```
+
+Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach], with a maximum of 20 maximum consecutive missing samples being interpolated (an equivalent of 166.67 ms).
+
+We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50%  valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target-looking *and* distractor looking in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`) [see @floccia2020translation for a similar approach]. Finally, we excluded trials in which participants did not understand the prime *or* the target word, according to a supplementary vocabulary checklist filled by their caregivers upon experiment completion (*n* = `r format(n_exc_vocab, big.mark = ",")`). After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the  *Unrelated* condition (*n* = `r n_exc_participants`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
+
+
+```{r tbl-attrition}
+#| label: tbl-attrition
+#| tbl-cap: "Participant-level and trial-level sample size after applying inclusion criteria. The number of excluded participants and trials is indicated between parentheses."
+expanded <- expand(attrition, lp, trial_type, is_valid_trial)
+
+n_lp <- attrition |> 
+	distinct(is_valid_participant, lp, session_id) |> 
+	count(is_valid_participant, lp) |> 
+	pivot_wider(names_from = is_valid_participant,
+				values_from = n,
+				names_repair = janitor::make_clean_names) |> 
+	mutate(n_participants_true = true,
+		   n_participants_false = false) |> 
+	select(lp, true, false)
+
+attrition |> 
+	summarise(n_trials_true = sum(is_valid_trial),
+			  n_trials_false = sum(!is_valid_trial),
+			  .by = c(lp, trial_type)) |> 
+	arrange(desc(lp)) |> 
+	# across(n_trials, lst(mean, sd, sum), na.rm = TRUE),
+	
+	pivot_wider(id_cols = lp,
+				names_from = c(trial_type),
+				values_from = matches("trials"),
+				names_repair = janitor::make_clean_names) |> 
+	left_join(n_lp, by = join_by(lp)) |> 
+	mutate(lp = case_when(
+		lp=="Monolingual" ~ "Monolingual (Catalan or Spanish)",
+		lp=="Bilingual" ~ "Bilingual (Catalan-Spanish)",
+		.default = lp)) |>
+	select(lp, true, false,
+		   matches("n_trials")) |> 
+	gt(rowname_col = "lp") |> 
+	tab_spanner("Participants", matches("participant")) |> 
+	tab_spanner("Trials", matches("trial")) |> 
+	fmt_integer(everything()) |> 
+	cols_merge(c(true, false),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(n_trials_true_cognate,
+				 n_trials_false_cognate),
+				 pattern = "{1} ({2})") |> 
+	cols_merge(c(n_trials_true_non_cognate,
+				 n_trials_false_non_cognate),
+				 pattern = "{1} ({2})") |> 
+	cols_merge(c(n_trials_true_unrelated, 
+				 n_trials_false_unrelated),
+				 pattern = "{1} ({2})") |> 
+	cols_label(true = "N", 
+			   n_trials_true_cognate = "Cognate",
+			   n_trials_true_non_cognate = "Non-cognate",
+			   n_trials_true_unrelated = "Unrelated") |> 
+	tab_style(cell_text(style = "italic"),
+			  cells_column_labels()) |>
+	grand_summary_rows(fns = list(label = md("*N*")) ~ sum(.),
+					   fmt = ~ fmt_integer(.))
+```
+
+
+
 ## Data analysis
 
-We defined our time window of interest from 300 ms after the onset of the test phase (target and distractor presentation) until the end of the test phase (2,000 ms). For each trial, we chunked the time domain into 17 time bins of 100 ms of duration. We then calculated, for each experimental session, time bin, and condition, participant's proportion of target and distractor fixations. Finally, we computed the empirical logit of target fixations, which we introduced in the statistical analyses as our response variable. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach].
+We conducted two main analyses. In the first analysis, we estimated the effect of phonological priming on participants' target looking comparing *related* trials---in which prime and target share phonological onset, and the prime was not a cognate word---with *unrelated* trials---in which prime and target did not share phonological onset, and neither was the prime a cognate word, leaving out *cognate* trials. This analysis included all trials on the data set. Second, we estimated the effect of cognateness on phonological priming, comparing *cognate* trials---in which prime and target shared phonological onset, and the prime was a cognate word that also shared phonological onset with the target, with *non-cognate* trials---in which prime a target shared phonological onset, and the prime was not a cognate---, leaving out *unrelated* trials.
 
-We conducted two main analyses. First, we estimated the effect of phonological priming on participants' target looking, comparing *related* trials with *unrelated* trials. This analysis included all trials on the data set. Second, we estimated the effect of cognateness on phonological priming, comparing *cognate* with *non-cognate* trials, leaving out *unrelated* trials. In both analyses, we used General Additive Mixed Models (GAMMs) to model the probability of target fixations across the time course of the trial using a normal distribution.
+In both analyses, we modelled the probability of target looking across the time course of the trial. For each trial, we chunked the time domain of the target-distractor phase into 20 time bins of 100 ms of duration. We then calculated, for each experimental session, time bin, and condition, the number of eye-tracker samples in which the participant was looking to the target and the distractor pictures. Finally, we computed the empirical logit of target fixations using @eq-elogit [@barr2008analyzing; @agresti2012categorical], which modelled in our analyses using a Gaussian distribution.
 
-In the first analysis. We included *Relatedness* (`Related` vs. `Unrelated`, sum-coded as `-0.5` and `+0.5`), *Group* (`Monolingual` vs. `Bilingual`, sum-coded as `-0.5` and `+0.5`), and *Age* (participants' standardised age in months) as fixed, main effects. We also included cubic regression splines for the main effect of *Time*, and one for an adjustment of the previous cubic spline by *Group* [@wood2017generalized]. For both splines, we specified $k = 10$ basis functions or *knots*--half the number of time bins, for computational convenience. Finally, we added by-participant random intercepts, and random slopes for the main effect of *Relatedness* and the main effect of *Age*, both including repeated measures per participant.
+$$
+\eta' = \ln\bigg(\frac{\text{Target} + 0.5}{ \text{Distractor} + 0.5}\bigg)
+$$ {#eq-elogit}
+
+
+In the first analysis, we included *Relatedness* (`Related` vs. `Unrelated`, sum-coded as `-0.5` and `+0.5`), *Group* (`Monolingual` vs. `Bilingual`, sum-coded as `-0.5` and `+0.5`), and *Age* (participants' standardised age in months) as fixed, main effects, together with their two- and three-way interactions. We used multilevel General Additive Mixed Models (GAMMs) to model the time course of target looking, including cubic regression splines for the main effect of *Time*, and one for an adjustment of the *Time* cubic spline by *Group* and *Relatedness* [@wood2017generalized]. For both splines, we specified $k = 10$ basis functions or *knots*--half the number of time bins---for computational convenience. Finally, we added by-participant random intercepts, and random slopes for the main effect of *Relatedness* and the main effect of *Age*, both including repeated measures per participant [@pedersen2019hierarchical]. In the second analysis, we included *Cognateness* (`Cognate` vs. `Non-cognate`, sum-coded as `-0.5` and `+0.5`) replacing *Relatedness*. @eq-model shows the formal implementation of the model.
 
 To test the contribution of each of the predictors of interest--*Relatedness*/*Cognateness*, and *Group*--, we compared each model ($\mathcal{M_0}$) against a simplified model dropping each of the main effects, *Relatedness*/*Cognateness* ($\mathcal{M}_1$) or *Group* ($\mathcal{M_2}$). In both simplified models, the interaction term was dropped. We used leave-one-out cross-validation (LOO-CV) as a benchmark of model performance, using Pareto-smoothed importance sampling (PSIS) to approximate it. We then examined the posterior predictions of the best-performing model for interpretation.
 
@@ -416,422 +451,143 @@ $$
 \begin{aligned}
 \textbf{Likelihood:} \\
 y_i &\sim \mathcal{N}(\mu_i, \sigma_i) \\ \\
-\textbf{Linear model} \\
-\text{logit}(\mu_i) &= (\beta_0 + u _{0_{i}}) + (\beta_1 + u _{1_{i}}) \cdot \text{Relatedness} + \beta_{2} \cdot \text{Group} + \\
-&\beta_{3} \cdot (\text{Relatedness} \times \text{Group}) + (\beta_4 + u_{3_{i}}) \cdot \text{Age} + \\
-&\sum_{j = 1}^k b_{j_{1}}(\beta_{5_{k}} + u_{4_{i}}) \cdot \text{Time} + \\
-&\sum_{j = 1}^k b_{j_{1}} (\beta_{6_{k }} + u_{5_{i}}) \cdot (\text{Time} \times \text{Group}) \\
+\textbf{Linear model:} \\
+\eta'(\mu_i) &= (\beta_0 + u _{0_{i}}) + (\beta_1 + u _{1_{i}}) \cdot \text{[Condition]} +\\
+&\beta_{2} \cdot \text{Group} + \beta_{3} \cdot (\text{[Condition]} \times \text{Group}) +\\
+& (\beta_4 + u_{2_{i}}) \cdot \text{Age} + \sum_{j = 1}^k b_{j_{1}} \cdot \beta_{5_{k}} \cdot \text{Time} + \sum_{j = 1}^k b_{j_{1}} \cdot\beta_{6_{k}} \cdot (\text{Time} \times \text{Group}) \\
 \text{where:} \\
+&\eta'\text{ is the empirical logit of target fixations} \\
+& \text{[Condition] should be replaced with } Relatedness \text{ or } Cognateness \\
 &k \text{ is the number of knots in the spline (10)} \\
 \textbf{Prior:} \\
-\beta_{0-6} &\sim \mathcal{N}(0, 1) \\
-b_{0-1} &\sim MVN(0, 1) \\
-\sigma_i &\sim Exp(4) 
+\beta_{0-6} &\sim \mathcal{N}(0, 0.5) \\
+u_{0-2} &\sim \mathcal{N}(0, \sigma_{0-2})\\
+b_{0-1} &\sim \text{MVN}(0, \tau_{0-1}) \\
+\sigma_{0-2}, \tau_{0-1} &\sim \text{Exponential}(6)\\
+\rho_{0-2} &\sim LKJCorr(6)\\
+\text{where:}\\
+&\rho_{0-2} \text{ are the correlation parameters for } \sigma_{0-2}
 \end{aligned}
-$$
+$$ {#eq-model}
 
 # Results
 
-We know present the results under four different trial-level inclusion criteria. In Analysis 1, the child is required to understand the prime *and* the target words, on top of having to fixate both target and distractor  for at last 50 ms each during the target-distractor phase. In Analysis 2, the child is required to understand the target word, on top of having to fixate both target and distractor  for at last 50 ms each during the target-distractor phase. In Analysis 3, the child is not required to understand any word, but is still required to fixate both target and distractor for at last 50 ms each during the target-distractor phase. In Analysis 4, the child is not required to understand any word, nor to fixate at both target and distractor. In Analysis 5, the child is required to understand the prime *and* target words, but is not required to look at both target *and* distractor in the test phase.
-
-::: {.callout-note}
-
-@floccia2020translation required participants to know prime and target, but not to look at target *and* distractor (looking at at least one of them is enough). @mani2010infants did not require participants to know either word, but required infants to *not* look exclusively to the target or the distractor throughout the trial, and in an alternative analysis, to *not* look exclusively to the distractor.
-
-The fact that in some time course analyses participants seem to be looking predominantly towards one of the objects (despite the target and distractor pictures having been presented less than 300 ms before) is a common finding in previous studies using preferential looking procedures [e.g., @floccia2020translation].
-
-:::
-
-```{r tbl-multi-trials}
-#| tbl-cap: "Number of valid trials by age group, profile, and attrition criteria."
-tibble::lst(data_time_related,
-			data_time_related_oxf,
-			data_time_related_vtarget,
-			data_time_related_vtarget_oxf,
-			data_time_related_vnone,
-			data_time_related_vnone_oxf,
-			data_time_related_noeach,
-			data_time_related_noeach_oxf,
-			data_time_related_vnoeach,
-			data_time_related_vnoeach_oxf) |> 
-	bind_rows(.id = "analysis") |>
-	mutate(analysis_lab = case_when(
-		analysis=="data_time_related" ~ "Analysis 1",
-		grepl("_vtarget", analysis) ~ "Analysis 2",
-		grepl("_vnone", analysis) ~ "Analysis 3",
-		grepl("_noeach", analysis) ~ "Analysis 4",
-		grepl("_vnoeach", analysis) ~ "Analysis 5",
-		.default = "Analysis 1"
-	),
-	lp = case_when(grepl("_oxf", analysis) ~ "Monolingual (Oxford)", 
-				   lp=="Bilingual" ~ "Bilingual (Barcelona)",
-				   .default = "Monolingual (Barcelona)"),
-	lp = factor(lp, 
-				levels = c("Monolingual (Oxford)",
-						   "Monolingual (Barcelona)",
-						   "Bilingual (Barcelona)")),
-	condition = factor(condition, levels = c("Related", "Unrelated"))) |> 
-	distinct(analysis, analysis_lab, lp, condition, .ntrials) |> 
-	summarise(.ntrials = sum(.ntrials),
-			  .by = c(lp, analysis_lab, condition)) |> 
-	pivot_wider(names_from = c(lp, condition),
-				values_from = .ntrials,
-				names_repair = janitor::make_clean_names) |> 
-	relocate(analysis_lab,
-			 monolingual_barcelona_related,
-			 monolingual_barcelona_unrelated,
-			 bilingual_barcelona_related,
-			 bilingual_barcelona_unrelated,
-			 monolingual_oxford_related,
-			 monolingual_oxford_unrelated) |> 
-	gt(rowname_col = "analysis_lab") |> 
-	tab_spanner("Bilingual", matches("bilingual")) |> 
-	
-	tab_spanner("Monolingual", matches("monolingual")) |> 
-	tab_spanner("Barcelona", matches("barcelona")) |> 
-	tab_spanner("Oxford", matches("oxford")) |> 
-	
-	
-	cols_label(monolingual_oxford_related = "Related",
-			   monolingual_oxford_unrelated = "Unrelated",
-			   monolingual_barcelona_related = "Related",
-			   monolingual_barcelona_unrelated = "Unrelated",
-			   bilingual_barcelona_related = "Related",
-			   bilingual_barcelona_unrelated = "Unrelated")
 
 
-```
-
-```{r fig-related-summary}
-#| label: fig-related-summary
-#| fig-height: 6.5
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-tibble::lst(data_time_related,
-			data_time_related_oxf,
-			data_time_related_vtarget,
-			data_time_related_vtarget_oxf,
-			data_time_related_vnone,
-			data_time_related_vnone_oxf,
-			data_time_related_noeach,
-			data_time_related_noeach_oxf,
-			data_time_related_vnoeach,
-			data_time_related_vnoeach_oxf) |> 
-	bind_rows(.id = "analysis") |>
-	mutate(analysis_lab = case_when(
-		analysis=="data_time_related" ~ "Analysis 1",
-		grepl("_vtarget", analysis) ~ "Analysis 2",
-		grepl("_vnone", analysis) ~ "Analysis 3",
-		grepl("_noeach", analysis) ~ "Analysis 4",
-		grepl("_vnoeach", analysis) ~ "Analysis 5",
-		.default = "Analysis 1"
-	),
-	lp = ifelse(grepl("_oxf", analysis), 
-				"Monolingual (English)", 
-				as.character(lp)),
-	lp = factor(lp, levels = c("Monolingual (English)",
-							   "Monolingual",
-							   "Bilingual"))) |> 
-	# summarise(.elog_mean = mean(.elog),
-	# 		  n = n(),
-	# 		  .elog_std = sd(.elog),
-	# 		  .by = c(condition, timebin, analysis, lp)) |>
-	# mutate(.elog_se = .elog_std/n) |> 
-	ggplot(aes(timebin, .elog,
-			   colour = condition,
-			   fill = condition,
-			   shape = condition)) +
-	facet_grid(analysis_lab~lp) +
-	geom_hline(yintercept = 0.5, 
-			   linewidth = 1/2,
-			   colour = "black",
-			   linetype = "dotted") +
-	geom_smooth(method = lm, 
-				se = FALSE, 
-				formula = y ~ splines::bs(x, 4)) +
-	# geom_errorbar(aes(ymin = .elog_mean - .elog_se*1.96, 
-	# 				  ymax = .elog_mean + .elog_se*1.96),
-	# 			  width = 0.25,
-	# 			  linewidth = 3/4) + 
-	# geom_line(size = 3/4) + 
-	stat_summary(fun = mean, geom = "point") +
+```{r fig-ptlt-descriptive}
+#| label: fig-ptlt-descriptive
+#| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
+data_time_related |> 
+	summarise(.elog = mean(.elog),
+			  .by = c(session_id, timebin, lp, condition)) |> 
+	ggplot(aes(timebin, .elog, colour = condition, fill = condition)) +
+	facet_wrap(~lp) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	stat_summary(fun.data = mean_se,
 				 geom = "errorbar",
-				 width = 0.25) +
-	labs(x = "Time (ms)",
-		 y = "P(Target looking)",
-		 colour = "Condition",
-		 fill = "Condition",
-		 linetype = "Condition",
-		 shape = "Condition") +
-	scale_linetype_manual(values = rev(c("solid", "dashed"))) +
-	# scale_shape_manual(values = c(1, 2)) +
-	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
-											big.mark = ",")) +
-	theme(legend.title = element_blank(),
-		  axis.title.x = element_blank(),
-		  panel.border = element_rect(fill = NA),
-		  axis.line = element_line(),
-		  legend.position = "top") 
-```
-
-```{r fig-cognate-summary}
-#| label: fig-cognate-summary
-#| fig-height: 6.5
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs. Lines and inetervals indicate the mean and 95% credible intervals of the posterior probability of target looking across the time course of the trial. Points indicate the mean probability of target looking across participants. In Analysis 1, the child is required to understand the prime *and* the target words, on top of having to fixate both target and distractor  for at last 50 ms each during the target-distractor phase. In Analysis 2, the child is required to understand the target word, on top of having to fixate both target and distractor  for at last 50 ms each during the target-distractor phase. In Analysis 3, the child is not required to understand any word, but is still required to fixate both target and distractor for at last 50 ms each during the target-distractor phase. In Analysis 4, the child is not required to understand any word, nor to fixate at both target and distractor. In Analysis 5, the child is required to understand the prime *and* target words, but is not required to look at both target *and* distractor in the test phase."
-tibble::lst(data_time_cognate,
-			data_time_cognate_oxf,
-			data_time_cognate_vtarget,
-			data_time_cognate_vtarget_oxf,
-			data_time_cognate_vnone,
-			data_time_cognate_vnone_oxf,
-			data_time_cognate_noeach,
-			data_time_cognate_noeach_oxf,
-			data_time_cognate_vnoeach,
-			data_time_cognate_vnoeach_oxf) |> 
-	bind_rows(.id = "analysis") |>
-	mutate(analysis_lab = case_when(
-		analysis=="data_time_cognate" ~ "Analysis 1",
-		grepl("_vtarget", analysis) ~ "Analysis 2",
-		grepl("_vnone", analysis) ~ "Analysis 3",
-		grepl("_noeach", analysis) ~ "Analysis 4",
-		grepl("_vnoeach", analysis) ~ "Analysis 5",
-		.default = "Analysis 1"
-	),
-	lp = ifelse(grepl("_oxf", analysis), 
-				"Monolingual (English)", 
-				as.character(lp)),
-	lp = factor(lp, levels = c("Monolingual (English)",
-							   "Monolingual",
-							   "Bilingual"))) |> 
-	# summarise(.elog_mean = mean(.elog),
-	# 		  n = n(),
-	# 		  .elog_std = sd(.elog),
-	# 		  .by = c(condition, timebin, analysis, lp)) |>
-	# mutate(.elog_se = .elog_std/n) |> 
-	ggplot(aes(timebin, .elog,
-			   colour = condition,
-			   fill = condition,
-			   shape = condition)) +
-	facet_grid(analysis_lab~lp) +
-	geom_hline(yintercept = 0.5, 
-			   linewidth = 1/2,
-			   colour = "black",
-			   linetype = "dotted") +
-	geom_smooth(method = lm, 
-				se = FALSE, 
-				formula = y ~ splines::bs(x, 4)) +
-	# geom_errorbar(aes(ymin = .elog_mean - .elog_se*1.96, 
-	# 				  ymax = .elog_mean + .elog_se*1.96),
-	# 			  width = 0.25,
-	# 			  linewidth = 3/4) + 
-	# geom_line(size = 3/4) + 
-	stat_summary(fun = mean, geom = "point") +
+				 width = 0.5) +
+	stat_summary(fun = mean,
+				 geom = "line") +
+	stat_summary(fun = mean,
+				 geom = "point") +
+	theme(axis.title.x = element_blank()) +
+	
+	data_time_cognate |> 
+	summarise(.elog = mean(.elog),
+			  .by = c(session_id, timebin, lp, condition)) |> 
+	ggplot(aes(timebin, .elog, colour = condition, fill = condition)) +
+	facet_wrap(~lp) +
+	geom_hline(yintercept = 0.5, linetype = "dashed") +
 	stat_summary(fun.data = mean_se,
 				 geom = "errorbar",
-				 width = 0.25) +
-	labs(x = "Time (ms)",
+				 width = 0.5) +
+	stat_summary(fun = mean,
+				 geom = "line") +
+	stat_summary(fun = mean,
+				 geom = "point") +
+	theme(strip.text = element_blank()) +
+	
+	plot_layout(ncol = 1) &
+	plot_annotation(tag_levels = "A") &
+	labs(x = "Time bin (100 ms)",
 		 y = "P(Target looking)",
 		 colour = "Condition",
-		 fill = "Condition",
-		 linetype = "Condition",
-		 shape = "Condition") +
-	scale_linetype_manual(values = rev(c("solid", "dashed"))) +
-	# scale_shape_manual(values = c(1, 2)) +
-	scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
-											big.mark = ",")) +
-	theme(legend.title = element_blank(),
+		 fill = "Condition") &
+	# scale_y_continuous(breaks = seq(0, 1, 0.1)) &
+	theme(legend.position = "right",
+		  panel.grid.major.x = element_line(colour = "grey",
+		  								  linetype = "dotted"),
+		  panel.grid.major.y = element_line(colour = "grey",
+		  								  linetype = "dotted")) 
+
+```
+
+### Phonological priming: Related vs. Unrelated primes
+
+In a first analysis, we examined the effect of phonological priming. We compared participants' looking preference for the target in related and unrelated trials. We first compared the aggregated probability of target looking across time bins in both conditions for each language group.  
+
+```{r fig-related-aggregated}
+#| label: fig-related-aggregated
+#| fig-cap: "A) Aggregated probability of target looking for related and unrelated trials. Each point represents the mean probability of target looking for one participant in one testing session. Lines link observations from the same testing session across conditions. Black dots and errorbars indicate the mean and 95% CrI. B) Aggregated probability of target looking across ages for related and unrelated trials. Lines and error bands indicate the mean and standard error of the mean."
+nd <- expand(data_related, lp, condition, age = mean(data_related$age))
+
+epreds <- add_epred_draws(newdata = nd,
+						  object = model_fits_related[[1]],
+						  re_formula = NA) |> 
+	mean_qi() |> 
+	mutate(label = sprintf("%.2f\n[%.2f, %.2f]", .epred, .lower, .upper))
+
+
+epreds |> 
+	ggplot(aes(condition, .epred, 
+			   colour = condition,
+			   fill = condition)) +
+	facet_wrap(~lp) +
+	# geom_line(data = data_related,
+	# 		  aes(y = .elog,
+	# 		  	group = session_id),
+	# 		  colour = "grey",
+	# 		  alpha = 1/4) +
+	geom_dots(dat = data_related,
+			  aes(y = .elog,
+			  	side = ifelse(condition=="Related",
+			  				  "left", 
+			  				  "right")),
+			  show.legend = FALSE) +
+	geom_hline(yintercept = 0,
+			   linetype = "dashed") +
+	geom_line(aes(group = lp),
+			  colour = "black",
+			  linewidth = 3/4) +
+	geom_errorbar(aes(ymin = .lower,
+					  ymax = .upper),
+				  width = 0.15,
+				  linewidth = 3/4,
+				  colour = "black") +
+	geom_point(size = 2, colour = "black") +
+	geom_label(aes(label = label,
+				   y = -1.5),
+			   fill = "white",
+			   colour = "black",
+			   label.r = unit(0, "lines"),
+			   label.size = 0,
+			   vjust = 0,
+			   size = 3,
+			   alpha = 1/2) +
+	labs(x = "Condition",
+		 y = "P(Target looking)",
+		 colour = "Condition",
+		 fill = "Condition") +
+	scale_y_continuous(breaks = seq(-4, 4, 0.5)) +
+	theme(legend.position = "none",
 		  axis.title.x = element_blank(),
-		  panel.border = element_rect(fill = NA),
-		  axis.line = element_line(),
-		  legend.position = "top")
+		  strip.background = element_rect(fill = "grey90",
+		  								colour = "grey90"),
+		  panel.grid.major.y = element_line(linetype = "dotted",
+		  								  colour = "grey")) 
 ```
 
-## Analysis 1
-
-::: {.callout-note}
-
-Participants must know **prime** *and* **target** words, and must look at least 10 ms to each target and distractor.
-
-:::
-
-```{r dataset}
-n_trials <- nrow(attrition_trials)
-n_total <- n_distinct(attrition_trials$id)
-n_trials_valid <- inner_join(attrition_participants,
-							 attrition_trials,
-							 by = join_by(id)) |> 
-	filter(is_valid_participant) |> 
-	pull(is_valid_trial) |> 
-	sum()
-n_participants_valid <- sum(attrition_participants$is_valid_participant)
-n_exc_prime <- sum(!attrition_trials$is_valid_gaze_prime)
-n_exc_test <- sum(!attrition_trials$is_valid_gaze_test)
-n_exc_test_each <- sum(!attrition_trials$is_valid_gaze_test_each)
-n_exc_vocab <- sum(!attrition_trials$is_valid_vocab)
-n_exc_cognate <- sum(!attrition_participants$is_valid_cognate)
-n_exc_noncognate <- sum(!attrition_participants$is_valid_noncognate)
-n_exc_unrelated <- sum(!attrition_participants$is_valid_unrelated)
-
-n_longitudinal <- attrition_participants |>
-	filter(is_valid_participant) |>
-	count(id, name = "times") |> 
-	count(times)
-```
-
-
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_total` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples to *both* target and distractor in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`). Finally, we excluded trials in which participants did not understand the prime *or* the target word, according to a supplementary vocabulary checklist filled by their caregivers upon experiment completion (*n* = `r format(n_exc_vocab, big.mark = ",")`). After applying these trial-level inclusion criteria, we excluded participants who did not provide at least two valid trials in the *cognate prime* condition (*n* = `r n_exc_cognate`), the *non-cognate prime* condition (*n* = `r n_exc_noncognate`), or the *unrelated prime* condition (*n* = `r n_exc_unrelated`). The resulting dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_participants_valid` participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
-
-```{r tbl-participants-lp}
-#| label: tbl-participants-lp
-#| tbl-cap: "Participant details for Analysis 1. Sample sizes indicate the number of participants included and excluded (between parenthesis) after applying inclusion criteria. Age is summarised using the mean and standard deviation (betwen parenthesis) for each age and language group separately."
-participants_tmp <- participants |> 
-	left_join(attrition_participants, by = join_by(filename)) |> 
-	mutate(id = as.character(id))
-
-participants_oxf_tmp <- participants_oxf |> 
-	inner_join(attrition_participants_oxf,
-			   by = join_by(id)) |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) 
-
-bind_rows(participants_tmp, participants_oxf_tmp) |> 
-	add_count(lp, 
-			  name = "n_lp") |> 
-	add_count(age_group, 
-			  name = "n_age_group") |> 
-	add_count(age_group,
-			  test_language,
-			  name = "n_age_test") |> 
-	mutate(lp = factor(lp, levels = rev(unique(lp)))) |> 
-	summarise(across(c(age), lst(mean, sd)),
-			  n_inc = sum(is_valid_participant),
-			  n_exc = sum(!is_valid_participant),
-			  .by = c(age_group, lp, test_language)) |> 
-	pivot_wider(id_cols = c(test_language, lp),
-				names_from = c(age_group),
-				values_from = c(matches("doe"), age_mean, age_sd, n_inc, n_exc),
-				names_repair = janitor::make_clean_names) |>
-	relocate(lp, test_language, 
-			 n_inc_21_months, n_exc_21_months, age_mean_21_months, age_sd_21_months,
-			 n_inc_25_months, n_exc_25_months, age_mean_25_months, age_sd_25_months,
-			 n_inc_30_months, n_exc_30_months, age_mean_30_months, age_sd_30_months) |> 
-	arrange(lp, test_language) |> 
-	gt(rowname_col = "test_language", 
-	   groupname_col = "lp", 
-	   row_group.sep = ": ") |> 
-	tab_spanner(md("21 months"), matches("21")) |> 
-	tab_spanner(md("25 months"), matches("25")) |>
-	tab_spanner(md("30 months"), matches("30")) |> 
-	fmt_number(matches("age"), decimals = 1) |>
-	cols_merge(c(n_inc_21_months, n_exc_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_25_months, n_exc_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_30_months, n_exc_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_21_months, age_sd_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_25_months, age_sd_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_30_months, age_sd_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_label(n_inc_21_months = md("*N*"),
-			   n_inc_25_months = md("*N*"),
-			   n_inc_30_months = md("*N*"),
-			   age_mean_21_months = "Age (months)",
-			   age_mean_25_months = "Age (months)",
-			   age_mean_30_months = "Age (months)") |> 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners())) |> 
-	tab_style(cell_text(size = "medium"),
-			  list(cells_body(),
-			  	 cells_stub())) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("n"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	grand_summary_rows(starts_with("n"), 
-					   fns = list(label = md("*N*")) ~ sum(.),
-					   fmt = ~fmt_integer(.))
-```
-
-
-
-```{r tbl-attrition-trials}
-#| label: tbl-attrition-trials
-#| tbl-cap: "Trial attrition rate by condition for included participants in Analysis 1. Additional excluded trials are indicated between parentheses."
-attrition_oxf |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) |> 
-	bind_rows(mutate(attrition, id = as.character(id))) |> 
-	filter(is_valid_participant) |> 
-	summarise(n_valid = sum(is_valid_trial),
-			  n_total = n(),
-			  .by = c(id, age_group, lp, trial_type)) |> 
-	summarise(across(n_valid, lst(sum, mean, sd),
-					 .names = "{.fn}"),
-			  n_total = sum(n_total),
-			  .by = c(age_group, lp, trial_type)) |> 
-	mutate(n_excluded = n_total-sum) |> 
-	select(-c(n_total)) |> 
-	pivot_wider(names_from = trial_type,
-				values_from = c(sum:sd, n_excluded),
-				names_repair = janitor::make_clean_names) |> 
-	rename_with(\(x) gsub("non_cognate", "noncognate", x)) |> 
-	arrange(age_group) |> 
-	relocate(age_group,
-			 matches("_cognate"),
-			 matches("noncognate")) |> 
-	gt(rowname_col = "age_group",
-	   groupname_col = "lp") |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("sum"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 matches("mean"), 
-				 fns = list(label = md("*Mean*"), id = "totals") ~ mean(.),
-				 fmt = ~fmt_number(.)) |> 
-	grand_summary_rows(columns = matches("mean_"),
-					   fns = lst(Mean ~ mean(.)),
-					   fmt = ~fmt_number(.)) |>
-	grand_summary_rows(columns = matches("sum_"),
-					   fns = lst(Sum ~ sum(.)),
-					   fmt = ~fmt_integer(.)) |>
-	cols_merge(c(sum_cognate, n_excluded_cognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_noncognate, n_excluded_noncognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_unrelated, n_excluded_unrelated),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(mean_cognate, sd_cognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_noncognate, sd_noncognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_unrelated, sd_unrelated),
-			   pattern = "{1} ({2})") |>
-	tab_spanner("Cognate trials", ends_with("_cognate")) |>
-	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
-	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
-	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd"), decimals = 1) |> 
-	fmt_integer(matches("sum"), sep_mark = ",") |> 
-	cols_label(sum_cognate = md("*N*"),
-			   sum_noncognate = md("*N*"),
-			   sum_unrelated = md("*N*"),
-			   mean_cognate = md("*Mean (SD)*"),
-			   mean_noncognate = md("*Mean (SD)*"),
-			   mean_unrelated = md("*Mean (SD)*"))
-```
-
-
-### Phonological priming: Related vs. Unrelated
+#### Time course analysis
 
 ```{r fig-related}
 #| label: fig-related
@@ -839,16 +595,22 @@ attrition_oxf |>
 #| fig-width: 8
 #| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 1. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
 plot_gamm <- function(data, model, contrast = "related") {
+	
 	epreds <- expand_grid(condition = levels(data$condition),
-						  timebin = seq(0, 17, length.out = 100),
-						  age = mean(data$age),
+						  timebin = seq(0, 20, length.out = 100),
+						  age = c(21, 25, 30),
 						  lp = levels(data$lp),
-						  .nsamples = 1) |>
+						  .nsamples = 1) |> 
 		add_epred_draws(model,
-						ndraws = NULL,
+						ndraws = 100,
 						re_formula = NA, 
 						value = ".value") |> 
-		mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual")))
+		mutate(lp = factor(lp, 
+						   levels = c("Monolingual (English)",
+						   		   "Monolingual",
+						   		   "Bilingual")),
+			   age = factor(age, levels = c(21, 25, 30),
+			   			 labels = paste0(c(21, 25, 30), " months")))
 	
 	epreds_diff <- epreds |> 
 		pivot_wider(names_from = condition,
@@ -861,25 +623,25 @@ plot_gamm <- function(data, model, contrast = "related") {
 	} else {
 		epreds_diff$diff <- epreds_diff$cognate - epreds_diff$non_cognate
 	}
-
+	
 	data |> 
+		mutate(age = factor(age, levels = c(21, 25, 30),
+							labels = paste0(c(21, 25, 30), " months"))) |> 
 		summarise(.prop = mean(.prop),
-				  .by = c(id, timebin, lp, condition, age)) |> 
-		ggplot(aes(timebin, .prop, 
+				  .by = c(child_id, timebin, lp, condition, age)) 
+	
+	epreds |> 
+		ggplot(aes(timebin, y = .value,
 				   colour = condition,
 				   fill = condition,
 				   shape = condition,
 				   linetype = condition)) +
-		facet_wrap(~lp) +
-		stat_summary(data = epreds,
-					 aes(y = .value),
-					 fun.data = \(x) mean_qi(x, .width = 0.95),
+		facet_grid(age~lp) +
+		stat_summary(fun.data = \(x) mean_qi(x, .width = 0.95),
 					 geom = "ribbon",
 					 alpha = 0.5,
 					 linewidth = 0) +
-		stat_summary(data = epreds,
-					 aes(y = .value,
-					 	linetype = condition),
+		stat_summary(aes(linetype = condition),
 					 fun = "mean",
 					 geom = "line",
 					 linewidth = 3/4) +
@@ -887,12 +649,12 @@ plot_gamm <- function(data, model, contrast = "related") {
 				   linewidth = 1/2,
 				   colour = "black",
 				   linetype = "dotted") +
-		stat_summary(fun.data = mean_se,
-					 geom = "errorbar",
-					 linetype = "solid",
-					 width = 0.25) +
-		stat_summary(fun = mean,
-					 geom = "point") +
+		# stat_summary(fun.data = mean_se,
+		# 			 geom = "errorbar",
+		# 			 linetype = "solid",
+		# 			 width = 0.25) +
+		# stat_summary(fun = mean,
+		# 			 geom = "point") +
 		labs(x = "Time (ms)",
 			 y = "P(Target looking)",
 			 colour = "Condition",
@@ -900,9 +662,10 @@ plot_gamm <- function(data, model, contrast = "related") {
 			 linetype = "Condition",
 			 shape = "Condition") +
 		theme(legend.title = element_blank(),
-			  axis.title.x = element_blank()) +
-		
-		epreds_diff |> 
+			  legend.position = "top",
+			  axis.title.x = element_blank()) 
+	
+	epreds_diff |> 
 		ggplot(aes(timebin, diff)) +
 		facet_wrap(~lp) +
 		stat_lineribbon(.width = 0.95,
@@ -927,852 +690,98 @@ plot_gamm <- function(data, model, contrast = "related") {
 		plot_annotation(tag_levels = "A") +
 		scale_linetype_manual(values = rev(c("solid", "dashed"))) &
 		# scale_shape_manual(values = c(1, 2)) &
-		scale_x_continuous(labels = \(x) format((x * 1e2)+300, 
+		scale_x_continuous(labels = \(x) format((x * 1e2), 
 												big.mark = ",")) &
 		theme(panel.grid = element_blank(),
 			  legend.position = "top") 
 }
 
-plot_gamm(data_time_related, model_fits_related[[1]])
+plot_gamm(data_time_related, 
+		  model_fits_related[[1]],
+		  contrast = "related")
 
 ```
 
 
 
 ### Cognate priming: Cognate vs. Non-cognate
+
+```{r fig-cognate-aggregated}
+#| label: fig-related-aggregated
+#| fig-cap: "A) Aggregated probability of target looking for cognate and non-cognate trials. Each point represents the mean probability of target looking for one participant in one testing session. Lines link observations from the same testing session across conditions. Black dots and errorbars indicate the mean and 95% CrI. B) Aggregated probability of target looking across ages for cognate and non-cognate trials. Lines and error bands indicate the mean and standard error of the mean."
+nd <- expand(data_cognate, lp, condition, age = mean(data_cognate$age))
+
+epreds <- add_epred_draws(newdata = nd,
+						  object = model_fits_cognate[[1]],
+						  re_formula = NA) |> 
+	mean_qi() |> 
+	mutate(label = sprintf("%.2f\n[%.2f, %.2f]", .epred, .lower, .upper))
+
+
+epreds |> 
+	ggplot(aes(condition, .epred, 
+			   colour = condition,
+			   fill = condition)) +
+	facet_wrap(~lp) +
+	# geom_line(data = data_cognate,
+	# 		  aes(y = .elog,
+	# 		  	group = session_id),
+	# 		  colour = "grey",
+	# 		  alpha = 1/4) +
+	geom_dots(dat = data_cognate,
+			  aes(y = .elog,
+			  	side = ifelse(condition=="Cognate",
+			  				  "left", 
+			  				  "right")),
+			  show.legend = FALSE) +
+	geom_hline(yintercept = 0,
+			   linetype = "dashed") +
+	geom_line(aes(group = lp),
+			  colour = "black",
+			  linewidth = 3/4) +
+	geom_errorbar(aes(ymin = .lower,
+					  ymax = .upper),
+				  width = 0.15,
+				  linewidth = 3/4,
+				  colour = "black") +
+	geom_point(size = 2, colour = "black") +
+	geom_label(aes(label = label,
+				   y = -1.5),
+			   fill = "white",
+			   colour = "black",
+			   label.r = unit(0, "lines"),
+			   label.size = 0,
+			   vjust = 0,
+			   size = 3,
+			   alpha = 1/2) +
+	labs(x = "Condition",
+		 y = "P(Target looking)",
+		 colour = "Condition",
+		 fill = "Condition") +
+	scale_y_continuous(breaks = seq(-4, 4, 0.5)) +
+	theme(legend.position = "none",
+		  axis.title.x = element_blank(),
+		  strip.background = element_rect(fill = "grey90",
+		  								colour = "grey90"),
+		  panel.grid.major.y = element_line(linetype = "dotted",
+		  								  colour = "grey")) 
+```
+
+#### Time course analysis
 
 ```{r fig-cognate}
 #| label: fig-cognate
 #| fig-height: 6
 #| fig-width: 8
 #| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 1. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_cognate, model_fits_cognate[[1]], contrast = "cognate")
-```
-
-{{< pagebreak >}}
-
-## Analysis 2
-
-::: {.callout-note}
-
-Participants must know the target **target** word (no need to know the prime word), and must look at least 10 ms to each target and distractor.
-
-:::
-
-```{r dataset-vtarget}
-n_trials <- nrow(attrition_trials_vtarget)
-n_trials_valid <- inner_join(attrition_participants_vtarget,
-							 attrition_trials_vtarget) |> 
-	filter(is_valid_participant) |> 
-	pull(is_valid_trial) |> 
-	sum()
-n_participants_valid <- sum(attrition_participants_vtarget$is_valid_participant)
-n_exc_prime <- sum(!attrition_trials_vtarget$is_valid_gaze_prime)
-n_exc_test <- sum(!attrition_trials_vtarget$is_valid_gaze_test)
-n_exc_test_each <- sum(!attrition_trials_vtarget$is_valid_gaze_test_each)
-n_exc_vocab <- sum(!attrition_trials_vtarget$is_valid_vocab)
-n_exc_cognate <- sum(!attrition_participants_vtarget$is_valid_cognate)
-n_exc_noncognate <- sum(!attrition_participants_vtarget$is_valid_noncognate)
-n_exc_unrelated <- sum(!attrition_participants_vtarget$is_valid_unrelated)
-
-n_longitudinal <- attrition_participants_vtarget |>
-	filter(is_valid_participant) |>
-	count(id, name = "times") |> 
-	count(times)
-```
-
-
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_total` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples to *both* target and distractor in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`). Finally, we excluded trials in which participants did not understand the target word, according to a supplementary vocabulary checklist filled by their caregivers upon experiment completion (*n* = `r format(n_exc_vocab, big.mark = ",")`). After applying these trial-level inclusion criteria, we excluded participants who did not provide at least two valid trials in the *cognate prime* condition (*n* = `r n_exc_cognate`), the *non-cognate prime* condition (*n* = `r n_exc_noncognate`), or the *unrelated prime* condition (*n* = `r n_exc_unrelated`). The resulting dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_participants_valid` participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
-
-```{r tbl-participants-lp-vtarget}
-#| label: tbl-participants-lp-vtarget
-#| tbl-cap: "Participant details for Analysis 2. Sample sizes indicate the number of participants included and excluded (between parenthesis) after applying inclusion criteria. Age is summarised using the mean and standard deviation (betwen parenthesis) for each age and language group separately."
-participants_tmp <- participants |> 
-	left_join(attrition_participants_vtarget, by = join_by(filename)) |> 
-	mutate(id = as.character(id))
-
-participants_oxf_tmp <- participants_oxf |> 
-	inner_join(attrition_participants_vtarget_oxf,
-			   by = join_by(id)) |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) 
-
-bind_rows(participants_tmp, participants_oxf_tmp) |> 
-	add_count(lp, 
-			  name = "n_lp") |> 
-	add_count(age_group, 
-			  name = "n_age_group") |> 
-	add_count(age_group,
-			  test_language,
-			  name = "n_age_test") |> 
-	mutate(lp = factor(lp, levels = rev(unique(lp)))) |> 
-	summarise(across(c(age), lst(mean, sd)),
-			  n_inc = sum(is_valid_participant),
-			  n_exc = sum(!is_valid_participant),
-			  .by = c(age_group, lp, test_language)) |> 
-	pivot_wider(id_cols = c(test_language, lp),
-				names_from = c(age_group),
-				values_from = c(matches("doe"), age_mean, age_sd, n_inc, n_exc),
-				names_repair = janitor::make_clean_names) |>
-	relocate(lp, test_language, 
-			 n_inc_21_months, n_exc_21_months, age_mean_21_months, age_sd_21_months,
-			 n_inc_25_months, n_exc_25_months, age_mean_25_months, age_sd_25_months,
-			 n_inc_30_months, n_exc_30_months, age_mean_30_months, age_sd_30_months) |> 
-	arrange(lp, test_language) |> 
-	gt(rowname_col = "test_language", 
-	   groupname_col = "lp", 
-	   row_group.sep = ": ") |> 
-	tab_spanner(md("21 months"), matches("21")) |> 
-	tab_spanner(md("25 months"), matches("25")) |>
-	tab_spanner(md("30 months"), matches("30")) |> 
-	fmt_number(matches("age"), decimals = 1) |>
-	cols_merge(c(n_inc_21_months, n_exc_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_25_months, n_exc_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_30_months, n_exc_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_21_months, age_sd_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_25_months, age_sd_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_30_months, age_sd_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_label(n_inc_21_months = md("*N*"),
-			   n_inc_25_months = md("*N*"),
-			   n_inc_30_months = md("*N*"),
-			   age_mean_21_months = "Age (months)",
-			   age_mean_25_months = "Age (months)",
-			   age_mean_30_months = "Age (months)") |> 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners())) |> 
-	tab_style(cell_text(size = "medium"),
-			  list(cells_body(),
-			  	 cells_stub())) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("n"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	grand_summary_rows(starts_with("n"), 
-					   fns = list(label = md("*N*")) ~ sum(.),
-					   fmt = ~fmt_integer(.))
-```
-
-
-```{r tbl-attrition-trials-vtarget}
-#| label: tbl-attrition-trials-vtarget
-#| tbl-cap: "Trial attrition rate by condition for included participants in Analysis 2. Additional excluded trials are indicated between parentheses."
-attrition_vtarget_oxf |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) |> 
-	bind_rows(mutate(attrition, id = as.character(id))) |> 
-	filter(is_valid_participant) |> 
-	summarise(n_valid = sum(is_valid_trial),
-			  n_total = n(),
-			  .by = c(id, age_group, lp, trial_type)) |> 
-	summarise(across(n_valid, lst(sum, mean, sd),
-					 .names = "{.fn}"),
-			  n_total = sum(n_total),
-			  .by = c(age_group, lp, trial_type)) |> 
-	mutate(n_excluded = n_total-sum) |> 
-	select(-c(n_total)) |> 
-	pivot_wider(names_from = trial_type,
-				values_from = c(sum:sd, n_excluded),
-				names_repair = janitor::make_clean_names) |> 
-	rename_with(\(x) gsub("non_cognate", "noncognate", x)) |> 
-	arrange(age_group) |> 
-	relocate(age_group,
-			 matches("_cognate"),
-			 matches("noncognate")) |> 
-	gt(rowname_col = "age_group",
-	   groupname_col = "lp") |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("sum"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 matches("mean"), 
-				 fns = list(label = md("*Mean*"), id = "totals") ~ mean(.),
-				 fmt = ~fmt_number(.)) |> 
-	grand_summary_rows(columns = matches("mean_"),
-					   fns = lst(Mean ~ mean(.)),
-					   fmt = ~fmt_number(.)) |>
-	grand_summary_rows(columns = matches("sum_"),
-					   fns = lst(Sum ~ sum(.)),
-					   fmt = ~fmt_integer(.)) |>
-	cols_merge(c(sum_cognate, n_excluded_cognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_noncognate, n_excluded_noncognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_unrelated, n_excluded_unrelated),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(mean_cognate, sd_cognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_noncognate, sd_noncognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_unrelated, sd_unrelated),
-			   pattern = "{1} ({2})") |>
-	tab_spanner("Cognate trials", ends_with("_cognate")) |>
-	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
-	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
-	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd"), decimals = 1) |> 
-	fmt_integer(matches("sum"), sep_mark = ",") |> 
-	cols_label(sum_cognate = md("*N*"),
-			   sum_noncognate = md("*N*"),
-			   sum_unrelated = md("*N*"),
-			   mean_cognate = md("*Mean (SD)*"),
-			   mean_noncognate = md("*Mean (SD)*"),
-			   mean_unrelated = md("*Mean (SD)*"))
-```
-
-
-### Phonological priming: Related vs. Unrelated
-
-
-```{r fig-related-vtarget}
-#| label: fig-related-vtarget
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 2. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_related_vtarget, 
-		  model_fits_related_vtarget[[1]], 
-		  contrast = "related")
-```
-
-
-
-### Cognate priming: Cognate vs. Non-cognate
-
-```{r fig-cognate-vtarget}
-#| label: fig-cognate-vtarget
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 2. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_cognate_vtarget, 
-		  model_fits_cognate_vtarget[[1]], 
+plot_gamm(data_time_cognate,
+		  model_fits_cognate[[1]],
 		  contrast = "cognate")
 ```
 
 {{< pagebreak >}}
 
-## Analysis 3
 
-::: {.callout-note}
-
-Participants do not need to know the prime or target words, but must look at least 10 ms to each target and distractor.
-
-:::
-
-```{r dataset-vnone}
-n_trials <- nrow(attrition_trials_vnone)
-n_trials_valid <- inner_join(attrition_participants_vnone,
-							 attrition_trials_vnone) |> 
-	filter(is_valid_participant) |> 
-	pull(is_valid_trial) |> 
-	sum()
-n_participants_valid <- sum(attrition_participants_vnone$is_valid_participant)
-n_exc_prime <- sum(!attrition_trials_vnone$is_valid_gaze_prime)
-n_exc_test <- sum(!attrition_trials_vnone$is_valid_gaze_test)
-n_exc_test_each <- sum(!attrition_trials_vnone$is_valid_gaze_test_each)
-n_exc_vocab <- sum(!attrition_trials_vnone$is_valid_vocab)
-n_exc_cognate <- sum(!attrition_participants_vnone$is_valid_cognate)
-n_exc_noncognate <- sum(!attrition_participants_vnone$is_valid_noncognate)
-n_exc_unrelated <- sum(!attrition_participants_vnone$is_valid_unrelated)
-
-n_longitudinal <- attrition_participants_vnone |>
-	filter(is_valid_participant) |>
-	count(id, name = "times") |> 
-	count(times)
-```
-
-
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_total` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples to *both* target and distractor in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`). After applying these trial-level inclusion criteria, we excluded participants who did not provide at least two valid trials in the *cognate prime* condition (*n* = `r n_exc_cognate`), the *non-cognate prime* condition (*n* = `r n_exc_noncognate`), or the *unrelated prime* condition (*n* = `r n_exc_unrelated`). The resulting dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_participants_valid` participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
-
-```{r tbl-participants-lp-vnone}
-#| label: tbl-participants-lp-vnone
-#| tbl-cap: "Participant details for Analysis 3. Sample sizes indicate the number of participants included and excluded (between parenthesis) after applying inclusion criteria. Age is summarised using the mean and standard deviation (betwen parenthesis) for each age and language group separately."
-participants_tmp <- participants |> 
-	left_join(attrition_participants_vnone, by = join_by(filename)) |> 
-	mutate(id = as.character(id))
-
-participants_oxf_tmp <- participants_oxf |> 
-	inner_join(attrition_participants_vnone_oxf,
-			   by = join_by(id)) |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) 
-
-bind_rows(participants_tmp, participants_oxf_tmp) |> 
-	add_count(lp, 
-			  name = "n_lp") |> 
-	add_count(age_group, 
-			  name = "n_age_group") |> 
-	add_count(age_group,
-			  test_language,
-			  name = "n_age_test") |> 
-	mutate(lp = factor(lp, levels = rev(unique(lp)))) |> 
-	summarise(across(c(age), lst(mean, sd)),
-			  n_inc = sum(is_valid_participant),
-			  n_exc = sum(!is_valid_participant),
-			  .by = c(age_group, lp, test_language)) |> 
-	pivot_wider(id_cols = c(test_language, lp),
-				names_from = c(age_group),
-				values_from = c(matches("doe"), age_mean, age_sd, n_inc, n_exc),
-				names_repair = janitor::make_clean_names) |>
-	relocate(lp, test_language, 
-			 n_inc_21_months, n_exc_21_months, age_mean_21_months, age_sd_21_months,
-			 n_inc_25_months, n_exc_25_months, age_mean_25_months, age_sd_25_months,
-			 n_inc_30_months, n_exc_30_months, age_mean_30_months, age_sd_30_months) |> 
-	arrange(lp, test_language) |> 
-	gt(rowname_col = "test_language", 
-	   groupname_col = "lp", 
-	   row_group.sep = ": ") |> 
-	tab_spanner(md("21 months"), matches("21")) |> 
-	tab_spanner(md("25 months"), matches("25")) |>
-	tab_spanner(md("30 months"), matches("30")) |> 
-	fmt_number(matches("age"), decimals = 1) |>
-	cols_merge(c(n_inc_21_months, n_exc_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_25_months, n_exc_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_30_months, n_exc_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_21_months, age_sd_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_25_months, age_sd_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_30_months, age_sd_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_label(n_inc_21_months = md("*N*"),
-			   n_inc_25_months = md("*N*"),
-			   n_inc_30_months = md("*N*"),
-			   age_mean_21_months = "Age (months)",
-			   age_mean_25_months = "Age (months)",
-			   age_mean_30_months = "Age (months)") |> 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners())) |> 
-	tab_style(cell_text(size = "medium"),
-			  list(cells_body(),
-			  	 cells_stub())) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("n"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	grand_summary_rows(starts_with("n"), 
-					   fns = list(label = md("*N*")) ~ sum(.),
-					   fmt = ~fmt_integer(.))
-```
-
-```{r tbl-attrition-trials-vnone}
-#| label: tbl-attrition-trials-vnone
-#| tbl-cap: "Trial attrition rate by condition for included participants in Analysis 3. Additional excluded trials are indicated between parentheses."
-attrition_vnone_oxf |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) |> 
-	bind_rows(mutate(attrition, id = as.character(id))) |> 
-	filter(is_valid_participant) |> 
-	summarise(n_valid = sum(is_valid_trial),
-			  n_total = n(),
-			  .by = c(id, age_group, lp, trial_type)) |> 
-	summarise(across(n_valid, lst(sum, mean, sd),
-					 .names = "{.fn}"),
-			  n_total = sum(n_total),
-			  .by = c(age_group, lp, trial_type)) |> 
-	mutate(n_excluded = n_total-sum) |> 
-	select(-c(n_total)) |> 
-	pivot_wider(names_from = trial_type,
-				values_from = c(sum:sd, n_excluded),
-				names_repair = janitor::make_clean_names) |> 
-	rename_with(\(x) gsub("non_cognate", "noncognate", x)) |> 
-	arrange(age_group) |> 
-	relocate(age_group,
-			 matches("_cognate"),
-			 matches("noncognate")) |> 
-	gt(rowname_col = "age_group",
-	   groupname_col = "lp") |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("sum"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 matches("mean"), 
-				 fns = list(label = md("*Mean*"), id = "totals") ~ mean(.),
-				 fmt = ~fmt_number(.)) |> 
-	grand_summary_rows(columns = matches("mean_"),
-					   fns = lst(Mean ~ mean(.)),
-					   fmt = ~fmt_number(.)) |>
-	grand_summary_rows(columns = matches("sum_"),
-					   fns = lst(Sum ~ sum(.)),
-					   fmt = ~fmt_integer(.)) |>
-	cols_merge(c(sum_cognate, n_excluded_cognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_noncognate, n_excluded_noncognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_unrelated, n_excluded_unrelated),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(mean_cognate, sd_cognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_noncognate, sd_noncognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_unrelated, sd_unrelated),
-			   pattern = "{1} ({2})") |>
-	tab_spanner("Cognate trials", ends_with("_cognate")) |>
-	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
-	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
-	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd"), decimals = 1) |> 
-	fmt_integer(matches("sum"), sep_mark = ",") |> 
-	cols_label(sum_cognate = md("*N*"),
-			   sum_noncognate = md("*N*"),
-			   sum_unrelated = md("*N*"),
-			   mean_cognate = md("*Mean (SD)*"),
-			   mean_noncognate = md("*Mean (SD)*"),
-			   mean_unrelated = md("*Mean (SD)*"))
-```
-
-### Phonological priming: Related vs. Unrelated
-
-```{r fig-related-vnone}
-#| label: fig-related-vnone
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 3. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_related_vnone, 
-		  model_fits_related_vnone[[1]], 
-		  contrast = "related")
-```
-
-### Cognate priming: Cognate vs. Non-cognate
-
-```{r fig-cognate-vnone}
-#| label: fig-cognate-vnone
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 3. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_cognate_vnone, 
-		  model_fits_cognate_vnone[[1]], 
-		  contrast = "cognate")
-```
-
-{{< pagebreak >}}
-
-## Analysis 4
-
-::: {.callout-note}
-
-Participants do not need to know the prime or target words, and do not need to look to both pictures.
-
-:::
-
-```{r dataset-noeach}
-n_trials <- nrow(attrition_trials_noeach)
-n_trials_valid <- inner_join(attrition_participants_noeach,
-							 attrition_trials_noeach) |> 
-	filter(is_valid_participant) |> 
-	pull(is_valid_trial) |> 
-	sum()
-n_participants_valid <- sum(attrition_participants_noeach$is_valid_participant)
-n_exc_prime <- sum(!attrition_trials_noeach$is_valid_gaze_prime)
-n_exc_test <- sum(!attrition_trials_noeach$is_valid_gaze_test)
-n_exc_test_each <- sum(!attrition_trials_noeach$is_valid_gaze_test_each)
-n_exc_vocab <- sum(!attrition_trials_noeach$is_valid_vocab)
-n_exc_cognate <- sum(!attrition_participants_noeach$is_valid_cognate)
-n_exc_noncognate <- sum(!attrition_participants_noeach$is_valid_noncognate)
-n_exc_unrelated <- sum(!attrition_participants_noeach$is_valid_unrelated)
-
-n_longitudinal <- attrition_participants_noeach |>
-	filter(is_valid_participant) |>
-	count(id, name = "times") |> 
-	count(times)
-```
-
-
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_total` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). After applying these trial-level inclusion criteria, we excluded participants who did not provide at least two valid trials in the *cognate prime* condition (*n* = `r n_exc_cognate`), the *non-cognate prime* condition (*n* = `r n_exc_noncognate`), or the *unrelated prime* condition (*n* = `r n_exc_unrelated`). The resulting dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_participants_valid` participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
-
-```{r tbl-participants-lp-noeach}
-#| label: tbl-participants-lp-noeach
-#| tbl-cap: "Participant details for Analysis 4. Sample sizes indicate the number of participants included and excluded (between parenthesis) after applying inclusion criteria. Age is summarised using the mean and standard deviation (betwen parenthesis) for each age and language group separately."
-participants_tmp <- participants |> 
-	left_join(attrition_participants_noeach, by = join_by(filename)) |> 
-	mutate(id = as.character(id))
-
-participants_oxf_tmp <- participants_oxf |> 
-	inner_join(attrition_participants_noeach_oxf,
-			   by = join_by(id)) |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) 
-
-bind_rows(participants_tmp, participants_oxf_tmp) |> 
-	add_count(lp, 
-			  name = "n_lp") |> 
-	add_count(age_group, 
-			  name = "n_age_group") |> 
-	add_count(age_group,
-			  test_language,
-			  name = "n_age_test") |> 
-	mutate(lp = factor(lp, levels = rev(unique(lp)))) |> 
-	summarise(across(c(age), lst(mean, sd)),
-			  n_inc = sum(is_valid_participant),
-			  n_exc = sum(!is_valid_participant),
-			  .by = c(age_group, lp, test_language)) |> 
-	pivot_wider(id_cols = c(test_language, lp),
-				names_from = c(age_group),
-				values_from = c(matches("doe"), age_mean, age_sd, n_inc, n_exc),
-				names_repair = janitor::make_clean_names) |>
-	relocate(lp, test_language, 
-			 n_inc_21_months, n_exc_21_months, age_mean_21_months, age_sd_21_months,
-			 n_inc_25_months, n_exc_25_months, age_mean_25_months, age_sd_25_months,
-			 n_inc_30_months, n_exc_30_months, age_mean_30_months, age_sd_30_months) |> 
-	arrange(lp, test_language) |> 
-	gt(rowname_col = "test_language", 
-	   groupname_col = "lp", 
-	   row_group.sep = ": ") |> 
-	tab_spanner(md("21 months"), matches("21")) |> 
-	tab_spanner(md("25 months"), matches("25")) |>
-	tab_spanner(md("30 months"), matches("30")) |> 
-	fmt_number(matches("age"), decimals = 1) |>
-	cols_merge(c(n_inc_21_months, n_exc_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_25_months, n_exc_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_30_months, n_exc_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_21_months, age_sd_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_25_months, age_sd_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_30_months, age_sd_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_label(n_inc_21_months = md("*N*"),
-			   n_inc_25_months = md("*N*"),
-			   n_inc_30_months = md("*N*"),
-			   age_mean_21_months = "Age (months)",
-			   age_mean_25_months = "Age (months)",
-			   age_mean_30_months = "Age (months)") |> 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners())) |> 
-	tab_style(cell_text(size = "medium"),
-			  list(cells_body(),
-			  	 cells_stub())) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("n"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	grand_summary_rows(starts_with("n"), 
-					   fns = list(label = md("*N*")) ~ sum(.),
-					   fmt = ~fmt_integer(.))
-```
-
-```{r tbl-attrition-trials-vnone}
-#| label: tbl-attrition-trials-noeach
-#| tbl-cap: "Trial attrition rate by condition for included participants in Analysis 4. Additional excluded trials are indicated between parentheses."
-attrition_noeach_oxf |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) |> 
-	bind_rows(mutate(attrition, id = as.character(id))) |> 
-	filter(is_valid_participant) |> 
-	summarise(n_valid = sum(is_valid_trial),
-			  n_total = n(),
-			  .by = c(id, age_group, lp, trial_type)) |> 
-	summarise(across(n_valid, lst(sum, mean, sd),
-					 .names = "{.fn}"),
-			  n_total = sum(n_total),
-			  .by = c(age_group, lp, trial_type)) |> 
-	mutate(n_excluded = n_total-sum) |> 
-	select(-c(n_total)) |> 
-	pivot_wider(names_from = trial_type,
-				values_from = c(sum:sd, n_excluded),
-				names_repair = janitor::make_clean_names) |> 
-	rename_with(\(x) gsub("non_cognate", "noncognate", x)) |> 
-	arrange(age_group) |> 
-	relocate(age_group,
-			 matches("_cognate"),
-			 matches("noncognate")) |> 
-	gt(rowname_col = "age_group",
-	   groupname_col = "lp") |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("sum"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 matches("mean"), 
-				 fns = list(label = md("*Mean*"), id = "totals") ~ mean(.),
-				 fmt = ~fmt_number(.)) |> 
-	grand_summary_rows(columns = matches("mean_"),
-					   fns = lst(Mean ~ mean(.)),
-					   fmt = ~fmt_number(.)) |>
-	grand_summary_rows(columns = matches("sum_"),
-					   fns = lst(Sum ~ sum(.)),
-					   fmt = ~fmt_integer(.)) |>
-	cols_merge(c(sum_cognate, n_excluded_cognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_noncognate, n_excluded_noncognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_unrelated, n_excluded_unrelated),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(mean_cognate, sd_cognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_noncognate, sd_noncognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_unrelated, sd_unrelated),
-			   pattern = "{1} ({2})") |>
-	tab_spanner("Cognate trials", ends_with("_cognate")) |>
-	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
-	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
-	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd"), decimals = 1) |> 
-	fmt_integer(matches("sum"), sep_mark = ",") |> 
-	cols_label(sum_cognate = md("*N*"),
-			   sum_noncognate = md("*N*"),
-			   sum_unrelated = md("*N*"),
-			   mean_cognate = md("*Mean (SD)*"),
-			   mean_noncognate = md("*Mean (SD)*"),
-			   mean_unrelated = md("*Mean (SD)*"))
-```
-
-### Phonological priming: Related vs. Unrelated
-
-```{r fig-related-noeach}
-#| label: fig-related-noeach
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 4. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_related_noeach, 
-		  model_fits_related_noeach[[1]], 
-		  contrast = "related")
-```
-
-
-
-### Cognate priming: Cognate vs. Non-cognate
-
-```{r fig-cognate-noeach}
-#| label: fig-cognate-noeach
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 4. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_cognate_noeach, 
-		  model_fits_cognate_noeach[[1]], 
-		  contrast = "cognate")
-```
-
-{{< pagebreak >}}
-
-## Analysis 5
-
-::: {.callout-note}
-
-Participants need to know the prime or target words, and do not need to look to both pictures.
-
-:::
-
-```{r dataset-vnoeach}
-n_trials <- nrow(attrition_trials_vnoeach)
-n_trials_valid <- inner_join(attrition_participants_vnoeach,
-							 attrition_trials_vnoeach) |> 
-	filter(is_valid_participant) |> 
-	pull(is_valid_trial) |> 
-	sum()
-n_participants_valid <- sum(attrition_participants_vnoeach$is_valid_participant)
-n_exc_prime <- sum(!attrition_trials_vnoeach$is_valid_gaze_prime)
-n_exc_test <- sum(!attrition_trials_vnoeach$is_valid_gaze_test)
-n_exc_test_each <- sum(!attrition_trials_vnoeach$is_valid_gaze_test_each)
-n_exc_vocab <- sum(!attrition_trials_vnoeach$is_valid_vocab)
-n_exc_cognate <- sum(!attrition_participants_vnoeach$is_valid_cognate)
-n_exc_noncognate <- sum(!attrition_participants_vnoeach$is_valid_noncognate)
-n_exc_unrelated <- sum(!attrition_participants_vnoeach$is_valid_unrelated)
-
-n_longitudinal <- attrition_participants_vnoeach |>
-	filter(is_valid_participant) |>
-	count(id, name = "times") |> 
-	count(times)
-```
-
-
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_total` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). After applying these trial-level inclusion criteria, we excluded participants who did not provide at least two valid trials in the *cognate prime* condition (*n* = `r n_exc_cognate`), the *non-cognate prime* condition (*n* = `r n_exc_noncognate`), or the *unrelated prime* condition (*n* = `r n_exc_unrelated`). The resulting dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_participants_valid` participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
-
-```{r tbl-participants-lp-vnoeach}
-#| label: tbl-participants-lp-vnoeach
-#| tbl-cap: "Participant details for Analysis 5. Sample sizes indicate the number of participants included and excluded (between parenthesis) after applying inclusion criteria. Age is summarised using the mean and standard deviation (betwen parenthesis) for each age and language group separately."
-participants_tmp <- participants |> 
-	left_join(attrition_participants_vnoeach, by = join_by(filename)) |> 
-	mutate(id = as.character(id))
-
-participants_oxf_tmp <- participants_oxf |> 
-	inner_join(attrition_participants_vnoeach_oxf,
-			   by = join_by(id)) |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) 
-
-bind_rows(participants_tmp, participants_oxf_tmp) |> 
-	add_count(lp, 
-			  name = "n_lp") |> 
-	add_count(age_group, 
-			  name = "n_age_group") |> 
-	add_count(age_group,
-			  test_language,
-			  name = "n_age_test") |> 
-	mutate(lp = factor(lp, levels = rev(unique(lp)))) |> 
-	summarise(across(c(age), lst(mean, sd)),
-			  n_inc = sum(is_valid_participant),
-			  n_exc = sum(!is_valid_participant),
-			  .by = c(age_group, lp, test_language)) |> 
-	pivot_wider(id_cols = c(test_language, lp),
-				names_from = c(age_group),
-				values_from = c(matches("doe"), age_mean, age_sd, n_inc, n_exc),
-				names_repair = janitor::make_clean_names) |>
-	relocate(lp, test_language, 
-			 n_inc_21_months, n_exc_21_months, age_mean_21_months, age_sd_21_months,
-			 n_inc_25_months, n_exc_25_months, age_mean_25_months, age_sd_25_months,
-			 n_inc_30_months, n_exc_30_months, age_mean_30_months, age_sd_30_months) |> 
-	arrange(lp, test_language) |> 
-	gt(rowname_col = "test_language", 
-	   groupname_col = "lp", 
-	   row_group.sep = ": ") |> 
-	tab_spanner(md("21 months"), matches("21")) |> 
-	tab_spanner(md("25 months"), matches("25")) |>
-	tab_spanner(md("30 months"), matches("30")) |> 
-	fmt_number(matches("age"), decimals = 1) |>
-	cols_merge(c(n_inc_21_months, n_exc_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_25_months, n_exc_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(n_inc_30_months, n_exc_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_21_months, age_sd_21_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_25_months, age_sd_25_months),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(age_mean_30_months, age_sd_30_months),
-			   pattern = "{1} ({2})") |> 
-	cols_label(n_inc_21_months = md("*N*"),
-			   n_inc_25_months = md("*N*"),
-			   n_inc_30_months = md("*N*"),
-			   age_mean_21_months = "Age (months)",
-			   age_mean_25_months = "Age (months)",
-			   age_mean_30_months = "Age (months)") |> 
-	tab_style(cell_text(weight = "bold"),
-			  list(cells_column_spanners())) |> 
-	tab_style(cell_text(size = "medium"),
-			  list(cells_body(),
-			  	 cells_stub())) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("n"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	grand_summary_rows(starts_with("n"), 
-					   fns = list(label = md("*N*")) ~ sum(.),
-					   fmt = ~fmt_integer(.))
-```
-
-
-```{r tbl-attrition-trials-vnoeach}
-#| label: tbl-attrition-trials-vnoeach
-#| tbl-cap: "Trial attrition rate by condition for included participants in Analysis 4. Additional excluded trials are indicated between parentheses."
-attrition_vnoeach_oxf |> 
-	mutate(lp = "Monolingual (Oxford)",
-		   id = as.character(id)) |> 
-	bind_rows(mutate(attrition, id = as.character(id))) |> 
-	filter(is_valid_participant) |> 
-	summarise(n_valid = sum(is_valid_trial),
-			  n_total = n(),
-			  .by = c(id, age_group, lp, trial_type)) |> 
-	summarise(across(n_valid, lst(sum, mean, sd),
-					 .names = "{.fn}"),
-			  n_total = sum(n_total),
-			  .by = c(age_group, lp, trial_type)) |> 
-	mutate(n_excluded = n_total-sum) |> 
-	select(-c(n_total)) |> 
-	pivot_wider(names_from = trial_type,
-				values_from = c(sum:sd, n_excluded),
-				names_repair = janitor::make_clean_names) |> 
-	rename_with(\(x) gsub("non_cognate", "noncognate", x)) |> 
-	arrange(age_group) |> 
-	relocate(age_group,
-			 matches("_cognate"),
-			 matches("noncognate")) |> 
-	gt(rowname_col = "age_group",
-	   groupname_col = "lp") |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 starts_with("sum"), 
-				 fns = list(label = md("*N*"), id = "totals") ~ sum(.)) |> 
-	summary_rows(groups = c("Monolingual (Oxford)",
-							"Monolingual",
-							"Bilingual"),
-				 matches("mean"), 
-				 fns = list(label = md("*Mean*"), id = "totals") ~ mean(.),
-				 fmt = ~fmt_number(.)) |> 
-	grand_summary_rows(columns = matches("mean_"),
-					   fns = lst(Mean ~ mean(.)),
-					   fmt = ~fmt_number(.)) |>
-	grand_summary_rows(columns = matches("sum_"),
-					   fns = lst(Sum ~ sum(.)),
-					   fmt = ~fmt_integer(.)) |>
-	cols_merge(c(sum_cognate, n_excluded_cognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_noncognate, n_excluded_noncognate), 
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(sum_unrelated, n_excluded_unrelated),
-			   pattern = "{1} ({2})") |> 
-	cols_merge(c(mean_cognate, sd_cognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_noncognate, sd_noncognate),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(mean_unrelated, sd_unrelated),
-			   pattern = "{1} ({2})") |>
-	tab_spanner("Cognate trials", ends_with("_cognate")) |>
-	tab_spanner("Non-cognate trials", ends_with("noncognate")) |> 
-	tab_spanner("Unrelated trials", ends_with("unrelated")) |> 
-	tab_spanner("Related trials", matches("cognate")) |>
-	fmt_number(matches("mean|sd"), decimals = 1) |> 
-	fmt_integer(matches("sum"), sep_mark = ",") |> 
-	cols_label(sum_cognate = md("*N*"),
-			   sum_noncognate = md("*N*"),
-			   sum_unrelated = md("*N*"),
-			   mean_cognate = md("*Mean (SD)*"),
-			   mean_noncognate = md("*Mean (SD)*"),
-			   mean_unrelated = md("*Mean (SD)*"))
-```
-
-
-### Phonological priming: Related vs. Unrelated
-
-```{r fig-related-vnoeach}
-#| label: fig-related-vnoeach
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 5. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_related_vnoeach, 
-		  model_fits_related_vnoeach[[1]], 
-		  contrast = "related")
-```
-
-### Cognate priming: Cognate vs. Non-cognate
-
-```{r fig-cognate-vnoeach}
-#| label: fig-cognate-vnoeach
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 5. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *cognate* and *non-cognate* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-plot_gamm(data_time_cognate_vnoeach, 
-		  model_fits_cognate_vnoeach[[1]], 
-		  contrast = "cognate")
-```
 
 # Discussion
 
@@ -1787,17 +796,14 @@ plot_gamm(data_time_cognate_vnoeach,
 
 ```{r fig-vocabulary-imputation}
 vocabulary_tmp <- vocabulary |> 
-	left_join(select(participants, child_id = id_db, age, age_group, filename),
-			  by = join_by(filename)) |> 
+	left_join(select(participants, child_id, vocab_id, age),
+			  by = join_by(child_id, vocab_id)) |> 
 	relocate(child_id) |> 
-	select(-filename) |> 
-	filter(is_imputed) |> 
-	mutate(child_id = as.character(child_id))
+	filter(is_imputed)
 
 bvq_data$vocabulary |> 
-	inner_join(distinct(bvq_data$logs, id, age_group, age),
-			   by = join_by(id, age_group)) |> 
-	rename(child_id = id) |> 
+	inner_join(distinct(bvq_data$logs, child_id, response_id, lp, age),
+			   by = join_by(response_id)) |> 
 	mutate(is_imputed = FALSE) |> 
 	bind_rows(vocabulary_tmp) |> 
 	pivot_longer(ends_with("_prop"),
@@ -1951,4 +957,94 @@ looking_times |>
 		 shape = "Prime type") 
 ```
 
+
+## Appendix D: vocabulary checklist validity
+
+```{r fig-validity-target}
+get_data(gaze = gaze,
+		 participants = participants,
+		 stimuli = stimuli,
+		 vocabulary = vocabulary,
+		 attrition_trials = attrition_trials,
+		 attrition_participants = attrition_participants,
+		 time_subset = c(0, 2),
+		 contrast = "related",
+		 is_valid_vocab_all) |> 
+	unnest_wider(is_valid_vocab_all) |>
+	select(session_id, lp, .elog, target) |> 
+	arrange(session_id, target) |> 
+	summarise(.elog_mean = mean(.elog),
+			  .elog_sd = sd(.elog),
+			  n = n(),
+			  .by = c(lp, target)) |> 
+	mutate(target = ifelse(target, "Yes", "No"),
+		   .elog_se = .elog_sd/sqrt(n),
+		   .elog_lower = .elog_mean - .elog_se*1.96,
+		   .elog_upper = .elog_mean + .elog_se*1.96,
+	) |> 
+	ggplot(aes(lp, .elog_mean, 
+			   ymin = .elog_lower,
+			   ymax = .elog_upper,
+			   colour = target)) +
+	facet_wrap(~lp, ncol = 1, scales = "free_x") +
+	geom_errorbar(width = 0.2, linewidth = 3/4, 
+				  position = position_dodge(width = 0.25)) +
+	geom_point(size = 2,
+			   position = position_dodge(width = 0.25)) +
+	geom_hline(yintercept = 0,
+			   linetype = "dashed") +
+	labs(x = "Condition",
+		 y = "P(Target looking)", 
+		 colour = "Knows the target word") +
+	theme(legend.position = "none",
+		  panel.grid.major.y = element_line(colour = "grey",
+		  								  linetype = "dotted")) +
+	
+	get_data_time(gaze = gaze,
+				  participants = participants,
+				  stimuli = stimuli,
+				  vocabulary = vocabulary,
+				  attrition_trials = attrition_trials,
+				  attrition_participants = attrition_participants,
+				  time_subset = c(0, 2),
+				  contrast = "related",
+				  is_valid_vocab_all) |> 
+	unnest_wider(is_valid_vocab_all) |>
+	select(session_id, age, lp, timebin, .elog, target) |> 
+	arrange(session_id, target) |> 
+	summarise(.elog_mean = mean(.elog),
+			  .elog_sd = sd(.elog),
+			  n = n(),
+			  .by = c(timebin, lp, target)) |> 
+	mutate(target = ifelse(target, "Yes", "No"),
+		   .elog_se = .elog_sd/sqrt(n),
+		   .elog_lower = .elog_mean - .elog_se*1.96,
+		   .elog_upper = .elog_mean + .elog_se*1.96,
+	) |> 
+	ggplot(aes(timebin, .elog_mean,
+			   ymin = .elog_lower,
+			   ymax = .elog_upper,
+			   colour = target,
+			   fill = target)) +
+	facet_wrap(~lp, ncol = 1, scales = "free_x") +
+	geom_line(linewidth = 1/2) +
+	geom_ribbon(alpha = 1/2,
+				colour = NA) +
+	geom_point(size = 2) +
+	geom_hline(yintercept = 0,
+			   linetype = "dashed") +
+	labs(x = "Condition",
+		 y = "P(Target looking)", 
+		 fill = "Knows the target word",
+		 colour = "Knows the target word") +
+	theme(legend.position = "top",
+		  panel.grid.major.y = element_line(colour = "grey",
+		  								  linetype = "dotted"),
+		  axis.title.y = element_blank(),
+		  axis.line.x = element_line()) +
+	
+	plot_layout(ncol = 2,
+				widths = c(0.2, 0.8)) &
+	scale_y_continuous(limits = c(-0.5, 1.25))
+```
 
