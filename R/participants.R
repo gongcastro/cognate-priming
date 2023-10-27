@@ -16,11 +16,12 @@ get_participants <- function(participants_file_bcn,
 			   across(starts_with("doe_"), 
 			   	   \(x) as.numeric(gsub("%", "", x)) * 0.01),
 			   vocab_id_response = vocab_id,
+			   age_group = paste0(age_group, " months"),
 			   valid_participant = as.logical(valid_participant)) |> 
 		filter(!pilot, !is.na(child_id), !is.na(filename), valid_participant) |> 
 		select(child_id, session_id, session_n = session,
 			   vocab_id, vocab_id_response,
-			   date_test, date_birth, lp, age, sex, version,
+			   date_test, date_birth, lp, age_group, age, sex, version,
 			   matches("doe"), test_language, list, filename) 
 	
 	
@@ -40,13 +41,14 @@ get_participants <- function(participants_file_bcn,
 		mutate(across(starts_with("date_"), 
 					  \(x) suppressWarnings(dmy(x))),
 			   across(matches("_id"), as.character),
+			   age_group = paste0(age_group, " months"),
+			   age_group = as.factor(age_group),
 			   vocab_id_response = if_else(grepl("^R_", vocab_id),
 			   							vocab_id, NA_character_),
 			   session_id = child_id,
 			   child_id = if_else(!is.na(previous_id_if_applicable),
 			   				   previous_id_if_applicable,
 			   				   child_id),
-			   age_group = paste0(age_group, " months"),
 			   sex = tolower(substr(sex, 1, 1)),
 			   date_birth = date_test - days(age_days),
 			   age = difftime(date_test, date_test - days(age_days)) |> 
@@ -62,7 +64,8 @@ get_participants <- function(participants_file_bcn,
 			   lp = "Monolingual (English)") |>
 		filter(!is.na(list), !is.na(age)) |> 
 		mutate(session_n = 1:n(), .by = child_id) |> 
-		select(child_id, session_id, session_n, vocab_id, vocab_id_response, date_test, lp, 
+		select(child_id, session_id, session_n, vocab_id, vocab_id_response,
+			   date_test, lp, age_group,
 			   doe_english, doe_catalan, doe_spanish, doe_others, version, date_birth,
 			   test_language, list, sex) 
 	
@@ -81,7 +84,7 @@ get_participants <- function(participants_file_bcn,
 		mutate(doe = list(unlist(across(matches("doe_"))))) |> 
 		ungroup() |> 
 		select(child_id, location, session_id, session_n, 
-			   date_test, age, sex, lp, doe,
+			   date_test, age_group, age, sex, lp, doe,
 			   test_language, list, version,
 			   vocab_id, vocab_id_response, filename)
 	

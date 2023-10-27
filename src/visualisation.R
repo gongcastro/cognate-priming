@@ -1,12 +1,12 @@
 # functions
-make_plots_gaze <- function(gaze_aoi, 
+make_plots_gaze <- function(gaze, 
 							aoi_coords,
 							participants,
 							stimuli,
 							attrition_trials,
 							attrition_participants){
 	
-	files <- unique(gaze_aoi$filename[!is.na(gaze_aoi$filename)])
+	files <- paste0("id_", unique(gaze$session_id[!is.na(gaze$session_id)]))
 	n_files <- length(files)
 	
 	i <- 0
@@ -15,29 +15,25 @@ make_plots_gaze <- function(gaze_aoi,
 					 total = n_files, 
 					 format = pb_msg)
 	
-	attrition_trials$is_valid_trial <- ifelse(
-		is.na(attrition_trials$is_valid_vocab),
-		attrition_trials$is_valid_gaze_test & 
-			attrition_trials$is_valid_gaze_test_each,
-		attrition_trials$is_valid_trial
-	)
-	
-	plot_data <- get_plot_data(gaze_aoi,
+	plot_data <- get_plot_data(gaze,
+							   participants,
+							   stimuli,
 							   attrition_trials,
-							   attrition_participants)
+							   attrition_participants,
+							   aoi_coords)
 	
 	plot_data_split <- plot_data |> 
-		group_split(filename) |> 
+		group_split(session_id) |> 
 		set_names(files)
 	
 	for (i in 1:n_files) {
 		
 		plot <- plot_gaze_data(plot_data_split[[i]], files[i])
 		
-		file_name <- gsub(".csv", ".png", files[i])
+		file_name <- paste0(first(plot_data_split[[i]]$session_id), ".png")
 		plot_height <- length(unique(plot_data_split[[i]]$trial))*0.75
 		
-		ggsave(paste0("img/01_raw/", file_name),
+		ggsave(file.path(paste0("img/01_raw/", file_name)),
 			   plot = plot, 
 			   height = plot_height,
 			   width = 6)
@@ -47,57 +43,71 @@ make_plots_gaze <- function(gaze_aoi,
 	cli_progress_done(result = "done")
 }
 
-get_plot_data <- function(gaze_aoi,
+get_plot_data <- function(gaze,
+						  participants, 
+						  stimuli,
 						  attrition_trials, 
-						  attrition_participant) {
+						  attrition_participant,
+						  aoi_coords) {
 	
-	plot_data <- gaze_aoi |> 
-		left_join(attrition_trials,
-				  by = join_by(id, age_group, trial, trial_type)) |> 
-		left_join(attrition_participants,
-				  by = join_by(id, age_group)) |> 
-		left_join(select(participants, id, filename, test_language, list, version),
-				  by = join_by(id, filename)) |> 
+	participants_tmp <- participants |> 
+		select(session_id, age, lp, date_test, test_language, list, version)
+	
+	stimuli_tmp <- stimuli |> 
+		select(trial, version, list, prime, target, distractor, target_location)
+	
+	attrition_trials_tmp <- attrition_trials |> 
+		mutate(is_valid_trial = factor(is_valid_trial,
+									   levels = c(FALSE, TRUE),
+									   labels = c("Excluded trial", "Included trial"))) |> 
+		unnest_wider(is_valid_gaze_all, names_sep = "_") 
+	
+	attrition_participants_tmp <- attrition_participants |> 
+		mutate(is_valid_participant = factor(is_valid_participant,
+											 levels = c(FALSE, TRUE),
+											 labels = c("Excluded", "Included")))
+	
+	gaze_tmp <- gaze |> 
+		select(session_id, trial, phase, timestamp,
+			   is_gaze_prime, is_gaze_target, is_gaze_distractor,
+			   x, y, is_imputed, trial_type) |> 
+		left_join(participants_tmp, by = join_by(session_id)) |> 
+		left_join(stimuli_tmp, by = join_by(trial, list, version)) |> 
+		left_join(attrition_trials_tmp, by = join_by(session_id, trial, trial_type)) |> 
+		left_join(attrition_participants_tmp, by = join_by(session_id)) |> 
+		mutate(phase = factor(phase,
+							  levels = c("Prime", "Target-Distractor"), 
+							  labels = c("Prime", "Target")),
+			   is_imputed = factor(is_imputed, 
+			   					levels = c(FALSE, TRUE),
+			   					labels = c("Observed", "Imputed")))
+	
+	plot_data <- gaze_tmp |> 
 		mutate(target_y = ifelse(target_location=="l", 
 								 mean(c(aoi_coords$left[["xmin"]],
 								 	   aoi_coords$left[["xmax"]])), 
 								 mean(c(aoi_coords$right[["xmin"]],
 								 	   aoi_coords$right[["xmax"]]))), 
-			   target_y = ifelse(phase=="Prime", NA, target_y)) |> 
+			   target_y = ifelse(phase=="Prime", NA, target_y),
+			   id_age = paste0(session_id, " (", round(age, 2), ")"),
+			   is_phase_valid = ifelse(phase=="Prime", 
+			   						is_valid_gaze_all_prime,
+			   						is_valid_gaze_all_test & 
+			   							is_valid_gaze_all_test_each) |>  
+			   	factor(levels = c(FALSE, TRUE), 
+			   		   labels = c("Invalid phase", "Valid phase"))) |> 
 		pivot_longer(c(x, y), names_to = "dim", values_to = "value") |> 
-		mutate(
-			target_y = ifelse(dim=="y", NA, target_y),
-			id_age_group = paste0(id, " (", age_group, ")"),
-			is_imputed = factor(is_imputed, 
-								levels = c(FALSE, TRUE),
-								labels = c("Observed", "Imputed")),
-			is_phase_valid = ifelse(phase=="Prime", 
-									is_valid_gaze_prime,
-									is_valid_gaze_test & is_valid_gaze_test_each) |> 
-				factor(levels = c(FALSE, TRUE),
-					   labels = c("Invalid phase", "Valid phase")),
-			is_valid_trial = factor(is_valid_trial,
-									levels = c(FALSE, TRUE),
-									labels = c("Invalid trial",
-											   "Valid trial")),
-			is_valid_participant = factor(is_valid_participant,
-										  levels = c(FALSE, TRUE),
-										  labels = c("Excluded",
-										  		   "Included")),
-			phase = factor(phase,
-						   levels = c("Prime", "Target-Distractor"), 
-						   labels = c("Prime", "Target")),
-			phase_dim = paste0(phase, " - ", dim)
-		)
+		mutate(phase_dim = paste0(phase, " - ", dim),
+			   target_y = ifelse(dim=="y", NA, target_y))
 	
 	return(plot_data)
 }
 
-plot_gaze_data <- function(plot_data, file) {
+plot_gaze_data <- function(x, file) {
 	
-	id_label <- paste0("ID ", unique(plot_data$id), ", ", 
-					   unique(plot_data$age_group),
-					   " (", unique(plot_data$is_valid_participant), ")")
+	id_label <- paste0("ID ", unique(x$session_id), ", ", 
+					   round(first(x$age), 2),
+					   " (", unique(x$is_valid_participant), ")")
 	
 	aois <- get_aois_viz(aoi_coords)
 	
@@ -107,7 +117,7 @@ plot_gaze_data <- function(plot_data, file) {
 		expand_grid(phase = c("Prime", "Target")) |> 
 		mutate(phase_dim = paste0(phase, " - ", dim))
 	
-	plot <- plot_data |> 
+	plot <- x |> 
 		ggplot(aes(x = timestamp,
 				   y = value, 
 				   colour = is_imputed)) + 
@@ -124,13 +134,13 @@ plot_gaze_data <- function(plot_data, file) {
 		geom_vline(xintercept = 0.3, 
 				   linewidth = 0.25,
 				   colour = "grey") +
-		geom_rug(data = filter(plot_data, 
+		geom_rug(data = filter(x, 
 							   is_gaze_target,
 							   phase=="Target"),
 				 length = unit(0.05, "cm"),
 				 sides = "t",
 				 colour = "mediumspringgreen") +
-		geom_rug(data = filter(plot_data, 
+		geom_rug(data = filter(x, 
 							   is_gaze_distractor,
 							   phase=="Target"),
 				 length = unit(0.05, "cm"),
@@ -166,7 +176,7 @@ plot_gaze_data <- function(plot_data, file) {
 			 x = "Time (ms)",
 			 y = "Gaze position in screen",
 			 colour = "Imputed?",
-			 caption = gsub(".csv", "", file)) +
+			 caption = id_label) +
 		theme_ggdist() +
 		scale_colour_manual(values = c("black", "red")) +
 		scale_y_continuous(breaks = c(aoi_coords$left[["xmin"]],
@@ -497,20 +507,20 @@ make_plots_gaze_processed <- function(data_time,
 # 
 # saveRDS(plot_data, "docs/plot_data.rds")
 
-# job::job(
-# 	title = "Gaze plots", 
-# 	{
-# 		make_plots_gaze(gaze_aoi, 
-# 						aoi_coords,
-# 						participants,
-# 						stimuli,
-# 						attrition_trials,
-# 						attrition_participants)
-# 		
-# 		make_plots_heatmap(gaze_aoi, 
-# 						   aoi_coords,
-# 						   participants,
-# 						   stimuli,
-# 						   attrition_trials,
-# 						   attrition_participants)
-# 	})
+job::job(
+	title = "Gaze plots",
+	{
+		make_plots_gaze(gaze = gaze,
+						aoi_coords = aoi_coords,
+						participants = participants,
+						stimuli = stimuli,
+						attrition_trials = attrition_trials,
+						attrition_participants = attrition_participants)
+
+		# make_plots_heatmap(gaze_aoi,
+		# 				   aoi_coords,
+		# 				   participants,
+		# 				   stimuli,
+		# 				   attrition_trials,
+		# 				   attrition_participants)
+	})

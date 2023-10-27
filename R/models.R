@@ -2,7 +2,7 @@
 get_model_fit <- function(names, formulas, data, prior, ...) {
 	
 	# check args
-	if (is.null(names(formulas)) || !is.list(formulas)) {
+	if (!is.list(formulas)) {
 		cli_abort("formula must be a named list")
 	}
 	if (!is.data.frame(data)) {
@@ -10,14 +10,15 @@ get_model_fit <- function(names, formulas, data, prior, ...) {
 	}
 	
 	# fit models
-	fit <- purrr::map2(.x = names,
-					   .y = formulas,
-					   .f = \(names, formulas) {
-					   	fit_single_model(names, formulas, data, prior, ...)
-					   },
-					   .progress = TRUE)
+	fit_lst <- map2(.x = names,
+					.y = formulas,
+					.f = \(names, formulas) {
+						fit_single_model(names, formulas, data, prior, ...)
+					},
+					.progress = TRUE) |> 
+		set_names(gsub("cognate_|related_", "", names))
 	
-	return(fit)
+	return(fit_lst)
 }
 
 #' Estimate model using Hamiltonian Monte Carlo via Stan

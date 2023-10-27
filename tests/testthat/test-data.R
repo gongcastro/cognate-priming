@@ -8,6 +8,7 @@ test_data_time <- function(x) {
 			  "age",
 			  "lp",
 			  "condition",
+			  "voc_l1",
 			  "timebin",
 			  ".sum",
 			  ".prop",
@@ -44,8 +45,9 @@ test_data_time <- function(x) {
 	test_that("x variables have the right values", {
 		expect_equal(levels(x$lp),
 					 c("Monolingual (English)", "Monolingual", "Bilingual"))
-		expect_in(levels(x$condition), c("Cognate", "Non-cognate",
-										 "Related" ,"Unrelated"))
+		expect_in(levels(x$condition), c("Unrelated", 
+										 "Related/Cognate",
+										 "Related/Non-cognate"))
 		expect_gte(min(x$.nsamples), 0)
 		expect_gte(min(x$age), 0)
 		expect_gte(min(x$.prop), 0)

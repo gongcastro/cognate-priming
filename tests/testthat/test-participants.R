@@ -8,6 +8,7 @@ test_participants <- function(x){
 			  "date_test",
 			  "session_id",
 			  "session_n",
+			  "age_group",
 			  "age",
 			  "sex",
 			  "lp",
@@ -26,6 +27,7 @@ test_participants <- function(x){
 		expect_type(x$vocab_id, "character")
 		expect_type(x$sex, "integer")
 		expect_equal(class(x$date_test), "Date")
+		expect_type(x$age_group, "character")
 		expect_type(x$lp, "integer")
 		expect_type(x$age, "double")
 		expect_type(x$test_language, "integer")
@@ -39,6 +41,7 @@ test_participants <- function(x){
 		expect_false(any(is.na(x$child_id)))
 		expect_false(any(is.na(x$date_test)))
 		expect_false(any(is.na(x$lp)))
+		expect_false(any(is.na(x$age_group)))
 		expect_false(any(is.na(x$age)))
 		expect_false(any(is.na(x$test_language)))
 		expect_false(any(is.na(x$list)))
@@ -48,6 +51,6 @@ test_participants <- function(x){
 		])))
 	})
 	
-
+	
 }
 
