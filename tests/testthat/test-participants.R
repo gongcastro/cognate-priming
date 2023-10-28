@@ -1,67 +1,56 @@
-test_participants <- function(participants){
+test_participants <- function(x){
 	
-	test_that("participants has the right columns", {
+	test_that("x has the right columns", {
 		expect_setequal(
-			colnames(participants),
-			c("id",
+			colnames(x),
+			c("child_id",
+			  "location",
 			  "date_test",
-			  "lp",
-			  "sex",
-			  "doe_catalan",
-			  "doe_spanish",
-			  "doe_english",
-			  "doe_others",
+			  "session_id",
+			  "session_n",
 			  "age_group",
 			  "age",
+			  "sex",
+			  "lp",
+			  "doe",
 			  "test_language",
 			  "list",
 			  "version",
+			  "vocab_id",
+			  "list",
+			  "vocab_id_response",
 			  "filename"))
 	})
 	
-	test_that("participants variables are the right types", {
-		expect_type(participants$id, "character")
-		expect_type(participants$sex, "character")
-		expect_equal(class(participants$date_test), "Date")
-		expect_type(participants$lp, "integer")
-		expect_type(participants$age_group, "integer")
-		expect_type(participants$age, "double")
-		expect_type(participants$test_language, "integer")
-		expect_type(participants$list, "integer")
-		expect_type(participants$version, "character")
-		expect_type(participants$filename, "character")
+	test_that("x variables are the right types", {
+		expect_type(x$child_id, "character")
+		expect_type(x$vocab_id, "character")
+		expect_type(x$sex, "integer")
+		expect_equal(class(x$date_test), "Date")
+		expect_type(x$age_group, "character")
+		expect_type(x$lp, "integer")
+		expect_type(x$age, "double")
+		expect_type(x$test_language, "integer")
+		expect_type(x$list, "integer")
+		expect_type(x$version, "character")
+		expect_type(x$filename, "character")
+		expect_type(x$doe, "list")
 	})
 	
-	test_that("participants has no missing data", {
-		expect_false(any(is.na(participants$id)))
-		# expect_false(any(is.na(participants$sex)))
-		expect_false(any(is.na(participants$date_test)))
-		expect_false(any(is.na(participants$lp)))
-		expect_false(any(is.na(participants$age_group)))
-		expect_false(any(is.na(participants$age)))
-		expect_false(any(is.na(participants$test_language)))
-		expect_false(any(is.na(participants$list)))
-		expect_false(any(is.na(participants$version)))
-		# expect_false(any(is.na(participants$filename)))
+	test_that("x has no missing data", {
+		expect_false(any(is.na(x$child_id)))
+		expect_false(any(is.na(x$date_test)))
+		expect_false(any(is.na(x$lp)))
+		expect_false(any(is.na(x$age_group)))
+		expect_false(any(is.na(x$age)))
+		expect_false(any(is.na(x$test_language)))
+		expect_false(any(is.na(x$list)))
+		expect_false(any(is.na(x$version)))
+		expect_false(any(is.na(x$filename[
+			x$location=="Barcelona"
+		])))
 	})
 	
 	
-	test_that("id_db and age_group combinations are not duplicated", {
-		expect_true(
-			participants |>
-				janitor::get_dupes(id, age_group) |> 
-				nrow() < 1
-		)
-	})
-	
-	# test_that("filenames are not duplicated", {
-	# 	expect_true(!any(duplicated(participants$filename)))
-	# })
-	
-	# test_that("all filenames correspond to a file in data/gaze/00_raw", {
-	# 	gaze_files_path <- "data-raw/eyetracking-barcelona"
-	# 	gaze_files <- basename(list.files(gaze_files_path, pattern = ".csv$"))
-	# 	expect_true(all(participants$filename %in% gaze_files))
-	# })
 }
 

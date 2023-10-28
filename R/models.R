@@ -1,8 +1,8 @@
 #' Fit multiple models given a list of formulas
-get_model_fit <- function(names, formulas, data, family, prior, ...) {
+get_model_fit <- function(names, formulas, data, prior, ...) {
 	
 	# check args
-	if (is.null(names(formulas)) || !is.list(formulas)) {
+	if (!is.list(formulas)) {
 		cli_abort("formula must be a named list")
 	}
 	if (!is.data.frame(data)) {
@@ -10,27 +10,35 @@ get_model_fit <- function(names, formulas, data, family, prior, ...) {
 	}
 	
 	# fit models
-	fit <- purrr::map2(.x = names,
-					   .y = formulas,
-					   .f = \(names, formulas) {
-					   	fit_single_model(names, formulas, data, family, prior, ...)
-					   },
-					   .progress = TRUE)
+	fit_lst <- map2(.x = names,
+					.y = formulas,
+					.f = \(names, formulas) {
+						fit_single_model(names, formulas, data, prior, ...)
+					},
+					.progress = TRUE) |> 
+		set_names(gsub("cognate_|related_", "", names))
 	
-	return(fit)
+	return(fit_lst)
 }
 
 #' Estimate model using Hamiltonian Monte Carlo via Stan
-fit_single_model <- function(name, formula, data, family, prior, ...) {
+fit_single_model <- function(name, formula, data, prior, ...) {
 	
-	fit <- brms::brm(formula, data, family, prior,
+	model_path <- file.path("results", "fits", paste0(name, ".rds"))
+	
+	fit <- brms::brm(formula = formula,
+					 data = data,
+					 prior = prior,
 					 iter = 500,
 					 chains = 6,
 					 cores = 6,
 					 init = 0.1,
 					 file_refit = "on_change",
-					 file = file.path("results", "fits", paste0(name, ".rds")),
+					 file = model_path,
 					 seed = 1234,
+					 control = list(adapt_delta = 0.9,
+					 			   max_treedepth = 15),
+					 silent = 2,
 					 ...)
 	
 	return(fit)

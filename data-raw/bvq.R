@@ -16,38 +16,23 @@ edu_dict <- c("noeducation" = "No education",
 			  "university" = "University")
 
 l <- bvq_logs(p, r) |> 
-	mutate(age_group = case_when(age>=19 & age<24 ~ "21 months",
-								 age>=24 & age<28 ~ "25 months",
-								 age>=28 & age<=34 ~ "30 months",
-								 TRUE ~ "Other"),
-		   age_group = as.factor(age_group),
-		   across(starts_with("edu_"), 
-		   	   function(x) {
-		   	   	factor(x, 
-		   	   		   levels = names(edu_dict),
-		   	   		   ordered = TRUE) |> 
-		   	   		as.numeric()
-		   	   }),
-		   # get maximum educational attainment of parents
-		   edu_parent = apply(cbind(edu_parent1, edu_parent2), 1,
-		   				   function(x) max(x, na.rm = FALSE)),
-		   # recode it as factor
-		   edu_parent = factor(edu_parent,
-		   					levels = 1:6, 
-		   					labels = edu_dict)) |>
-	left_join(select(p, id, time, id_exp),
-			  by = join_by(id, time)) |> 
-	distinct(id, age_group, .keep_all = TRUE) |> 
-	select(id, id_exp, time, age, age_group, lp, version,  
-		   dominance, doe_catalan, doe_spanish, doe_others, edu_parent)
+	# get maximum educational attainment of parents
+	mutate(edu_parent = apply(cbind(edu_parent1, edu_parent2), 1,
+							  function(x) max(x, na.rm = FALSE)) |>
+		   	factor(levels = names(edu_dict), 
+		   		   labels = edu_dict)) |>
+	left_join(select(p, child_id, response_id, time),
+			  by = join_by(child_id, response_id, time)) |> 
+	distinct(response_id, .keep_all = TRUE) |> 
+	select(child_id, response_id, time, age, lp, version, dominance, edu_parent)
 
 v <- bvq_vocabulary(p, r, .scale = c("count", "prop")) |> 
 	dplyr::filter(type=="understands") |> 
-	inner_join(l, by = join_by(id, time)) |> 
+	inner_join(l, by = join_by(child_id, response_id)) |> 
 	filter(type=="understands") |> 
-	select(id, time, age, lp, matches("prop")) |> 
-	inner_join(l, by = join_by(id, time)) |> 
-	select(id, id_exp, age_group, matches("prop|count")) 
+	select(child_id, response_id, time, matches("prop"), contents) |> 
+	inner_join(l, by = join_by(child_id, response_id, time)) |> 
+	select(response_id, matches("prop|count"), contents ) 
 
 
 bvq_data <- list(participants = p, 
@@ -56,4 +41,4 @@ bvq_data <- list(participants = p,
 				 vocabulary = v,
 				 pool = pool)
 
-saveRDS(bvq_data, "data-raw/bvq.rds")
+saveRDS(bvq_data, file.path("data-raw", "bvq.rds"))
