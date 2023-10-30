@@ -1,23 +1,27 @@
 # project utils ----------------------------------------------------------------
 
-# run the targets pipeline
+#' Run the targets pipeline
+#' 
 make <- function() {
-	job::job({{ 
-		targets::tar_make()
-		job::export("none")  # return nothing
-	}}, 
-	import = NULL,
-	title = "Cognate Priming")
+	job::job(
+		{{ 
+			targets::tar_make()
+			job::export("none")  # return nothing
+		}},  
+		import = NULL,
+		title = "Cognate Priming"
+	)
 }
 
-# destroy targets products
+#' Destroy targets products
+#' 
 unmake <- function(keep_rds = TRUE) {
 	tar_destroy(ask = FALSE)
-	rds_paths <- list.files("results/", pattern = ".rds", full.names = TRUE)
+	rds_paths <- list.files("results/", pattern = "\\.rds", full.names = TRUE)
 	if (!keep_rds){
 		if (length(rds_paths) > 0) lapply(rds_paths, file.remove)
 	}
-	cli::cli_alert_success("Removed project outputs!")
+	cli_alert_success("Removed project outputs!")
 }
 
 #' Print welcome message in console
@@ -55,13 +59,14 @@ welcome_message <- function() {
 	cli_status_clear(id)
 }
 
+#' Delete unwanted files
 clean_repo <- function() {
 	
-	# delete files
-	file.paths <- c("manuscript/orcidlink.sty",
-					"manuscript/arxiv.sty",
-					".luarc.json",
-					"_targets.yaml")
+	file.paths <- file.path(c("manuscript/orcidlink.sty",
+							  "manuscript/arxiv.sty",
+							  ".luarc.json",
+							  "_targets.yaml"))
+	
 	file.paths <- file.paths[file.exists(file.paths)]
 	if(length(file.paths) > 0) {
 		invisible(lapply(file.paths, file.remove))
