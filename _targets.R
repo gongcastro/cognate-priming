@@ -285,12 +285,12 @@ list(
 	
 	# render report ------------------------------------------------------------
 	
-	tar_quarto(name = index, path = "docs/index.qmd")
+	# tar_quarto(name = index, path = "docs/index.qmd")
 	
-	# tar_quarto(manuscript,
-	# 		   file.path("manuscript", "manuscript.qmd"),
-	# 		   execute = TRUE,
-	# 		   quiet = FALSE)
+	tar_quarto(manuscript,
+			   file.path("manuscript/manuscript.qmd"),
+			   execute = TRUE,
+			   quiet = FALSE)
 	
 )
 

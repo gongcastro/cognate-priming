@@ -1,3 +1,6 @@
+---
+---
+
 ```{r setup}
 #| label: setup
 #| echo: false
@@ -13,26 +16,26 @@ targets::tar_load(
 	c(participants,
 	  stimuli,
 	  vocabulary,
-	  attrition_trials, 
+	  attrition_trials,
 	  attrition_participants,
-	  bvq_data, 
-	  gaze_aoi, 
-	  data_time, 
-	  data_aggr,
+	  bvq_data,
+	  gaze,
+	  data_time,
+	  data_aggr
 	))
 
 targets::tar_load(
 	c(model_fits_aggr,
-	  model_fits_time
-	  # model_loos_aggr,
-	  # model_loos_time,
+	  model_fits_time,
+	  model_loos_aggr,
+	  model_loos_time
 	))
 
 # prepare data
 attrition <- lst(participants,
 				 attrition_participants,
-				 attrition_trials) |> 
-	reduce(inner_join, by = join_by(session_id)) |> 
+				 attrition_trials) |>
+	reduce(inner_join, by = join_by(session_id)) |>
 	unnest_wider(matches("all"), names_sep = "_")
 
 library(knitr)
@@ -205,9 +208,9 @@ n_sessions_lp <- participants |>
 	set_names(c("monolingual_eng", "monolingual", "bilingual"))
 ```
 
-We collected data from `r n_participants_total$n[1]` participants living in the Metropolitan Area of Barcelona (Spain) tested at the Laboratori de recerca en Infància at the Universitat Pompeu Fabra (`r n_participants_sex$n[1]` female, `n_participants_sex$n[2]` male), and `r n_participants_total$n[2]` participants living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford (`r n_participants_sex$n[3]` female, `n_participants_sex$n[4]`, `n_participants_sex$n[5]` not reported). Families were recruited from maternity room in private hospitals or from social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r sum(n_participants_total$n)` children that participated, `r n_participants_sessions$session_1$n` participated once, `r n_participants_sessions$session_2$n` participated twice, and `r n_participants_sessions$session_3$n` participated three times. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions: `r n_sessions_lp$monolingual_english$n` from participants in Oxford, and `r n_sessions_lp$monolingual$n + n_sessions_lp$bilingual$n` from participants in Barcelona.
+We collected data from `r n_participants_total$n[1]` participants living in the Metropolitan Area of Barcelona (Spain) tested at the Laboratori de recerca en Infància at the Universitat Pompeu Fabra (`r n_participants_sex$n[1]` female, `n_participants_sex$n[2]` male), and `r n_participants_total$n[2]` participants living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford (`r n_participants_sex$n[3]` female, `n_participants_sex$n[4]`, `n_participants_sex$n[5]` not reported). Families were recruited from maternity room in private hospitals or from social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r sum(n_participants_total$n)` children that participated, `r n_participants_sessions$session_1$n` participated once, `r n_participants_sessions$session_2$n` participated twice, and `r n_participants_sessions$session_3$n` participated three times. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions: `r n_sessions_lp$monolingual_eng$n` from participants in Oxford, and `r n_sessions_lp$monolingual$n + n_sessions_lp$bilingual$n` from participants in Barcelona.
 
-We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (*DoE*) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan-, English-, or Spanish-dominant if the language with highest *DoE* was Catalan, English, or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. From the `r n_sessions_total$n` testing sessions, `r n_sessions_lp$monolingual_english$n` belonged to English monolinguals,  `r n_sessions_lp$monolingual$n` to Catalan or Spanish monolinguals, and  `r n_sessions_lp$bilingual$n` to Catalan-Spanish bilinguals. @tbl-participants shows a detailed description of the linguistic profile of our sample.
+We assessed participants' language profile using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. Before each experimental session, the experimenter asked the caretakers to estimate the amount of hours per day they and other people in the infant's social circle have spent speaking to the infant in any language since birth. The output of this interview is an estimated degree of exposure (*DoE*) to each language, indicated by the proportion of time the infant was reported to have listened to each language. According to this estimate, we classified participants as Catalan-, English-, or Spanish-dominant if the language with highest *DoE* was Catalan, English, or Spanish, respectively, and tested the participant in the stimuli set that contained words in their native language. From the `r n_sessions_total$n` testing sessions, `r n_sessions_lp$monolingual_eng$n` belonged to English monolinguals,  `r n_sessions_lp$monolingual$n` to Catalan or Spanish monolinguals, and  `r n_sessions_lp$bilingual$n` to Catalan-Spanish bilinguals. @tbl-participants shows a detailed description of the linguistic profile of our sample.
 
 
 ```{r tbl-participants}
