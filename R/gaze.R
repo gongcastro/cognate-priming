@@ -38,22 +38,19 @@ get_gaze_bcn <- function(gaze_files,
 							   test_language, list, version)
 	
 	stimuli_tmp <- select(stimuli, test_language, list, version, trial,
-						  target_location, trial_type, matches("_cdi")) |> 
+						  loc_t = target_location, trial_type, matches("_cdi")) |> 
 		mutate(list = as.integer(list))
 	
 	gaze_processed <- get_gaze_processed_bcn(gaze_files)
 	
 	gaze_bcn <- gaze_processed |> 
-		mutate(filename = gsub(".csv.csv", ".csv", filename))  |> 
+		mutate(filename = gsub("\\.csv.csv", "\\.csv", filename))  |> 
 		inner_join(participants_tmp, by = join_by(filename)) |> 
-		left_join(stimuli_tmp,
-				  by = join_by(trial, test_language, list, version)) |>  
-		make_non_aoi_as_false(non_aoi_as_na = non_aoi_as_na) |> 
-		mutate(
-			is_gaze_prime = gaze_in_prime(x, y, aoi_coords = aoi_coords),
-			is_gaze_target = gaze_in_target(x, y, target_location, aoi_coords),
-			is_gaze_distractor = gaze_in_distractor(x, y, target_location, aoi_coords)
-		) |> 
+		left_join(stimuli_tmp, by = join_by(trial, test_language, list, version)) |>  
+		make_non_aoi_as_false(non_aoi_as_na = non_aoi_as_na) |>
+		mutate(is_gaze_prime = gaze_in_prime(x, y, aoi_coords),
+			   is_gaze_target = gaze_in_target(x, y, loc_t, aoi_coords),
+			   is_gaze_distractor = gaze_in_distractor(x, y, loc_t, aoi_coords)) |> 
 		select(child_id, session_id, trial, phase, timestamp, x, y,
 			   is_gaze_prime, is_gaze_target, is_gaze_distractor,
 			   is_valid_gaze, is_imputed, trial_type, matches("_cdi"))
@@ -61,6 +58,7 @@ get_gaze_bcn <- function(gaze_files,
 	return(gaze_bcn)
 	
 }
+
 
 #' Process Barcelona gaze data
 get_gaze_processed_bcn <- function(gaze_files){
@@ -329,87 +327,34 @@ make_non_aoi_as_false <- function(x, non_aoi_as_na = FALSE) {
 # evaluate if gaze is in prime
 gaze_in_prime <- function(x, y, aoi_coords){
 	
-	is_gaze_in_aoi <- between(
-		x, 
-		aoi_coords$c["xmin"], 
-		aoi_coords$c["xmax"]
-	) & 
-		between(
-			y, 
-			aoi_coords$c["ymin"], 
-			aoi_coords$c["ymax"]
-		)
+	x_eval <- between(x, aoi_coords$c["xmin"], aoi_coords$c["xmax"]) 
+	y_eval <- between(y, aoi_coords$c["ymin"], aoi_coords$c["ymax"])
 	
-	is_gaze_in_aoi <- ifelse(is.na(is_gaze_in_aoi), FALSE, TRUE)
-	
-	return(is_gaze_in_aoi)
+	return(x_eval & y_eval)
 }
 
 # evaluate if gaze is in target
-gaze_in_target <- function(x, y, target_location, aoi_coords){
-	
-	is_gaze_in_aoi <- 
-		case_when(
-			target_location=="r" ~ 
-				between(
-					x,
-					aoi_coords$r["xmin"],
-					aoi_coords$r["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$r["ymin"],
-					aoi_coords$r["ymax"]
-				),
-			target_location=="l" ~ 
-				between(
-					x,
-					aoi_coords$l["xmin"],
-					aoi_coords$l["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$l["ymin"],
-					aoi_coords$l["ymax"]
-				),
-			TRUE ~ FALSE
-		)
-	
-	return(is_gaze_in_aoi)
+gaze_in_target <- function(x, y, loc, coords){
+	is_in <- case_when(
+		loc=="r" ~ between(x, coords$r["xmin"], coords$r["xmax"]) &
+			between(y, coords$r["ymin"], coords$r["ymax"]),
+		loc=="l" ~ between(x, coords$l["xmin"], coords$l["xmax"]) &
+			between(y, coords$l["ymin"], coords$l["ymax"]),
+		.default = FALSE
+	)
+	return(is_in)
 }
 
-
 # evaluate if gaze is in distractor
-gaze_in_distractor <- function(x, y, target_location, aoi_coords){
-	
-	is_gaze_in_aoi <- 
-		case_when(
-			target_location=="l" ~
-				between(
-					x,
-					aoi_coords$r["xmin"],
-					aoi_coords$r["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$r["ymin"],
-					aoi_coords$r["ymax"]
-				),
-			target_location=="r" ~
-				between(
-					x,
-					aoi_coords$l["xmin"],
-					aoi_coords$l["xmax"]
-				) &
-				between(
-					y,
-					aoi_coords$l["ymin"],
-					aoi_coords$l["ymax"]
-				),
-			TRUE ~ FALSE
-		)
-	
-	return(is_gaze_in_aoi)
+gaze_in_distractor <- function(x, y, loc, coords){
+	is_in <- case_when(
+		loc=="l" ~ between(x, coords$r["xmin"], coords$r["xmax"]) &
+			between(y, coords$r["ymin"], coords$r["ymax"]),
+		loc=="r" ~ between(x, coords$l["xmin"], coords$l["xmax"]) &
+			between(y, coords$l["ymin"], coords$l["ymax"]),
+		.default = FALSE
+	)
+	return(is_in)
 }
 
 #' Functions for Oxford data ---------------------------------------------------
@@ -489,3 +434,4 @@ get_gaze_oxf <- function(gaze_files,
 	
 	return(gaze_oxf)
 }
+
