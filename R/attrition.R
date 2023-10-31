@@ -7,53 +7,52 @@ get_attrition_trials <- function(gaze,
 								 # minimum looking time in seconds
 								 min_looking = c(prime = 0.75,
 								 				test = 1.00,
-								 				test_each = 0,
-								 				test_any = 0.10)) {
+								 				test_each = 0.10,
+								 				test_any = 0.00)) {
 	
 	check_args_attrition_trials() # check input
+	
+	remove_list_names <- function(x, pattern) {
+		names(x) <- gsub(pattern, "", names(x))
+		return(x)
+	}
 	
 	attrition_trials <- gaze |> 
 		left_join(distinct(participants, child_id, session_id, vocab_id, filename),
 				  by = join_by(child_id, session_id)) |>  
 		fix_sampling_rate(filename, date_onset = "2022-05-26") |>
-		summarise(prime_time = sum(is_gaze_prime[phase=="Prime"], na.rm = TRUE),
-				  target_time = sum(is_gaze_target[phase=="Target-Distractor"], na.rm = TRUE),
-				  distractor_time = sum(is_gaze_distractor[phase=="Target-Distractor"], na.rm = TRUE),
+		summarise(prime_samples = sum(is_gaze_prime[phase=="Prime"], na.rm = TRUE),
+				  target_samples = sum(is_gaze_target[phase=="Target-Distractor"], na.rm = TRUE),
+				  distractor_samples = sum(is_gaze_distractor[phase=="Target-Distractor"], na.rm = TRUE),
 				  .by = c(child_id, session_id, vocab_id, trial_type,
 				  		trial, sampling_rate, matches("_cdi"))) |>
-		rowwise() |>
-		mutate(looking_time = list(unlist(across(matches("time"))))) |> 
-		ungroup() |> 
-		mutate(across(c(prime_time, target_time, distractor_time),
-					  \(x) x / sampling_rate),
-			   test_time = target_time + distractor_time) |> 
+		mutate(across(matches("_samples"), \(x) x / sampling_rate, .names = "{.col}_looking"),
+			   test_time = target_samples + distractor_samples) |> 
+		rename_with(\(x) gsub("_samples_looking", "_looking", x)) |> 
 		select(-sampling_rate) |> 
 		left_join(vocabulary, by = join_by(child_id, vocab_id, session_id)) |>   
 		# evaluate criteria
-		validate_gaze(min_looking) |>
-		mutate(across(starts_with("is_valid_"),
-					  \(x) ifelse(is.na(x), FALSE, x))) |> 
+		validate_gaze(min_looking) |> 
+		mutate(across(starts_with("is_valid_"), \(x) ifelse(is.na(x), FALSE, x))) |> 
 		validate_vocabulary(contents, vocabulary_by) |>
 		mutate(is_valid_trial = is_valid_gaze & is_valid_vocab) |>
 		rowwise() |> 
 		mutate(is_valid_vocab_all = list(unlist(across(matches("is_valid_vocab_")))),
+			   looking = list(unlist(across(matches("_looking")))),
+			   samples = list(unlist(across(matches("_samples")))),
 			   is_valid_gaze_all = list(unlist(across(matches("is_valid_gaze_"))))) |> 
 		ungroup() |> 
-		mutate(across(matches("all"),
-					  function(x) {
-					  	map(x, function(x) {
-					  		names(x) <- gsub("is_valid_vocab_|is_valid_gaze_", 
-					  						 "", names(x))
-					  		return(x)
-					  	})
-					  })) |> 
+		mutate(across(c(looking, samples), 
+					  \(x) remove_list_names(x, "_looking|_samples")),
+			   across(matches("all"), 
+			   	   \(x) remove_list_names(x, "is_valid_vocab_|is_valid_gaze_"))) |> 
 		left_join(participants, by = join_by(session_id, vocab_id, child_id)) |> 
 		select(session_id, trial, trial_type,
-			   looking_time, is_valid_trial,
+			   looking, samples,  is_valid_trial,
 			   is_valid_vocab, is_valid_vocab_all, 
 			   is_valid_gaze, is_valid_gaze_all)
 	
-	test_attrition_trials(attrition_trials)
+	# test_attrition_trials(attrition_trials)
 	
 	return(attrition_trials)
 }
@@ -93,6 +92,7 @@ check_args_attrition_trials <- function() {
 }
 
 #' Apply gaze validity inclusion criteria
+#' 
 validate_gaze <- function(data, min_looking) {
 	
 	# validate arg values
@@ -100,7 +100,7 @@ validate_gaze <- function(data, min_looking) {
 		cli_abort("min_looking must be a numeric vector of length 3")
 	}
 	
-	aoi_names <- c("prime_time", "target_time", "distractor_time")
+	aoi_names <- c("prime_looking", "target_looking", "distractor_looking")
 	if (!all(aoi_names %in% colnames(data))) {
 		which.missing <- aoi_names[!(aoi_names %in% colnames(data))]
 		cli_abort("{which.missing} is not a variable in data")
@@ -112,20 +112,20 @@ validate_gaze <- function(data, min_looking) {
 						test_any = "is_valid_gaze_test_any")
 	
 	# validate prime
-	data[validity.names["prime"]] <- data$prime_time >= min_looking["prime"]
+	data[validity.names["prime"]] <- data$prime_looking >= min_looking["prime"]
 	
 	# validate target
-	test.time <- rowSums(data[, c("target_time", "distractor_time")])
+	test.time <- rowSums(data[, c("target_looking", "distractor_looking")])
 	data[validity.names["test"]] <- test.time >= min_looking["test"]
 	
 	# validate test-any
-	any.target <- data$target_time >= min_looking["test_any"]
-	any.distractor <- data$distractor_time >= min_looking["test_any"]
+	any.target <- data$target_looking >= min_looking["test_any"]
+	any.distractor <- data$distractor_looking >= min_looking["test_any"]
 	data[validity.names["test_any"]] <- any.target | any.distractor
 	
 	# validate test-each
-	each.target <- data$target_time >= min_looking["test_each"]
-	each.distractor <- data$distractor_time >= min_looking["test_each"]
+	each.target <- data$target_looking >= min_looking["test_each"]
+	each.distractor <- data$distractor_looking >= min_looking["test_each"]
 	data[validity.names["test_each"]] <- each.target & each.distractor
 	
 	# validate all

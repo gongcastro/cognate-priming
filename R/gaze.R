@@ -77,8 +77,8 @@ get_gaze_processed_bcn <- function(gaze_files){
 			   .by = c(filename, trial, phase)) |> 
 		# trim timestamps outside the 2 seconds range
 		filter(between(trial, 1, 32),
-			   !(phase=="Prime" & timestamp > 1.5), 
-			   !(phase=="Target-Distractor" & timestamp > 2.0)) |> 
+			   !(phase=="Prime" & timestamp >= 1.5), 
+			   !(phase=="Target-Distractor" & timestamp >= 2.0)) |> 
 		# change gaze coordinates from 0-1 scale to screen resolution scale [1920x1080]
 		mutate(x = x*screen_resolution["x"],
 			   y = y*screen_resolution["y"]) |> 
@@ -157,6 +157,54 @@ get_gaze_raw_bcn <- function(gaze_files){
 	test_gaze_raw(gaze_raw)
 	
 	return(gaze_raw)
+}
+
+
+#' Get name dictionaries
+get_name_dictionary <- function(...) {
+	
+	col_name_changes <- c(
+		id = "participant",
+		id = "suje_num",
+		timestamp = "time",
+		timestamp = "system_time_stamp",
+		l_x = "l_1",
+		l_y = "l_2",
+		phase = "process",
+		phase = "baseline",
+		r_x = "r_1",
+		r_y = "r_2",
+		l_user_coord_z = "l_user_coord_3",
+		r_user_coord_z = "r_user_coord_3",
+		is_valid_gaze = "mean_validity",
+		is_valid_gaze = "is_valid_gaze",
+		id = "sujenum",
+		trial_num = "numtrial_lista"
+		# trial = "trial_num"
+	)
+	
+	phase_name_changes <- c(
+		"GETTER" = "Getter",
+		"baseline" = "Getter",
+		"PRIMEIMAGE" = "Prime",
+		"prime" = "Prime",
+		"primeimage" = "Prime",
+		"BLANK" = "Blank",
+		"Blank_AUDIO" = "Audio",
+		"BLANK_AUDIO" = "Audio",
+		"blank" = "Blank",
+		"audio" = "Audio",
+		"TARGET_DISTRACTOR" = "Target-Distractor",
+		"target_distractor" = "Target-Distractor"
+	)
+	
+	relevant_variables <- c("trial", "phase", "x", "y", "is_valid_gaze")
+	
+	name_dict <- list(col_name_changes = col_name_changes, 
+					  phase_name_changes = phase_name_changes, 
+					  relevant_variables = relevant_variables)
+	
+	return(name_dict)
 }
 
 #' Process Oxford eye-tracking data
@@ -283,13 +331,13 @@ gaze_in_prime <- function(x, y, aoi_coords){
 	
 	is_gaze_in_aoi <- between(
 		x, 
-		aoi_coords$center["xmin"], 
-		aoi_coords$center["xmax"]
+		aoi_coords$c["xmin"], 
+		aoi_coords$c["xmax"]
 	) & 
 		between(
 			y, 
-			aoi_coords$center["ymin"], 
-			aoi_coords$center["ymax"]
+			aoi_coords$c["ymin"], 
+			aoi_coords$c["ymax"]
 		)
 	
 	is_gaze_in_aoi <- ifelse(is.na(is_gaze_in_aoi), FALSE, TRUE)
@@ -305,24 +353,24 @@ gaze_in_target <- function(x, y, target_location, aoi_coords){
 			target_location=="r" ~ 
 				between(
 					x,
-					aoi_coords$right["xmin"],
-					aoi_coords$right["xmax"]
+					aoi_coords$r["xmin"],
+					aoi_coords$r["xmax"]
 				) &
 				between(
 					y,
-					aoi_coords$right["ymin"],
-					aoi_coords$right["ymax"]
+					aoi_coords$r["ymin"],
+					aoi_coords$r["ymax"]
 				),
 			target_location=="l" ~ 
 				between(
 					x,
-					aoi_coords$left["xmin"],
-					aoi_coords$left["xmax"]
+					aoi_coords$l["xmin"],
+					aoi_coords$l["xmax"]
 				) &
 				between(
 					y,
-					aoi_coords$left["ymin"],
-					aoi_coords$left["ymax"]
+					aoi_coords$l["ymin"],
+					aoi_coords$l["ymax"]
 				),
 			TRUE ~ FALSE
 		)
@@ -339,68 +387,30 @@ gaze_in_distractor <- function(x, y, target_location, aoi_coords){
 			target_location=="l" ~
 				between(
 					x,
-					aoi_coords$right["xmin"],
-					aoi_coords$right["xmax"]
+					aoi_coords$r["xmin"],
+					aoi_coords$r["xmax"]
 				) &
 				between(
 					y,
-					aoi_coords$right["ymin"],
-					aoi_coords$right["ymax"]
+					aoi_coords$r["ymin"],
+					aoi_coords$r["ymax"]
 				),
 			target_location=="r" ~
 				between(
 					x,
-					aoi_coords$left["xmin"],
-					aoi_coords$left["xmax"]
+					aoi_coords$l["xmin"],
+					aoi_coords$l["xmax"]
 				) &
 				between(
 					y,
-					aoi_coords$left["ymin"],
-					aoi_coords$left["ymax"]
+					aoi_coords$l["ymin"],
+					aoi_coords$l["ymax"]
 				),
 			TRUE ~ FALSE
 		)
 	
 	return(is_gaze_in_aoi)
 }
-
-#' Get looking times
-#' 
-get_looking_times <- function(gaze_aoi, 
-							  participants,
-							  stimuli
-) {
-	gaze_aoi_tmp <- gaze_aoi
-	
-	stimuli_tmp <- select(stimuli, test_language, list, version,
-						  ends_with("_cdi"), duration)
-	
-	looking_times <- gaze_aoi_tmp |>
-		fix_sampling_rate(filename, date_onset = "2022-05-26") |>
-		summarise(prime_time = sum(is_gaze_prime[phase=="Prime"], na.rm = TRUE),
-				  target_time = sum(is_gaze_target[phase=="Target-Distractor"], na.rm = TRUE),
-				  distractor_time = sum(is_gaze_distractor[phase=="Target-Distractor"], na.rm = TRUE),
-				  .by = c(filename, trial_type, filename, trial, sampling_rate, matches("_cdi"))) |> 
-		mutate(across(ends_with("_time"), \(x) x / sampling_rate),
-			   across(ends_with("_time"), \(x) ifelse(x > 1.5, 1.5, x)),
-			   test_time = target_time + distractor_time) |>
-		select(-sampling_rate) |> 
-		left_join(select(participants, filename, id, age_group, lp,
-						 test_language, version, list),
-				  by = join_by(filename)) |> 
-		left_join(stimuli_tmp,
-				  by = join_by(prime_cdi, target_cdi, distractor_cdi, test_language,
-				  			 version, list)) |> 
-		select(id, age_group, lp, filename, trial, trial_type, 
-			   prime_time, 
-			   target_time, 
-			   distractor_time,
-			   duration)
-	
-	return(looking_times)
-	
-}
-
 
 #' Functions for Oxford data ---------------------------------------------------
 

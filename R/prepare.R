@@ -1,42 +1,67 @@
 #' Prepare time course data for modelling
 get_data_time <- function(gaze, 
 						  participants,
-						  stimuli,
 						  vocabulary,
 						  attrition_trials,
 						  attrition_participants,
-						  time_subset = c(0.30, 2.00),
+						  time_subset = c(0.20, 2.00),
 						  return_clean = TRUE,
 						  ...
 ){
 	
-	gaze_tmp <- filter(gaze, phase=="Target-Distractor")
+	gaze_tmp <- filter(gaze, phase=="Target-Distractor") |> 
+		select(session_id, trial, phase, timestamp,
+			   is_gaze_target, is_gaze_distractor, trial_type) |> 
+		filter(timestamp >= time_subset[1], timestamp < time_subset[2]) |> 
+		mutate(condition = recode_condition(trial_type),
+			   timebin = findInterval(timestamp, seq(time_subset[1], 
+			   									  time_subset[2], 0.1))-1) 
 	
-	vocabulary_tmp <- rename_with(vocabulary, 
-								  \(x) paste0("voc_", x),
-								  matches("prop|count"))
+	vocabulary_tmp <- rename_with(vocabulary,  
+								  \(x) gsub("_prop", "", paste0("voc_", x)), 
+								  matches("_prop"))
 	
-	clean <- participants |> 
-		inner_join(gaze_tmp, by = join_by(child_id, session_id)) |> 
-		select(child_id, session_id, age_group, age, lp, trial, timestamp, x, y,
-			   matches("is_gaze_")) |> 
-		left_join(attrition_trials, by = join_by(session_id, trial)) |> 
-		left_join(attrition_participants, by = join_by(session_id)) |> 
-		left_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
-		filter(between(timestamp, time_subset[1], time_subset[2]),
-			   if (return_clean) is_valid_participant,
-			   if (return_clean) is_valid_trial) |> 
-		mutate(across(c(lp, age_group), as.factor),
-			   condition = recode_condition(trial_type),
-			   timebin = findInterval(timestamp, 
-			   					   seq(time_subset[1], 
-			   					   	time_subset[2], 0.1))-1) |> 
-		select(child_id, session_id, voc_l1 = voc_l1_prop,
-			   age_group, age, lp, trial, timebin, timestamp, is_valid_vocab_all,
-			   condition, is_gaze_target, is_gaze_distractor,
-			   is_valid_trial, is_valid_participant) 
+	participants_tmp <- participants |> 
+		select(child_id, session_id, age_group, age, lp)
 	
-	data_time <- aggregate_timecourse(clean, ...)
+	attrition_trials_tmp <- attrition_trials |> 
+		filter(if (return_clean) is_valid_trial) |> 
+		select(session_id, trial, samples, is_valid_trial) 
+	
+	attrition_participants_tmp <- attrition_participants |> 
+		filter(if (return_clean) is_valid_participant) |> 
+		select(session_id)
+	
+	data_time <- gaze_tmp |>
+		inner_join(attrition_trials_tmp, by = join_by(session_id, trial)) |> 
+		inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
+		mutate(condition = recode_condition(trial_type)) |> 
+		select(session_id, trial, timebin, timestamp,
+			   condition, is_gaze_target, is_gaze_distractor) |> 
+		# aggregated across trials by participant, time bin and condition
+		# see Chow et al. (2018)
+		summarise(.sum_t = sum(is_gaze_target, na.rm = TRUE),
+				  .sum_d = sum(is_gaze_distractor, na.rm = TRUE),
+				  .ntrials = length(unique(trial)),
+				  .by = c(session_id, timebin, condition)) |> 
+		# empirical logit with adjustment
+		# see Barr et al. (2008)
+		mutate(.nsamples = .sum_t + .sum_d,
+			   .prop = ifelse(.nsamples==0, NA_real_, .sum_t / .nsamples),
+			   # impute a maximum of 2 consecutive time bins using LOCF 
+			   # .prop = zoo::na.locf(.prop, na.rm = TRUE, maxgap = 2),
+			   .elog = log((.sum_t + .5)/(.sum_d + .5))) |> 
+		arrange(desc(session_id), condition, timebin) |> 
+		inner_join(participants_tmp, by = join_by(session_id)) |> 
+		inner_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
+		mutate(across(c(.nsamples, timebin), as.integer),
+			   across(c(child_id, session_id, lp, condition, age_group), as.factor),
+			   across(c(age, matches("voc_"), timebin),
+			   	   \(x) scale(x, scale = TRUE)[, 1],
+			   	   .names = "{.col}_std")) |> 
+		select(child_id, session_id, age_group, age, voc_l1, voc_total, lp,
+			   condition, timebin, .sum_t, .sum_d, .prop, .elog, .nsamples,
+			   matches("_std")) 
 	
 	# set a priori contrasts
 	contrasts(data_time$condition) <- cbind(c(-0.5, 0.5, 0),
@@ -44,40 +69,12 @@ get_data_time <- function(gaze,
 	contrasts(data_time$lp) <- cbind(c(-0.5, 0.25, 0.25),
 									 c(0, -0.5, 0.5))
 	contrasts(data_time$age_group) <- cbind(c(-0.5, 0.25, 0.25),
-									 c(0, -0.5, 0.5))
-	
-	test_data_time(data_time)
-	
-	return(data_time)
-	
-}
-
-#' Aggregate eye-tracking data into time bins
-#' 
-aggregate_timecourse <- function(x, contrast, ...) {
-	
-	# aggregate data
-	data_time <- x |> 
-		# aggregated by participant, see Chow et al. (2018)
-		summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
-				  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
-				  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
-				  .ntrials = length(unique(trial)),
-				  .by = c(child_id, session_id, age_group, age, 
-				  		voc_l1, timebin, lp, condition, ...)) |> 
-		# elog is the empirical logit, see Barr et al. (2008)
-		mutate(.prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
-			   .elog = log((sum_target + .5)/(sum_distractor + .5)),
-			   across(c(.nsamples, timebin), as.integer),
-			   across(c(child_id, session_id, lp), as.factor)) |> 
-		rename(.sum = sum_target) |> 
-		arrange(desc(child_id), age, condition, timebin) |> 
-		select(child_id, session_id, age_group, age, voc_l1, lp, condition, timebin, 
-			   .sum, .prop, .elog, .nsamples, ...) 
+											c(0, -0.5, 0.5))
 	
 	# test_data_time(data_time)
 	
 	return(data_time)
+	
 }
 
 #' Recode condition levels
@@ -94,7 +91,6 @@ recode_condition <- function(x) {
 #'
 get_data_aggr <- function(gaze, 
 						  participants,
-						  stimuli,
 						  vocabulary,
 						  attrition_trials,
 						  attrition_participants,
@@ -103,33 +99,58 @@ get_data_aggr <- function(gaze,
 						  ...
 ){
 	
-	gaze_tmp <- filter(gaze, phase=="Target-Distractor")
+	gaze_tmp <- filter(gaze, phase=="Target-Distractor") |> 
+		select(session_id, trial, phase, timestamp,
+			   is_gaze_target, is_gaze_distractor, trial_type) |> 
+		mutate(condition = recode_condition(trial_type),
+			   timebin = findInterval(timestamp, seq(time_subset[1], 
+			   									  time_subset[2], 0.1))-1) |> 
+		filter(between(timestamp, time_subset[1], time_subset[2])) 
 	
-	vocabulary_tmp <- rename_with(vocabulary, 
-								  \(x) paste0("voc_", x),
-								  matches("prop|count"))
+	vocabulary_tmp <- rename_with(vocabulary,  
+								  \(x) gsub("_prop", "", paste0("voc_", x)), 
+								  matches("_prop"))
 	
-	clean <- participants |> 
-		inner_join(gaze_tmp, by = join_by(child_id, session_id)) |> 
-		select(child_id, session_id, age_group, age, lp,
-			   trial, timestamp, x, y,
-			   matches("is_gaze_"), ...) |> 
-		left_join(attrition_trials, by = join_by(session_id, trial)) |> 
-		left_join(attrition_participants, by = join_by(session_id)) |> 
-		left_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
-		filter(between(timestamp, time_subset[1], time_subset[2]),
-			   if (return_clean) is_valid_participant,
-			   if (return_clean) is_valid_trial) |> 
-		mutate(across(c(lp, age_group), as.factor),
-			   condition = recode_condition(trial_type),
-			   timebin = findInterval(timestamp, 
-			   					   seq(time_subset[1], 
-			   					   	time_subset[2], 0.1))-1) |> 
-		select(child_id, session_id, voc_l1 = voc_l1_prop,
-			   age_group, age_group, age, lp, trial, timebin, timestamp,
-			   condition, is_gaze_target, is_gaze_distractor, ...) 
+	participants_tmp <- participants |> 
+		select(child_id, session_id, age_group, age, lp)
 	
-	data <- aggregate_trial(clean, contrast, ...)
+	attrition_trials_tmp <- attrition_trials |> 
+		filter(if (return_clean) is_valid_trial) |> 
+		select(session_id, trial, samples, is_valid_trial) 
+	
+	attrition_participants_tmp <- attrition_participants |> 
+		filter(if (return_clean) is_valid_participant) |> 
+		select(session_id)
+	
+	data <- gaze_tmp |>
+		inner_join(attrition_trials_tmp, by = join_by(session_id, trial)) |> 
+		inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
+		mutate(condition = recode_condition(trial_type)) |> 
+		select(session_id, trial, condition, is_gaze_target, is_gaze_distractor) |> 
+		# aggregated across trials by participant, time bin and condition
+		# see Chow et al. (2018)
+		summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
+				  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
+				  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
+				  .ntrials = length(unique(trial)),
+				  .by = c(session_id, condition)) |> 
+		# empirical logit with adjustment
+		# see Barr et al. (2008)
+		mutate(.nsamples = sum_target + sum_distractor,
+			   .prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
+			   .elog = log((sum_target + .5)/(sum_distractor + .5))) |> 
+		rename(.sum = sum_target) |> 
+		arrange(desc(session_id), condition) |> 
+		inner_join(participants_tmp, by = join_by(session_id)) |> 
+		inner_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
+		mutate(across(c(.nsamples), as.integer),
+			   across(c(child_id, session_id, lp, condition, age_group), as.factor),
+			   across(c(age, voc_l1),
+			   	   \(x) scale(x, scale = TRUE)[, 1],
+			   	   .names = "{.col}_std")) |> 
+		select(child_id, session_id, age_group, age, voc_l1, voc_total, lp,
+			   condition,  .sum, .prop, .elog, .nsamples,
+			   matches("std")) 
 	
 	# set a priori contrasts
 	contrasts(data$condition) <- cbind(c(-0.5, 0.5, 0),
@@ -137,38 +158,9 @@ get_data_aggr <- function(gaze,
 	contrasts(data$lp) <- cbind(c(-0.5, 0.25, 0.25),
 								c(0, -0.5, 0.5))
 	contrasts(data$age_group) <- cbind(c(-0.5, 0.5, 0),
-								c(0, -0.5, 0.5))
+									   c(0, -0.5, 0.5))
 	# test_data_time(data)
 	
 	return(data)
 	
 }
-
-#' Aggregate eye-tracking data into time bins
-aggregate_trial <- function(x, contrast, ...) {
-	
-	# aggregate data
-	data <- x |> 
-		# aggregated by participant, see Chow et al. (2018)
-		summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
-				  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
-				  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
-				  .ntrials = length(unique(trial)),
-				  .by = c(child_id, voc_l1, session_id, 
-				  		age_group, age, lp, condition, ...)) |> 
-		# elog is the empirical logit, see Barr et al. (2008)
-		mutate(.prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
-			   .elog = log((sum_target + .5)/(sum_distractor + .5)),
-			   across(c(.nsamples), as.integer),
-			   across(c(child_id, session_id, lp, age_group), as.factor)) |> 
-		rename(.sum = sum_target) |> 
-		arrange(desc(child_id), age, condition) |> 
-		select(child_id, session_id, age_group, age, lp, condition, 
-			   voc_l1 = voc_l1, .sum, .prop, .elog, .nsamples, ...) 
-	
-	# test_data(data)
-	
-	return(data)
-}
-
-

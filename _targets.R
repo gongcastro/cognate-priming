@@ -146,9 +146,11 @@ list(
 	# gaze data ----------------------------------------------------------------
 	
 	tar_target(aoi_coords,
-			   list(center = c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790),
-			   	 left = c(xmin = 180, xmax = 680, ymin = 290, ymax = 790),
-			   	 right = c(xmin = 1240, xmax = 1740, ymin = 290, ymax = 790))),
+			   list(
+			   	c = c(xmin = 710, xmax = 1210, ymin = 290, ymax = 790),
+			   	l = c(xmin = 180, xmax = 680, ymin = 290, ymax = 790),
+			   	r = c(xmin = 1240, xmax = 1740, ymin = 290, ymax = 790)
+			   )),
 	
 	# Barcelona gaze data
 	tar_target(gaze_files_bcn, 
@@ -179,13 +181,13 @@ list(
 			   get_attrition_trials(
 			   	participants = participants,
 			   	vocabulary = vocabulary,
-			   	vocabulary_by = c("prime", "target"),
+			   	vocabulary_by = "none",
 			   	aoi_coords = aoi_coords,
 			   	gaze = gaze,
 			   	min_looking = c(prime = 0.75,
 			   					test = 1.00,
-			   					test_each = 0.10,
-			   					test_any = 0.00))),
+			   					test_each = 0.00,
+			   					test_any = 0.1))),
 	
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
@@ -221,15 +223,14 @@ list(
 			   prior(normal(0, 0.5), class = "Intercept") +
 			   	prior(normal(0, 0.5), class = "b") +
 			   	prior(exponential(6), class = "sd") +
-			   	# prior(lkj(6), class = "cor") +
+			   	prior(lkj(6), class = "cor") +
 			   	prior(exponential(6), class = "sigma")),
 	
 	tar_target(model_formulas_aggr,
-			   lst(.elog ~ age + (1 | session_id),
-			   	.elog ~ condition + age + (1 + condition | session_id),
-			   	.elog ~ condition + lp + age + (1 + condition | session_id),
+			   lst(
 			   	.elog ~ condition * lp + age + (1 + condition | session_id),
-			   	.elog ~ condition * lp * age + (1 + condition | session_id)
+			   	.elog ~ condition * lp + voc_l1 + (1 + condition | session_id),
+			   	.elog ~ condition + lp + voc_total + (1 + condition | session_id)
 			   )),
 	
 	tar_target(model_names_aggr,
@@ -250,18 +251,16 @@ list(
 	
 	tar_target(model_formulas_time,
 			   lst(
-			   	.elog ~ age + s(timebin, bs = "cr", k = 10) +
-			   		(1 + condition | session_id),
-			   	.elog ~ condition + age + s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = condition, bs = "cr", k = 10) +
-			   		(1 + condition | session_id),
-			   	.elog ~ condition + lp + age + s(timebin, bs = "cr", k = 10) +
+			   	.elog ~ condition * lp * age +
+			   		s(timebin, bs = "cr", k = 10) +
 			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
 			   		(1 + condition | session_id),
-			   	.elog ~ condition * lp + age + s(timebin, bs = "cr", k = 10) +
+			   	.elog ~ condition * lp * voc_l1 + 
+			   		s(timebin, bs = "cr", k = 10) +
 			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
 			   		(1 + condition | session_id),
-			   	.elog ~ condition * lp * age + s(timebin, bs = "cr", k = 10) +
+			   	.elog ~ condition * lp * voc_total + 
+			   		s(timebin, bs = "cr", k = 10) +
 			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
 			   		(1 + condition | session_id)
 			   )),
@@ -279,13 +278,15 @@ list(
 			   			  prior = model_prior +
 			   			  	prior(exponential(6), class = "sds"),
 			   )),
-
+	
 	tar_target(model_loos_time,
-			   get_model_loos(model_fits_time))
+			   get_model_loos(model_fits_time)),
 	
 	
 	# render report ------------------------------------------------------------
-	# 
+	
+	tar_quarto(name = index, path = "docs/index.qmd")
+	
 	# tar_quarto(manuscript,
 	# 		   file.path("manuscript", "manuscript.qmd"),
 	# 		   execute = TRUE,
