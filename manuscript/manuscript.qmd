@@ -313,6 +313,9 @@ vocabulary |>
 									colour = "grey"),
 		  legend.position = "right",
 		  legend.title = element_blank())
+
+ggsave(file.path("img", "vocabulary.jpeg"),
+	   dpi = 800, height = 8, height = 4)
 ```
 
 
@@ -545,13 +548,17 @@ data_time |>
 	labs(x = "Time (ms)",
 		 y = "PTLT") +
 	scale_x_continuous(breaks = seq(0, 20, 2),
-					   labels = \(x) format(x*100+300, big.mark = ",")) +
+					   labels = \(x) format(x*100+200, big.mark = ",")) +
 	scale_y_continuous(labels = scales::percent,
 					   breaks = seq(0, 1, 0.2),
 					   limits = c(0, 1)) +
 	theme(panel.grid.major.y = element_line(colour = "grey",
 											linetype = "dotted"),
 		  legend.position = "none")
+
+ggsave(file.path("img", "recognition.jpeg"),
+	   height = 4, width = 11,
+	   dpi = 800)
 ```
 
 ```{r fig-ptlt-recognition-age}
@@ -586,6 +593,10 @@ data_time |>
 	theme(legend.position = "top",
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"))
+
+ggsave(file.path("img", "recognition-age.jpeg"),
+	   height = 4, width = 11,
+	   dpi = 800)
 ```
 
 
@@ -621,6 +632,10 @@ data_time |>
 	theme(legend.position = "top",
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"))
+
+ggsave(file.path("img", "recognition-condition.jpeg"),
+	   height = 4, width = 11,
+	   dpi = 800)
 ```
 
 ## Aggregated analysis
@@ -695,6 +710,9 @@ plot_epreds(epreds$fit_aggr_0) +
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"))
 
+ggsave(file.path("img", "model-agg.jpeg"),
+	   height = 7.5, width = 10,
+	   dpi = 800)
 ```
 
 ## Time course analysis
@@ -742,6 +760,10 @@ epreds |>
 	theme(legend.position = "top",
 		  panel.grid.major = element_line(colour = "grey",
 		  								linetype = "dotted"))
+
+ggsave(file.path("img", "model-time.jpeg"),
+	   height = 4, width = 10,
+	   dpi = 800)
 ```
 
 ```{r fig-time-total}
@@ -792,6 +814,10 @@ epreds |>
 	theme(legend.position = "top",
 		  panel.grid.major = element_line(colour = "grey",
 		  								linetype = "dotted"))
+
+ggsave(file.path("img", "model-time-voc-total.jpeg"),
+	   height = 5.5, width = 10,
+	   dpi = 800)
 ```
 
 
