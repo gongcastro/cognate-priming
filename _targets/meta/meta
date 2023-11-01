@@ -1,12 +1,12 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|4f5c825fedf14a6f|||||||||||||||
+.Random.seed|object|00b6f8fe327d2446|||||||||||||||
 add_missing_cols|function|707b9e97fc55eb75|||||||||||||||
 aggregate_data_oxf|function|bad05c64ac5cac31|||||||||||||||
 aggregate_timecourse|function|9e80e7e71298e49d|||||||||||||||
 aggregate_timecourse_oxf|function|ea9619cd40f5a468|||||||||||||||
 aggregate_trial|function|677dee126d14c5bc|||||||||||||||
 animacy|stem|fa9f713734d4ef07|f30ecda8c9b5299a|2e9361bce33e861d|-1252462050||t19660.4145557899s|3759108014368a3c|963|rds|local|vector|||0.02||
-animacy_file|stem|9e7fed753174471b|311ec9635264e5fc|ef46db3751d8e999|-2025005411|data-raw/animacy.csv|t19653.5520492229s|adef03a9d981e4cd|3896|file|local|vector|||0||
+animacy_file|stem|9e7fed753174471b|311ec9635264e5fc|ef46db3751d8e999|-2025005411|data-raw/animacy.csv|t19661.4551566663s|adef03a9d981e4cd|3896|file|local|vector|||0||
 aoi_coords|stem|5c28f701358c90a5|df71d138c12f777a|ef46db3751d8e999|1589381262||t19660.6009767657s|5f22883ff0bcf597|153|rds|local|vector|||0||
 aoi_coords_oxf|stem|e0ef92c54dd5cb8e|346dc0e6d1e22fe0|ef46db3751d8e999|-1227624954||t19646.3775386917s|ae3ca543e47cf4fd|166|rds|local|vector|||0||
 attrition_participants|stem|b676f69a38a1633f|aed8e13c60a7abb0|6bed1ab007c7e796|-1970575389||t19660.6714313179s|672c129ad64dc5ae|2565|rds|local|vector|||1.42||
@@ -31,7 +31,7 @@ attrition_trials_vtarget|stem|56cf7eaa59d8eba0|62d7521a414eafbe|d012c55c420af1cf
 attrition_trials_vtarget_oxf|stem|6de9d20f336cd805|55d3f825118f87a6|e1861912773bfd4a|1663404145||t19646.4105013297s|55b9f2887ae64bab|7245|rds|local|vector|||1.96||
 bvq_data|stem|893f93191efad33f|1713fb13bcb0ffed|920ecd17954dc8e3|1834120810||t19660.4145344752s|6babd28ba9217fa2|1843157|rds|local|vector|||0.8||
 bvq_data_file|stem|893f93191efad33f|2e804351d3b86029|ef46db3751d8e999|443946474|data-raw/bvq.rds|t19653.5726175002s|6babd28ba9217fa2|1843157|file|local|vector|||0||
-cdi_file_oxf|stem|29219087de02424a|ae2e997eaa954b6c|ef46db3751d8e999|-1173552699|data-raw/stimuli-cdi-oxford.csv|t19653.5520492229s|517f53a615cf3573|1244|file|local|vector|||0||
+cdi_file_oxf|stem|29219087de02424a|ae2e997eaa954b6c|ef46db3751d8e999|-1173552699|data-raw/stimuli-cdi-oxford.csv|t19661.4551567125s|517f53a615cf3573|1244|file|local|vector|||0||
 check_args_attrition_trials|function|abc3a9e842dad3b1|||||||||||||||
 childes|stem|081f00d38103aadc|4a76ebb94f1e3cee|13a10f11bc94864a|-1638897788||t19660.4146509728s|7a461a341c947b38|2227|rds|local|vector|||0.08||
 childes_tokens|stem|31346cace2a73ab0|fc860800efbd56c1|78a30c02ed0fa54e|1100754734||t19660.4145560745s|79191eb1d1f85be6|1087|rds|local|vector|||0||
@@ -143,7 +143,7 @@ make_non_aoi_as_false|function|59a02f1af84c6ff3|||||||||||||||
 make_plots_gaze|function|5d3173b965a81fe1|||||||||||||||
 make_plots_gaze_processed|function|f3392d0cb35bc662|||||||||||||||
 make_plots_gaze_raw|function|c5e46a3df40d2f7d|||||||||||||||
-manuscript|stem|7c222df70db796d4|40a15604d4376898|565186ca04df5940|615889701|manuscript/manuscript.pdf*manuscript/manuscript.qmd|t19648.6608428253s|b01391dbc22e24d7|1221878|file|local|vector|||96.36||
+manuscript|stem|a20e07c2b8155f3a|20f2be810a2544c2|fa29879b2bd6143a|594221669|manuscript/test.pdf*test_files*manuscript/test.qmd|t19661.6665984673s||707293|file|local|vector|||22.7||System command quarto.exe failed
 model_fits_aggr|stem|6511532ad50a6f1c|9e5677aba7a11ca1|5a350f95cd2cf568|-249087678||t19661.3584723009s|86988afd983b44b6|34268907|rds|local|vector|||62.96||
 model_fits_cognate|stem|6a9a3c500ddc9e2e|ec7311fca5ae03f4|cb7a918b3c216434|-146770195||t19657.3301045879s|fc057f56de8ad1ed|9358476|rds|local|vector|||0.44||
 model_fits_cognate_noeach|stem|0deb30acc0ead81d|834d8344baea495e|4dc39b6561878410|-1526470607||t19648.6596545426s|9dfa05345ec71797|33849234|rds|local|vector|||3.11||
@@ -172,11 +172,11 @@ model_names_vnone|stem|9455c1640e48a396|f6a8f2fc1a4466c5|ef46db3751d8e999|193633
 model_names_vtarget|stem|bf87b6bf6becfeec|8f865a9d9c2380cc|ef46db3751d8e999|-1767985706||t19643.3592699559s|70a0bb6673f8b3be|137|rds|local|vector|||0||
 model_prior|stem|e8ad574bac59ec98|57ae10e079185b79|ef46db3751d8e999|376319345||t19660.6865062181s|63e93e2f7d34d063|270|rds|local|vector|||0.02||
 model_prior_time|stem|54322e1210a2ed76|f39bb0c2758e5b12|ef46db3751d8e999|-537612177||t19656.6445603382s|cb2068761c31cd19|278|rds|local|vector|||0.02||
-participants|stem|31b5e9df69c46e56|99f84b7f3263627d|b5870a60d39a36c5|1838076932||t19660.4145555644s|a880eea0f8a6f37b|9901|rds|local|vector|||1.72||
+participants|stem|31b5e9df69c46e56|99f84b7f3263627d|b5870a60d39a36c5|1838076932||t19661.4551566545s|a880eea0f8a6f37b|9901|rds|local|vector|||1.72||
 participants_bcn|stem||ee2948085a037df9|ffd594c5c8dbdee8|1164536025||t19653.5272758366s||0|rds|local|vector|||0.56||object participants_file not found
 participants_file|stem|1211f7192cd9731a|e380d3f306e1ddee|ef46db3751d8e999|-1049663914|data-raw/participants.csv|t19653.4976209132s|8a9cf449015513c5|59917|file|local|vector|||0||
-participants_file_bcn|stem|551c2ad37c326dc3|1fe5d641cc3d715f|ef46db3751d8e999|1622530352|data-raw/participants-bcn.csv|t19655.6257927343s|752cc87b18a45d35|57701|file|local|vector|||0||
-participants_file_oxf|stem|8ac5a69226d7da18|8a56771022dede9e|ef46db3751d8e999|1005224319|data-raw/participants-oxf.csv|t19653.5532878749s|0b9b341e2ff97809|30271|file|local|vector|||0||
+participants_file_bcn|stem|551c2ad37c326dc3|1fe5d641cc3d715f|ef46db3751d8e999|1622530352|data-raw/participants-bcn.csv|t19661.4551567009s|752cc87b18a45d35|57701|file|local|vector|||0||
+participants_file_oxf|stem|8ac5a69226d7da18|8a56771022dede9e|ef46db3751d8e999|1005224319|data-raw/participants-oxf.csv|t19661.4551567009s|0b9b341e2ff97809|30271|file|local|vector|||0||
 participants_oxf|stem|9a71bb44b490604f|d113358698b6917f|26b29f1d0eae2786|-741339737||t19646.3853989705s||3749|rds|local|vector|||0.28||Cant rename columns that dont exist.31m39m Column id_db doesnt exist.
 plot_gaze_data|function|916fda5b4e68cb64|||||||||||||||
 posterior_epreds|function|f5ed3d5724ce2ade|||||||||||||||
@@ -188,8 +188,8 @@ recode_condition|function|70b60ea9145fb8b7|||||||||||||||
 recode_responses|function|e8fe1323ebc0f4ef|||||||||||||||
 save_files|function|9a4cf7b58da948f5|||||||||||||||
 semantic_category|stem|1112338be9b2d883|224625f26adaa2c6|6dcebd8d0594331d|-1746228376||t19660.4145559587s|fa823e19749c8d0d|8305|rds|local|vector|||0||
-stimuli|stem|e6127000e4358d4f|0cfa12b0cb0e9932|0b109305d4d47938|-508226986||t19660.4156781814s|76d914d5d8bc2596|7372|rds|local|vector|||2.13|Number of logged events 170|
-stimuli_cdi_file_oxf|stem|29219087de02424a|ae2e997eaa954b6c|ef46db3751d8e999|1431952851|data-raw/stimuli-cdi-oxford.csv|t19653.5520492229s|517f53a615cf3573|1244|file|local|vector|||0||
+stimuli|stem|e6127000e4358d4f|0cfa12b0cb0e9932|0b109305d4d47938|-508226986||t19661.4551566547s|76d914d5d8bc2596|7372|rds|local|vector|||2.13|Number of logged events 170|
+stimuli_cdi_file_oxf|stem|29219087de02424a|ae2e997eaa954b6c|ef46db3751d8e999|1431952851|data-raw/stimuli-cdi-oxford.csv|t19661.4551567125s|517f53a615cf3573|1244|file|local|vector|||0||
 stimuli_cdi_oxf|stem|2199b16421484dec|9b09ac4d0317a400|65309555daa0c972|476874879||t19660.4330470368s|230165c59f502bb0|711|rds|local|vector|||0.13||
 stimuli_oxf|stem|2ea16e7192630c53|34a1198389e9fa06|211718001f98cbd5|-1574086224||t19646.3881323402s||2.2250738585072e-308|rds|local|vector|||0.02||object gaze_processed_oxf not found
 syllabify_xsampa|function|b21330241de1eeb8|||||||||||||||
@@ -211,7 +211,7 @@ validate_gaze_oxf|function|3728891b2198ac02|||||||||||||||
 validate_vocabulary|function|2ba9337682fd505c|||||||||||||||
 validate_vocabulary_oxf|function|7f6d4f8cc8079d2e|||||||||||||||
 vocabulaly_supp_bcn_file|stem|7f513074e1fc014a|a29377e710e1eebe|ef46db3751d8e999|1498334448|data-raw/vocab-supplementary-bcn_cat.csv*data-raw/vocab-supplementary-bcn_spa.csv|t19654.6140602259s|ffb146ead6426160|21874|file|local|vector|||0||
-vocabulary|stem|d39c83eb2a549e31|42ef4663494ca534|142de1cc7675a992|164699277||t19660.4146499688s|18688e67e9b1aae2|164127|rds|local|vector|||4.41||
-vocabulary_file_oxf|stem|bea893c1ae3b61d8|5f2f6a94371f8c96|ef46db3751d8e999|1385363738|data-raw/vocabulary-oxford.xlsx|t19653.5520492229s|9c8b4e983c991379|303718|file|local|vector|||0||
+vocabulary|stem|d39c83eb2a549e31|42ef4663494ca534|142de1cc7675a992|164699277||t19661.4551566663s|18688e67e9b1aae2|164127|rds|local|vector|||4.41||
+vocabulary_file_oxf|stem|bea893c1ae3b61d8|5f2f6a94371f8c96|ef46db3751d8e999|1385363738|data-raw/vocabulary-oxford.xlsx|t19661.4551567356s|9c8b4e983c991379|303718|file|local|vector|||0||
 vocabulary_oxf|stem|38c171f338f4d587|20ff3444d22b8500|170341964e6b40fc|-1845302331||t19646.3867507188s|69fa03e1f3e90db7|16935|rds|local|vector|||1.28||
-vocabulary_supp_bcn_file|stem|a81b0610cf32e357|a29377e710e1eebe|ef46db3751d8e999|1667268979|data-raw/vocab-supplementary-bcn_cat.csv*data-raw/vocab-supplementary-bcn_spa.csv|t19654.6579269754s|127f6ea947154e10|21554|file|local|vector|||0||
+vocabulary_supp_bcn_file|stem|a81b0610cf32e357|a29377e710e1eebe|ef46db3751d8e999|1667268979|data-raw/vocab-supplementary-bcn_cat.csv*data-raw/vocab-supplementary-bcn_spa.csv|t19661.4551567155s|127f6ea947154e10|21554|file|local|vector|||0||

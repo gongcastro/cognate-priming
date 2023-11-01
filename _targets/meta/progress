@@ -4,6 +4,7 @@ model_prior|stem|model_prior|0|skipped
 participants_file_bcn|stem|participants_file_bcn|0|skipped
 participants_file_oxf|stem|participants_file_oxf|0|skipped
 trials_file|stem|trials_file|0|skipped
+stimuli_cdi_file_oxf|stem|stimuli_cdi_file_oxf|0|skipped
 cdi_file_oxf|stem|cdi_file_oxf|0|skipped
 vocabulary_file_oxf|stem|vocabulary_file_oxf|0|skipped
 vocabulary_supp_bcn_file|stem|vocabulary_supp_bcn_file|0|skipped
@@ -16,6 +17,7 @@ gaze_files_oxf|stem|gaze_files_oxf|0|skipped
 model_names_aggr|stem|model_names_aggr|0|skipped
 participants|stem|participants|0|skipped
 trials|stem|trials|0|skipped
+stimuli_cdi_oxf|stem|stimuli_cdi_oxf|0|skipped
 bvq_data|stem|bvq_data|0|skipped
 model_names_time|stem|model_names_time|0|skipped
 animacy|stem|animacy|0|skipped
@@ -36,5 +38,5 @@ model_fits_aggr|stem|model_fits_aggr|0|skipped
 model_fits_time|stem|model_fits_time|0|skipped
 model_loos_aggr|stem|model_loos_aggr|0|skipped
 model_loos_time|stem|model_loos_time|0|skipped
-index|stem|index|0|started
-index|stem|index|0|errored
+manuscript|stem|manuscript|0|started
+manuscript|stem|manuscript|0|errored
