@@ -216,36 +216,6 @@ get_stimuli <- function(trials, # trials dataset
 }
 
 
-# utils ------------------------------------------------------------------------
 
-#' Adjusted proportion from Gelman, Hill & Vehtari (2020)
-prop_adj <- function(y, n) {
-	
-	prop <- (y + 2) / (n + 4)
-	
-	return(prop)
-}
-
-#' Adjusted proportion SE from Gelman, Hill & Vehtari (2020)
-prop_adj_se <- function(y, n) {
-	
-	prop <- prop_adj(y, n)
-	se <- sqrt(prop * (1 - prop) / (n + 4))
-	
-	return(se)
-	
-}
-
-#' Adjusted proportion CI from Gelman, Hill & Vehtari (2020)
-prop_adj_ci <- function(y, n, conf = 0.95) {
-	
-	prop <- (y + 2) / (n + 4)
-	se <- sqrt(prop * (1 - prop)/(n + 4))
-	ci <-  prop + qnorm(c((1 - .width) / 2, (1 - (1 - .width) / 2))) * se
-	ci[1] <- ifelse(ci[1] < 0, 0, ci[1]) # truncate at 0
-	ci[2] <- ifelse(ci[2] > 1, 1, ci[2]) # truncate at 1
-	
-	return(ci)
-}
 
 
