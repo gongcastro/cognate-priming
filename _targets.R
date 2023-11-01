@@ -205,7 +205,7 @@ list(
 			   			  vocabulary = vocabulary,
 			   			  attrition_trials = attrition_trials,
 			   			  attrition_participants = attrition_participants,
-			   			  time_subset = c(0.30, 2.00))),
+			   			  time_subset = c(0.20, 2.00))),
 	
 	tar_target(data_time,
 			   get_data_time(gaze = gaze,
@@ -214,73 +214,49 @@ list(
 			   			  vocabulary = vocabulary,
 			   			  attrition_trials = attrition_trials,
 			   			  attrition_participants = attrition_participants,
-			   			  time_subset = c(0.30, 2.00))),
+			   			  time_subset = c(0.20, 2.00),
+			   			  return_clean = TRUE)),
 	
 	
-	# Model aggregated data ----------------------------------------------------
+	# Model time course data ---------------------------------------------------
 	
 	tar_target(model_prior,
 			   prior(normal(0, 0.5), class = "Intercept") +
 			   	prior(normal(0, 0.5), class = "b") +
 			   	prior(exponential(6), class = "sd") +
 			   	prior(lkj(6), class = "cor") +
-			   	prior(exponential(6), class = "sigma")),
+			   	prior(exponential(6), class = "sigma") +
+			   	prior(exponential(6), class = "sds")),
 	
-	tar_target(model_formulas_aggr,
+	tar_target(model_formulas,
 			   lst(
-			   	.elog ~ condition * lp + age + (1 + condition | session_id),
-			   	.elog ~ condition * lp + voc_l1 + (1 + condition | session_id),
-			   	.elog ~ condition + lp + voc_total + (1 + condition | session_id)
-			   )),
-	
-	tar_target(model_names_aggr,
-			   apply(expand.grid("fit_aggr_", 
-			   				  seq(1, length(model_formulas_aggr))-1), 1,
-			   	  \(x) paste0(x[1], x[2]))),
-	
-	tar_target(model_fits_aggr,
-			   get_model_fit(model_names_aggr,
-			   			  model_formulas_aggr,
-			   			  data = data_aggr,
-			   			  prior = model_prior)),
-	
-	tar_target(model_loos_aggr,
-			   get_model_loos(model_fits_aggr)),
-	
-	# Model time course data ---------------------------------------------------
-	
-	tar_target(model_formulas_time,
-			   lst(
-			   	.elog ~ condition * lp * age +
-			   		s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
+			   	.elog ~ condition * lp * age_std +
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
 			   		(1 + condition | session_id),
-			   	.elog ~ condition * lp * voc_l1 + 
-			   		s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
+			   	.elog ~ condition * lp * voc_l1_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
 			   		(1 + condition | session_id),
-			   	.elog ~ condition * lp * voc_total + 
-			   		s(timebin, bs = "cr", k = 10) +
-			   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
+			   	.elog ~ condition * lp * voc_total_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
 			   		(1 + condition | session_id)
 			   )),
 	
-	tar_target(model_names_time,
-			   apply(expand.grid("fit_time_",
-			   				  seq(1, length(model_formulas_time))-1), 1,
-			   	  \(x) paste0(x[1], x[2])
+	tar_target(model_names,
+			   apply(
+			   	expand.grid("fit_", seq(1, length(model_formulas))-1), 1,
+			   	\(x) paste0(x[1], x[2])
 			   )),
 	
-	tar_target(model_fits_time,
-			   get_model_fit(model_names_time,
-			   			  model_formulas_time,
+	tar_target(model_fits,
+			   get_model_fit(model_names,
+			   			  model_formulas,
 			   			  data = data_time,
-			   			  prior = model_prior +
-			   			  	prior(exponential(6), class = "sds"),
-			   )),
+			   			  prior = model_prior)),
 	
-	tar_target(model_loos_time,
-			   get_model_loos(model_fits_time)),
+	tar_target(model_loos, get_model_loos(model_fits)),
 	
 	
 	# render report ------------------------------------------------------------
@@ -288,9 +264,9 @@ list(
 	# tar_quarto(name = index, path = "docs/index.qmd")
 	
 	tar_quarto(manuscript,
-			   file.path("manuscript/manuscript.qmd"),
+			   file.path("manuscript", "manuscript.qmd"),
 			   execute = TRUE,
-			   quiet = FALSE)
+			   quiet = TRUE)
 	
 )
 
