@@ -4,15 +4,13 @@ get_data_time <- function(gaze,
 						  vocabulary,
 						  attrition_trials,
 						  attrition_participants,
-						  time_subset = c(0.20, 2.00),
-						  return_clean = TRUE,
-						  ...
-){
+						  time_subset = c(0.00, 2.00)){
 	
-	gaze_tmp <- filter(gaze, phase=="Target-Distractor") |> 
+	gaze_tmp <- filter(gaze, phase=="Target-Distractor",
+					   timestamp >= time_subset[1],
+					   timestamp < time_subset[2]) |> 
 		select(session_id, trial, phase, timestamp,
 			   is_gaze_target, is_gaze_distractor, trial_type) |> 
-		filter(timestamp >= time_subset[1], timestamp < time_subset[2]) |> 
 		mutate(condition = recode_condition(trial_type),
 			   timebin = findInterval(timestamp, seq(time_subset[1], 
 			   									  time_subset[2], 0.1))-1) 
@@ -25,11 +23,11 @@ get_data_time <- function(gaze,
 		select(child_id, session_id, age_group, age, lp)
 	
 	attrition_trials_tmp <- attrition_trials |> 
-		filter(if (return_clean) is_valid_trial) |> 
+		filter(is_valid_trial) |> 
 		select(session_id, trial, samples, is_valid_trial) 
 	
 	attrition_participants_tmp <- attrition_participants |> 
-		filter(if (return_clean) is_valid_participant) |> 
+		filter(is_valid_participant) |> 
 		select(session_id)
 	
 	data_time <- gaze_tmp |>

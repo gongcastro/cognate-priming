@@ -205,7 +205,7 @@ list(
 			   			  vocabulary = vocabulary,
 			   			  attrition_trials = attrition_trials,
 			   			  attrition_participants = attrition_participants,
-			   			  time_subset = c(0.30, 2.00))),
+			   			  time_subset = c(0.20, 2.00))),
 	
 	tar_target(data_time,
 			   get_data_time(gaze = gaze,
@@ -214,8 +214,10 @@ list(
 			   			  vocabulary = vocabulary,
 			   			  attrition_trials = attrition_trials,
 			   			  attrition_participants = attrition_participants,
-			   			  time_subset = c(0.30, 2.00))),
+			   			  time_subset = c(0.20, 2.00),
+			   			  return_clean = TRUE)),
 	
+<<<<<<< HEAD
 	# 
 	# # Model aggregated data ----------------------------------------------------
 	# 
@@ -281,6 +283,48 @@ list(
 	# 
 	# tar_target(model_loos_time,
 	# 		   get_model_loos(model_fits_time)),
+=======
+	
+	# Model time course data ---------------------------------------------------
+	
+	tar_target(model_prior,
+			   prior(normal(0, 0.5), class = "Intercept") +
+			   	prior(normal(0, 0.5), class = "b") +
+			   	prior(exponential(6), class = "sd") +
+			   	prior(lkj(6), class = "cor") +
+			   	prior(exponential(6), class = "sigma") +
+			   	prior(exponential(6), class = "sds")),
+	
+	tar_target(model_formulas,
+			   lst(
+			   	.elog ~ condition * lp * age_std +
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   		(1 + condition | session_id),
+			   	.elog ~ condition * lp * voc_l1_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   		(1 + condition | session_id),
+			   	.elog ~ condition * lp * voc_total_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   		(1 + condition | session_id)
+			   )),
+	
+	tar_target(model_names,
+			   apply(
+			   	expand.grid("fit_", seq(1, length(model_formulas))-1), 1,
+			   	\(x) paste0(x[1], x[2])
+			   )),
+	
+	tar_target(model_fits,
+			   get_model_fit(model_names,
+			   			  model_formulas,
+			   			  data = data_time,
+			   			  prior = model_prior)),
+	
+	tar_target(model_loos, get_model_loos(model_fits)),
+>>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 	
 	
 	# render report ------------------------------------------------------------
@@ -288,9 +332,9 @@ list(
 	# tar_quarto(name = index, path = "docs/index.qmd")
 	
 	tar_quarto(manuscript,
-			   file.path("manuscript/manuscript.qmd"),
+			   file.path("manuscript", "manuscript.qmd"),
 			   execute = TRUE,
-			   quiet = FALSE)
+			   quiet = TRUE)
 	
 )
 

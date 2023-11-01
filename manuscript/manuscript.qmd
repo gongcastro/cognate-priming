@@ -36,7 +36,8 @@ attrition <- lst(participants,
 				 attrition_participants,
 				 attrition_trials) |>
 	reduce(inner_join, by = join_by(session_id)) |>
-	unnest_wider(matches("all"), names_sep = "_")
+	unnest_wider(matches("all"), names_sep = "_") |> 
+	rename_with(\(x) gsub("is_valid_gaze_all_|is_valid_vocab_all", "", x))
 
 library(knitr)
 library(kableExtra)
@@ -47,7 +48,6 @@ library(english)
 library(gtExtras)
 
 # set ggplot theme and colour palette
-
 my_theme <- theme_minimal() +
 	theme(panel.grid = element_blank(),
 		  axis.line = element_line(colour = "black"),
@@ -160,6 +160,14 @@ advantages of such approach].
 The present study is aimed at investigating the developmental trajectories of word recognition in bilingualism, and how (if at all) language non-selectivity shapes them. Using an adaptation of [@mani2010infants], we presented 20- to 32-months-old toddlers with a cross-linguistic phonological priming paradigm. We manipulated both the phonological overlap between the prime word and target word, and the cognate status of the prime word, to test the hypothesis that bilingual toddlers implicitly name familiar pictures in both languages. If so, phonological priming effect should be larger when the prime label in  both languages shares phonological overlap with the target words (cognate condition), compared to when only the label of the prime in one language overlaps phonologically with the target (non-cognate condition). We also also included a control *Unrelated* condition in which regardless of the cognate status of the prime word, neither of the prime labels in any language overlapped phonologically with the target word.
 
 We compared the explanatory power of three measures of vocabulary size on participants' trajectories of word recognition: L1 vocabulary and total vocabulary.Previous studies suggest that same-language vocabulary size predicts better bilingual infants' performance in word recognition tasks, as compared to cross-language vocabulary size [@marchman2010vocabulary]
+
+Hypothesis 1: if lexical representations linked through inhibitory links (compete for selection), like in the adult lexicon, target looking should increase faster in *Unrelated* trials compared to *Related* trials. If lexical representations are linked through excitatory links, target preference should increase faster in *Related* trials, compared to *Unrelated* trials. If lexical representations are sparsely connected, participants should show equivalent patterns of target looking in *Related* and *Unrelated* trials.
+
+Hypothesis 2: if bilinguals' lexical representations linked across languages through inhibitory links (compete for selection), target looking should increase faster in this group in *Related/Non-cognate* trials compared to *Related/Cognate* trials. If lexical representations are linked across languages through excitatory links, target preference should increase faster in *Related/Cognate* trials, compared to *Unrelated/Cognate* trials. If lexical representations are sparsely connected across languages, bilinguals' patterns of target looking should be equivalent for *Related/Cognate* and *Related/Non-cognate* trials. This pattern is also expected for monolingual infants.
+
+Hypothesis 3: if the emergence of within-language or cross-language phonological links is explained (if at all) by the growth of within-language vocabulary size, the difference in target looking between *Related* and *Unrelated*, or between *Related/Cognate* and *Related/Non-cognate* trials should be larger in participants with larger vocabulary sizes in their dominant language, in which they were tested. This should be reflected by a $\text{Condition} \times \text{L1 vocabulary}$ two -way interaction, or a $\text{Condition} \times \text{Group} \times \text{Dominant vocabulary}$ three-way interaction.
+
+Hypothesis 4: if the emergence of within-language or cross-language phonological links is explained better by the growth of cross-language vocabulary size, compared to within-language vocabulary size, a model that incorporates total vocabulary size as a predictor instead of dominant vocabulary size should show better predictive performance. If the emergence of such links is explained at all by the growth of vocabulary size, both models incorporating voacbulary size as a predictor should show better predictive performance than a model incorporating participants' age.
 
 # Methods
 
@@ -402,10 +410,9 @@ n_sessions_valid <- sum(attrition_participants$is_valid_participant)
 n_participants_valid <- n_distinct(
 	attrition[attrition$is_valid_participant, ]$child_id)
 
-n_exc_prime <- sum(!attrition$is_valid_gaze_all_prime)
-n_exc_test <- sum(!attrition$is_valid_gaze_all_test)
-n_exc_test_each <- sum(!attrition$is_valid_gaze_all_test_each)
-n_exc_vocab <- sum(!attrition$is_valid_vocab)
+n_exc_prime <- sum(!attrition$is_valid_gaze_prime)
+n_exc_test <- sum(!attrition$is_valid_gaze_test)
+n_exc_test_any <- sum(!attrition$is_valid_gaze_test_any)
 n_exc_participants <- sum(!attrition_participants$is_valid_participant) 
 
 n_longitudinal <- attrition |>
@@ -418,7 +425,9 @@ n_longitudinal <- attrition |>
 
 We defined a time windows of interest from 200 ms after target and distractor pictures onset until the end of the trial at 2,000 ms when  both pictures disappeared from screen. To avoid modelling fixations driven by processes other than auditory word recognition [@fernald1998rapid; @fernald2001half]. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach], with a maximum of 20 maximum consecutive missing samples being interpolated (an equivalent of 166.67 ms).
 
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50%  valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target-looking *and* distractor looking in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`) [see @floccia2020translation for a similar approach]. Finally, we excluded trials in which participants did not understand the prime *or* the target word, according to a supplementary vocabulary checklist filled by their caregivers upon experiment completion (*n* = `r format(n_exc_vocab, big.mark = ",")`). After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the  *Unrelated* condition (*n* = `r n_exc_participants`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
+We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target or distractor looking in the test phase (*n* = `r format(n_exc_test_any, big.mark = ",")`) [see @floccia2020translation for a similar approach].
+
+After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the  *Unrelated* condition (*n* = `r n_exc_participants`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
 
 
 ```{r tbl-attrition}
@@ -483,33 +492,33 @@ attrition |>
 
 ## Data analysis
 
-We conducted two main analyses. In the first analysis, we estimated the effect of phonological priming on participants' target looking comparing *related* trials---in which prime and target share phonological onset, and the prime was not a cognate word---with *unrelated* trials---in which prime and target did not share phonological onset, and neither was the prime a cognate word, leaving out *cognate* trials. This analysis included all trials on the data set. Second, we estimated the effect of cognateness on phonological priming, comparing *cognate* trials---in which prime and target shared phonological onset, and the prime was a cognate word that also shared phonological onset with the target, with *non-cognate* trials---in which prime a target shared phonological onset, and the prime was not a cognate---, leaving out *unrelated* trials.
-
-In both analyses, we modelled the probability of target looking across the time course of the trial. For each trial, we chunked the time domain of the target-distractor phase into 20 time bins of 100 ms of duration. We then calculated, for each experimental session, time bin, and condition, the number of eye-tracker samples in which the participant was looking to the target and the distractor pictures. Finally, we computed the empirical logit of target fixations using @eq-elogit [@barr2008analyzing; @agresti2012categorical], which modelled in our analyses using a Gaussian distribution.
+We used multilevel General Additive Models (GAMs) to model our data and test our hypotheses [@pedersen2019hierarchical]. First, we defined our response variable as the empirical logit of target looking using @eq-elogit across all eye-tracking samples for each each participant in each condition [@barr2008analyzing; @agresti2012categorical]. We used a Gaussian distribution to model our response variable. To test our hypotheses, we then included *Condition*, *Group*, and either *Age* ($\mathcal{M}_0$), *L1 vocabulary* ($\mathcal{M}_1$), or *Total vocabulary* ($\mathcal{M}_2$) as fixed effects in the model. We also added all two-way and three-way interactions between the predictors. We set two *a priori* contrasts for the *Condition* predictor: one comparing *Unrelated* and *Related/Non-cognate* trials (sum-coded as `-0.5` and `+0.5`, with *Related/Cognate* trials coded as `0`), and another comparing *Related/Non-cognate* and *Related/Cognate* trials (sum-coded as `-0.5` and `+0.5`, with *Unrelated* trials coded as `0`). We also set two *a priori* contrasts for the *Group* predictor: one comparing *Monolingual (ENG)* with *Monolingual (CAT/SPA)* participants (sum-coded as `-0.5` and `+0.5`, with *Bilingual (CAT-SPA)* participants coded as `0`), and another comparing *Monolingual (ENG)* with *Bilingual (CAT-SPA)* participants (sum-coded as `-0.5` and `+0.5`, with *Monolingual (CAT/SPA)* participants coded as `0`). Before entering the model, the numeric predictors *Age*, *L1 vocabulary*, and *Total vocabulary* were standardised by subtracting from each observation the mean of the predictor, and dividing the result from the standard deviation of the predictor.
 
 $$
 \eta' = \ln\bigg(\frac{\text{Target} + 0.5}{ \text{Distractor} + 0.5}\bigg)
 $$ {#eq-elogit}
 
-
-In the first analysis, we included *Relatedness* (`Related` vs. `Unrelated`, sum-coded as `-0.5` and `+0.5`), *Group* (`Monolingual` vs. `Bilingual`, sum-coded as `-0.5` and `+0.5`), and *Age* (participants' standardised age in months) as fixed, main effects, together with their two- and three-way interactions. We used multilevel General Additive Mixed Models (GAMMs) to model the time course of target looking, including cubic regression splines for the main effect of *Time*, and one for an adjustment of the *Time* cubic spline by *Group* and *Relatedness* [@wood2017generalized]. For both splines, we specified $k = 10$ basis functions or *knots*--half the number of time bins---for computational convenience. Finally, we added by-participant random intercepts, and random slopes for the main effect of *Relatedness* and the main effect of *Age*, both including repeated measures per participant [@pedersen2019hierarchical]. In the second analysis, we included *Cognateness* (`Cognate` vs. `Non-cognate`, sum-coded as `-0.5` and `+0.5`) replacing *Relatedness*. @eq-model shows the formal implementation of the model.
-
-To test the contribution of each of the predictors of interest--*Relatedness*/*Cognateness*, and *Group*--, we compared each model ($\mathcal{M_0}$) against a simplified model dropping each of the main effects, *Relatedness*/*Cognateness* ($\mathcal{M}_1$) or *Group* ($\mathcal{M_2}$). In both simplified models, the interaction term was dropped. We used leave-one-out cross-validation (LOO-CV) as a benchmark of model performance, using Pareto-smoothed importance sampling (PSIS) to approximate it. We then examined the posterior predictions of the best-performing model for interpretation.
+We added *Session* as grouping variable, by by-session intercept and *Condition* slopes. Each level in the *Session* variable uniquely indexes all observations generated by a participant in a single testing session. Testing sessions from the same participant are identified by different indexes. For computational limitations, adding both participants and testing sessions as grouping variable in the random effects structure of the model was not possible. We instead included testing sessions alone, as observations from the same testing session are more likely to be highly correlated than those from the same participant in different testing sessions (which were recorded at least four months apart). To model the time course of target looking across time bins, we included cubic regression splines for the main effect of *Time*, and one for an adjustment of the *Time* cubic spline by *Group* and *Relatedness* [@wood2017generalized]. For both splines, we specified $k = 9$ basis functions or *knots*--half the number of time bins---for computational convenience. @eq-model shows a formal implementation of the model.
 
 $$
 \begin{aligned}
 \textbf{Likelihood:} \\
 y_i &\sim \mathcal{N}(\mu_i, \sigma_i) \\ \\
 \textbf{Linear model:} \\
-\eta'(\mu_i) &= (\beta_0 + u _{0_{i}}) + (\beta_1 + u _{1_{i}}) \cdot \text{[Condition]} +\\
-&\beta_{2} \cdot \text{Group} + \beta_{3} \cdot (\text{[Condition]} \times \text{Group}) +\\
-& (\beta_4 + u_{2_{i}}) \cdot \text{Age} + \sum_{j = 1}^k b_{j_{1}} \cdot \beta_{5_{k}} \cdot \text{Time} + \sum_{j = 1}^k b_{j_{1}} \cdot\beta_{6_{k}} \cdot (\text{Time} \times \text{Group}) \\
+\eta'(\mu_i) &= (\beta_0 + u _{0_{i}}) +
+(\beta_1 + u _{1_{i}}) \cdot \text{Condition} +\\
+&\beta_{2} \cdot \text{Group} +
+\beta_{3} \cdot X + \beta_{4} \cdot (\text{Condition} \times \text{Group}) +\\
+&\beta_{5} \cdot (\text{Condition} \times X) + \beta_{6} \cdot (\text{Group} \times X) +\\
+&\beta_{7} \cdot (\text{Condition} \times \text{Group} \times X) +\\
+& \sum_{j = 1}^k b_{j_{0}} \cdot \beta_{8_{k}} \cdot \text{Time} +
+\sum_{j = 1}^k b_{j_{1}} \cdot\beta_{9_{k}} \cdot (\text{Time} \times \text{Group}) \\
 \text{where:} \\
 &\eta'\text{ is the empirical logit of target fixations} \\
-& \text{[Condition] should be replaced with } Relatedness \text{ or } Cognateness \\
+&X \in \{\text{Age}, \text{L1 vocabulary}, \text{Total vocabulary}\} \\
 &k \text{ is the number of knots in the spline (10)} \\
 \textbf{Prior:} \\
-\beta_{0-6} &\sim \mathcal{N}(0, 0.5) \\
+\beta_{0-9} &\sim \mathcal{N}(0, 0.5) \\
 u_{0-2} &\sim \mathcal{N}(0, \sigma_{0-2})\\
 b_{0-1} &\sim \text{MVN}(0, \tau_{0-1}) \\
 \sigma_{0-2}, \tau_{0-1} &\sim \text{Exponential}(6)\\
@@ -519,9 +528,10 @@ b_{0-1} &\sim \text{MVN}(0, \tau_{0-1}) \\
 \end{aligned}
 $$ {#eq-model}
 
-# Results
+The comparison between the three models including *Age*, *L1 vocabulary*, *Total vocabulary* as predictors was performed using leave-one-out cross-validation (LOO-CV) as a benchmark of model performance, using Pareto-smoothed importance sampling (PSIS) to approximate it [@vehtari2017practical]. We implemented the model using `brms` [@burkner2017brms], an R interface to the Stan probabilistic language (`r stan_version`) [@carpenter2017stan]. We ran `r english::words(dim(model_fit$fit_0)[2])` iteration chains using the by-default No U-Turn Sampler algorithm with `r format(niterations(model_fit$fit_0), big.mark = ",")` iterations each and an additional `r format(niterations(model_fits$fit_0), big.mark = ",")` warm-up iterations per chain.
 
-## Preliminary analyses
+
+# Results
 
 ```{r fig-ptlt-recognition}
 #| label: fig-ptlt-recognition-aggr
@@ -557,12 +567,9 @@ data_time |>
 	theme(panel.grid.major.y = element_line(colour = "grey",
 											linetype = "dotted"),
 		  legend.position = "none")
-
-ggsave(file.path("img", "recognition.jpeg"),
-	   height = 4, width = 11,
-	   dpi = 800)
 ```
 
+<<<<<<< HEAD
 ```{r fig-ptlt-recognition-age}
 #| label: fig-ptlt-recognition-age
 #| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
@@ -602,9 +609,27 @@ data_time |>
 ggsave(file.path("img", "recognition-age.jpeg"),
 	   height = 4, width = 11,
 	   dpi = 800)
+=======
+```{r tbl-coefs}
+post <- gather_draws(fit_0, `b_.*`, regex = TRUE)  
+
+ggplot(post, aes(.value)) +
+	facet_wrap(~.variable, scales = "free") +
+	geom_histogram(bins = 15, colour = "white") +
+	geom_errorbar(data = mean_qi(post),
+				  aes(xmin = .lower, xmax = .upper, y = 400),
+				  width = 1,
+				  linewidth = 3/4) +
+	geom_point(data = mean_qi(post),
+			   aes(x = .value, y = 400),
+			   size = 2) +
+	scale_y_continuous(limits = c(0, 500))
+>>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 ```
 
+## Hypothesis 1: within-language phonological priming
 
+<<<<<<< HEAD
 ```{r fig-ptlt-recognition-condition}
 #| label: fig-ptlt-recognition-condition
 #| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
@@ -639,14 +664,15 @@ data_time |>
 	theme(legend.position = "top",
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"))
+=======
+## Hypothesis 2: cross-language phonological priming
+>>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 
-ggsave(file.path("img", "recognition-condition.jpeg"),
-	   height = 4, width = 11,
-	   dpi = 800)
-```
+## Hypothesis 3: emergence of phonological association
 
-## Aggregated analysis
+## Hypothesis 4: the compating role of age and vocabulary
 
+<<<<<<< HEAD
 In a first analysis, we examined the effect of phonological priming. We compared participants' looking preference for the target in related and unrelated trials. We first compared the aggregated probability of target looking across time bins in both conditions for each language group.  
 
 ```{r fig-related-aggregated}
@@ -725,35 +751,50 @@ ggsave(file.path("img", "model-agg.jpeg"),
 ```
 
 ## Time course analysis
+=======
+>>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 
 ```{r fig-time}
 #| label: fig-time
 #| fig-height: 6
 #| fig-width: 8
 #| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 1. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-nd <- expand_grid(condition = levels(model_fits_time$fit_time_2$data$condition),
-				  timebin = seq(0, 17, length.out = 100),
-				  voc_total = mean(model_fits_time$fit_time_2$data$voc_total),
+make_std <- function(x, mean, sd) (x - mean) / sd
+
+timebin_values <- make_std(seq(0, 17, length.out = 100),
+						   mean(data_time$timebin),
+						   sd(data_time$timebin))
+
+age_values <- make_std(c(21, 25, 30),
+					   mean(data_time$age),
+					   sd(data_time$age))
+
+nd <- expand_grid(condition = levels(fit_0$data$condition),
+				  timebin_std = timebin_values,
+				  age_std = age_values,
 				  # sesion_id = first(data$session_id),
 				  # age = c(21, 25, 30),
-				  lp = levels(model_fits_time$fit_time_2$data$lp)) 
+				  lp = levels(fit_0$data$lp)) 
 
 epreds <- add_epred_draws(newdata = nd,
-						  object = model_fits_time$fit_time_2,
-						  ndraws = 20,
+						  object = fit_0,
+						  ndraws = NULL,
 						  re_formula = NA,
 						  value = ".value") |> 
 	mean_qi() |> 
 	mutate(lp = factor(lp, 
 					   levels = c("Monolingual (English)",
 					   		   "Monolingual",
-					   		   "Bilingual")))
+					   		   "Bilingual")),
+		   age_std = factor(age_std, 
+		   				 levels = age_values,
+		   				 labels = paste0(c(21, 25, 30), " months")))
 
 epreds |> 
-	ggplot(aes(timebin, .value,
+	ggplot(aes(timebin_std, .value,
 			   colour = condition,
 			   fill = condition)) +
-	facet_wrap(~lp) +
+	facet_wrap(lp ~ age_std) +
 	geom_hline(yintercept = 0,
 			   linetype = "dashed") +
 	geom_ribbon(aes(ymin = .lower, ymax = .upper),
@@ -1026,17 +1067,80 @@ looking_times |>
 ## Appendix D: vocabulary checklist validity
 
 ```{r fig-validity-target}
-get_data(gaze = gaze,
-		 participants = participants,
-		 stimuli = stimuli,
-		 vocabulary = vocabulary,
-		 attrition_trials = attrition_trials,
-		 attrition_participants = attrition_participants,
-		 time_subset = c(0, 2),
-		 contrast = "related",
-		 is_valid_vocab_all,
-		 clean = FALSE) |> 
+gaze_tmp <- gaze |> 
+	filter(phase=="Target-Distractor",
+		   between(timestamp, time_subset[1], time_subset[2])) |> 
+	select(session_id, trial, phase, timestamp,
+		   is_gaze_target, is_gaze_distractor, trial_type) |> 
+	mutate(condition = recode_condition(trial_type))
+
+vocabulary_tmp <- rename_with(vocabulary,  
+							  \(x) gsub("_prop", "", paste0("voc_", x)), 
+							  matches("_prop"))
+
+participants_tmp <- participants |> 
+	select(child_id, session_id, age_group, age, lp)
+
+attrition_trials_tmp <- get_attrition_trials(
+	participants = participants,
+	vocabulary = vocabulary,
+	vocabulary_by = c("target"),
+	aoi_coords = aoi_coords,
+	gaze = gaze,
+	min_looking = c(prime = 0.75,
+					test = 1.00,
+					test_each = 0.00,
+					test_any = 0.1)) |> 
+	select(session_id, trial, samples, is_valid_vocab_all) |> 
+	unnest_wider(is_valid_vocab_all) |> 
+	rename_with(\(x) gsub("is_valid_vocab_", "", x)) 
+
+attrition_participants_tmp <- attrition_participants |> 
+	filter(is_valid_participant) |> 
+	select(session_id)
+
+data <- gaze_tmp |>
+	inner_join(attrition_trials_tmp, by = join_by(session_id, trial)) |> 
+	inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
+	mutate(condition = recode_condition(trial_type)) |> 
+	select(session_id, trial, condition, is_gaze_target, is_gaze_distractor,
+		   is_valid_vocab_all) |> 
+	# aggregated across trials by participant, time bin and condition
+	# see Chow et al. (2018)
+	summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
+			  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
+			  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
+			  .ntrials = length(unique(trial)),
+			  .by = c(session_id, condition, is_valid_vocab_all)) |> 
+	# empirical logit with adjustment
+	# see Barr et al. (2008)
+	mutate(.nsamples = sum_target + sum_distractor,
+		   .prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
+		   .elog = log((sum_target + .5)/(sum_distractor + .5))) |> 
+	rename(.sum = sum_target) |> 
+	arrange(desc(session_id), condition) |> 
+	inner_join(participants_tmp, by = join_by(session_id)) |> 
+	inner_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
+	mutate(across(c(.nsamples), as.integer),
+		   across(c(child_id, session_id, lp, condition, age_group), as.factor),
+		   across(c(age, voc_l1),
+		   	   \(x) scale(x, scale = TRUE)[, 1],
+		   	   .names = "{.col}_std")) |> 
+	select(child_id, session_id, age_group, age, voc_l1, voc_total, lp,
+		   condition,  .sum, .prop, .elog, .nsamples,
+		   matches("std"), is_valid_vocab_all) 
+
+# set a priori contrasts
+contrasts(data$condition) <- cbind(c(-0.5, 0.5, 0),
+								   c(0, -0.5, 0.5))
+contrasts(data$lp) <- cbind(c(-0.5, 0.25, 0.25),
+							c(0, -0.5, 0.5))
+contrasts(data$age_group) <- cbind(c(-0.5, 0.5, 0),
+								   c(0, -0.5, 0.5))
+
+data |> 
 	unnest_wider(is_valid_vocab_all) |>
+	rename_with(\(x) gsub("is_valid_vocab_", "", x)) |> 
 	select(session_id, lp, .elog, target) |> 
 	arrange(session_id, target) |> 
 	summarise(.elog_mean = mean(.elog),
@@ -1064,18 +1168,18 @@ get_data(gaze = gaze,
 		 colour = "Knows the target word") +
 	theme(legend.position = "none",
 		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted")) +
-	
-	get_data_time(gaze = gaze,
-				  participants = participants,
-				  stimuli = stimuli,
-				  vocabulary = vocabulary,
-				  attrition_trials = attrition_trials,
-				  attrition_participants = attrition_participants,
-				  time_subset = c(0, 2),
-				  contrast = "related",
-				  is_valid_vocab_all,
-				  clean = FALSE) |> 
+		  								  linetype = "dotted")) 
+
+get_data_time(gaze = gaze,
+			  participants = participants,
+			  stimuli = stimuli,
+			  vocabulary = vocabulary,
+			  attrition_trials = attrition_trials,
+			  attrition_participants = attrition_participants,
+			  time_subset = c(0, 2),
+			  contrast = "related",
+			  is_valid_vocab_all,
+			  clean = FALSE) |> 
 	unnest_wider(is_valid_vocab_all) |>
 	select(session_id, age, lp, timebin, .elog, target) |> 
 	arrange(session_id, target) |> 
