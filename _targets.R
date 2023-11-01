@@ -170,8 +170,8 @@ list(
 			   get_gaze(gaze_files_bcn,
 			   		 gaze_files_oxf,
 			   		 participants,
-			   		 aoi_coords,
 			   		 stimuli,
+			   		 aoi_coords,
 			   		 non_aoi_as_na = TRUE)),
 	
 	# attrition ----------------------------------------------------------------
@@ -186,8 +186,8 @@ list(
 			   	gaze = gaze,
 			   	min_looking = c(prime = 0.75,
 			   					test = 1.00,
-			   					test_each = 0.00,
-			   					test_any = 0.1))),
+			   					test_each = 0.10,
+			   					test_any = 0.00))),
 	
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
@@ -196,96 +196,17 @@ list(
 			   						   			   unrelated = 2))),
 	
 	
-	# Modelling data -----------------------------------------------------------
-	
-	tar_target(data_aggr,
-			   get_data_aggr(gaze = gaze,
-			   			  participants = participants,
-			   			  stimuli = stimuli,
-			   			  vocabulary = vocabulary,
-			   			  attrition_trials = attrition_trials,
-			   			  attrition_participants = attrition_participants,
-			   			  time_subset = c(0.20, 2.00))),
+	# Prepare for modelling data -----------------------------------------------
 	
 	tar_target(data_time,
-			   get_data_time(gaze = gaze,
-			   			  participants = participants,
-			   			  stimuli = stimuli,
-			   			  vocabulary = vocabulary,
-			   			  attrition_trials = attrition_trials,
-			   			  attrition_participants = attrition_participants,
-			   			  time_subset = c(0.20, 2.00),
-			   			  return_clean = TRUE)),
+			   get_data(gaze = gaze,
+			   		 participants = participants,
+			   		 vocabulary = vocabulary,
+			   		 attrition_trials = attrition_trials,
+			   		 attrition_participants = attrition_participants,
+			   		 time_subset = c(0.30, 2.00))),
 	
-<<<<<<< HEAD
-	# 
-	# # Model aggregated data ----------------------------------------------------
-	# 
-	# tar_target(model_prior,
-	# 		   prior(normal(0, 0.5), class = "Intercept") +
-	# 		   	prior(normal(0, 0.5), class = "b") +
-	# 		   	prior(exponential(6), class = "sd") +
-	# 		   	prior(lkj(6), class = "cor") +
-	# 		   	prior(exponential(6), class = "sigma")),
-	# 
-	# tar_target(model_formulas_aggr,
-	# 		   lst(
-	# 		   	.elog ~ condition * lp + age + (1 + condition | session_id),
-	# 		   	.elog ~ condition * lp + voc_l1 + (1 + condition | session_id),
-	# 		   	.elog ~ condition + lp + voc_total + (1 + condition | session_id)
-	# 		   )),
-	# 
-	# tar_target(model_names_aggr,
-	# 		   apply(expand.grid("fit_aggr_", 
-	# 		   				  seq(1, length(model_formulas_aggr))-1), 1,
-	# 		   	  \(x) paste0(x[1], x[2]))),
-	# 
-	# tar_target(model_fits_aggr,
-	# 		   get_model_fit(model_names_aggr,
-	# 		   			  model_formulas_aggr,
-	# 		   			  data = data_aggr,
-	# 		   			  prior = model_prior)),
-	# 
-	# tar_target(model_loos_aggr,
-	# 		   get_model_loos(model_fits_aggr)),
-	# 
-	# # Model time course data ---------------------------------------------------
-	# 
-	# tar_target(model_formulas_time,
-	# 		   lst(
-	# 		   	.elog ~ condition * lp * age +
-	# 		   		s(timebin, bs = "cr", k = 10) +
-	# 		   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
-	# 		   		(1 + condition | session_id),
-	# 		   	.elog ~ condition * lp * voc_l1 + 
-	# 		   		s(timebin, bs = "cr", k = 10) +
-	# 		   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
-	# 		   		(1 + condition | session_id),
-	# 		   	.elog ~ condition * lp * voc_total + 
-	# 		   		s(timebin, bs = "cr", k = 10) +
-	# 		   		s(timebin, by = interaction(condition, lp), bs = "cr", k = 10) +
-	# 		   		(1 + condition | session_id)
-	# 		   )),
-	# 
-	# tar_target(model_names_time,
-	# 		   apply(expand.grid("fit_time_",
-	# 		   				  seq(1, length(model_formulas_time))-1), 1,
-	# 		   	  \(x) paste0(x[1], x[2])
-	# 		   )),
-	# 
-	# tar_target(model_fits_time,
-	# 		   get_model_fit(model_names_time,
-	# 		   			  model_formulas_time,
-	# 		   			  data = data_time,
-	# 		   			  prior = model_prior +
-	# 		   			  	prior(exponential(6), class = "sds"),
-	# 		   )),
-	# 
-	# tar_target(model_loos_time,
-	# 		   get_model_loos(model_fits_time)),
-=======
-	
-	# Model time course data ---------------------------------------------------
+	# Bayesian GAMMs -----------------------------------------------------------
 	
 	tar_target(model_prior,
 			   prior(normal(0, 0.5), class = "Intercept") +
@@ -324,7 +245,6 @@ list(
 			   			  prior = model_prior)),
 	
 	tar_target(model_loos, get_model_loos(model_fits)),
->>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 	
 	
 	# render report ------------------------------------------------------------

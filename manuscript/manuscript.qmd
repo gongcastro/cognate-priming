@@ -539,6 +539,7 @@ The comparison between the three models including *Age*, *L1 vocabulary*, *Total
 #| fig-width: 11
 #| fig-height: 4
 data_time |> 
+	drop_na(.prop) |> 
 	summarise(.prop = mean(.prop),
 			  .by = c(lp, timebin, session_id)) |> 
 	ggplot(aes(timebin, .prop, colour = lp)) +
@@ -560,7 +561,7 @@ data_time |>
 	labs(x = "Time (ms)",
 		 y = "PTLT") +
 	scale_x_continuous(breaks = seq(0, 20, 2),
-					   labels = \(x) format(x*100+200, big.mark = ",")) +
+					   labels = \(x) format(x*100+300, big.mark = ",")) +
 	scale_y_continuous(labels = scales::percent,
 					   breaks = seq(0, 1, 0.2),
 					   limits = c(0, 1)) +
@@ -569,7 +570,6 @@ data_time |>
 		  legend.position = "none")
 ```
 
-<<<<<<< HEAD
 ```{r fig-ptlt-recognition-age}
 #| label: fig-ptlt-recognition-age
 #| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
@@ -605,11 +605,8 @@ data_time |>
 	theme(legend.position = "top",
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"))
+```
 
-ggsave(file.path("img", "recognition-age.jpeg"),
-	   height = 4, width = 11,
-	   dpi = 800)
-=======
 ```{r tbl-coefs}
 post <- gather_draws(fit_0, `b_.*`, regex = TRUE)  
 
@@ -624,12 +621,10 @@ ggplot(post, aes(.value)) +
 			   aes(x = .value, y = 400),
 			   size = 2) +
 	scale_y_continuous(limits = c(0, 500))
->>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 ```
 
 ## Hypothesis 1: within-language phonological priming
 
-<<<<<<< HEAD
 ```{r fig-ptlt-recognition-condition}
 #| label: fig-ptlt-recognition-condition
 #| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
@@ -664,15 +659,14 @@ data_time |>
 	theme(legend.position = "top",
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"))
-=======
+```
+
 ## Hypothesis 2: cross-language phonological priming
->>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
 
 ## Hypothesis 3: emergence of phonological association
 
 ## Hypothesis 4: the compating role of age and vocabulary
 
-<<<<<<< HEAD
 In a first analysis, we examined the effect of phonological priming. We compared participants' looking preference for the target in related and unrelated trials. We first compared the aggregated probability of target looking across time bins in both conditions for each language group.  
 
 ```{r fig-related-aggregated}
@@ -751,8 +745,7 @@ ggsave(file.path("img", "model-agg.jpeg"),
 ```
 
 ## Time course analysis
-=======
->>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b
+
 
 ```{r fig-time}
 #| label: fig-time
