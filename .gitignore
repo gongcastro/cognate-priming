@@ -5,7 +5,9 @@
 .Renviron
 
 _targets/
+_targets/**/*
 _targets.yaml
+
 !.gitignore
 
 **/*.pptx
