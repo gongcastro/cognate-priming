@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|2157ea715d44716d|||||||||||||||
+.Random.seed|object|f51b5786d88fd56a|||||||||||||||
 <<<<<<< HEAD|||||||||||||||||
 =======|||||||||||||||||
 >>>>>>> 68c23d18b7c16a595af02b45d19333a1c5d15d2b|||||||||||||||||
@@ -71,15 +71,16 @@ get_vocabulary_oxf|function|d4c5796ed3001c45|||||||||||||||
 get_vocabulary_supp_bcn|function|bb82aef4b2c96d51|||||||||||||||
 impute_vocabulary|function|5e21d0cc212a8791|||||||||||||||
 make_non_aoi_as_false|function|59a02f1af84c6ff3|||||||||||||||
+manuscript|stem||8d13e20b7e9ef6a0|df5987b9d7cc8825|594221669||t19662.6991170848s||0|file|local|vector|||30.09||System command quarto.exe failed
 model_fits_aggr|stem|363772d4bc25da81|9e5677aba7a11ca1|872254880720c2aa|-249087678||t19662.4129762585s|92765dec32df1763|33321177|rds|local|vector|||183.26||
-model_formulas|stem|59af04b5b75caddb|f0a6069b22af69fb|ef46db3751d8e999|130943277||t19662.4679282278s|ad32f0e2900aab2f|880|rds|local|vector|||0.16||
+model_formulas|stem|59af04b5b75caddb|f0a6069b22af69fb|ef46db3751d8e999|130943277||t19662.6986414205s|ad32f0e2900aab2f|880|rds|local|vector|||0.25||
 model_formulas_aggr|stem|56ef27f6416d05bb|9245a0be93174b42|ef46db3751d8e999|-727442754||t19660.6865234459s|7b712bccab2c465d|813|rds|local|vector|||0.2||
 model_formulas_time|stem|8e628f8eaf624e52|1bee7eda8bfe3c36|ef46db3751d8e999|128998893||t19660.4438164279s|dc4bf0cbbfcde739|876|rds|local|vector|||0.46||
 model_loos|stem||8c5d227681d09034|5d2a87eccd1b859d|783798861||t19662.4670035225s||0|rds|local|vector|||0||object model_fits not found
-model_names|stem|222810d186b8ee2f|f8451c621df757a3|0a55487e4f3ec3e4|2066235299||t19662.467932709s|8a2d295a6f6be5b7|61|rds|local|vector|||0||
+model_names|stem|222810d186b8ee2f|f8451c621df757a3|0a55487e4f3ec3e4|2066235299||t19662.6986431621s|8a2d295a6f6be5b7|61|rds|local|vector|||0||
 model_names_aggr|stem|fda01a40c14bd223|70fedf29a37b5bf0|eb8263d34e1057a0|-1453322331||t19660.6865273063s|425d385953b3c542|67|rds|local|vector|||0||
 model_names_time|stem|b9449ee1411bdee4|34e77ec9a6b1ebc7|cd4bc46ae5b128ba|-813400896||t19660.4438370888s|425d385953b3c542|67|rds|local|vector|||0||
-model_prior|stem|cbabe384c29f4b1e|597cd33d9739c412|ef46db3751d8e999|376319345||t19662.4670032487s|6e2ad1e2d4a7cab8|275|rds|local|vector|||0.01||
+model_prior|stem|cbabe384c29f4b1e|597cd33d9739c412|ef46db3751d8e999|376319345||t19662.6986383475s|6e2ad1e2d4a7cab8|275|rds|local|vector|||0.03||
 participants|stem|31b5e9df69c46e56|99f84b7f3263627d|d9205c6678e98b34|1838076932||t19662.6241997449s|a880eea0f8a6f37b|9901|rds|local|vector|||3.11||
 participants_file_bcn|stem|6b8519186d960adc|1fe5d641cc3d715f|ef46db3751d8e999|1622530352|data-raw/participants-bcn.csv|t19661.5152768339s|bf3eb9abd91c3219|57378|file|local|vector|||0||
 participants_file_oxf|stem|f6a7328dd0001f66|8a56771022dede9e|ef46db3751d8e999|1005224319|data-raw/participants-oxf.csv|t19661.5152768339s|fb0ee5da3abf3928|30115|file|local|vector|||0||
@@ -92,8 +93,8 @@ recode_responses|function|e8fe1323ebc0f4ef|||||||||||||||
 save_files|function|15bdfe598335ad91|||||||||||||||
 semantic_category|stem|1112338be9b2d883|224625f26adaa2c6|dca29a60f65ab1dc|-1746228376||t19662.624200266s|fa823e19749c8d0d|8305|rds|local|vector|||0||
 stimuli|stem|e6127000e4358d4f|0cfa12b0cb0e9932|0b109305d4d47938|-508226986||t19661.5447577249s|76d914d5d8bc2596|7372|rds|local|vector|||2.83|Number of logged events 170|
-stimuli_cdi_file_oxf|stem|29219087de02424a|ae2e997eaa954b6c|ef46db3751d8e999|1431952851|data-raw/stimuli-cdi-oxford.csv|t19661.4551567125s|517f53a615cf3573|1244|file|local|vector|||0||
-stimuli_cdi_oxf|stem|2199b16421484dec|9b09ac4d0317a400|65309555daa0c972|476874879||t19662.4045212441s|230165c59f502bb0|711|rds|local|vector|||0||
+stimuli_cdi_file_oxf|stem|ed09db4503dc30a6|ae2e997eaa954b6c|ef46db3751d8e999|1431952851|data-raw/stimuli-cdi-oxford.csv|t19650.3039176704s|2ebbc8e78ea49857|1179|file|local|vector|||0||
+stimuli_cdi_oxf|stem|2199b16421484dec|9b09ac4d0317a400|3facafce7874807f|476874879||t19662.6986429512s|230165c59f502bb0|711|rds|local|vector|||0.12||
 syllabify_xsampa|function|b21330241de1eeb8|||||||||||||||
 test_attrition_participants|function|b22645757ff5626c|||||||||||||||
 test_attrition_trials|function|4d830c3380657a90|||||||||||||||
