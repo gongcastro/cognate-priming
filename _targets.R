@@ -293,7 +293,7 @@ list(
 			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ lp * age_std +
+			   	.elog ~ condition * age_std +
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
 			   		(1 + condition + age_std | child_id) +

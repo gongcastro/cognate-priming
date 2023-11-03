@@ -65,7 +65,7 @@ get_data <- function(gaze, participants, vocabulary,
 			   condition, timebin, .sum_t, .sum_d, .prop, .elog, .nsamples,
 			   matches("_std")) 
 	
-	if (length(levels(out$condition)) > 1) {
+	if (length(unique(out$condition)) > 1) {
 		out$condition <- factor(out$condition,
 								levels = c("Unrelated",
 										   "Related/Non-cognate",
@@ -73,7 +73,7 @@ get_data <- function(gaze, participants, vocabulary,
 		contrasts(out$condition) <- cbind(c(-0.5, 0.5, 0),
 										  c(0, -0.5, 0.5))
 	}
-	if (length(levels(out$lp)) > 1) {
+	if (length(unique(out$lp)) > 1) {
 		out$lp <- factor(out$lp,
 						 levels = c("Monolingual",
 						 		   "Bilingual"))
@@ -142,7 +142,7 @@ fit_single_model <- function(name, formula, data, prior, ...) {
 	fit <- brm(formula = formula,
 			   data = data,
 			   prior = prior,
-			   iter = 1e3L,
+			   iter = 2e3L,
 			   chains = 4L,
 			   cores = 4L,
 			   init = 0.1,

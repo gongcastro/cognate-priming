@@ -63,7 +63,7 @@ options(ggplot2.ordinal.fill = clrs[c(1, 4, 5)],
 		ggplot2.continuous.fill = ggplot2::scale_color_gradient,
 		ggplot2.continuous.colour = ggplot2::scale_color_gradient)
 
-set.seed(888)
+set.seed(1234)
 ```
 
 # Introduction
@@ -304,7 +304,6 @@ vocabulary_bcn |>
 											colour = "grey"),
 		  legend.position = "top",
 		  legend.title = element_blank())
-
 ```
 
 
@@ -526,7 +525,6 @@ The comparison between the three models including *Age*, *L1 vocabulary*, *Total
 
 ## Results
 
-
 ```{r results-0}
 var_labels <- c("b_Intercept" = "Intercept",
 				"b_age_std" = "Age (+1 SD)",
@@ -711,6 +709,263 @@ epreds_chance |>
 		  legend.position = "top",
 		  axis.title.x = element_blank())
 ```
+
+# Study 2
+
+## Methods
+
+### Participants
+
+```{r}
+#| label: participants-numbers-oxf
+participants_oxf <- filter(participants, location=="Oxford")
+
+n_participants_total <- nrow(distinct(participants_oxf, child_id))
+n_sessions_total <- count(participants_oxf)
+
+n_participants_sex <- participants_oxf |> 
+	distinct(sex, child_id) |> 
+	count(sex)
+
+n_participants_sessions <- participants_oxf |> 
+	count(child_id, name = "n_sessions") |> 
+	count(n_sessions) |> 
+	group_split(n_sessions) |> 
+	set_names(paste0("session_", 1:2)) |> 
+	map("n")
+
+ages <- participants_oxf |> 
+	summarise(n = n(),
+			  n_participants = n_distinct(child_id),
+			  across(age, lst(mean, sd, min, max)),
+			  across(matches("doe_"), lst(mean, sd)),
+			  age_vctr = list(age),
+			  .by = c(lp, test_language))
+
+```
+
+We collected data from `r n_participants_total$n[1]` children (`r n_participants_sex[1]` female, `r n_participants_sex[2]` male, `r n_participants_sex[3]` sex not reported, age: *Mean* = `r round(ages$age_mean, 2)` months, *SD* = `r round(ages$age_sd, 2)`, *Range* = [`r round(ages$age_min, 2)`-`r round(ages$age_max, 2)`]), living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford. Families were recruited from maternity rooms in private hospitals and social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r n_participants_total$n` children that participated, `r n_participants_sessions$session_1` participated once, and `r n_participants_sessions$session_2` participated twice. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions. All participants were being raised in exclusively British English monolingual homes.
+
+### Vocabulary size
+
+```{r vocab-values-oxf}
+vocabulary_oxf <- inner_join(vocabulary, 
+							 select(participants_oxf, session_id),
+							 by = join_by(session_id))
+```
+
+We collected vocabulary data using parental responses to the Oxford Communicative Development Inventory (OCDI) [@hamilton2000infant]. Families were sent the questionnaire immediately after each experimental session, and were given two weeks to fill it. Since all vocabulary sizes of English monolingual infants were only assessed in English, both *L1 vocabulary* and *total vocabulary* sizes were identical (see @fig-vocabulary-oxf).
+
+```{r fig-vocabulary-oxf}
+#| label: fig-vocabulary-oxf
+#| fig-cap: "Participant vocabulary sizes across ages and language profiles. Vocabulary size scores are presented using two measures: L1 vocabulary size (proportion of words marked as *Understands* in the vocabulary checklist of the dominant language), and total vocabulary size (proportion of words marked as *Understands* in vocabulary checklists of both dominant and non-dominant languages). Vocabulary size scores from the recurrent participants are shown linked."
+#| eval: false
+#| fig-width: 4
+#| fig-height: 4
+vocabulary_oxf |> 
+	inner_join(select(participants, child_id, session_id, age_group),
+			   by = join_by(child_id, session_id)) |> 
+	ggplot(aes(age_group, l1_prop)) +
+	geom_line(aes(group = child_id),
+			  colour = "grey",
+			  alpha = 1/4, linewidth = 3/4) +
+	geom_dots(dotsize = 2,
+			  colour = clrs[5],
+			  fill = clrs[5],
+			  scale = 0.5,
+			  side = "both",
+			  alpha = 3/4) +
+	stat_summary(fun.data = mean_se,
+				 geom = "errorbar",
+				 linewidth = 3/4,
+				 width = 0.1,
+				 colour = "black",
+				 show.legend = FALSE) +
+	stat_summary(fun = mean,
+				 geom = "point",
+				 size = 2,
+				 colour = "black",
+				 show.legend = FALSE) +
+	# geom_point(alpha = 1) +
+	labs(x = "Age (months)",
+		 y = "Vocabulary size",
+		 colour = "Group",
+		 fill = "Group") +
+	scale_y_continuous(labels = scales::percent) +
+	theme(panel.grid.major.y = element_line(linetype = "dotted",
+											colour = "grey"),
+		  legend.position = "top",
+		  legend.title = element_blank())
+```
+
+
+### Stimuli
+
+New stimuli lists were generated to adapt the experimental procedure to English-learning infants. Stimuli lists were created following the same constraints as in Study 1. Auditory stimuli were recorded following the same procedure as in Study 1, produced by Southern British English native female speaker in a toddler-directed manner. Audio and picture processing were performed following the same workflow as in Study 1.
+
+### Procedure and apparatus
+
+Same as in Study 1. The study was run using a custom Matlab script, PresentMate, based on the PsychToolbox-3 extension [@kleiner2007s; @brainard1997psychophysics; @pelli1997videotoolbox]. Visual fixations were recorded using a Tobii TX 300 eye-tracker and a 23-in screen of 1920 $\times$ 1080 resolution. The Tobii Analytics SDK 3.0 was used to interact with the eye-tracking while the experiment was running. Sampling rate was set at 120 Hz. A 9-point calibration was performed before every experimental session, in which the picture of a colourful beach ball was presented. 
+
+### Data analysis
+
+Same as in Study 1, but removing the *Group* predictor from the models, as only monolingual infants were tested.
+
+## Results
+
+```{r results-oxf}
+var_labels <- c("b_Intercept" = "Intercept",
+				"b_age_std" = "Age (+1 SD)",
+				"b_condition1" = "Condition (U vs. RN)",
+				"b_condition1" = "Condition (RN vs. RC)",
+				"sd_child_id__Intercept" = "Intercept",
+				"sd_child_id__age_std" = "Age",
+				"sd_child_id:session_id__Intercept" = "Intercept",
+				"sd_child_id:session_id__age_std" = "Age",
+				"sd_child_id:session_id__lpBilingual" = "Group")
+
+
+coefs <- map(model_fits_oxf, 
+			 \(x) get_coefs(model = x, var_labels,
+			 			   `b_.*`, `sd_.*`, regex = TRUE))
+
+loos_tbl <- loo_compare(model_loos_oxf) |> 
+	as.data.frame() |> 
+	rownames_to_column("model") |> 
+	select(model, matches("diff|elpd"))
+
+```
+
+```{r tbl-loos-oxf}
+loos_tbl |> 
+	mutate(model = case_when(model=="fit_oxf_0" ~ "$\\mathcal{M}_{0}$",
+							 model=="fit_oxf_1" ~ "$\\mathcal{M}_{1}$",
+							 model=="fit_oxf_2" ~ "$\\mathcal{M}_{2}$",
+							 model=="fit_oxf_3" ~ "$\\mathcal{M}_{3}$")) |>
+	gt() |> 
+	fmt_number(is.numeric) |> 
+	# fmt_markdown(is.character, ) |> 
+	cols_label(elpd_diff = "ELPD (diff.)",
+			   se_diff = "SE ELPD (diff)",
+			   elpd_loo = "ELPD",
+			   se_elpd_loo = "SE ELPD")
+```
+
+
+@tbl-loos summarises the outputs of the LOO-CV model comparisons. Models $\mathcal{M}_{2}$, $\mathcal{M}_{3}$, and $\mathcal{M}_{4}$ showed substantially better predicted performance than models $\mathcal{M}_{0}$ and $\mathcal{M}_{1}$, which indicates that adding the *Condition* predictor improves significantly the fit of the models. All $\mathcal{M}_{2}$, $\mathcal{M}_{3}$, and $\mathcal{M}_{4}$ models showed equivalent performance, suggesting that adding the two-way and three-way interactions between *Age*, *Group*, and *Condition*, did not improve the the fit of the model. We now report a description of the posterior distribution of the regression coefficients of model $\mathcal{M}_{4}$. We report the median and 95% highest density interval of each fixed regression coefficient. 
+
+The outcomes of $\mathcal{M}_{0}$, which only included *Age* and as main effect, revealed successful word recognition across participants. Overall, participants' looking time exceeded chance levels, as indicated by the fact that the 95% HDI of the intercept term excluded zero ($\beta$ = `r coefs$fit_0$b_intercept$mdn_label`, 95% HDI = `r coefs$fit_0$b_intercept$ci_label`). The variability of participants' target preference varied significantly more between participants ($\sigma$ = `r coefs$fit_0$sd_child_id_intercept$mdn_label`, 95% HDI = `r coefs$fit_0$sd_child_id_intercept$ci_label`) than within testing sessions from the same participant ($\sigma$ = `r coefs$fit_0$sd_child_id_session_id_intercept$mdn_label`, 95% HDI = `r coefs$fit_0$sd_child_id_session_id_intercept$ci_label`). The 95% HDI of the coefficient of *Age* had a positive sign, but did not exclude zero ($\beta$ = `r coefs$fit_0$b_age_std$mdn_label`, 95% HDI = `r coefs$fit_0$b_age_std$ci_label`), indicating that participants from all ages showed equivalent overall target word recognition.
+
+
+The 95% HDI of the coefficient of *Group* in $\mathcal{M}_{1}$ included zero ($\beta$ = `r coefs$fit_1$b_lp1$mdn_label`, 95% HDI = `r coefs$fit_1$b_lp1$ci_label`), indicating an equivalent overall target preference in monolinguals and bilinguals. The 95% HDI of the first contrast of this predictor, comparing *Unrelated* and *Related/Non-cognate* trials, included zero ($\beta$ = `r coefs$fit_2$b_condition1$mdn_label`, 95% HDI = `r coefs$fit_2$b_condition1$ci_label`). The 95% HDI of the second contrast, comparing *Related/Non-cognate* and *Related/Cognate* trials, also included zero ($\beta$ = `r coefs$fit_2$b_condition2$mdn_label`, 95% HDI = `r coefs$fit_2$b_condition2$ci_label`). The overall target preference was equivalent across both pairwise condition comparisons. The interaction term between the first *Condition* contrast contained zero ($\beta$ = `r coefs$fit_3$b_condition1_lp1$mdn_label`, 95% HDI = `r coefs$fit_3$b_condition1_lp1$ci_label`). The interaction term between the second *Condition* contrast also contained zero ($\beta$ = `r coefs$fit_3$b_condition2_lp1$mdn_label`, 95% HDI = `r coefs$fit_3$b_condition2_lp1$ci_label`). The outcomes of this model indicate that lack of differences in overall target looking time across conditions remained across monolinguals and bilinguals.
+
+Both younger and older participants showed equivalent looking time across conditions, as suggested by the fact that the 95% HDI of the two-way interaction between *Age* and the first *Condition* contrast included zero ($\beta$ = `r coefs$fit_4$b_condition1_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition1_age_std$ci_label`), as well as the interaction between *Age* and the second *Condition* contrast ($\beta$ = `r coefs$fit_4$b_condition2_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition2_age_std$ci_label`). This pattern of results was found in both monolinguals and bilinguals, as the 95% HDI of the three-way interaction between *Age*, *Group*, and *Condition* included zero both the first ($\beta$ = `r coefs$fit_4$b_condition1_lp1_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition1_lp1_age_std$ci_label`) and second ($\beta$ = `r coefs$fit_4$b_condition2_lp1_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition2_lp1_age_std$ci_label`) contrast of *Condition*.
+
+
+```{r timecourse-oxf}
+timebin_values <- make_std(seq(0, 17, length.out = 100),
+						   mean(data_oxf$timebin),
+						   sd(data_oxf$timebin))
+
+age_values <- make_std(c(20, 30),
+					   mean(data_oxf$age),
+					   sd(data_oxf$age))
+
+nd <- expand_grid(distinct(data_oxf, condition),
+				  timebin_std = timebin_values,
+				  age_std = age_values)
+
+epreds <- add_epred_draws(nd, model_fits_oxf$fit_oxf_2, 
+						  re_formula = NA,
+						  ndraws = NULL,
+						  value = ".elog") |> 
+	mutate(age_std = factor(age_std,
+							levels = age_values, 
+							labels = paste0(c(20, 30), " months")))
+
+epreds_chance <- epreds |> 
+	median_hdci() |> 
+	mutate(is_lower_positive = .lower > 0) |> 
+	filter(is_lower_positive) |> 
+	summarise(over_chance = min(timebin_std),
+			  .by = c(condition, age_std)) |> 
+	mutate(over_chance = (over_chance * 
+						  	sd(data_oxf$timebin) +
+						  	mean(data_oxf$timebin))*100+300) 
+
+epreds_chance_report <- epreds_chance |> 
+	mutate(over_chance = sprintf("%.2f", over_chance),
+		   age_std = paste0("age_", gsub(" months", "", age_std))) |> 
+	arrange(age_std) %>%
+	split(tolower(.$age_std)) 
+```
+
+An analysis of the time course of target looking revealed a similar pattern of results (see @fig-epreds). Posterior mean prediction for the three conditions overlap across the full time course of the trial in both language groups, and also in both extrema of the age range of participants (20 and 32 months).
+
+```{r fig-epreds-oxf}
+#| label: fig-epreds-oxf
+#| fig-cap: "Posterior mean prdictions of the time course of target fixation in the test phase. Lines and intervals indicate the median and 95% credible interval of the posterior predictions, respectively."
+#| fig-width: 8
+#| fig-height: 4
+epreds |> 
+	ggplot(aes(timebin_std, .elog,
+			   colour = condition,
+			   fill = condition)) +
+	facet_wrap(~age_std) +
+	geom_hline(yintercept = 0, linetype = "dashed") +
+	stat_summary(fun.data = mean_qi,
+				 geom = "ribbon",
+				 alpha = 1/2,
+				 linewidth = NA) +
+	stat_summary(fun = mean,
+				 geom = "line",
+				 linewidth = 3/4) +
+	labs(x = "Time (ms)",
+		 y = "Logit (Target looking)",
+		 colour = "Condition",
+		 fill = "Condition") +
+	scale_x_continuous(breaks = make_std(seq(0, 17, 3),
+										 mean(data_bcn$timebin),
+										 sd(data_bcn$timebin)),
+					   labels = \(x) format(seq(3e2, 2e3, 3e2),
+					   					 big.mark = ",")) &
+	theme(panel.grid.major.y = element_line(colour = "grey",
+											linetype = "dotted"),
+		  legend.position = "top")
+```
+
+In an exploratory analysis, we compared the model-estimated time points at which participants' gaze behaviour showed evidence of target looking above chance level (50%). We defined the recognition time of the trial as the earliest time point at which the lower bound of the 95% HDI posterior mean prediction of the target looking excluded zero. As expected, the recognition times were on average shorter for older infants than for younger infants. Differences between conditions were larger in bilinguals than in monolinguals, especially in the older group. The recognition time for monolingual 20-month-olds was `r epreds_chance_report$monolingual$age_20$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_20$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_20$over_chance[3]` ms in the *Related/Cognate* condition. In monolingual 30 month-olds, the recognition point was `r epreds_chance_report$monolingual$age_30$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_30$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_30$over_chance[3]` ms in the *Related/Cognate* condition. In bilingual 20 month-olds, the recognition point was `r epreds_chance_report$monolingual$age_20$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_20$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_20$over_chance[3]` ms in the *Related/Cognate* condition. In bilingual 30 month-olds, the recognition point was `r epreds_chance_report$monolingual$age_20$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_20$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_20$over_chance[3]` ms in the *Related/Cognate* condition.
+
+
+```{r fig-recognition-oxf}
+#| label: fig-recognition-oxf
+#| fig-cap: "Model-predicted recognition times for monlingual and bilinguals at 20 and 30 months of age."
+#| fig-width: 7
+#| fig-height: 3
+epreds_chance |> 
+	ggplot(aes(age_std, over_chance,
+			   colour = sort(condition),
+			   fill = sort(condition))) + 
+	geom_point(shape = 16, size = 4) +
+	geom_line(aes(group = condition),
+			  linewidth = 1) +
+	# geom_point(size = 3) +
+	labs(x = "Group",
+		 y = "Recognition time (ms)",
+		 colour = "Condition",
+		 fill = "Condition") +
+	scale_y_continuous(breaks = seq(0, 1e3L, 25)) +
+	theme(panel.grid.major.y = element_line(colour = "grey",
+											linetype = "dotted"),
+		  panel.grid.minor.y = element_line(colour = "grey",
+		  								  linetype = "dotted"),
+		  legend.position = "top",
+		  axis.title.x = element_blank())
+```
+
+## Discussion
+
+# General discussion
 
 # References
 

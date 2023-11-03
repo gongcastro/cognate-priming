@@ -35,6 +35,7 @@ attrition_trials|stem|attrition_trials|0|skipped
 attrition_participants|stem|attrition_participants|0|skipped
 data_bcn|stem|data_bcn|0|skipped
 data_oxf|stem|data_oxf|0|skipped
-model_fits_bcn|stem|model_fits_bcn|0|started
-model_fits_bcn|stem|model_fits_bcn|0|built
-model_fits_oxf|stem|model_fits_oxf|0|started
+model_fits_bcn|stem|model_fits_bcn|0|skipped
+model_fits_oxf|stem|model_fits_oxf|0|skipped
+model_loos_bcn|stem|model_loos_bcn|0|skipped
+model_loos_oxf|stem|model_loos_oxf|0|skipped
