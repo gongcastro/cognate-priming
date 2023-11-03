@@ -1,0 +1,49 @@
+## Appendix C: prime and test looking times
+
+```{r fig-looking-times}
+#| label: fig-looking-times
+#| fig-height: 8
+#| fig-width: 8
+#| fig-cap: "Looking time (s) to the prime and target AOI against audio duration. In longer audios, participants are expected to look longer to the prime and target picture."
+
+looking_times |>
+	left_join(select(attrition_trials, 
+					 filename, trial, is_valid_trial),
+			  by = join_by(filename, trial)) |>
+	filter(is_valid_trial) |> 
+	ggplot(aes(duration,
+			   prime_time,
+			   colour = trial_type, 
+			   fill = trial_type,
+			   shape = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_point(alpha = 0.5, 
+			   size = 1) +
+	geom_smooth(method = "lm") +
+	theme(axis.title.x = element_blank()) +
+	
+	looking_times |>
+	left_join(select(attrition_trials, 
+					 filename, trial, is_valid_trial),
+			  by = join_by(filename, trial)) |>
+	filter(is_valid_trial) |> 
+	ggplot(aes(duration,
+			   target_time,
+			   colour = trial_type, 
+			   fill = trial_type,
+			   shape = trial_type)) +
+	facet_grid(lp~age_group) +
+	geom_point(alpha = 0.5,
+			   size = 1) +
+	geom_smooth(method = "lm",
+				formula = "y ~ x") +
+	plot_layout(ncol = 1, guides = "collect") &
+	plot_annotation(tag_levels = "A") &
+	labs(x = "Audio duration (s)",
+		 y = "Looking time (1.0-2.0 seconds)",
+		 colour = "Prime type",
+		 fill = "Prime type",
+		 shape = "Prime type") 
+```
+
+

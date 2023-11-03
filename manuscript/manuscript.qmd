@@ -20,7 +20,7 @@ targets::tar_load(
 	  attrition_participants,
 	  bvq_data,
 	  gaze,
-	  data_time_bcn
+	  data_bcn
 	))
 
 targets::tar_load(
@@ -68,9 +68,9 @@ set.seed(888)
 
 # Introduction
 
-Building a mental lexicon is a major achievement in the development of an infant. By storing representations of how familiar words sound and what they mean, an infant is able to make sense of their linguistic input. Infants start forming their first lexical representations before their first year of life [@jusczyk1999; @halle1994; @vihman2004; @parise2012electrophysiological; @bergelson20126; @bergelson2015early]. This initial lexicon consists of only a few items; mainly words for people, interjections, body parts, and food [@tincoff2012six; @tardif2008baby], but it undergoes rapid growth during their second year of life [@ganger2004reexamining; @goldfield1990early; @bloom2002children; @mcmurray2007defusing]. According to parental reports the average 15-month-old infant already understands more than 100 words, and by two years, they understand more than 400 words [@frank2021variability]. This accelerated lexical developmental is reflected in infants' trajectories of word recognition: infants recognise familiar words faster and more efficiently as they approach their second birthday [@fernald1998rapid; @fernald2001half; @hurtado2007spoken].
+Building a mental lexicon is a major achievement in the development of an infant. By storing representations of how familiar words sound and what they mean, an infant is able to make sense of their linguistic input. Infants start forming their first lexical representations before their first year of life [@tincoff1999some; @halle1994emergence; @vihman2004cross; @parise2012electrophysiological; @bergelson20126; @bergelson2015early]. This initial lexicon consists of only a few items; mainly words for people, interjections, body parts, and food [@tincoff2012six; @tardif2008baby], but it undergoes rapid growth during their second year of life [@ganger2004reexamining; @goldfield1990early; @bloom2002children; @mcmurray2007defusing]. According to parental reports the average 15-month-old infant already understands more than 100 words, and by two years, they understand more than 400 words [@frank2021variability]. This accelerated lexical developmental is reflected in infants' trajectories of word recognition: infants recognise familiar words faster and more efficiently as they approach their second birthday [@fernald1998rapid; @fernald2001half; @hurtado2007spoken].
 
-Despite being exposed to a more complex linguistic input, bilinguals show equivalent trajectories of word acquisition and word recognition to their monolingual peers' [@vihman2007onset; @vihman2013; @legacy2018vocabulary; @hoff2012; @de2014bilingual; @pearson1994patterns; @byers-heinlein2023sometimes]. This is a remarkable deed for two reasons. First, bilingual infants receive a relative impoverished linguistic input in each of their languages compared to monolinguals [@costa2014does]. Second, they face a more complex referential context, since they often learn two labels for each referent, one in each language. The mechanisms that allow bilingual infants to keep up with monolinguals in their lexical development trajectories are still unclear.
+Despite being exposed to a more complex linguistic input, bilinguals show equivalent trajectories of word acquisition and word recognition to their monolingual peers' [@vihman2007onset; @legacy2018vocabulary; @hoff2012dual; @de2014bilingual; @pearson1994patterns; @byers-heinlein2023sometimes]. This is a remarkable deed for two reasons. First, bilingual infants receive a relative impoverished linguistic input in each of their languages compared to monolinguals [@costa2014does]. Second, they face a more complex referential context, since they often learn two labels for each referent, one in each language. The mechanisms that allow bilingual infants to keep up with monolinguals in their lexical development trajectories are still unclear.
 
 Monolinguals and bilinguals share broadly common word-recognition mechanisms. The first step towards spoken word-recognition is the acoustic-phonetic processing of the speech signal, which results in the activation of lexical representations whose associated phonological forms match the acoustic signal. The activated word-forms then compete for selection: the lexical system uses the bottom-up information provided by the auditory input, together with top-down context---provided by grammatical, supra-segmental, and semantic constraints---to select the candidate lexical representation with the best match. This sequence of events occurs in a *cascaded* fashion. As the recognition system accumulates information about the unfolding acoustic signal, matching phonological representations are activated [@marslen1987functional; @marslen1978processing; @grosjean1980spoken], and in turn activate their associated semantic representations [@neely1977semantic]. By the time lexical selection occurs, many non-selected phonological and semantic representations have been activated, potentially modulating the dynamics of word recognition. 
 
@@ -82,23 +82,24 @@ Phonological priming effects have also been reported in the initial lexicon. @ma
 
 In a follow-up study, @mani2011phonological found the opposite effect in older toddlers. After phonologically related primes, 24 month-old toddlers showed weaker target looking preference than after phonologically unrelated primes. These results interpreted these outcome as the result of the implicitly generated prime label interfering with the subsequent recognition of the (phonologically related) target word. The authors suggested that the shift from facilitation to interference from 18 to 24 months they found in both studies might be the result of a developmental shift in which 18-month-olds' lexicon is not yet organised based on phonological similarity, while 24-month-olds' is. This would lead to the former showing a pre-lexical facilitation effect in which such facilitation occurs via the activation of phonological segments, while the latter would show an interference effect due to lateral links between lexical representation having been established.
 
-More recently, @chow2017spoken adapted the Visual World Paradigm from @huettig2007tug to explore 24- to 30-month-old toddlers' visual fixation patterns during a word recognition when presented with phonological and semantic distractors. In each trial, the authors presented participants with four semantically and phonologically pictures. Four seconds after pictures onset, a word-form was auditorily presented. The word did not refer to any of the pictures displayed on the screen, but was phonologically related to one of them (both labels shared phonological onset), and semantically related to another one of the pictures (both referents belonged to the same taxonomic category. For instance, participants might be presented with the pictures of a sandwich, a bus, a cat, and a dress. Then they would hear the carrier phrase "Look at the **bee**!". The authors registered participants fixations to the phonological and semantic distractors, and found evidence of a preference for the phonological distractor at earlier stages of the post-naming phase, and a preference for the semantic distractor at later stages of the trial. These results support a cascaded activation account of lexical access during the first stages of lexical development, paralleling previous findings in adults [@allopenna1998tracking].
+@chow2017spoken adapted the Visual World Paradigm from @huettig2007tug to explore 24- to 30-month-old toddlers' visual fixation patterns during a word recognition when presented with phonological and semantic distractors. In each trial, the authors presented participants with four semantically and phonologically pictures. Four seconds after pictures onset, a word-form was auditorily presented. The word did not refer to any of the pictures displayed on the screen, but was phonologically related to one of them (both labels shared phonological onset), and semantically related to another one of the pictures (both referents belonged to the same taxonomic category. For instance, participants might be presented with the pictures of a sandwich, a bus, a cat, and a dress. Then they would hear the carrier phrase "Look at the *bee*!". The authors registered participants fixations to the phonological and semantic distractors, and found evidence of a preference for the phonological distractor at earlier stages of the post-naming phase, and a preference for the semantic distractor at later stages of the trial. These results support a cascaded activation account of lexical access during the first stages of lexical development, paralleling previous findings in adults [@allopenna1998tracking].
 
-Bilinguals provide one of the most interesting pieces of evidence in support of a cascaded account of lexical processing. A critical property the bilingual lexicon is that its representations are accessed in a language-non selective way. Even during monolingual situations, bilinguals access their lexical representations in both of their languages [e.g.; @thierry2007brain; @dunabeitia2009masked]. This is reflected in bilinguals' performance in word recognition and production tasks. For instance, @marian1999activation presented Russian-English bilinguals with a series of trials that started with an auditory instruction like "Poloji marku nije krestika" ["Put the stamp below the cross"]. The instruction would be present in Russian (dominant language for most participants). The target object (*marku* [*stamp*], in this case) would be present in the screen, together with an object whose English label shared phonological onset with the target label (e.g., *mark*), and two unrelated distractors whose labels in Russian and English did not shared phonological relationship with the target label. Converging with @allopenna1998tracking's results in monolingual adults, after hearing the target label bilinguals fixated the cross-language phonological distractor significantly more than the unrelated distractors. These findings suggest that participants activated phonologically related word-forms in both Russian *and* English, which affected their overt visual exploration patterns during the task.
+One of the most interesting pieces of evidence in support of a cascaded account of lexical processing is provided by bilinguals. A critical property the bilingual lexicon is that its representations are accessed in a language-non selective way. Even during monolingual situations, bilinguals access their lexical representations in both of their languages [e.g., @thierry2007brain; @dunabeitia2009masked]. This is reflected in bilinguals' performance in word recognition and production tasks. For instance, @marian1999activation presented Russian-English bilinguals with a series of trials that started with an auditory instruction like "Poloji marku nije krestika" ["Put the stamp below the cross"]. The instruction would be present in Russian (dominant language for most participants). The target object (*marku* [*stamp*], in this case) would be present in the screen, together with an object whose English label shared phonological onset with the target label (e.g., *mark*), and two unrelated distractors whose labels in Russian and English did not shared phonological relationship with the target label. Converging with @allopenna1998tracking's results in monolingual adults, after hearing the target label bilinguals fixated the cross-language phonological distractor significantly more than the unrelated distractors. These findings suggest that participants activated phonologically related word-forms in both Russian *and* English, which affected their overt visual exploration patterns during the task.
 
 Language non-selectivity in the bilingual lexicon has also been shown to affect top-down lexical access during word production. @costa2000cognate presented Catalan-Spanish bilinguals with a series of pictures of familiar objects. For each object, participants were asked to name it in Catalan (their dominant language). Unbeknownst to participants, the authors manipulated the phonological overlap between the pictures' labels in Catalan and their translations in Spanish. Participants produced faster words that shared phonological overlap with their Spanish translations (e.g., *gat*-*gat* [*cat*]) than those unrelated to their translation (e.g., *taula*-*mesa* [*table*]). Critically, Spanish monolinguals who completed the same task, naming the pictures in Spanish, showed equivalent naming times in both conditions. These results reveal that bilinguals activated their Spanish phonology, despite performing the naming task exclusively in Catalan: the visual recognition of the presented pictures led to the activation of its associated phonological forms in both language sin parallel, which influenced the subsequent the dynamics of word production.
 
 Further support for the parallel retrieval of phonological forms during word production is given by implicit naming paradigms. Using an adaptation of @mani2010infant's task, @von2014bilinguals provided evidence that bilingual adults generate implicit labels in both labels for visually fixated pictures. The authors presented German-English bilinguals with 120 prime-target pairs. Primes were presented as familiar pictures in silence. After prime picture offset, target words were presented auditorily. Participants' N400 ERP components were recorded from target word onset. The authors manipulated the phonological relationship between the prime and target word-forms within participants' L1 and across L1 and L2. When prime and target were phonologically identical (*Affe*-*Affe*, German for *monkey*), or similar (*Fahne*-*Sahne*, German for *flag* and *ice-cream*, respectively) within L1, participants' showed a reduced N400 amplitude, compared to when prime and target were phonologically unrelated (*Messer*-*Seil*, German for *knife* and *rope*). Critically, a similar effect was found when prime and target were phonologically related through translation (*Rustsche*-*Kleid*, German for *slide* and *dress*). This suggests that participants activated prime labels in both languages in parallel, and that both labels impacted the dynamics of target words recognition.
 
-Phonological priming paradigms have also revealed language non-selectivity in the initial bilingual lexicon. For instance, @von2012language found evidence of cross-language phonological priming in 21- to 42-months-old children learning German and English. At the beginning of each trial, the authors auditorily presented an English prime word embedded in a carrier phrase. Then, the target label was auditorily presented in German. Finally the target and distractor pictures were presented side-by-side. The authors manipulated the phonological overlap between the prime and target labels. The novelty in this study lied in the orthogonal manipulation of the phonological overlap between both labels in English and German. In some trials, the auditorily presented prime and target labels were phonologically related (e.g., *slide*-*Klide* [*dress*]). In some other trials, both labels were phonologically related through translation: the auditorily presented prime label did *not* overlap with the target label (e.g., *leg*-*Stein* [*stone*]), but its translation in German did [*Bein*]. In the rest of the trials prime and target labels were phonologically unrelated in both languages. The authors found a facilitation effect of cross-language priming when both prime and target auditory labels overlapped phonologically, as revealed by a stronger target picture looking preference, as compared to that of unrelated trials. Interestingly, participants showed a weaker target preference in priming through translation trials. Since participants' target recognition was interfered by the non-presented prime translation, such an inhibitory effect must stem at the lexical level. The fact that phonological priming facilitated the recognition of the target words (both labels belong to different languages), and that phonological priming through translation interfered target recognition (translation and target belong to the same language) points to cross-language connections playing an excitatory role, and to within-language connections playing an inhibitory role.
+Phonological priming paradigms have also revealed language non-selectivity in the initial bilingual lexicon [@poarch2012cross; @bosma2020cognate; @singh2014one; @jardak2019labels; @von2019impact]. For instance, @von2012language found evidence of cross-language phonological priming in 21- to 42-months-old children learning German and English. At the beginning of each trial, the authors auditorily presented an English prime word embedded in a carrier phrase. Then, the target label was also auditorily presented in German. Finally the target and distractor pictures were presented side-by-side. The authors manipulated the phonological overlap between the prime and target labels. The novelty in this study lied in the orthogonal manipulation of the phonological overlap between both English and German labels. In some trials, the auditorily presented prime and target labels were phonologically related (e.g., *slide*-*Klide* [*dress*]). In some other trials, both labels were phonologically related through translation: the auditorily presented prime label did *not* overlap with the target label (e.g., *leg*-*Stein* [*stone*]), but its translation in German did [*Bein*]. In the rest of the trials prime and target labels were phonologically unrelated in both languages. The authors found a facilitation effect of cross-language priming when both prime and target auditory labels overlapped phonologically, as revealed by a stronger target picture looking preference, as compared to that of unrelated trials. Interestingly, participants showed a weaker target preference in priming through translation trials.
 
-@floccia2020translation tested 27-month-old simultaneous bilinguals in a cross-language priming paradigm. The two languages participants were learning were English, and an Additional Language (either Cantonese, Dutch, French, German, Greek, Italian, Mandarin, Polish, Portuguese, or Spanish). A prime word was embedded at the end of a carrier sentence that participants listened to. Then participants were presented with the auditory label of the target word, and two pictures were shown side-by-side, the target picture, and a distractor picture. In Study 1, the target word was the translation equivalent of the prime word (*cheese*-*fromage* for an English-French bilingual). In other trials, prime and target words were unrelated (e.g., *sock*-*fromage*). There was no phonological overlap at onset between prime and target or distractor labels in either of the two conditions. Participants were presented with two blocks of related and unrelated trials. In one of the blocks, participants were presented with English prime words and Home Language target words (*sock*-*fromage*), and in the other block they were presented with Additional Language prime words and English target words (*fromage*-*sock*). The authors found a cross-linguistic priming effect, in which participants showed a stronger preference for the target picture in the post-naming phase in related trials, as compared to unrelated trials. This effect was found regardless of the language of the prime (English or Home Language), or the dominance of the language of the prime (i.e., whether the prime word belonged to the dominant language). Target preference exceeded chance level in both conditions. In Study 2, the authors tested a similar group of bilinguals in a cross-linguistic semantic priming task, in which participants were primed with words in English, and tested with semantically related words in the Additional Language (or vice versa). This time, prime and target words were not translation equivalents, but rather words whose referents shared semantic features. Results from Study  2 were parallel to those from Study 1. The authors found a strong semantic priming effect across languages, regardless of the language of the prime or the dominance of the language of the prime. Overall these results suggest that bilinguals recognised target words in both conditions, and benefited from a cross-linguistic facilitation effect from translation equivalents. The symmetry of such effect across both languages suggests that participants lexical access occurred in parallel for the two members of translation equivalents. As @floccia2020translation note, the stimuli set of Study 2 contains multiple cognates, especially in languages with a larger degree of phonological overlap across translation pairs, like English and Dutch. The authors run *post hoc* analyses exploring the effect of cognateness on the cross-language priming effects found, which showed no evidence of a cognateness effect on target preference. However, the cross-language effects reported in Study 2 might still reflect the confounding influence of cognateness, as the resulting effect might have been generated by an interaction by the phonological and semantic overlap between cognate primes and targets.
+Using a similar task, @floccia2020translation provided conflicting results to those of @von2012language. The authors tested 27-month-old simultaneous bilinguals in a cross-language priming paradigm. The two languages participants were learning were English, and an Additional Language (either Cantonese, Dutch, French, German, Greek, Italian, Mandarin, Polish, Portuguese, or Spanish). A prime word was embedded at the end of a carrier sentence that participants listened to. Then, participants were presented with the auditory label of the target word, and two pictures were shown side-by-side, the target picture, and a distractor picture. In Study 1, the target word was the translation equivalent of the prime word (*cheese*-*fromage* for an English-French bilingual). In other trials, prime and target words were unrelated (e.g., *sock*-*fromage*). There was no phonological overlap at onset between prime and target or distractor labels in either of the two conditions. Participants were presented with two blocks of related and unrelated trials. In one of the blocks, participants were presented with English prime words and Home Language target words (*sock*-*fromage*), and in the other block they were presented with Additional Language prime words and English target words (*fromage*-*sock*). The authors found a cross-linguistic priming effect, in which participants showed a stronger preference for the target picture in the post-naming phase in related trials, as compared to unrelated trials. This effect was found regardless of the language of the prime (English or Home Language), or the dominance of the language of the prime (i.e., whether the prime word belonged to the dominant language). Target preference exceeded chance level in both conditions. In Study 2, the authors tested a similar group of bilinguals in a cross-linguistic semantic priming task, in which participants were primed with words in English, and tested with semantically related words in the Additional Language (or vice versa). This time, prime and target words were not translation equivalents, but rather words whose referents shared semantic features. Results from Study  2 were parallel to those from Study 1. The authors found a strong semantic priming effect across languages, regardless of the language of the prime or the dominance of the language of the prime. Overall these results suggest that bilinguals recognised target words in both conditions, and benefited from a cross-linguistic facilitation effect from translation equivalents. The symmetry of such effect across both languages suggests that participants lexical access occurred in parallel for the two members of translation equivalents. As @floccia2020translation note, the stimuli set of Study 2 contains multiple cognates, especially in languages with a larger degree of phonological overlap across translation pairs, like English and Dutch. The authors run *post hoc* analyses exploring the effect of cognateness on the cross-language priming effects found, which showed no evidence of a cognateness effect on target preference. However, the cross-language effects reported in Study 2 might still reflect the confounding influence of cognateness, as the resulting effect might have been generated by an interaction by the phonological and semantic overlap between cognate primes and targets.
 
-The aforementioned studies use priming-though-translation paradigms. In these paradigms, cross-linguistic priming results from activation spreading from the lexical representation of the the (auditorily presented) prime word to the lexical representation of its translation through semantic associations (e.g., translation equivalence). When prime words are auditorily presented, the task design constraints the naming context to one of the languages. The consequence is a potential asymmetry between the activation dynamics of the lexical representation of both labels: while the participant has heard one label, the activation of its translation must spread across semantic links. This might lead to a lower strength, and higher latency of the activation of the translation. 
 
-Priming through translation paradigms prove the existence of cross-language phonological associations at the lexical level, as suggested by the fact that non-presented prime translations can interfere with subsequent target recognition. However, since participants are auditorily presented with a prime label, the contribution of sub-lexical facilitation through acoustic similarity cannot be ruled out. For instance, it is possible that the inhibitory priming through translation found by @von2012language is the result
+Previous studies had reported similar cross-language priming effects, but as @von2012language note, the conclusion that such effects occurred at the lexical level, as opposed to being the result of mere acoustic similarity, was not warranted. In studies where the auditorily presented prime label was phonologically overlapped with the target label [@REFERENCE], priming effects might be explained by the activation of the phonological segments of the prime label, which facilitated the recognition of the target label, which shared such phonological segments. The priming-through-translation results by @von2012language and @floccia2020translation demonstrates that cross-language activation in the developing lexicon occurs at the lexical level. Since participants' target recognition was interfered by the non-presented prime translation, such an inhibitory effect must stem at the lexical level. The fact that phonological priming facilitated the recognition of the target words (both labels belong to different languages), and that phonological priming through translation interfered target recognition (translation and target belong to the same language) points to cross-language connections playing an excitatory role, and to within-language connections playing an inhibitory role.
 
-THERE IS NO EVIDENCE OF IMPLICIT NAMING IN BILINGUALS
+
+Priming-though-translation paradigms, however, come with a cost. When prime words are auditorily presented, the task constrains the naming context to one of the languages. The consequence is a potential asymmetry between the activation dynamics of the lexical representation of both labels: while the participant has heard one label, the activation of its translation must spread across semantic links. This might lead to a lower strength, and higher latency of the activation of the translation. 
+
 
 In the present study, we use an adaptation of an implicit naming paradigm by @mani2010infant, in which participants are primed with a picture, instead of an auditorily presented label. This paradigm prevents infants from activating the prime label in any of their two languages, and therefore makes it more likely that they will activate the prime labels in both languages in parallel. Infants implicitly named prime pictures despite such pictures having been presented in silence, and that the phonology of the resulting label interacted with the subsequent auditory recognition of the target label. In particular, the authors found a facilitation effect: target looking preference was stronger in phonologically related primes, indicating that the activated phonological segments of the generated prime label facilitated the subsequent activation of the phonological representation of the target label during recognition.
 
@@ -118,7 +119,7 @@ dominant one in bilingual toddlers [@costa2014does provide a fuller description 
 advantages of such approach].
 
 
-The present study is aimed at investigating the developmental trajectories of word recognition in bilingualism, and how (if at all) language non-selectivity shapes them. Using an adaptation of [@mani2010infants], we presented 20- to 32-months-old toddlers with a cross-linguistic phonological priming paradigm. We manipulated both the phonological overlap between the prime word and target word, and the cognate status of the prime word, to test the hypothesis that bilingual toddlers implicitly name familiar pictures in both languages. If so, phonological priming effect should be larger when the prime label in  both languages shares phonological overlap with the target words (cognate condition), compared to when only the label of the prime in one language overlaps phonologically with the target (non-cognate condition). We also also included a control *Unrelated* condition in which regardless of the cognate status of the prime word, neither of the prime labels in any language overlapped phonologically with the target word.
+The present study is aimed at investigating the developmental trajectories of word recognition in bilingualism, and how (if at all) language non-selectivity shapes them. Using an adaptation of [@mani2010infant], we presented 20- to 32-months-old toddlers with a cross-linguistic phonological priming paradigm. We manipulated both the phonological overlap between the prime word and target word, and the cognate status of the prime word, to test the hypothesis that bilingual toddlers implicitly name familiar pictures in both languages. If so, phonological priming effect should be larger when the prime label in  both languages shares phonological overlap with the target words (cognate condition), compared to when only the label of the prime in one language overlaps phonologically with the target (non-cognate condition). We also also included a control *Unrelated* condition in which regardless of the cognate status of the prime word, neither of the prime labels in any language overlapped phonologically with the target word.
 
 We compared the explanatory power of three measures of vocabulary size on participants' trajectories of word recognition: L1 vocabulary and total vocabulary.Previous studies suggest that same-language vocabulary size predicts better bilingual infants' performance in word recognition tasks, as compared to cross-language vocabulary size [@marchman2010vocabulary]
 
@@ -178,7 +179,9 @@ n_sessions_lp <- participants_bcn |>
 	map("n")
 ```
 
-We collected data from `r n_participants_total$n[1]` children living in the Metropolitan Area of Barcelona (Spain), tested at the Laboratori de Recerca en Infància at the Universitat Pompeu Fabra. Families were recruited from maternity rooms in private hospitals and social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r n_participants_total$n` children that participated, `r n_participants_sessions$session_1` participated once, `r n_participants_sessions$session_2` participated twice, and `r n_participants_sessions$session_3` participated three times. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions. Participants were divided into monolinguals and bilinguals based on their relative degree of exposure to Catalan and Spanish, estimated using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. We categorised participants as monolingual if exposed to more than 80% or more of the time to their dominant language, and as bilingual otherwise. `r Words::English(n_participants_lp$n[1])` of the participants were categorised as monolinguals (`r n_participants_lp_sex[1]` female, `r n_participants_lp_sex[2]` male) and `n_participants_lp$n[2]` as Catalan/Spanish bilinguals (`r n_participants_lp_sex[3]` female, `r n_participants_lp_sex[4]` male) (see @tbl-participants for a detailed summary of participants' age and language profile). Participants' vision was normal, none used glasses or any other type of vision corrector.
+
+We collected data from `r n_participants_total` children living in the Metropolitan Area of Barcelona (Spain), tested at the Laboratori de Recerca en Infància at the Universitat Pompeu Fabra. Families were recruited from maternity rooms in private hospitals and social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r n_participants_total` children that participated, `r n_participants_sessions$session_1` participated once, `r n_participants_sessions$session_2` participated twice, and `r n_participants_sessions$session_3` participated three times. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions. Participants were divided into monolinguals and bilinguals based on their relative degree of exposure to Catalan and Spanish, estimated using the Language Exposure Questionnaire [LEQ, @bosch2001evidence]. We categorised participants as monolingual if exposed to more than 80% or more of the time to their dominant language, and as bilingual otherwise. `r english::Words(n_participants_lp$n[1])` of the participants were categorised as monolinguals (`r n_participants_lp_sex$n[1]` female, `r n_participants_lp_sex$n[2]` male) and `r n_participants_lp$n[2]` as Catalan/Spanish bilinguals (`r n_participants_lp_sex$n[3]` female, `r n_participants_lp_sex$n[4]` male) (see @tbl-participants for a detailed summary of participants' age and language profile). Participants' vision was normal, none used glasses or any other type of vision corrector.
+
 
 ```{r tbl-participants}
 #| label: tbl-participants
@@ -191,19 +194,24 @@ participants_bcn |>
 			  n_participants = n_distinct(child_id),
 			  across(age, lst(mean, sd, min, max)),
 			  across(matches("doe_"), lst(mean, sd)),
-			  age_vctr = list(age),
+			  # age_vctr = list(age),
 			  .by = c(lp, test_language)) |> 
 	gt(rowname_col = "test_language",
 	   groupname_col = "lp") |> 
-	gt_plt_dist(age_vctr, type = "histogram") |>
+	# gt_plt_dist(age_vctr, type = "histogram") |>
 	fmt_number(is.numeric, decimals = 1) |> 
 	fmt_integer(c(n, n_participants)) |> 
 	fmt_number(matches("doe"), decimals = 1, scale_by = 100) |> 
-	cols_merge_range(age_min, age_max) |> 
-	cols_merge_uncert(age_mean, age_sd) |> 
-	cols_merge_uncert(doe_catalan_mean, doe_catalan_sd) |> 
-	cols_merge_uncert(doe_english_mean, doe_english_sd) |> 
-	cols_merge_uncert(doe_spanish_mean, doe_spanish_sd) |> 
+	cols_merge(c(age_min, age_max), 
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(age_mean, age_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(doe_catalan_mean, doe_catalan_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(doe_english_mean, doe_english_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(doe_spanish_mean, doe_spanish_sd), 
+			   pattern = "{1} ({2})") |> 
 	tab_spanner("Age (months)", matches("age")) |> 
 	tab_spanner("Catalan", matches("catalan")) |> 
 	tab_spanner("English", matches("english")) |> 
@@ -213,7 +221,7 @@ participants_bcn |>
 			   n_participants = "N participants",
 			   age_mean = "M (SD)",
 			   age_min = "Range",
-			   age_vctr = "Distribution",
+			   # age_vctr = "Distribution",
 			   doe_catalan_mean = "M (SD)",
 			   doe_english_mean = "M (SD)",
 			   doe_spanish_mean = "M (SD)") |> 
@@ -226,28 +234,33 @@ participants_bcn |>
 ### Vocabulary size
 
 ```{r vocab-values}
-vocabulary_bcn <- inner_join(vocabulary, 
-							 select(participants_bcn, session_id),
-							 by = join_by(session_id))
+vocabulary_bcn <- vocabulary |> 
+	inner_join(select(participants_bcn, session_id, lp, age_group),
+			   by = join_by(session_id))
+
+vocab_means <- vocabulary_bcn |> 
+	summarise(across(c(total_prop, l1_prop), lst(mean, sd)),
+			  n = n(),
+			  .by = c(age_group, lp)) %>%
+	mutate(across(matches("prop"), scales::percent)) %>%
+	split(paste0("age_", gsub(" months", "", .$age_group))) |> 
+	map(\(x) split(x, tolower(x$lp)))
 
 n_imputed <- table(vocabulary_bcn$is_imputed)[2]
 prop_imputed <- scales::percent(n_imputed/nrow(vocabulary_bcn))
 n_pool <- nrow(bvq_data$vocabulary)
 ```
 
-We collected vocabulary data using parental responses to the Barcelona Vocabulary Inventory [BVQ, @garcia-castro2023bvq], an online vocabulary checklist inspired in several adaptations of the the Communicative Developmental Inventory [CDI, @fenson1994variability] developed to assess the vocabulary size of Catalan-Spanish bilingual toddlers. Families received a link to the BVQ immediately after each experimental session, and were given two weeks to fill it. We calculated two measures of receptive vocabulary size for each participant: *L1 vocabulary size* (proportion of words  reported as acquired in the checklist of the dominant language), and *total vocabulary size* (proportion of the words in both checklists reported as acquired) (see @fig-vocabulary).
+We collected vocabulary data using parental responses to the Barcelona Vocabulary Inventory [BVQ, @garcia-castro2023bvq], an online vocabulary checklist inspired in several adaptations of the the Communicative Developmental Inventory [CDI, @fenson1994variability] developed to assess the vocabulary size of Catalan-Spanish bilingual toddlers. Families received a link to the BVQ immediately after each experimental session, and were given two weeks to fill it. We calculated two measures of receptive vocabulary size for each participant: *L1 vocabulary size* (proportion of words  reported as acquired in the checklist of the dominant language), and *total vocabulary size* (proportion of the words in both checklists reported as acquired). `r n_imputed` (`r prop_imputed`) Families failed to provide a complete response to the BVQ within the two-week time limit, or did not provide a successful response to the questionnaire. For missing questionnaire responses, we imputed the vocabulary size of the participant using single imputation, using the vocabulary size scores of a pool of `r n_pool` additional participants for which a successful response for the questionnaire had been gathered. We used participants age in months and their language profile (monolingual/bilingual) as predictors. We used the `mice` R package [@van2011mice] to perform imputation using the Bayesian linear regression method. 
 
-`r n_imputed` (`r prop_imputed`) Families failed to provide a complete response to the BVQ within the two-week time limit, or did not provide a successful response to the questionnaire. For missing questionnaire responses, we imputed the vocabulary size of the participant using single imputation, using the vocabulary size scores of a pool of `r n_pool` additional participants for which a successful response for the questionnaire had been gathered. We used participants age in months and their language profile (monolingual/bilingual) as predictors. We used the `mice` R package [@van2011mice] to perform imputation using the Bayesian linear regression method. 
+Overall, there was a substantial increase in both total and L1 vocabulary sizes associated to age (see @fig-vocabulary). Monolinguals showed overall higher L1 vocabulary sizes than monolinguals: they were reported to understand an average of `r vocab_means$age_21$monolingual$l1_prop_mean` (*SD* = `r vocab_means$age_21$monolingual$l1_prop_sd`) of the words at around 21 months, `r vocab_means$age_25$monolingual$l1_prop_mean` (*SD* = `r vocab_means$age_25$monolingual$l1_prop_sd`) at 25 months, and `r vocab_means$age_30$monolingual$l1_prop_mean` (*SD* = `r vocab_means$age_30$monolingual$l1_prop_sd`) at 30 months, while bilinguals  were reported to understand an average of `r vocab_means$age_21$bilingual$l1_prop_mean` (*SD* = `r vocab_means$age_21$bilingual$l1_prop_sd`) of the words at around 21 months, `r vocab_means$age_25$bilingual$l1_prop_mean` (*SD* = `r vocab_means$age_25$bilingual$l1_prop_sd`) at 25 months, and `r vocab_means$age_30$bilingual$l1_prop_mean` (*SD* = `r vocab_means$age_30$bilingual$l1_prop_sd`) at 30 months. Total vocabulary sizes showed the opposite pattern, with monolinguals infants being reported to understand `r vocab_means$age_21$monolingual$total_prop_mean` (*SD* = `r vocab_means$age_21$monolingual$total_prop_sd`) of the words at around 21 months, `r vocab_means$age_25$monolingual$total_prop_mean` (*SD* = `r vocab_means$age_25$monolingual$total_prop_sd`) at 25 months, and `r vocab_means$age_30$monolingual$total_prop_mean` (*SD* = `r vocab_means$age_30$monolingual$total_prop_sd`) at 30 months, and bilinguals being reported to understand `r vocab_means$age_21$bilingual$total_prop_mean` (*SD* = `r vocab_means$age_21$bilingual$total_prop_sd`) of the words at around 21 months, `r vocab_means$age_25$bilingual$total_prop_mean` (*SD* = `r vocab_means$age_25$bilingual$total_prop_sd`) at 25 months, and `r vocab_means$age_30$bilingual$total_prop_mean` (*SD* = `r vocab_means$age_30$bilingual$total_prop_sd`) at 30 months.
 
 ```{r fig-vocabulary}
 #| label: fig-vocabulary
-#| fig-cap: "Participant vocabulary sizes across ages and language profiles. Vocabulary size scores are presented using two measures: L1 vocabulary size (proportion of words marked as *Understands* in the vocabulary checklist of the dominant language), and total vocabulary size (proportion of words marked as *Understands* in vocabulary checklists of both dominant and non-dominant languages). Vocabulary size scores from the recurrent participants are shown linked."
-#| eval: false
+#| fig-cap: "Participant vocabulary sizes across ages and language profiles. Vocabulary size scores are presented using two measures: L1 vocabulary size (proportion of words marked as *Understands* in the vocabulary checklist of the dominant language), and total vocabulary size (proportion of words marked as *Understands* in vocabulary checklists of both dominant and non-dominant languages). Grey lines connect vocabulary size scores from the recurrent participants. For visualisation purposes, participants were group into categorical age groups at 21, 25, 30 months, the ages around which most participants were tested."
 #| fig-width: 8
 #| fig-height: 4.5
 vocabulary_bcn |> 
-	inner_join(select(participants, child_id, session_id, age, lp),
-			   by = join_by(child_id, session_id)) |> 
 	pivot_longer(c(total_prop, l1_prop),
 				 names_to = "measure",
 				 values_to = "prop",
@@ -257,20 +270,43 @@ vocabulary_bcn |>
 							 "Total vocabulary"),
 		   is_imputed = if_else(is_imputed, "Imputed", "Observed") |> 
 		   	factor(levels = c("Observed", "Imputed"))) |> 
-	ggplot(aes(age, prop, colour = is_imputed)) +
-	facet_grid(measure ~ lp) +
+	ggplot(aes(age_group, prop,
+			   colour = lp,
+			   fill = lp)) +
+	facet_wrap(~measure) +
 	geom_line(aes(group = child_id),
-			  alpha = 1/2,
-			  colour = "grey") +
-	geom_point() +
+			  colour = "grey",
+			  alpha = 1/4, linewidth = 3/4) +
+	geom_dots(aes(side = if_else(lp=="Monolingual", "left", "right")),
+			  dotsize = 2,
+			  scale = 0.5,
+			  alpha = 3/4) +
+	stat_summary(fun.data = mean_se,
+				 geom = "errorbar",
+				 linewidth = 3/4,
+				 width = 0.15,
+				 colour = "black",
+				 show.legend = FALSE,
+				 position = position_dodge(width = 1.15)) +
+	stat_summary(fun = mean,
+				 geom = "point",
+				 size = 2,
+				 colour = "black",
+				 show.legend = FALSE,
+				 position = position_dodge(width = 1.15)) +
+	# geom_point(alpha = 1) +
 	labs(x = "Age (months)",
-		 y = "Vocabulary size (%)") +
-	theme(panel.grid.major = element_line(linetype = "dotted",
-										  colour = "grey"),
+		 y = "Vocabulary size",
+		 colour = "Group",
+		 fill = "Group") +
+	scale_y_continuous(labels = scales::percent) +
+	theme(panel.grid.major.y = element_line(linetype = "dotted",
+											colour = "grey"),
 		  legend.position = "top",
 		  legend.title = element_blank())
 
 ```
+
 
 
 ### Stimuli
@@ -279,24 +315,24 @@ vocabulary_bcn |>
 n_words <- length(unique(with(stimuli, unlist(prime, target, distractor))))
 ```
 
-We used `r n_words` distinct words included in the BVQ to create the stimuli lists. We created six stimuli lists: three in Catalan, and three in Spanish. Each list contained 32 trials, each involving a prime-target-distractor group. Each word played a role as either prime, *or* as target and distractor across the three lists in their corresponding language. For instance, the Catalan word *cadira* appeared as *prime* in the three lists, but never as *target* or *distractor*; the Catalan word *bici* appeared as *target* and *distractor* across the three lists, but never as a prime. Target-distractor pairings were held constant across the three lists in each language. For instance, in all Catalan lists the word *bici* was paired with the word *porta*. Target-distractor pairings were also yoked, so that each member of the same target-distractor pair appeared once as target and once as distractor in each list. For instance, the *bici*-*porta* paired appeared twice in each of the three Catalan lists: once with *bici* as target and *porta* as distractor, and once with *porta* as target and *bici* as distractor. This counterbalancing avoided participants encountering looking at the target word guided solely by that word having being named in a previous trial. Finally, prime words appeared only once in each list: each target-distractor pair was associated with a different prime word in both appearances. In each list, the same prime word was presented alongside a different target-distractor pair. For instance, the Catalan prime word *barret* was presented with the *bici*-*porta* target-distractor pair in one list, with the *bici*-*porta* pair in another list, and with *berenar*-*amanida* in the remaining list. The order of the trials was randomised across experimental session, so that each time a participant was tested, the order in which the prime-target-distractor was presented was randomised. Each participant was randomly assigned to one of the three lists in the corresponding language (their dominant language, see @sec-lp), and always the same list across their experimental sessions in the case of a recurrent participant.
+We used `r n_words` distinct words included in the BVQ to create the stimuli lists. We created six stimuli lists: three in Catalan, and three in Spanish. Each list contained 32 trials, each involving a prime-target-distractor group. Each word played a role as either prime, *or* as target and distractor across the three lists in their corresponding language. For instance, the Catalan word *cadira* appeared as *prime* in the three lists, but never as *target* or *distractor*; the Catalan word *bici* appeared as *target* and *distractor* across the three lists, but never as a prime. Target-distractor pairings were held constant across the three lists in each language. For instance, in all Catalan lists the word *bici* was paired with the word *porta*. Target-distractor pairings were also yoked, so that each member of the same target-distractor pair appeared once as target and once as distractor in each list. For instance, the *bici*-*porta* paired appeared twice in each of the three Catalan lists: once with *bici* as target and *porta* as distractor, and once with *porta* as target and *bici* as distractor. This counterbalancing avoided participants encountering looking at the target word guided solely by that word having being named in a previous trial. Finally, prime words appeared only once in each list: each target-distractor pair was associated with a different prime word in both appearances. In each list, the same prime word was presented alongside a different target-distractor pair. For instance, the Catalan prime word *barret* was presented with the *bici*-*porta* target-distractor pair in one list, with the *bici*-*porta* pair in another list, and with *berenar*-*amanida* in the remaining list. The order of the trials was randomised across experimental session, so that each time a participant was tested, the order in which the prime-target-distractor was presented was randomised. Each participant was randomly assigned to one of the three lists in the corresponding (dominant) language, and always the same list across their experimental sessions in the case of a recurrent participant.
 
 In 16 of the 32 trials of the same list (henceforth *related* trials), the prime and the target words were phonologically related, sharing phonological onset (at least first phoneme). In the other 16 trials (*unrelated* trials), prime and target did not share phonological onset. 8 of the 16 *related* trials included a cognate prime (*cognate* trials), and the other 8 included a non-cognate trials (*non-cognate* trials). A prime word was considered cognate if its Catalan and Spanish translation shared phonological onset. Especial attention was paid to avoiding semantic or taxonomic relationships between prime and target words, and between prime and distractor words. Target and distractor word pairs were phonologically unrelated (did not share phonological onset). Some of them shared semantic features or a taxonomic relationship. This is the case of words associated with especially salient referents such as animals or food. To avoid infants guiding their gaze to these objects based on their saliency, we paired animals and food items together. The position of the target and distractor pictures (right or left) for each target-distractor pair was alternated, so that in one list the target would appear on the left, in another list it would appear on the right, and so on.
 
 We examined the overall equivalence of the three trial types by comparing them across three variables relating to the target word: lexical frequency, word prevalence, animacy
-@tbl-stimuli shows a detailed summary of the stimuli properties, broken down by trial type and testing language. Lexical frequencies were extracted from the Catalan and Spanish corpora of the CHILDES database [@reference; @reference] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@reference; @reference]. We defined word prevalence as the proportion of same-aged infants who were reported to understand the word in the BVQ database.
+@tbl-stimuli shows a detailed summary of the stimuli properties, broken down by trial type and testing language. Lexical frequencies were extracted from the Catalan and Spanish corpora of the CHILDES database [@macwhinney2000childes; @sanchez2019childes] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@zipf1945meaning; @van2014subtlex]. We defined word prevalence as the proportion of same-aged infants who were reported to understand the word in the BVQ database.
 
 
 #### Auditory stimuli
 
 The auditory stimuli were natural exemplars of the selected target words, spoken by Central Catalan-Spanish proficient bilingual female speaker who was instructed to pronounce each word in a toddler-directed manner. Recordings were made with an Audio-Tecnica 328 microphone (AT2050) at a sampling rate of 44100 Hz, in a soundproof room at the *Laboratori de Recerca en Infancia* at University Pompeu Fabra. We used the Audacity and Praat [@boersma2001speak] software packages to record and edit the audio files. The speaker was presented with a list of words in Catalan. The order of the words was pseudo-randomised, and each word was produced three times in a row before moving to the next word in the list. After going through all the words in the list, the speaker went through the word list again generating three tokens for each word, now in an inverse order (from bottom of the list to the top). We then repeated the same procedure for the list of Spanish words. The resulting audios were manually chunked into individual word-forms. For each of the six tokens produced for each word, the most adequate was selected for further processing. The audios were then transformed to stereo by duplicating them into two channels, denoised, and finally normalised. The mean duration of the final audios was `r round(mean(stimuli$duration[stimuli$test_language=="Catalan"]), 2)` (*SD* = `r round(sd(stimuli$duration[stimuli$test_language=="Catalan"]), 2)`) and `r round(mean(stimuli$duration[stimuli$test_language=="Spanish"]), 2)` (*SD* = `r round(sd(stimuli$duration[stimuli$test_language=="Spanish"]), 2)`) seconds for the Catalan and Spanish lists.
 
-To make the pronunciation of the words as familiar as possible to each infant, we generated additional pronunciation variants for some words in Catalan and Spanish. Catalan words involving the /\textipa{L}/ phoneme in their Central Catalan variant (e.g., /\textipa{'Lu.n@}) were also recorded with such phoneme replaced by /j/ (e.g., /\textipa{'ju.n@}), a phonological process common in the Metropolitan Area of Barcelona [@reference]. Spanish words involving the /\textipa{T}/ phoneme were also generated replacing such phoneme with /\textipa{s}/ to better accommodate Latin variants of Spanish. Before every experimental session, caregivers were asked to utter three written words involving the /\textipa{L}/ phoneme (in the case of participants tested in Catalan) or the /\textipa{T}/ phoneme (in the case of participants tested in Spanish). Each token contained the critical phoneme at onset, inter-vocalic position, and coda. The experimenter assigned the participant to the Catalan or Spanish stimuli list involving the closest variant to that of caregivers'.
+To make the pronunciation of the words as familiar as possible to each infant, we generated additional pronunciation variants for some words in Catalan and Spanish. Catalan words involving the /\textipa{L}/ phoneme in their Central Catalan variant (e.g., /\textipa{'Lu.n@}) were also recorded with such phoneme replaced by /j/ (e.g., /\textipa{'ju.n@}), a phonological process common in the Metropolitan Area of Barcelona. Spanish words involving the /\textipa{T}/ phoneme were also generated replacing such phoneme with /\textipa{s}/ to better accommodate Latin variants of Spanish. Before every experimental session, caregivers were asked to utter three written words involving the /\textipa{L}/ phoneme (in the case of participants tested in Catalan) or the /\textipa{T}/ phoneme (in the case of participants tested in Spanish). Each token contained the critical phoneme at onset, inter-vocalic position, and coda. The experimenter assigned the participant to the Catalan or Spanish stimuli list involving the closest variant to that of caregivers'.
 
 
 #### Visual stimuli
 
-For each word, we created a picture with a typical referent. To avoid competition between target and distractor pictures, semantically related target-distractor pairs were perceptually distinct [@floccia2020translation; @arias-trejo2010].
+For each word, we created a picture with a typical referent. To avoid competition between target and distractor pictures, semantically related target-distractor pairs were perceptually distinct [@floccia2020translation; @arias2009lexical].
 
 ```{r tbl-stimuli}
 #| label: tbl-stimuli
@@ -343,7 +379,9 @@ Each trial started with the presentation of an attention getter for 3,000 millis
 
 see https://link.springer.com/article/10.3758/s13428-021-01762-8
 
-### Data processing
+### Data analysis
+
+#### Data processing
 
 ```{r dataset}
 n_trials <- nrow(attrition)
@@ -358,7 +396,7 @@ n_participants_valid <- n_distinct(
 
 n_exc_prime <- sum(!attrition$is_valid_gaze_prime)
 n_exc_test <- sum(!attrition$is_valid_gaze_test)
-n_exc_test_any <- sum(!attrition$is_valid_gaze_test_any)
+n_exc_test_each <- sum(!attrition$is_valid_gaze_test_each)
 n_exc_participants <- sum(!attrition_participants$is_valid_participant) 
 
 n_longitudinal <- attrition |>
@@ -371,7 +409,7 @@ n_longitudinal <- attrition |>
 
 We defined a time windows of interest from 200 ms after target and distractor pictures onset until the end of the trial at 2,000 ms when  both pictures disappeared from screen. To avoid modelling fixations driven by processes other than auditory word recognition [@fernald1998rapid; @fernald2001half]. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach], with a maximum of 20 maximum consecutive missing samples being interpolated (an equivalent of 166.67 ms).
 
-We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target or distractor looking in the test phase (*n* = `r format(n_exc_test_any, big.mark = ",")`) [see @floccia2020translation for a similar approach].
+We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target or distractor looking in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`) [see @floccia2020translation for a similar approach].
 
 After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the  *Unrelated* condition (*n* = `r n_exc_participants`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition-trials shows a detailed description of the trial attrition.
 
@@ -434,9 +472,18 @@ attrition |>
 					   fmt = ~ fmt_integer(.))
 ```
 
+#### Modelling approach
 
+```{r data-analysis}
 
-### Data analysis
+r_info <- sessionInfo()
+
+r_version <- glue::glue(r_info$R.version$major,
+						r_info$R.version$minor,
+						.sep = "."
+)
+stan_version <- "2.33.0"
+```
 
 We used multilevel General Additive Models (GAMs) to model our data and test our hypotheses [@pedersen2019hierarchical]. First, we defined our response variable as the empirical logit of target looking using @eq-elogit across all eye-tracking samples for each each participant in each condition [@barr2008analyzing; @agresti2012categorical]. We used a Gaussian distribution to model our response variable. To test our hypotheses, we then included *Condition*, *Group*, and either *Age* ($\mathcal{M}_0$), *L1 vocabulary* ($\mathcal{M}_1$), or *Total vocabulary* ($\mathcal{M}_2$) as fixed effects in the model. We also added all two-way and three-way interactions between the predictors. We set two *a priori* contrasts for the *Condition* predictor: one comparing *Unrelated* and *Related/Non-cognate* trials (sum-coded as `-0.5` and `+0.5`, with *Related/Cognate* trials coded as `0`), and another comparing *Related/Non-cognate* and *Related/Cognate* trials (sum-coded as `-0.5` and `+0.5`, with *Unrelated* trials coded as `0`). We also set two *a priori* contrasts for the *Group* predictor: one comparing *Monolingual (ENG)* with *Monolingual (CAT/SPA)* participants (sum-coded as `-0.5` and `+0.5`, with *Bilingual (CAT-SPA)* participants coded as `0`), and another comparing *Monolingual (ENG)* with *Bilingual (CAT-SPA)* participants (sum-coded as `-0.5` and `+0.5`, with *Monolingual (CAT/SPA)* participants coded as `0`). Before entering the model, the numeric predictors *Age*, *L1 vocabulary*, and *Total vocabulary* were standardised by subtracting from each observation the mean of the predictor, and dividing the result from the standard deviation of the predictor.
 
@@ -474,686 +521,199 @@ b_{0-1} &\sim \text{MVN}(0, \tau_{0-1}) \\
 \end{aligned}
 $$ {#eq-model}
 
-The comparison between the three models including *Age*, *L1 vocabulary*, *Total vocabulary* as predictors was performed using leave-one-out cross-validation (LOO-CV) as a benchmark of model performance, using Pareto-smoothed importance sampling (PSIS) to approximate it [@vehtari2017practical]. We implemented the model using `brms` [@burkner2017brms], an R interface to the Stan probabilistic language (`r stan_version`) [@carpenter2017stan]. We ran `r english::words(dim(model_fit$fit_0)[2])` iteration chains using the by-default No U-Turn Sampler algorithm with `r format(niterations(model_fit$fit_0), big.mark = ",")` iterations each and an additional `r format(niterations(model_fits$fit_0), big.mark = ",")` warm-up iterations per chain.
+The comparison between the three models including *Age*, *L1 vocabulary*, *Total vocabulary* as predictors was performed using leave-one-out cross-validation (LOO-CV) as a benchmark of model performance, using Pareto-smoothed importance sampling (PSIS) to approximate it [@vehtari2017practical]. We implemented the model using `brms` [@burkner2017brms], an R interface to the Stan probabilistic language (`r stan_version`) [@carpenter2017stan]. We ran `r english::words(dim(model_fits_bcn$fit_0$fit)[2])` iteration chains using the by-default No U-Turn Sampler algorithm with `r format(niterations(model_fits_bcn$fit_0), big.mark = ",")` iterations each and an additional `r format(niterations(model_fits_bcn$fit_0), big.mark = ",")` warm-up iterations per chain.
 
 
 ## Results
 
-```{r fig-ptlt-recognition}
-#| label: fig-ptlt-recognition-aggr
-#| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
-#| fig-width: 11
-#| fig-height: 4
-data_time_bcn |> 
-	drop_na(.prop) |> 
-	summarise(.prop = mean(.prop),
-			  .by = c(lp, timebin, session_id)) |> 
-	ggplot(aes(timebin, .prop)) +
-	facet_wrap(~lp, nrow = 1, scales = "free_x") +
-	geom_line(aes(group = session_id),
-			  colour = "grey",
-			  alpha = 1/10) +
-	geom_hline(yintercept = 0.5, linetype = "dashed") +
-	stat_summary(fun.data = "mean_se",
-				 geom = "errorbar",
-				 width = 0.35,
-				 linewidth = 2/4) +
-	stat_summary(fun = "mean",
-				 geom = "point",
-				 size = 1.2) +
-	stat_summary(fun = "mean",
-				 geom = "line",
-				 linewidth = 2/4) +
-	labs(x = "Time (ms)",
-		 y = "PTLT") +
-	scale_x_continuous(breaks = seq(0, 20, 2),
-					   labels = \(x) format(x*100+300, big.mark = ",")) +
-	scale_y_continuous(labels = scales::percent,
-					   breaks = seq(0, 1, 0.2),
-					   limits = c(0, 1)) +
-	theme(panel.grid.major.y = element_line(colour = "grey",
-											linetype = "dotted"),
-		  legend.position = "none")
+
+```{r results-0}
+var_labels <- c("b_Intercept" = "Intercept",
+				"b_age_std" = "Age (+1 SD)",
+				"b_condition1" = "Condition (U vs. RN)",
+				"b_condition1" = "Condition (RN vs. RC)",
+				"b_lp1" = "Group",
+				"sd_child_id__Intercept" = "Intercept",
+				"sd_child_id__age_std" = "Age",
+				"sd_child_id__lpBilingual" = "Group",
+				"sd_child_id:session_id__Intercept" = "Intercept",
+				"sd_child_id:session_id__age_std" = "Age",
+				"sd_child_id:session_id__lpBilingual" = "Group")
+
+get_coefs <- function(model, var_labels, ...) {
+	out <- model |> 
+		gather_draws(...) |> 
+		median_hdci(.width = 0.95) |> 
+		mutate(.variable_name = factor(.variable, 
+									   levels = names(var_labels), 
+									   labels = var_labels),
+			   mdn_label = sprintf("%.3f", .value),
+			   ci_label = sprintf("[%.3f, %.3f]", .lower, .upper)) |> 
+		arrange(.variable) |> 
+		select(.variable:.upper, matches("label")) %>%
+		split(janitor::make_clean_names(.$.variable))
+	
+	return(out)
+}
+coefs <- map(model_fits_bcn, 
+			 \(x) get_coefs(model = x, var_labels,
+			 			   `b_.*`, `sd_.*`, regex = TRUE))
+
+
+get_loos <- function(x, y) {
+	out <- lst(m_0 = x, m_1 = y) |> 
+		loo_compare() |> 
+		as.data.frame() |> 
+		rownames_to_column("model") |>
+		arrange(model) |> 
+		select(model, elpd_diff, se_diff) |> 
+		mutate(diff_label = sprintf("%.3f", elpd_diff),
+			   se_label = sprintf("%.3f", se_diff))
+	return(out)
+}
+
+loos_tbl <- loo_compare(model_loos_bcn[1:5]) |> 
+	as.data.frame() |> 
+	rownames_to_column("model") |> 
+	select(model, matches("diff|elpd"))
+
+```
+
+```{r tbl-loos}
+loos_tbl[1:5] |> 
+	mutate(model = case_when(model=="fit_0" ~ "$\\mathcal{M}_{0}$",
+							 model=="fit_1" ~ "$\\mathcal{M}_{1}$",
+							 model=="fit_2" ~ "$\\mathcal{M}_{2}$",
+							 model=="fit_3" ~ "$\\mathcal{M}_{3}$",
+							 model=="fit_4" ~ "$\\mathcal{M}_{4}$",
+							 model=="fit_5" ~ "$\\mathcal{M}_{5}$")) |>
+	gt() |> 
+	fmt_number(is.numeric) |> 
+	# fmt_markdown(is.character, ) |> 
+	cols_label(elpd_diff = "ELPD (diff.)",
+			   se_diff = "SE ELPD (diff)",
+			   elpd_loo = "ELPD",
+			   se_elpd_loo = "SE ELPD")
 ```
 
 
-```{r tbl-coefs}
-post <- gather_draws(fit_1, `b_.*`, regex = TRUE)  
+@tbl-loos summarises the outputs of the LOO-CV model comparisons. Models $\mathcal{M}_{2}$, $\mathcal{M}_{3}$, and $\mathcal{M}_{4}$ showed substantially better predicted performance than models $\mathcal{M}_{0}$ and $\mathcal{M}_{1}$, which indicates that adding the *Condition* predictor improves significantly the fit of the models. All $\mathcal{M}_{2}$, $\mathcal{M}_{3}$, and $\mathcal{M}_{4}$ models showed equivalent performance, suggesting that adding the two-way and three-way interactions between *Age*, *Group*, and *Condition*, did not improve the the fit of the model. We now report a description of the posterior distribution of the regression coefficients of model $\mathcal{M}_{4}$. We report the median and 95% highest density interval of each fixed regression coefficient. 
 
-ggplot(post, aes(.value)) +
-	facet_wrap(~.variable, scales = "free") +
-	geom_histogram(bins = 15, colour = "white",
-				   position = position_nudge(y = 0.1),
-				   fill = "grey80") +
-	geom_errorbar(data = mean_qi(post),
-				  aes(xmin = .lower, xmax = .upper, y = 0),
-				  width = 1,
-				  linewidth = 3/4) +
-	geom_point(data = mean_qi(post),
-			   aes(x = .value, y = 0),
-			   size = 2) +
-	scale_y_continuous(limits = c(0, 500))
-```
-
-### Hypothesis 1: within-language phonological priming
-
-```{r fig-ptlt-recognition-condition}
-#| label: fig-ptlt-recognition-condition
-#| fig-cap: "Average probability of target looking across the time course of the trial. Points an whiskers indicate the mean and standard error of the mean."
-#| fig-width: 11
-#| fig-height: 4
-data_time_bcn |> 
-	summarise(.prop = mean(.prop),
-			  .by = c(lp, timebin, condition, session_id)) |> 
-	ggplot(aes(timebin, .prop, colour = condition)) +
-	facet_grid(~lp) +
-	# geom_rug(aes(x = timebin[is.na(.prop)])) +
-	# geom_line(aes(group = interaction(condition, session_id)),
-	# 		  alpha = 1/8) +
-	geom_hline(yintercept = 0.5, linetype = "dashed") +
-	stat_summary(fun.data = "mean_se",
-				 geom = "errorbar",
-				 width = 0.35,
-				 linewidth = 2/4) +
-	stat_summary(fun = "mean",
-				 geom = "point",
-				 size = 1.2) +
-	stat_summary(fun = "mean",
-				 geom = "line",
-				 linewidth = 2/4) +
-	labs(x = "Time (ms)",
-		 y = "PTLT",
-		 colour = "Condition") +
-	scale_x_continuous(breaks = seq(0, 20, 4),
-					   labels = \(x) format(x*100+200, big.mark = ",")) +
-	scale_y_continuous(labels = scales::percent,
-					   breaks = seq(0, 1, 0.05)) +
-	theme(legend.position = "top",
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted"))
-```
-
-### Hypothesis 2: cross-language phonological priming
+The outcomes of $\mathcal{M}_{0}$, which only included *Age* and as main effect, revealed successful word recognition across participants. Overall, participants' looking time exceeded chance levels, as indicated by the fact that the 95% HDI of the intercept term excluded zero ($\beta$ = `r coefs$fit_0$b_intercept$mdn_label`, 95% HDI = `r coefs$fit_0$b_intercept$ci_label`). The variability of participants' target preference varied significantly more between participants ($\sigma$ = `r coefs$fit_0$sd_child_id_intercept$mdn_label`, 95% HDI = `r coefs$fit_0$sd_child_id_intercept$ci_label`) than within testing sessions from the same participant ($\sigma$ = `r coefs$fit_0$sd_child_id_session_id_intercept$mdn_label`, 95% HDI = `r coefs$fit_0$sd_child_id_session_id_intercept$ci_label`). The 95% HDI of the coefficient of *Age* had a positive sign, but did not exclude zero ($\beta$ = `r coefs$fit_0$b_age_std$mdn_label`, 95% HDI = `r coefs$fit_0$b_age_std$ci_label`), indicating that participants from all ages showed equivalent overall target word recognition.
 
 
-```{r fig-time}
-#| label: fig-time
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 1. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
+The 95% HDI of the coefficient of *Group* in $\mathcal{M}_{1}$ included zero ($\beta$ = `r coefs$fit_1$b_lp1$mdn_label`, 95% HDI = `r coefs$fit_1$b_lp1$ci_label`), indicating an equivalent overall target preference in monolinguals and bilinguals. The 95% HDI of the first contrast of this predictor, comparing *Unrelated* and *Related/Non-cognate* trials, included zero ($\beta$ = `r coefs$fit_2$b_condition1$mdn_label`, 95% HDI = `r coefs$fit_2$b_condition1$ci_label`). The 95% HDI of the second contrast, comparing *Related/Non-cognate* and *Related/Cognate* trials, also included zero ($\beta$ = `r coefs$fit_2$b_condition2$mdn_label`, 95% HDI = `r coefs$fit_2$b_condition2$ci_label`). The overall target preference was equivalent across both pairwise condition comparisons. The interaction term between the first *Condition* contrast contained zero ($\beta$ = `r coefs$fit_3$b_condition1_lp1$mdn_label`, 95% HDI = `r coefs$fit_3$b_condition1_lp1$ci_label`). The interaction term between the second *Condition* contrast also contained zero ($\beta$ = `r coefs$fit_3$b_condition2_lp1$mdn_label`, 95% HDI = `r coefs$fit_3$b_condition2_lp1$ci_label`). The outcomes of this model indicate that lack of differences in overall target looking time across conditions remained across monolinguals and bilinguals.
+
+Both younger and older participants showed equivalent looking time across conditions, as suggested by the fact that the 95% HDI of the two-way interaction between *Age* and the first *Condition* contrast included zero ($\beta$ = `r coefs$fit_4$b_condition1_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition1_age_std$ci_label`), as well as the interaction between *Age* and the second *Condition* contrast ($\beta$ = `r coefs$fit_4$b_condition2_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition2_age_std$ci_label`). This pattern of results was found in both monolinguals and bilinguals, as the 95% HDI of the three-way interaction between *Age*, *Group*, and *Condition* included zero both the first ($\beta$ = `r coefs$fit_4$b_condition1_lp1_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition1_lp1_age_std$ci_label`) and second ($\beta$ = `r coefs$fit_4$b_condition2_lp1_age_std$mdn_label`, 95% HDI = `r coefs$fit_4$b_condition2_lp1_age_std$ci_label`) contrast of *Condition*.
+
+
+```{r timecourse}
 make_std <- function(x, mean, sd) (x - mean) / sd
 
 timebin_values <- make_std(seq(0, 17, length.out = 100),
-						   mean(data_time$timebin),
-						   sd(data_time_bcn$timebin))
+						   mean(data_bcn$timebin),
+						   sd(data_bcn$timebin))
 
-age_values <- make_std(c(21, 25, 30),
-					   mean(data_time_bcn$age),
-					   sd(data_time_bcn$age))
+age_values <- make_std(c(20, 30),
+					   mean(data_bcn$age),
+					   sd(data_bcn$age))
 
-nd <- expand_grid(condition = levels(fit_3$data$condition),
+nd <- expand_grid(distinct(data_bcn, condition, lp),
 				  timebin_std = timebin_values,
-				  age_std = age_values,
-				  # sesion_id = first(data$session_id),
-				  # age = c(21, 25, 30),
-				  lp = levels(fit_3$data$lp)) 
+				  age_std = age_values)
 
-epreds <- add_epred_draws(newdata = nd,
-						  object = fit_3,
-						  ndraws = NULL,
+epreds <- add_epred_draws(nd, model_fits_bcn$fit_4, 
 						  re_formula = NA,
-						  value = ".value") |> 
-	mutate(.value = plogis(.value)) |> 
-	mean_qi() |> 
-	mutate(lp = factor(lp, 
-					   levels = c("Monolingual (English)",
-					   		   "Monolingual",
-					   		   "Bilingual")),
-		   age_std = factor(age_std, 
-		   				 levels = age_values,
-		   				 labels = paste0(c(21, 25, 30), " months")))
+						  ndraws = NULL,
+						  value = ".elog") |> 
+	mutate(age_std = factor(age_std,
+							levels = age_values, 
+							labels = paste0(c(20, 30), " months")))
 
+epreds_chance <- epreds |> 
+	median_hdci() |> 
+	mutate(is_lower_positive = .lower > 0) |> 
+	filter(is_lower_positive) |> 
+	summarise(over_chance = min(timebin_std),
+			  .by = c(lp, condition, age_std)) |> 
+	mutate(over_chance = (over_chance * 
+						  	sd(data_bcn$timebin) +
+						  	mean(data_bcn$timebin))*100+300) 
+
+epreds_chance_report <- epreds_chance |> 
+	mutate(over_chance = sprintf("%.2f", over_chance),
+		   age_std = paste0("age_", gsub(" months", "", age_std))) |> 
+	arrange(lp, age_std) %>%
+	split(tolower(.$lp)) |> 
+	map(\(x) split(x, x$age_std)) 
+```
+
+An analysis of the time course of target looking revealed a similar pattern of results (see @fig-epreds). Posterior mean prediction for the three conditions overlap across the full time course of the trial in both language groups, and also in both extrema of the age range of participants (20 and 32 months).
+
+```{r fig-epreds}
+#| label: fig-epreds
+#| fig-cap: "Posterior mean prdictions of the time course of target fixation in the test phase. Lines and intervals indicate the median and 95% credible interval of the posterior predictions, respectively."
+#| fig-width: 8
+#| fig-height: 4
 epreds |> 
-	ggplot(aes(timebin_std, .value,
+	ggplot(aes(timebin_std, .elog,
 			   colour = condition,
 			   fill = condition)) +
 	facet_grid(lp~age_std) +
-	geom_hline(yintercept = 0.5,
-			   linetype = "dashed") +
-	geom_ribbon(aes(ymin = .lower, ymax = .upper),
-				alpha = 0.5,
-				linewidth = 0) +
-	geom_line(linewidth = 3/4) +
-	# stat_summary(data = data_time_bcn,
-	# 			 aes(y = .elog),
-	# 			 fun = mean,
-	# 			 geom = "point",
-	# 			 size = 2) +
+	geom_hline(yintercept = 0, linetype = "dashed") +
+	stat_summary(fun.data = mean_qi,
+				 geom = "ribbon",
+				 alpha = 1/2,
+				 linewidth = NA) +
+	stat_summary(fun = mean,
+				 geom = "line",
+				 linewidth = 3/4) +
 	labs(x = "Time (ms)",
 		 y = "Logit (Target looking)",
 		 colour = "Condition",
 		 fill = "Condition") +
-	scale_x_continuous(breaks = make_std(seq(0, 17, 2),
-										 mean(data_time$timebin),
-										 sd(data_time$timebin)),
-					   labels = \(x) format(seq(0, 17, 2)*100+200, big.mark = ",")) +
-	theme(legend.position = "top",
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								linetype = "dotted"))
-
-ggsave(file.path("img", "model-time.jpeg"),
-	   height = 4, width = 10,
-	   dpi = 800)
+	scale_x_continuous(breaks = make_std(seq(0, 17, 3),
+										 mean(data_bcn$timebin),
+										 sd(data_bcn$timebin)),
+					   labels = \(x) format(seq(3e2, 2e3, 3e2),
+					   					 big.mark = ",")) &
+	theme(panel.grid.major.y = element_line(colour = "grey",
+											linetype = "dotted"),
+		  legend.position = "top")
 ```
 
-
-### Hypothesis 3: emergence of phonological association
-
-### Hypothesis 4: the compating role of age and vocabulary
-
-In a first analysis, we examined the effect of phonological priming. We compared participants' looking preference for the target in related and unrelated trials. We first compared the aggregated probability of target looking across time bins in both conditions for each language group.  
+In an exploratory analysis, we compared the model-estimated time points at which participants' gaze behaviour showed evidence of target looking above chance level (50%). We defined the recognition time of the trial as the earliest time point at which the lower bound of the 95% HDI posterior mean prediction of the target looking excluded zero. As expected, the recognition times were on average shorter for older infants than for younger infants. Differences between conditions were larger in bilinguals than in monolinguals, especially in the older group. The recognition time for monolingual 20-month-olds was `r epreds_chance_report$monolingual$age_20$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_20$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_20$over_chance[3]` ms in the *Related/Cognate* condition. In monolingual 30 month-olds, the recognition point was `r epreds_chance_report$monolingual$age_30$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_30$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_30$over_chance[3]` ms in the *Related/Cognate* condition. In bilingual 20 month-olds, the recognition point was `r epreds_chance_report$monolingual$age_20$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_20$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_20$over_chance[3]` ms in the *Related/Cognate* condition. In bilingual 30 month-olds, the recognition point was `r epreds_chance_report$monolingual$age_20$over_chance[1]` ms in the *Unrelated* condition, `r epreds_chance_report$monolingual$age_20$over_chance[2]` ms in the *Related/Non-cognate* condition, and `r epreds_chance_report$monolingual$age_20$over_chance[3]` ms in the *Related/Cognate* condition.
 
 
-```{r fig-time-total}
-#| label: fig-time-total
-#| fig-height: 6
-#| fig-width: 8
-#| fig-cap: "Marginal posterior predictions of the GAMMs in Analysis 1. (A) Mean posterior probability of target looking across the time course of the trial. Black lines and intervals indicate the psoterior mean and 95% credible intervals. Points indicate the mean probability of target looking across participants. (B) Difference in posterior probability of target looking between *related* and *unrelated* trials. The yellow rectangle indicates, in both A and B, the range of time points in which the 95% credible interval of the differences excluded zero."
-voc_values <- seq(0.25, 1, 0.25)
-
-nd <- expand_grid(condition = levels(model_fits_time$fit_time_2$data$condition),
-				  timebin = seq(0, 17, length.out = 100),
-				  voc_total = voc_values,
-				  # sesion_id = first(data$session_id),
-				  # age = c(21, 25, 30),
-				  lp = levels(model_fits_time$fit_time_2$data$lp)) 
-
-epreds <- add_epred_draws(newdata = nd,
-						  object = model_fits_time$fit_time_2,
-						  ndraws = 20,
-						  re_formula = NA,
-						  value = ".value") |> 
-	mean_qi() |> 
-	mutate(lp = factor(lp, 
-					   levels = c("Monolingual (English)",
-					   		   "Monolingual",
-					   		   "Bilingual")),
-		   voc_total = factor(x = voc_total, 
-		   				   levels = voc_values,
-		   				   labels = scales::percent(voc_values)))
-
-epreds |> 
-	ggplot(aes(timebin, .value,
-			   colour = condition,
-			   fill = condition)) +
-	facet_grid(lp~voc_total) +
-	geom_hline(yintercept = 0,
-			   linetype = "dashed") +
-	geom_ribbon(aes(ymin = .lower, ymax = .upper),
-				alpha = 0.5,
-				linewidth = 0) +
-	geom_line(linewidth = 3/4) +
-	labs(x = "Time (ms)",
-		 y = "Logit (Target looking)",
+```{r fig-recognition}
+#| label: fig-recognition
+#| fig-cap: "Model-predicted recognition times for monlingual and bilinguals at 20 and 30 months of age."
+#| fig-width: 7
+#| fig-height: 3
+epreds_chance |> 
+	ggplot(aes(lp, over_chance,
+			   colour = sort(condition),
+			   fill = sort(condition))) + 
+	facet_wrap(~age_std) +
+	geom_point(shape = 16, size = 4) +
+	geom_line(aes(group = condition),
+			  linewidth = 1) +
+	# geom_point(size = 3) +
+	labs(x = "Group",
+		 y = "Recognition time (ms)",
 		 colour = "Condition",
 		 fill = "Condition") +
-	scale_x_continuous(breaks = seq(0, 20, 4),
-					   labels = \(x) format(x*100+200, big.mark = ",")) +
-	theme(legend.position = "top",
-		  panel.grid.major = element_line(colour = "grey",
-		  								linetype = "dotted"))
-
-ggsave(file.path("img", "model-time-voc-total.jpeg"),
-	   height = 5.5, width = 10,
-	   dpi = 800)
-```
-
-
-{{< pagebreak >}}
-
-
-
-## Discussion
-
-# Study 2
-
-## Methods
-
-### Participants
-
-```{r}
-#| label: participants-numbers-oxf
-participants_oxf <- filter(participants, location=="Oxford")
-
-n_participants_total <- nrow(distinct(participants_oxf, child_id))
-n_sessions_total <- count(participants_oxf)
-
-n_participants_sex <- participants_oxf |> 
-	distinct(sex, child_id) |> 
-	count(sex)
-
-n_participants_sessions <- participants_oxf |> 
-	count(child_id, name = "n_sessions") |> 
-	count(n_sessions) |> 
-	group_split(n_sessions) |> 
-	set_names(paste0("session_", 1:2)) |> 
-	map("n")
-
-ages <- participants_oxf |> 
-	summarise(n = n(),
-			  n_participants = n_distinct(child_id),
-			  across(age, lst(mean, sd, min, max)),
-			  across(matches("doe_"), lst(mean, sd)),
-			  age_vctr = list(age),
-			  .by = c(lp, test_language))
-
-```
-
-We collected data from `r n_participants_total$n[1]` children (`r n_participants_sex[1]` female, `r n_participants_sex[2]` male, `r n_participants_sex[3]` sex not reported, age: *Mean* = `r round(ages$age_mean, 2)` months, *SD* = `r round(ages$age_sd, 2)`, *Range* = [`r round(ages$age_min, 2)`-`r round(ages$age_max, 2)`]), living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford. Families were recruited from maternity rooms in private hospitals and social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r n_participants_total$n` children that participated, `r n_participants_sessions$session_1` participated once, and `r n_participants_sessions$session_2` participated twice. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions. All participants were being raised in exclusively British English monolingual homes.
-
-### Vocabulary size
-
-```{r vocab-values}
-vocabulary_oxf <- inner_join(vocabulary, 
-							 select(participants_oxf, session_id),
-							 by = join_by(session_id))
-```
-
-We collected vocabulary data using parental responses to the Oxford Communicative Development Inventory (OCDI) [@hamilton2000infant]. Families were sent the questionnaire immediately after each experimental session, and were given two weeks to fill it. Since all vocabulary sizes of English monolingual infants were only assessed in English, both *L1 vocabulary* and *total vocabulary* sizes were identical (see @fig-vocabulary-oxf).
-
-```{r fig-vocabulary-oxf}
-#| label: fig-vocabulary
-#| fig-cap: "Participant vocabulary sizes across ages and language profiles. Vocabulary size scores are presented using two measures: L1 vocabulary size (proportion of words marked as *Understands* in the vocabulary checklist of the dominant language), and total vocabulary size (proportion of words marked as *Understands* in vocabulary checklists of both dominant and non-dominant languages). Vocabulary size scores from the recurrent participants are shown linked."
-#| eval: false
-#| fig-width: 4
-#| fig-height: 4
-vocabulary_oxf |> 
-	inner_join(select(participants, child_id, session_id, age, lp),
-			   by = join_by(child_id, session_id)) |> 
-	ggplot(aes(age, total_prop)) +
-	geom_line(aes(group = child_id),
-			  alpha = 1/2,
-			  colour = "grey") +
-	geom_point(colour = clrs[1]) +
-	labs(x = "Age (months)",
-		 y = "Vocabulary size (%)") +
-	theme(panel.grid.major = element_line(linetype = "dotted",
-										  colour = "grey"),
+	scale_y_continuous(breaks = seq(0, 1e3L, 50)) +
+	theme(panel.grid.major.y = element_line(colour = "grey",
+											linetype = "dotted"),
+		  panel.grid.minor.y = element_line(colour = "grey",
+		  								  linetype = "dotted"),
 		  legend.position = "top",
-		  legend.title = element_blank())
+		  axis.title.x = element_blank())
 ```
-
-
-### Stimuli
-
-New stimuli lists were generated to adapt the experimental procedure to English-learning infants. Stimuli lists were created following the same constraints as in Study 1. Auditory stimuli were recorded following the same procedure as in Study 1, produced by Southern British English native female speaker in a toddler-directed manner. Audio and picture processing were performed following the same workflow as in Study 1.
-
-### Procedure and apparatus
-
-Same as in Study 1. The study was run using a custom Matlab script, PresentMate, based on the PsychToolbox-3 extension [@kleiner2007s; @brainard1997psychophysics; @pelli1997videotoolbox]. Visual fixations were recorded using a Tobii TX 300 eye-tracker and a 23-in screen of 1920 $\times$ 1080 resolution. The Tobii Analytics SDK 3.0 was used to interact with the eye-tracking while the experiment was running. Sampling rate was set at 120 Hz. A 9-point calibration was performed before every experimental session, in which the picture of a colourful beach ball was presented. 
-
-### Data processing
-
-Same as in Study 1.
-
-### Data analysis
-
-## Results
-
-# General discussion
-
-IMPLICIT NAMING
-Even earlier evidence of implicit naming was provided through ERP registering at 14 months of age. @duta2012erp presented name-known pictures in silence for one second. After one second, the picture's label was presented auditorily, and the infants' N400 component was registered. In some trials the auditory label corresponded to a canonical realisation of the word-form. In other trials, the word was mispronounced. Infants ERP signal differed when presented with correct pronunciations or mispronunciations, indicating that infants had generated expectations at the phonological level about the auditory labels of the picture before they were presented with its auditory label. A later study by @styles2015infant re-analysed the first 1,000 ms of the trials in the previous study (while the picture was being presented before the auditory label was presented), and found that the ERPs of name-known pictures (according to parental reports of receptive vocabulary) differed from those of name-unknown pictures (which infants would not be able to lexicalise). This provides further support to the account that at around 14 months of age, infants already name familiar pictures, even if presented in silence.
-
-
-THE ROLE OF COGNATENESS IN WORD ACQUISITION
-
-For instance, previous work on lexical acquisition has provided some insight into how  found that English-Spanish bilinguals' vocabulary in English was influenced by the words they had already acquired in Spanish. This is consistent with previous accounts of lexical acquisition in which infants acquire new words through preferential acquisition [@hill2013, @fourtassi2020]. 
-
-A monograph by @floccia2018introduction provided evidence of a language distance effect, where bilinguals learning two languages sharing higher lexical similarity knew more words in their less dominant language than those learning two language with lower lexical similarity. Later work by @mitchell2022cognate and @garcia-castro@cognate provided evidence for a more direct facilitation effect of cognateness. Cognates are form-similar translation equivalents. Cognateness is suggested to facilitate word acquisition through parallel activation: the co-activation of translation equivalents in speech might lead to an faster accumulation of learning instances with words, which ultimately results in an earlier age of acquisition.
-
-
-Some recent studies have investigated the recognition of mispronounced words comparing monolingual and bilingual toddlers. Overall, these studies do not find differences between monolinguals and bilinguals [@von2019impact; @wewalaarachchi2017vowels]. Evidence for differential processing of cognate and non-cognate words is provided by Ramon-Casas and colleagues who observed that Spanish-Catalan 24-month-olds were more prone to accept mispronunciations when the stimuli involved cognate words than when they involved non-cognate words [@ramon2009vowel; @ramon2010non].
-
-## Summary
-
-## Context
-
-## Facilitation vs. inhibition
-
-## Onsets vs. offsets
-
-## Problems and generalisatility
-
-## Future steps
-
-## Conclusions
 
 # References
 
 
-{{< pagebreak >}}
 
-# Appendix
-
-## Appendix A: imputing voabulary size scores
-
-```{r fig-vocabulary-imputation}
-vocabulary_tmp <- vocabulary |> 
-	left_join(select(participants, child_id, vocab_id, age),
-			  by = join_by(child_id, vocab_id)) |> 
-	relocate(child_id) |> 
-	filter(is_imputed)
-
-bvq_data$vocabulary |> 
-	inner_join(distinct(bvq_data$logs, child_id, response_id, lp, age),
-			   by = join_by(response_id)) |> 
-	mutate(is_imputed = FALSE) |> 
-	bind_rows(vocabulary_tmp) |> 
-	pivot_longer(ends_with("_prop"),
-				 names_to = "measure",
-				 values_to = "prop") |> 
-	drop_na(prop) |> 
-	mutate(is_imputed = ifelse(is_imputed, "Imputed", "Observed"),
-		   measure = factor(measure,
-		   				 levels = c("total_prop",
-		   				 		   "l1_prop",
-		   				 		   "l2_prop",
-		   				 		   "concept_prop",
-		   				 		   "te_prop"),
-		   				 labels = c("Total",
-		   				 		   "L1",
-		   				 		   "L2",
-		   				 		   "Conceptual",
-		   				 		   "TE"))) |> 
-	ggplot(aes(age, prop, 
-			   colour = is_imputed,
-			   fill = is_imputed)) +
-	facet_wrap(~measure) +
-	geom_point(alpha = 1/4, size = 1) +
-	geom_smooth(method = "glm", 
-				formula = "y ~ x",
-				method.args = list(family = "binomial"), 
-				# se = FALSE,
-				size = 1) +
-	labs(x = "Age (months)",
-		 y = "Vocabulary size",
-		 fill = "Imputed",
-		 colour = "Imputed") +
-	theme(legend.position = c(1, 0),
-		  legend.justification = c(1, 0),
-		  legend.title = element_blank())
-
-```
-
-{{< pagebreak >}}
-
-
-## Appendix B: distribution of prime and target looking times
-
-```{r fig-dist-prime}
-#| label: fig-dist-prime
-#| fig-height: 4
-#| fig-width: 8
-looking_times |> 
-	mutate(prime_time = cut(prime_time, 
-							seq(0, 1.5, 0.1),
-							labels = FALSE,
-							include.lowest = TRUE)) |> 
-	add_count(lp, age_group, name = "n_total") |> 
-	count(lp, age_group, prime_time, n_total) |> 
-	mutate(n = n / n_total) |> 
-	ggplot(aes(prime_time, n)) +
-	facet_grid(lp~age_group) +
-	annotate(geom = "rect",
-			 fill = "orange",
-			 ymin = -Inf,
-			 ymax = Inf,
-			 xmin = 0,
-			 xmax = 0.75*10,
-			 alpha = 1/3,
-			 colour = NA) +
-	# annotate(label = "Excluded trials",
-	# 		 geom = "text",
-	# 		  x = (0.75/2)*10,
-	# 		  y = 1)
-	geom_col(fill = "black") +
-	labs(x = "Prime looking time (s)",
-		 y = "Proportion of trials") +
-	scale_x_continuous(labels = \(x) x/10) +
-	theme(panel.grid.major.y = element_line(linetype = "dotted",
-											colour = "grey"))
-```
-
-```{r fig-dist-target}
-#| label: fig-dist-target
-#| fig-height: 4
-#| fig-width: 8
-looking_times |> 
-	mutate(target_time = cut(target_time, 
-							 seq(0, 2, 0.1),
-							 labels = FALSE,
-							 include.lowest = TRUE)) |> 
-	add_count(lp, age_group, name = "n_total") |> 
-	count(lp, age_group, target_time, n_total) |> 
-	mutate(n = n / n_total) |> 
-	ggplot(aes(target_time, n)) +
-	facet_grid(lp~age_group) +
-	# annotate(label = "Excluded trials",
-	# 		 geom = "text",
-	# 		  x = (0.75/2)*10,
-	# 		  y = 1)
-	geom_col(fill = "black") +
-	labs(x = "Targets looking time (s)",
-		 y = "Proportion of trials") +
-	scale_x_continuous(labels = \(x) x/10) +
-	theme(panel.grid.major.y = element_line(linetype = "dotted",
-											colour = "grey"))
-```
-
-{{< pagebreak >}}
-
-## Appendix C: prime and test looking times
-
-```{r fig-looking-times}
-#| label: fig-looking-times
-#| fig-height: 8
-#| fig-width: 8
-#| fig-cap: "Looking time (s) to the prime and target AOI against audio duration. In longer audios, participants are expected to look longer to the prime and target picture."
-
-looking_times |>
-	left_join(select(attrition_trials, 
-					 filename, trial, is_valid_trial),
-			  by = join_by(filename, trial)) |>
-	filter(is_valid_trial) |> 
-	ggplot(aes(duration,
-			   prime_time,
-			   colour = trial_type, 
-			   fill = trial_type,
-			   shape = trial_type)) +
-	facet_grid(lp~age_group) +
-	geom_point(alpha = 0.5, 
-			   size = 1) +
-	geom_smooth(method = "lm") +
-	theme(axis.title.x = element_blank()) +
-	
-	looking_times |>
-	left_join(select(attrition_trials, 
-					 filename, trial, is_valid_trial),
-			  by = join_by(filename, trial)) |>
-	filter(is_valid_trial) |> 
-	ggplot(aes(duration,
-			   target_time,
-			   colour = trial_type, 
-			   fill = trial_type,
-			   shape = trial_type)) +
-	facet_grid(lp~age_group) +
-	geom_point(alpha = 0.5,
-			   size = 1) +
-	geom_smooth(method = "lm",
-				formula = "y ~ x") +
-	plot_layout(ncol = 1, guides = "collect") &
-	plot_annotation(tag_levels = "A") &
-	labs(x = "Audio duration (s)",
-		 y = "Looking time (1.0-2.0 seconds)",
-		 colour = "Prime type",
-		 fill = "Prime type",
-		 shape = "Prime type") 
-```
-
-
-## Appendix D: vocabulary checklist validity
-
-```{r fig-validity-target}
-gaze_tmp <- gaze |> 
-	filter(phase=="Target-Distractor",
-		   between(timestamp, time_subset[1], time_subset[2])) |> 
-	select(session_id, trial, phase, timestamp,
-		   is_gaze_target, is_gaze_distractor, trial_type) |> 
-	mutate(condition = recode_condition(trial_type))
-
-vocabulary_tmp <- rename_with(vocabulary,  
-							  \(x) gsub("_prop", "", paste0("voc_", x)), 
-							  matches("_prop"))
-
-participants_tmp <- participants |> 
-	select(child_id, session_id, age_group, age, lp)
-
-attrition_trials_tmp <- get_attrition_trials(
-	participants = participants,
-	vocabulary = vocabulary,
-	vocabulary_by = c("target"),
-	aoi_coords = aoi_coords,
-	gaze = gaze,
-	min_looking = c(prime = 0.75,
-					test = 1.00,
-					test_each = 0.00,
-					test_any = 0.1)) |> 
-	select(session_id, trial, samples, is_valid_vocab_all) |> 
-	unnest_wider(is_valid_vocab_all) |> 
-	rename_with(\(x) gsub("is_valid_vocab_", "", x)) 
-
-attrition_participants_tmp <- attrition_participants |> 
-	filter(is_valid_participant) |> 
-	select(session_id)
-
-data <- gaze_tmp |>
-	inner_join(attrition_trials_tmp, by = join_by(session_id, trial)) |> 
-	inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
-	mutate(condition = recode_condition(trial_type)) |> 
-	select(session_id, trial, condition, is_gaze_target, is_gaze_distractor,
-		   is_valid_vocab_all) |> 
-	# aggregated across trials by participant, time bin and condition
-	# see Chow et al. (2018)
-	summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
-			  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
-			  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
-			  .ntrials = length(unique(trial)),
-			  .by = c(session_id, condition, is_valid_vocab_all)) |> 
-	# empirical logit with adjustment
-	# see Barr et al. (2008)
-	mutate(.nsamples = sum_target + sum_distractor,
-		   .prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
-		   .elog = log((sum_target + .5)/(sum_distractor + .5))) |> 
-	rename(.sum = sum_target) |> 
-	arrange(desc(session_id), condition) |> 
-	inner_join(participants_tmp, by = join_by(session_id)) |> 
-	inner_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
-	mutate(across(c(.nsamples), as.integer),
-		   across(c(child_id, session_id, lp, condition, age_group), as.factor),
-		   across(c(age, voc_l1),
-		   	   \(x) scale(x, scale = TRUE)[, 1],
-		   	   .names = "{.col}_std")) |> 
-	select(child_id, session_id, age_group, age, voc_l1, voc_total, lp,
-		   condition,  .sum, .prop, .elog, .nsamples,
-		   matches("std"), is_valid_vocab_all) 
-
-# set a priori contrasts
-contrasts(data$condition) <- cbind(c(-0.5, 0.5, 0),
-								   c(0, -0.5, 0.5))
-contrasts(data$lp) <- cbind(c(-0.5, 0.25, 0.25),
-							c(0, -0.5, 0.5))
-contrasts(data$age_group) <- cbind(c(-0.5, 0.5, 0),
-								   c(0, -0.5, 0.5))
-
-data |> 
-	unnest_wider(is_valid_vocab_all) |>
-	rename_with(\(x) gsub("is_valid_vocab_", "", x)) |> 
-	select(session_id, lp, .elog, target) |> 
-	arrange(session_id, target) |> 
-	summarise(.elog_mean = mean(.elog),
-			  .elog_sd = sd(.elog),
-			  n = n(),
-			  .by = c(lp, target)) |> 
-	mutate(target = ifelse(target, "Yes", "No"),
-		   .elog_se = .elog_sd/sqrt(n),
-		   .elog_lower = .elog_mean - .elog_se*1.96,
-		   .elog_upper = .elog_mean + .elog_se*1.96,
-	) |> 
-	ggplot(aes(lp, .elog_mean, 
-			   ymin = .elog_lower,
-			   ymax = .elog_upper,
-			   colour = target)) +
-	facet_wrap(~lp, ncol = 1, scales = "free_x") +
-	geom_errorbar(width = 0.2, linewidth = 3/4, 
-				  position = position_dodge(width = 0.25)) +
-	geom_point(size = 2,
-			   position = position_dodge(width = 0.25)) +
-	geom_hline(yintercept = 0,
-			   linetype = "dashed") +
-	labs(x = "Condition",
-		 y = "P(Target looking)", 
-		 colour = "Knows the target word") +
-	theme(legend.position = "none",
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted")) 
-
-get_data_time(gaze = gaze,
-			  participants = participants,
-			  stimuli = stimuli,
-			  vocabulary = vocabulary,
-			  attrition_trials = attrition_trials,
-			  attrition_participants = attrition_participants,
-			  time_subset = c(0, 2),
-			  contrast = "related",
-			  is_valid_vocab_all,
-			  clean = FALSE) |> 
-	unnest_wider(is_valid_vocab_all) |>
-	select(session_id, age, lp, timebin, .elog, target) |> 
-	arrange(session_id, target) |> 
-	summarise(.elog_mean = mean(.elog),
-			  .elog_sd = sd(.elog),
-			  n = n(),
-			  .by = c(timebin, lp, target)) |> 
-	mutate(target = ifelse(target, "Yes", "No"),
-		   .elog_se = .elog_sd/sqrt(n),
-		   .elog_lower = .elog_mean - .elog_se*1.96,
-		   .elog_upper = .elog_mean + .elog_se*1.96,
-	) |> 
-	ggplot(aes(timebin, .elog_mean,
-			   ymin = .elog_lower,
-			   ymax = .elog_upper,
-			   colour = target,
-			   fill = target)) +
-	facet_wrap(~lp, ncol = 1, scales = "free_x") +
-	geom_line(linewidth = 1/2) +
-	geom_ribbon(alpha = 1/2,
-				colour = NA) +
-	geom_point(size = 2) +
-	geom_hline(yintercept = 0,
-			   linetype = "dashed") +
-	labs(x = "Condition",
-		 y = "P(Target looking)", 
-		 fill = "Knows the target word",
-		 colour = "Knows the target word") +
-	theme(legend.position = "top",
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted"),
-		  axis.title.y = element_blank(),
-		  axis.line.x = element_line()) +
-	
-	plot_layout(ncol = 2,
-				widths = c(0.2, 0.8)) &
-	scale_y_continuous(limits = c(-0.5, 1.25))
-```
 

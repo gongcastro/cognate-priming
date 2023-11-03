@@ -1,0 +1,49 @@
+## Appendix A: imputing voabulary size scores
+
+```{r fig-vocabulary-imputation}
+vocabulary_tmp <- vocabulary |> 
+	left_join(select(participants, child_id, vocab_id, age),
+			  by = join_by(child_id, vocab_id)) |> 
+	relocate(child_id) |> 
+	filter(is_imputed)
+
+bvq_data$vocabulary |> 
+	inner_join(distinct(bvq_data$logs, child_id, response_id, lp, age),
+			   by = join_by(response_id)) |> 
+	mutate(is_imputed = FALSE) |> 
+	bind_rows(vocabulary_tmp) |> 
+	pivot_longer(ends_with("_prop"),
+				 names_to = "measure",
+				 values_to = "prop") |> 
+	drop_na(prop) |> 
+	mutate(is_imputed = ifelse(is_imputed, "Imputed", "Observed"),
+		   measure = factor(measure,
+		   				 levels = c("total_prop",
+		   				 		   "l1_prop",
+		   				 		   "l2_prop",
+		   				 		   "concept_prop",
+		   				 		   "te_prop"),
+		   				 labels = c("Total",
+		   				 		   "L1",
+		   				 		   "L2",
+		   				 		   "Conceptual",
+		   				 		   "TE"))) |> 
+	ggplot(aes(age, prop, 
+			   colour = is_imputed,
+			   fill = is_imputed)) +
+	facet_wrap(~measure) +
+	geom_point(alpha = 1/4, size = 1) +
+	geom_smooth(method = "glm", 
+				formula = "y ~ x",
+				method.args = list(family = "binomial"), 
+				# se = FALSE,
+				size = 1) +
+	labs(x = "Age (months)",
+		 y = "Vocabulary size",
+		 fill = "Imputed",
+		 colour = "Imputed") +
+	theme(legend.position = c(1, 0),
+		  legend.justification = c(1, 0),
+		  legend.title = element_blank())
+
+```

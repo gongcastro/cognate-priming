@@ -1,0 +1,155 @@
+## Appendix D: vocabulary checklist validity
+
+```{r fig-validity-target}
+gaze_tmp <- gaze |> 
+	filter(phase=="Target-Distractor",
+		   between(timestamp, time_subset[1], time_subset[2])) |> 
+	select(session_id, trial, phase, timestamp,
+		   is_gaze_target, is_gaze_distractor, trial_type) |> 
+	mutate(condition = recode_condition(trial_type))
+
+vocabulary_tmp <- rename_with(vocabulary,  
+							  \(x) gsub("_prop", "", paste0("voc_", x)), 
+							  matches("_prop"))
+
+participants_tmp <- participants |> 
+	select(child_id, session_id, age_group, age, lp)
+
+attrition_trials_tmp <- get_attrition_trials(
+	participants = participants,
+	vocabulary = vocabulary,
+	vocabulary_by = c("target"),
+	aoi_coords = aoi_coords,
+	gaze = gaze,
+	min_looking = c(prime = 0.75,
+					test = 1.00,
+					test_each = 0.00,
+					test_any = 0.1)) |> 
+	select(session_id, trial, samples, is_valid_vocab_all) |> 
+	unnest_wider(is_valid_vocab_all) |> 
+	rename_with(\(x) gsub("is_valid_vocab_", "", x)) 
+
+attrition_participants_tmp <- attrition_participants |> 
+	filter(is_valid_participant) |> 
+	select(session_id)
+
+data <- gaze_tmp |>
+	inner_join(attrition_trials_tmp, by = join_by(session_id, trial)) |> 
+	inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
+	mutate(condition = recode_condition(trial_type)) |> 
+	select(session_id, trial, condition, is_gaze_target, is_gaze_distractor,
+		   is_valid_vocab_all) |> 
+	# aggregated across trials by participant, time bin and condition
+	# see Chow et al. (2018)
+	summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
+			  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
+			  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
+			  .ntrials = length(unique(trial)),
+			  .by = c(session_id, condition, is_valid_vocab_all)) |> 
+	# empirical logit with adjustment
+	# see Barr et al. (2008)
+	mutate(.nsamples = sum_target + sum_distractor,
+		   .prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
+		   .elog = log((sum_target + .5)/(sum_distractor + .5))) |> 
+	rename(.sum = sum_target) |> 
+	arrange(desc(session_id), condition) |> 
+	inner_join(participants_tmp, by = join_by(session_id)) |> 
+	inner_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
+	mutate(across(c(.nsamples), as.integer),
+		   across(c(child_id, session_id, lp, condition, age_group), as.factor),
+		   across(c(age, voc_l1),
+		   	   \(x) scale(x, scale = TRUE)[, 1],
+		   	   .names = "{.col}_std")) |> 
+	select(child_id, session_id, age_group, age, voc_l1, voc_total, lp,
+		   condition,  .sum, .prop, .elog, .nsamples,
+		   matches("std"), is_valid_vocab_all) 
+
+# set a priori contrasts
+contrasts(data$condition) <- cbind(c(-0.5, 0.5, 0),
+								   c(0, -0.5, 0.5))
+contrasts(data$lp) <- cbind(c(-0.5, 0.25, 0.25),
+							c(0, -0.5, 0.5))
+contrasts(data$age_group) <- cbind(c(-0.5, 0.5, 0),
+								   c(0, -0.5, 0.5))
+
+data |> 
+	unnest_wider(is_valid_vocab_all) |>
+	rename_with(\(x) gsub("is_valid_vocab_", "", x)) |> 
+	select(session_id, lp, .elog, target) |> 
+	arrange(session_id, target) |> 
+	summarise(.elog_mean = mean(.elog),
+			  .elog_sd = sd(.elog),
+			  n = n(),
+			  .by = c(lp, target)) |> 
+	mutate(target = ifelse(target, "Yes", "No"),
+		   .elog_se = .elog_sd/sqrt(n),
+		   .elog_lower = .elog_mean - .elog_se*1.96,
+		   .elog_upper = .elog_mean + .elog_se*1.96,
+	) |> 
+	ggplot(aes(lp, .elog_mean, 
+			   ymin = .elog_lower,
+			   ymax = .elog_upper,
+			   colour = target)) +
+	facet_wrap(~lp, ncol = 1, scales = "free_x") +
+	geom_errorbar(width = 0.2, linewidth = 3/4, 
+				  position = position_dodge(width = 0.25)) +
+	geom_point(size = 2,
+			   position = position_dodge(width = 0.25)) +
+	geom_hline(yintercept = 0,
+			   linetype = "dashed") +
+	labs(x = "Condition",
+		 y = "P(Target looking)", 
+		 colour = "Knows the target word") +
+	theme(legend.position = "none",
+		  panel.grid.major.y = element_line(colour = "grey",
+		  								  linetype = "dotted")) 
+
+get_data(gaze = gaze,
+		 participants = participants,
+		 stimuli = stimuli,
+		 vocabulary = vocabulary,
+		 attrition_trials = attrition_trials,
+		 attrition_participants = attrition_participants,
+		 time_subset = c(0, 2),
+		 contrast = "related",
+		 is_valid_vocab_all,
+		 clean = FALSE) |> 
+	unnest_wider(is_valid_vocab_all) |>
+	select(session_id, age, lp, timebin, .elog, target) |> 
+	arrange(session_id, target) |> 
+	summarise(.elog_mean = mean(.elog),
+			  .elog_sd = sd(.elog),
+			  n = n(),
+			  .by = c(timebin, lp, target)) |> 
+	mutate(target = ifelse(target, "Yes", "No"),
+		   .elog_se = .elog_sd/sqrt(n),
+		   .elog_lower = .elog_mean - .elog_se*1.96,
+		   .elog_upper = .elog_mean + .elog_se*1.96,
+	) |> 
+	ggplot(aes(timebin, .elog_mean,
+			   ymin = .elog_lower,
+			   ymax = .elog_upper,
+			   colour = target,
+			   fill = target)) +
+	facet_wrap(~lp, ncol = 1, scales = "free_x") +
+	geom_line(linewidth = 1/2) +
+	geom_ribbon(alpha = 1/2,
+				colour = NA) +
+	geom_point(size = 2) +
+	geom_hline(yintercept = 0,
+			   linetype = "dashed") +
+	labs(x = "Condition",
+		 y = "P(Target looking)", 
+		 fill = "Knows the target word",
+		 colour = "Knows the target word") +
+	theme(legend.position = "top",
+		  panel.grid.major.y = element_line(colour = "grey",
+		  								  linetype = "dotted"),
+		  axis.title.y = element_blank(),
+		  axis.line.x = element_line()) +
+	
+	plot_layout(ncol = 2,
+				widths = c(0.2, 0.8)) &
+	scale_y_continuous(limits = c(-0.5, 1.25))
+```
+

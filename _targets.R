@@ -179,12 +179,12 @@ list(
 	# Barcelona
 	tar_target(attrition_trials,
 			   get_attrition_trials(gaze, participants, vocabulary,
-			   	vocabulary_by = "none",
-			   	aoi_coords = aoi_coords,
-			   	min_looking = c(prime = 0.75,
-			   					test = 1.00,
-			   					test_each = 0.10,
-			   					test_any = 0.00))),
+			   					 vocabulary_by = "none",
+			   					 aoi_coords = aoi_coords,
+			   					 min_looking = c(prime = 0.75,
+			   					 				test = 1.00,
+			   					 				test_each = 0.10,
+			   					 				test_any = 0.00))),
 	
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
@@ -195,7 +195,7 @@ list(
 	
 	# Prepare for modelling data -----------------------------------------------
 	
-	tar_target(data_time_bcn,
+	tar_target(data_bcn,
 			   get_data(gaze = filter(gaze, location=="Barcelona"),
 			   		 participants = participants,
 			   		 vocabulary = vocabulary,
@@ -203,7 +203,7 @@ list(
 			   		 attrition_participants = attrition_participants,
 			   		 time_subset = c(0.30, 2.00))),
 	
-	tar_target(data_time_oxf,
+	tar_target(data_oxf,
 			   get_data(gaze = filter(gaze, location=="Oxford"),
 			   		 participants = participants,
 			   		 vocabulary = vocabulary,
@@ -213,7 +213,7 @@ list(
 	
 	# Bayesian GAMMs -----------------------------------------------------------
 	
-	tar_target(model_prior,
+	tar_target(model_prior_bcn,
 			   prior(normal(0, 0.5), class = "Intercept") +
 			   	prior(normal(0, 0.5), class = "b") +
 			   	prior(exponential(6), class = "sd") +
@@ -221,44 +221,103 @@ list(
 			   	prior(exponential(6), class = "sigma") +
 			   	prior(exponential(6), class = "sds")),
 	
-	tar_target(model_formulas,
+	tar_target(model_formulas_bcn,
 			   lst(
+			   	.elog ~ age_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		(1 + age_std | child_id) + 
+			   		(1 | child_id:session_id),
 			   	.elog ~ lp + age_std + 
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = lp, bs = "cr", k = 9) +
-			   		(1 + condition | session_id),
+			   		(1 + age_std | child_id) + 
+			   		(1 | child_id:session_id),
 			   	.elog ~ lp + condition + age_std +
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
-			   		(1 + condition | session_id),
+			   		(1 + condition + age_std | child_id) +
+			   		(1 + condition | child_id:session_id),
 			   	.elog ~ condition * lp + age_std +
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
-			   		(1 + condition | session_id),
+			   		(1 + condition + age_std | child_id) +
+			   		(1 + condition | child_id:session_id),
 			   	.elog ~ condition * lp * age_std +
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
-			   		(1 + condition | session_id),
+			   		(1 + condition + age_std | child_id) +
+			   		(1 + condition | child_id:session_id),
 			   	.elog ~ condition * lp * voc_l1_std + 
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
-			   		(1 + condition | session_id),
+			   		(1 + condition + voc_l1_std | child_id) +
+			   		(1 + condition | child_id:session_id),
 			   	.elog ~ condition * lp * voc_total_std + 
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
-			   		(1 + condition | session_id)
+			   		(1 + condition + voc_total_std | child_id) +
+			   		(1 + condition | child_id:session_id)
 			   )),
 	
-	tar_target(model_names,
+	tar_target(model_names_bcn,
 			   apply(
-			   	expand.grid("fit_", seq(1, length(model_formulas))-1), 1,
+			   	expand.grid("fit_", seq(1, length(model_formulas_bcn))-1), 1,
 			   	\(x) paste0(x[1], x[2])
 			   )),
 	
-	tar_target(model_fits_bcn, get_model_fit(model_names, model_formulas,
-										 data_time_bcn, model_prior)),
+	tar_target(model_fits_bcn, get_model_fit(model_names_bcn,
+											 model_formulas_bcn,
+											 data_bcn,
+											 model_prior_bcn)),
 	
 	tar_target(model_loos_bcn, get_model_loos(model_fits_bcn)),
+	
+	# Oxford models ------------------------------------------------------------
+	
+	tar_target(model_prior_oxf,
+			   prior(normal(0, 0.5), class = "Intercept") +
+			   	prior(normal(0, 0.5), class = "b") +
+			   	prior(exponential(6), class = "sd") +
+			   	# prior(lkj(6), class = "cor") +
+			   	prior(exponential(6), class = "sigma") +
+			   	prior(exponential(6), class = "sds")),
+	
+	tar_target(model_formulas_oxf,
+			   lst(
+			   	.elog ~ age_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		(1 + age_std | child_id) + 
+			   		(1 | child_id:session_id),
+			   	.elog ~ condition + age_std +
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
+			   		(1 + condition + age_std | child_id) +
+			   		(1 + condition | child_id:session_id),
+			   	.elog ~ lp * age_std +
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
+			   		(1 + condition + age_std | child_id) +
+			   		(1 + condition | child_id:session_id),
+			   	.elog ~ condition * voc_l1_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
+			   		(1 + condition + voc_l1_std | child_id) +
+			   		(1 + condition | child_id:session_id)
+			   )),
+	
+	tar_target(model_names_oxf,
+			   apply(
+			   	expand.grid("fit_oxf_", seq(1, length(model_formulas_oxf))-1), 1,
+			   	\(x) paste0(x[1], x[2])
+			   )),
+	
+	tar_target(model_fits_oxf, get_model_fit(model_names_oxf,
+											 model_formulas_oxf,
+											 data_oxf,
+											 model_prior_oxf)),
+	
+	tar_target(model_loos_oxf, get_model_loos(model_fits_oxf)),
+	
 	
 	
 	# render report ------------------------------------------------------------
@@ -268,7 +327,7 @@ list(
 	tar_quarto(manuscript,
 			   file.path("manuscript", "manuscript.qmd"),
 			   execute = TRUE,
-			   quiet = TRUE)
+			   quiet = FALSE)
 	
 )
 

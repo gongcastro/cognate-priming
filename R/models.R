@@ -57,7 +57,7 @@ get_data <- function(gaze, participants, vocabulary,
 		inner_join(d_p, by = join_by(session_id)) |> 
 		inner_join(d_v, by = join_by(child_id, session_id)) |> 
 		mutate(across(c(.nsamples, timebin), as.integer),
-			   across(c(child_id, session_id, lp, condition, age_group), as.factor),
+			   across(c(child_id, session_id, condition), as.factor),
 			   across(c(age, matches("voc_"), timebin),
 			   	   \(x) scale(x, scale = TRUE)[, 1],
 			   	   .names = "{.col}_std")) |> 
@@ -66,14 +66,23 @@ get_data <- function(gaze, participants, vocabulary,
 			   matches("_std")) 
 	
 	if (length(levels(out$condition)) > 1) {
+		out$condition <- factor(out$condition,
+								levels = c("Unrelated",
+										   "Related/Non-cognate",
+										   "Related/Cognate"))
 		contrasts(out$condition) <- cbind(c(-0.5, 0.5, 0),
 										  c(0, -0.5, 0.5))
 	}
 	if (length(levels(out$lp)) > 1) {
-		contrasts(out$condition) <- cbind(c(-0.5, 0.25, 0.25),
-										  c(0, -0.5, 0.5))
+		out$lp <- factor(out$lp,
+						 levels = c("Monolingual",
+						 		   "Bilingual"))
+		contrasts(out$lp) <- c(-0.5, 0.5)
 	}
+	
 	if (length(levels(out$age_group)) > 1) {
+		out$age_group <- factor(out$age_group,
+								levels = c("21 months", "25 months", "30 months"))
 		contrasts(out$age_group) <- cbind(c(-0.5, 0.25, 0.25),
 										  c(0, -0.5, 0.5))
 	}
@@ -98,6 +107,7 @@ recode_condition <- function(x) {
 #' 
 #' @param names Character vector of same length as `formulas` with the name of each model
 #' @inheritParams brms::brm
+#' 
 get_model_fit <- function(names, formulas, data, prior, ...) {
 	
 	if (!is.list(formulas)) {
@@ -119,6 +129,7 @@ get_model_fit <- function(names, formulas, data, prior, ...) {
 }
 
 #' Estimate model using Hamiltonian Monte Carlo via Stan
+#' 
 #' @param names Name of each model
 #' @inheritParams brms::brm
 #' 
@@ -131,9 +142,9 @@ fit_single_model <- function(name, formula, data, prior, ...) {
 	fit <- brm(formula = formula,
 			   data = data,
 			   prior = prior,
-			   iter = 500,
-			   chains = 6,
-			   cores = 6,
+			   iter = 500L,
+			   chains = 4L,
+			   cores = 4L,
 			   init = 0.1,
 			   file_refit = "on_change",
 			   file = model_path,
@@ -146,11 +157,27 @@ fit_single_model <- function(name, formula, data, prior, ...) {
 }	
 
 #' Leave-one-out cross-validation (LOO-CV)
+#' 
 get_model_loos <- function(models, ...) {
-	
-	loos <- brms::loo_compare(purrr::map(.x = models, 
-										 .f = \(x) brms::loo(x, ...), 
-										 .progress = TRUE))
-	
-	return(loos)
+	out <- purrr::map(.x = models, 
+					  .f = \(x) brms::loo(x, ...), 
+					  .progress = TRUE)
+	return(out)
+}
+
+
+#' Get overlap between an intervals and a ROPE
+#'
+#' @param .lower A numeric vector indicating the lower limit of the interval to contrasts against the ROPE
+#' @param .upper A numeric vector indicating the upper limit of the interval to contrasts against the ROPE
+#' @param .rope A numeric vector of length two indicating the limits of the region of practical equivalents against which the interval should be tested
+#' @param precision A numeric vector of length one indicating the number of values each interval should be broke down into in order to compute the proportion of overlap
+#' @returns A numeric vector of length `length(.lower)` indicating the proportion of overlap between the interval and the ROPE
+#'
+get_rope_overlap <- function(.lower, .upper, .rope = c(-0.1, 0.1), precision = 1e4) {
+	int <- data.frame(.lower, .upper)
+	fun <- \(x) approx(x, n = precision, method = "linear")
+	int.seq <- purrr::map(apply(int, fun, MARGIN = 1), "y")
+	overlap <- purrr::map_dbl(int.seq, \(x) mean((x >= .rope[1]) & x <= .rope[2]))
+	return(overlap)
 }

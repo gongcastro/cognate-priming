@@ -13,7 +13,6 @@ get_gaze <- function(files_bcn, files_oxf, participants, stimuli, aoi_coords,
 	oxf <- get_gaze_oxf(files_oxf, participants)
 	out <- bind_rows(list("Barcelona" = bcn, "Oxford" = oxf), .id = "location")
 	# test_gaze(out)
-	
 	return(out)
 }
 
