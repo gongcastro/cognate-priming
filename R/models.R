@@ -142,7 +142,7 @@ fit_single_model <- function(name, formula, data, prior, ...) {
 	fit <- brm(formula = formula,
 			   data = data,
 			   prior = prior,
-			   iter = 500L,
+			   iter = 1e3L,
 			   chains = 4L,
 			   cores = 4L,
 			   init = 0.1,
