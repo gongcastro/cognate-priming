@@ -65,12 +65,18 @@ get_data <- function(gaze, participants, vocabulary,
 			   condition, timebin, .sum_t, .sum_d, .prop, .elog, .nsamples,
 			   matches("_std")) 
 	
-	contrasts(out$condition) <- cbind(c(-0.5, 0.5, 0),
-									  c(0, -0.5, 0.5))
-	contrasts(out$lp) <- cbind(c(-0.5, 0.25, 0.25),
-							   c(0, -0.5, 0.5))
-	contrasts(out$age_group) <- cbind(c(-0.5, 0.25, 0.25),
-									  c(0, -0.5, 0.5))
+	if (length(levels(out$condition)) > 1) {
+		contrasts(out$condition) <- cbind(c(-0.5, 0.5, 0),
+										  c(0, -0.5, 0.5))
+	}
+	if (length(levels(out$lp)) > 1) {
+		contrasts(out$condition) <- cbind(c(-0.5, 0.25, 0.25),
+										  c(0, -0.5, 0.5))
+	}
+	if (length(levels(out$age_group)) > 1) {
+		contrasts(out$age_group) <- cbind(c(-0.5, 0.25, 0.25),
+										  c(0, -0.5, 0.5))
+	}
 	
 	# test_data_time(data_time)
 	

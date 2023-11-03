@@ -1,0 +1,85 @@
+# project:
+#   render:
+#     - manuscript.qmd
+
+format: html
+#   code-fold: true
+  #   code-overflow: scroll
+  #   code-line-numbers: true
+  #   code-copy: hover
+  #   code-link: true
+  #   toc: true
+  #   toc-depth: 3
+  #   number-sections: true
+  #   fig-dpi: 800
+  #   footnotes-hover: true
+  #   link-external-newwindow: true
+  # arxiv-pdf:
+  #   keep-tex: false
+  #   linenumbers: true
+  #   doublespacing: false
+  #   linestretch: 1.5
+  #   runninghead: "Developmental trajectories of bilingual word recognition"
+  #   include-in-header:
+  #     text: |
+  #       \usepackage{tipa}
+  #       \usepackage{booktabs}
+  #       \hyphenpenalty=100000
+  #       \exhyphenpenalty=100000
+  #   knitr:
+  #     opts_chunk:
+  #       dev: "cairo_pdf"
+  #   filters:
+  #     - "_extensions/andrewheiss/wordcount/citeproc.lua"
+  #     - "_extensions/andrewheiss/wordcount/wordcount.lua"
+
+title: "Developmental trajectories of bilingual word recognition"
+short-title: "Developmental trajectories of bilingual word recognition"
+author:
+  - name: Gonzalo Garcia-Castro
+    corresponding: true
+    orcid: 0000-0002-8553-4209
+    email: gonzalo.garciadecastro@upf.edu
+    affiliations:
+      - id: cbc
+        name: Universitat Pompeu Fabra
+        department: Center for Brain and Cognition
+        city: Barcelona, 08005
+  - name: Serene Siow
+    orcid: 0000-0001-6482-2191
+    email: siow.serene@gmail.com
+    affiliations:
+      - id: oxf
+        name: University of Oxford
+        department: Department of Experimental Psychology
+        city: Oxford, OX2 6GG
+  - name: Nuria Sebastian-Galles
+    orcid: 0000-0001-6938-2498
+    email: nuria.sebastian@upf.edu
+    affiliations:
+      - ref: cbc
+  - name: Kim Plunkett
+    orcid: 0000-0003-0216-7480
+    email: kim.plunkett@psy.ox.ac.uk
+    affiliations:
+      - ref: oxf
+keywords:
+  - cognate
+  - word recognition
+  - lexicon
+  - language acquisition
+  - vocabulary
+  - bilingualism
+  - general additive mixed models
+  - bayesian
+csl: "../manuscript/_assets/apa7.csl"
+bibliography: "../manuscript/_assets/references.bib"
+link-citations: true
+editor: source
+lang: en
+freeze: true
+warning: false
+fig-dpi: 1000
+echo: false
+
+  

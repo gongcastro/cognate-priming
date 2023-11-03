@@ -9,16 +9,13 @@
 #'
 get_gaze <- function(files_bcn, files_oxf, participants, stimuli, aoi_coords,
 					 non_aoi_as_na = FALSE) {
-	
 	bcn <- get_gaze_bcn(files_bcn, participants, stimuli, aoi_coords, non_aoi_as_na)
 	oxf <- get_gaze_oxf(files_oxf, participants)
-	out <- bind_rows(bcn, oxf)
-	test_gaze(out)
+	out <- bind_rows(list("Barcelona" = bcn, "Oxford" = oxf), .id = "location")
+	# test_gaze(out)
 	
 	return(out)
 }
-
-# Barcelona --------------------------------------------------------------------
 
 # Process eye-tracking data from Barcelona
 #'
@@ -30,12 +27,11 @@ get_gaze <- function(files_bcn, files_oxf, participants, stimuli, aoi_coords,
 #' 
 get_gaze_bcn <- function(files, participants, stimuli, aoi_coords,
 						 non_aoi_as_na = TRUE) {
-	
 	d_p <- select(participants, filename, child_id, session_id,
-							   test_language, list, version)
+				  test_language, list, version)
 	
 	d_s <- select(stimuli, test_language, list, version, trial,
-						  loc_t = target_location, trial_type, matches("_cdi"))
+				  loc_t = target_location, trial_type, matches("_cdi"))
 	
 	processed <- get_gaze_processed_bcn(files)
 	
@@ -54,14 +50,12 @@ get_gaze_bcn <- function(files, participants, stimuli, aoi_coords,
 	
 }
 
-
 #' Preprocess eye-tracking data from Barcelona
 #'
 #' @param files Character vector with the paths to eye-tracking files from Barcelona
 #' @param res Integer vector with the screen resolution in the X and Y dimensions in pixels
 #'
 get_gaze_processed_bcn <- function(files, res = c(x = 1920, y = 1080)){
-	
 	out <- get_gaze_raw_bcn(files) |> 
 		fix_sampling_rate(filename, date_onset = "2022-05-26") |> 
 		add_count(filename, name = "n_samples") |> 
@@ -104,8 +98,6 @@ get_gaze_processed_bcn <- function(files, res = c(x = 1920, y = 1080)){
 #' @param files Character vector with the paths to eye-tracking files from Barcelona
 #' 
 get_gaze_raw_bcn <- function(files){
-	
-	# name changes
 	cols_dict <- get_name_dictionary()$col_name_changes
 	phase_dict <- get_name_dictionary()$phase_name_changes
 	keep_dict <- get_name_dictionary()$relevant_variables
@@ -152,8 +144,8 @@ get_gaze_raw_bcn <- function(files){
 
 
 #' Get name dictionaries
+#' 
 get_name_dictionary <- function() {
-	
 	col_name_changes <- c(id = "participant",
 						  id = "suje_num",
 						  timestamp = "time",
@@ -199,7 +191,6 @@ get_name_dictionary <- function() {
 #' @details From 2022-05-26, the eye-tracker sampling rate was accidentally changed from 120Hz to 60Hz. This function makes sure that the processing of the datasets corresponding to subsequent experimental sessions takes this change in sampling rate  into account. 
 #' 
 fix_sampling_rate <- function(x, filename, date_onset) {
-	
 	sp60_files <- unique(x$filename)
 	regex_pattern <- "[0-9]{4}-[0-9]{2}-[0-9]{2}"
 	sp60_dates <- stringr::str_extract(sp60_files, pattern = regex_pattern)
@@ -212,8 +203,8 @@ fix_sampling_rate <- function(x, filename, date_onset) {
 }
 
 #' Fix eye-tracker time stamps
+#' 
 fix_timestamps <- function(x) {
-	
 	fix_periods <- function(x) {
 		x <- gsub("\\.", "", x)
 		x <- gsub("^(.{1})(.*)$", "\\1.\\2", x, perl = TRUE)
@@ -233,8 +224,8 @@ fix_timestamps <- function(x) {
 }
 
 #' Add missing columns (if any)
+#' 
 add_missing_cols <- function(x, variables) {
-	
 	cols <- colnames(x)
 	missing_col <- which(!(variables %in% cols))
 	missing_col <- variables[missing_col]
@@ -249,8 +240,8 @@ add_missing_cols <- function(x, variables) {
 }
 
 #' Fix eye-tracker sample validity
+#' 
 fix_validity <- function(x) {
-	
 	fix_zero_one <- function(x) if_else(!(x %in% c("0", "1")), "0", "1")
 	x_cols <- select(x, l_v, r_v)
 	is_any_char <- any(purrr::map_chr(x_cols, class)=="character")
@@ -263,15 +254,14 @@ fix_validity <- function(x) {
 }
 
 #' Make non-AOI samples missing
+#' 
 make_non_aoi_as_false <- function(x, non_aoi_as_na = FALSE) {
-	
 	if (non_aoi_as_na) {
 		na_sub <- list(is_gaze_center = FALSE,
 					   is_gaze_right = FALSE, 
 					   is_gaze_left = FALSE)	
 		x <- replace_na(x, na_sub)
 	}
-	
 	return(x)
 }
 
@@ -280,6 +270,7 @@ make_non_aoi_as_false <- function(x, non_aoi_as_na = FALSE) {
 #' @param x Eye gaze coordinates in the X-axis
 #' @param y Eye gaze coordinates in the Y-axis
 #' @param aoi_coords List of AOI coordinates. Each list should be an integer vector of length 4, with the coordinates in the following order: `xmin`, `xmax`, `ymin`, `ymax`
+#' 
 gaze_in_prime <- function(x, y, aoi_coords){
 	x_eval <- between(x, aoi_coords$c["xmin"], aoi_coords$c["xmax"]) 
 	y_eval <- between(y, aoi_coords$c["ymin"], aoi_coords$c["ymax"])
@@ -292,6 +283,7 @@ gaze_in_prime <- function(x, y, aoi_coords){
 #' @param y Eye gaze coordinates in the Y-axis
 #' @param loc Location of the AOI to be evaluated ("l", "r")
 #' @param aoi_coords List of AOI coordinates. Each list should be an integer vector of length 4, with the coordinates in the following order: `xmin`, `xmax`, `ymin`, `ymax`
+#' 
 gaze_in_target <- function(x, y, loc, coords){
 	out <- case_when(loc=="r" ~ 
 					 	between(x, coords$r["xmin"], coords$r["xmax"]) &
@@ -303,7 +295,13 @@ gaze_in_target <- function(x, y, loc, coords){
 	return(out)
 }
 
-# evaluate if gaze is in distractor
+#' Evaluate if gaze is in distractor
+#' 
+#' @param x Eye gaze coordinates in the X-axis
+#' @param y Eye gaze coordinates in the Y-axis
+#' @param loc Location of the AOI to be evaluated ("l", "r")
+#' @param aoi_coords List of AOI coordinates. Each list should be an integer vector of length 4, with the coordinates in the following order: `xmin`, `xmax`, `ymin`, `ymax`
+#' 
 gaze_in_distractor <- function(x, y, loc, coords){
 	out <- case_when(loc=="l" ~
 					 	between(x, coords$r["xmin"], coords$r["xmax"]) &
@@ -315,7 +313,6 @@ gaze_in_distractor <- function(x, y, loc, coords){
 	return(out)
 }
 
-#' Functions for Oxford data ---------------------------------------------------
 
 #' Process Oxford eye-tracking data
 #' 
@@ -327,9 +324,9 @@ get_gaze_oxf <- function(gaze_files, participants) {
 	phase_onsets <- c(0, 2.50, 4.00, 4.05, 4.75, 6.75)
 	phase_labels <- c("Getter", "Prime", "Blank", "Audio", "Target-Distractor")
 	
-	gaze_raw <- get_gaze_raw_oxf(gaze_files) 
+	raw <- get_gaze_raw_oxf(gaze_files) 
 	
-	out <- gaze_raw |> 
+	out <- raw |> 
 		rename(is_valid_gaze = is_gaze_valid) |> 
 		rename_with(\(x) gsub("_stm", "_cdi", x)) |> 
 		mutate(timestamp = ((timestamp * 1e-3) - min(timestamp)),
@@ -367,23 +364,28 @@ get_gaze_oxf <- function(gaze_files, participants) {
 #' Preprocess Oxford eye-tracking data
 #' 
 #' @param files Character vector with the paths to eye-tracking files from Oxford
-#' @param participants Data frame with participant-level information, as generated by [get_participants].
+#' @param participants Data frame with participant-level information, as generated by [get_participants]
+#' 
 get_gaze_raw_oxf <- function(files) {
 	
-	gaze_raw <- read_csv(files, 
-						 show_col_types = FALSE,
-						 progress = FALSE, id = "file",
-						 name_repair = janitor::make_clean_names) |> 
+	fix_logical <- function(x) {
+		y <- as.logical(if_else(x==-1, 1, x))
+		out <- if_else(is.na(y), FALSE, y)
+		return(out)
+	}
+	
+	na_strings <- c("", "NaN", "NA", "<NA>")
+	
+	out <- files |> 
+		map(\(x) arrow::read_csv_arrow(x, na = na_strings), .progress = TRUE) |> 
+		bind_rows(.id = "file") |> 
+		janitor::clean_names() |> 
 		mutate(session_id = as.character(id),
-			   prime_stm = coalesce(vis_cp_stm,
-			   					 vis_np_stm,
-			   					 vis_un_stm),
+			   prime_stm = coalesce(vis_cp_stm, vis_np_stm, vis_un_stm),
 			   trial_type = case_when(!is.na(vis_cp_stm) ~ "Cognate",
 			   					   !is.na(vis_np_stm) ~ "Non-cognate",
-			   					   !is.na(vis_un_stm) ~ "Unrelated",),
-			   is_gaze_prime = coalesce(vis_cp_isfxt,
-			   						 vis_np_isfxt,
-			   						 vis_un_isfxt),
+			   					   !is.na(vis_un_stm) ~ "Unrelated"),
+			   is_gaze_prime = coalesce(vis_cp_isfxt, vis_np_isfxt, vis_un_isfxt),
 			   trial = if_else(block==2, trial + 16, trial)) |> 
 		select(session_id, trial, timestamp, trial_type,
 			   x = gaze_filtered_x, y = gaze_filtered_y,
@@ -392,12 +394,8 @@ get_gaze_raw_oxf <- function(files) {
 			   is_gaze_prime, is_gaze_target = vis_target_isfxt,
 			   is_gaze_distractor = vis_distr_isfxt,
 			   is_gaze_valid = overall_validity) |> 
-		mutate(across(matches("is_gaze"),
-					  function(x) {
-					  	y <- as.logical(if_else(x==-1, 1, x))
-					  	if_else(is.na(y), FALSE, y)
-					  }))
+		mutate(across(matches("is_gaze"), fix_logical))
 	
-	return(gaze_raw)
+	return(out)
 }
 

@@ -1,9 +1,10 @@
 test_gaze <- function(x){
 	
 	test_that("x has the right columns", {
-		expect_equal(
+		expect_setequal(
 			colnames(x),
-			c("child_id",
+			c("location",
+			  "child_id",
 			  "session_id",
 			  "trial",
 			  "phase",
@@ -67,7 +68,7 @@ test_gaze <- function(x){
 test_gaze_raw <- function(x){
 	
 	test_that("x has the right columns", {
-		expect_equal(
+		expect_setequal(
 			colnames(x),
 			c("filename",
 			  "trial",

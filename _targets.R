@@ -178,12 +178,9 @@ list(
 	
 	# Barcelona
 	tar_target(attrition_trials,
-			   get_attrition_trials(
-			   	participants = participants,
-			   	vocabulary = vocabulary,
+			   get_attrition_trials(gaze, participants, vocabulary,
 			   	vocabulary_by = "none",
 			   	aoi_coords = aoi_coords,
-			   	gaze = gaze,
 			   	min_looking = c(prime = 0.75,
 			   					test = 1.00,
 			   					test_each = 0.10,
@@ -198,8 +195,16 @@ list(
 	
 	# Prepare for modelling data -----------------------------------------------
 	
-	tar_target(data_time,
-			   get_data(gaze = gaze,
+	tar_target(data_time_bcn,
+			   get_data(gaze = filter(gaze, location=="Barcelona"),
+			   		 participants = participants,
+			   		 vocabulary = vocabulary,
+			   		 attrition_trials = attrition_trials,
+			   		 attrition_participants = attrition_participants,
+			   		 time_subset = c(0.30, 2.00))),
+	
+	tar_target(data_time_oxf,
+			   get_data(gaze = filter(gaze, location=="Oxford"),
 			   		 participants = participants,
 			   		 vocabulary = vocabulary,
 			   		 attrition_trials = attrition_trials,
@@ -218,6 +223,18 @@ list(
 	
 	tar_target(model_formulas,
 			   lst(
+			   	.elog ~ lp + age_std + 
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = lp, bs = "cr", k = 9) +
+			   		(1 + condition | session_id),
+			   	.elog ~ lp + condition + age_std +
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   		(1 + condition | session_id),
+			   	.elog ~ condition * lp + age_std +
+			   		s(timebin_std, bs = "cr", k = 9) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   		(1 + condition | session_id),
 			   	.elog ~ condition * lp * age_std +
 			   		s(timebin_std, bs = "cr", k = 9) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
@@ -238,13 +255,10 @@ list(
 			   	\(x) paste0(x[1], x[2])
 			   )),
 	
-	tar_target(model_fits,
-			   get_model_fit(model_names,
-			   			  model_formulas,
-			   			  data = data_time,
-			   			  prior = model_prior)),
+	tar_target(model_fits_bcn, get_model_fit(model_names, model_formulas,
+										 data_time_bcn, model_prior)),
 	
-	tar_target(model_loos, get_model_loos(model_fits)),
+	tar_target(model_loos_bcn, get_model_loos(model_fits_bcn)),
 	
 	
 	# render report ------------------------------------------------------------

@@ -1,8 +1,6 @@
 #' Apply trial-level inclusion criteria
-get_attrition_trials <- function(gaze,
-								 participants,
-								 aoi_coords,
-								 vocabulary,
+#' 
+get_attrition_trials <- function(gaze, participants, vocabulary, aoi_coords,
 								 vocabulary_by = c("prime", "target"),
 								 # minimum looking time in seconds
 								 min_looking = c(prime = 0.75,
