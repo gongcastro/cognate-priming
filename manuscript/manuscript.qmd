@@ -20,12 +20,15 @@ targets::tar_load(
 	  attrition_participants,
 	  bvq_data,
 	  gaze,
-	  data_bcn
+	  data_bcn,
+	  data_oxf
 	))
 
 targets::tar_load(
 	c(model_fits_bcn,
-	  model_loos_bcn
+	  model_loos_bcn,
+	  model_fits_oxf,
+	  model_loos_oxf
 	))
 
 # prepare data
@@ -383,22 +386,27 @@ see https://link.springer.com/article/10.3758/s13428-021-01762-8
 #### Data processing
 
 ```{r dataset}
-n_trials <- nrow(attrition)
-n_sessions <- n_distinct(attrition$session_id)
-n_participants <- n_distinct(attrition$child_id)
-n_trials_valid <- nrow(filter(attrition,
+attrition_bcn <- filter(attrition, location=="Barcelona")
+n_trials <- nrow(attrition_bcn)
+n_sessions <- n_distinct(attrition_bcn$session_id)
+n_participants <- n_distinct(attrition_bcn$child_id)
+n_trials_valid <- nrow(filter(attrition_bcn,
 							  is_valid_participant,
 							  is_valid_trial))
-n_sessions_valid <- sum(attrition_participants$is_valid_participant)
+n_sessions_valid <- sum(distinct(attrition_bcn,
+								 session_id,
+								 .keep_all = TRUE)$is_valid_participant)
 n_participants_valid <- n_distinct(
-	attrition[attrition$is_valid_participant, ]$child_id)
+	attrition_bcn[attrition_bcn$is_valid_participant, ]$child_id)
 
-n_exc_prime <- sum(!attrition$is_valid_gaze_prime)
-n_exc_test <- sum(!attrition$is_valid_gaze_test)
-n_exc_test_each <- sum(!attrition$is_valid_gaze_test_each)
-n_exc_participants <- sum(!attrition_participants$is_valid_participant) 
+n_exc_prime <- sum(!attrition_bcn$is_valid_gaze_prime)
+n_exc_test <- sum(!attrition_bcn$is_valid_gaze_test)
+n_exc_test_each <- sum(!attrition_bcn$is_valid_gaze_test_each)
+n_exc_participants <- sum(!distinct(attrition_bcn,
+									session_id,
+									.keep_all = TRUE)$is_valid_participant) 
 
-n_longitudinal <- attrition |>
+n_longitudinal <- attrition_bcn |>
 	filter(is_valid_participant,
 		   is_valid_trial) |>
 	distinct(child_id, session_n) |> 
@@ -416,9 +424,9 @@ After trials that matched any of the aforementioned exclusion criteria from the 
 ```{r tbl-attrition}
 #| label: tbl-attrition
 #| tbl-cap: "Participant-level and trial-level sample size after applying inclusion criteria. The number of excluded participants and trials is indicated between parentheses."
-expanded <- expand(attrition, lp, trial_type, is_valid_trial)
+expanded <- expand(attrition_bcn, lp, trial_type, is_valid_trial)
 
-n_lp <- attrition |> 
+n_lp <- attrition_bcn |> 
 	distinct(is_valid_participant, lp, session_id) |> 
 	count(is_valid_participant, lp) |> 
 	pivot_wider(names_from = is_valid_participant,
@@ -428,7 +436,7 @@ n_lp <- attrition |>
 		   n_participants_false = false) |> 
 	select(lp, true, false)
 
-attrition |> 
+attrition_bcn |> 
 	summarise(n_trials_true = sum(is_valid_trial),
 			  n_trials_false = sum(!is_valid_trial),
 			  .by = c(lp, trial_type)) |> 
@@ -440,10 +448,6 @@ attrition |>
 				values_from = matches("trials"),
 				names_repair = janitor::make_clean_names) |> 
 	left_join(n_lp, by = join_by(lp)) |> 
-	mutate(lp = case_when(
-		lp=="Monolingual" ~ "Monolingual (Catalan or Spanish)",
-		lp=="Bilingual" ~ "Bilingual (Catalan-Spanish)",
-		.default = lp)) |>
 	select(lp, true, false,
 		   matches("n_trials")) |> 
 	gt(rowname_col = "lp") |> 
@@ -461,7 +465,7 @@ attrition |>
 	cols_merge(c(n_trials_true_unrelated, 
 				 n_trials_false_unrelated),
 				 pattern = "{1} ({2})") |> 
-	cols_label(true = "N", 
+	cols_label(true = "Participants", 
 			   n_trials_true_cognate = "Cognate",
 			   n_trials_true_non_cognate = "Non-cognate",
 			   n_trials_true_unrelated = "Unrelated") |> 
@@ -744,7 +748,7 @@ ages <- participants_oxf |>
 
 ```
 
-We collected data from `r n_participants_total$n[1]` children (`r n_participants_sex[1]` female, `r n_participants_sex[2]` male, `r n_participants_sex[3]` sex not reported, age: *Mean* = `r round(ages$age_mean, 2)` months, *SD* = `r round(ages$age_sd, 2)`, *Range* = [`r round(ages$age_min, 2)`-`r round(ages$age_max, 2)`]), living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford. Families were recruited from maternity rooms in private hospitals and social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r n_participants_total$n` children that participated, `r n_participants_sessions$session_1` participated once, and `r n_participants_sessions$session_2` participated twice. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions. All participants were being raised in exclusively British English monolingual homes.
+We collected data from `r n_participants_total` children (`r n_participants_sex$n[1]` female, `r n_participants_sex$n[2]` male, `r n_participants_sex$n[3]` sex not reported, age: *Mean* = `r round(ages$age_mean, 2)` months, *SD* = `r round(ages$age_sd, 2)`, *Range* = [`r round(ages$age_min, 2)`-`r round(ages$age_max, 2)`]), living in the Oxfordshire area (United Kingdom), tested at the Oxford BabyLab at the University of Oxford. Families were recruited from maternity rooms in private hospitals and social media, and contacted via phone when the child's age spanned between 20 and 32 months. From the `r n_participants_total` children that participated, `r n_participants_sessions$session_1` participated once, and `r n_participants_sessions$session_2` participated twice. Recurrent participants were tested with at least XXX months of difference. We gathered a total of `r n_sessions_total$n` testing sessions. All participants were being raised in exclusively British English monolingual homes.
 
 ### Vocabulary size
 
@@ -805,11 +809,58 @@ New stimuli lists were generated to adapt the experimental procedure to English-
 
 ### Procedure and apparatus
 
-Same as in Study 1. The study was run using a custom Matlab script, PresentMate, based on the PsychToolbox-3 extension [@kleiner2007s; @brainard1997psychophysics; @pelli1997videotoolbox]. Visual fixations were recorded using a Tobii TX 300 eye-tracker and a 23-in screen of 1920 $\times$ 1080 resolution. The Tobii Analytics SDK 3.0 was used to interact with the eye-tracking while the experiment was running. Sampling rate was set at 120 Hz. A 9-point calibration was performed before every experimental session, in which the picture of a colourful beach ball was presented. 
+Same as in Study 1. The study was run using a custom Matlab script, PresentMate, based on the PsychToolbox-3 extension [@kleiner2007s; @brainard1997psychophysics; @pelli1997videotoolbox]. Visual fixations were recorded using a Tobii TX 300 eye-tracker and a 23-in screen of 1920 $\times$ 1080 resolution. The Tobii Analytics SDK 3.0 was used to interact with the eye-tracking while the experiment was running. Sampling rate was set at 120 Hz. A 9-point calibration was performed before every experimental session, in which the picture of a colourful beach ball was presented.
+
+
 
 ### Data analysis
 
-Same as in Study 1, but removing the *Group* predictor from the models, as only monolingual infants were tested.
+Same as in Study 1, but removing the *Group* predictor from the models, as only monolingual infants were tested. 
+
+```{r dataset_oxf}
+attrition_oxf <- filter(attrition, location=="Oxford")
+n_trials <- nrow(attrition_oxf)
+n_sessions <- n_distinct(attrition_oxf$session_id)
+n_participants <- n_distinct(attrition_oxf$child_id)
+n_trials_valid <- nrow(filter(attrition_oxf,
+							  is_valid_participant,
+							  is_valid_trial))
+n_sessions_valid <- attrition_oxf |> 
+	distinct(child_id, .keep_all = TRUE) |> 
+	pull(is_valid_participant) |> 
+	sum()
+
+n_participants_valid <- n_distinct(
+	attrition_oxf[attrition_oxf$is_valid_participant, ]$child_id)
+
+n_exc_prime <- sum(!attrition_oxf$is_valid_gaze_prime)
+n_exc_test <- sum(!attrition_oxf$is_valid_gaze_test)
+n_exc_test_each <- sum(!attrition_oxf$is_valid_gaze_test_each)
+n_exc_participants <- sum(!attrition_oxf |> 
+	distinct(child_id, .keep_all = TRUE) |> 
+	pull(is_valid_participant)) 
+
+n_longitudinal <- attrition_oxf |>
+	filter(is_valid_participant,
+		   is_valid_trial) |>
+	distinct(child_id, session_n) |> 
+	count(child_id, name = "times") |> 
+	count(times)
+
+n_trials_condition <- attrition_oxf |> 
+	filter(is_valid_participant) |> 
+	count(trial_type, is_valid_trial) %>%
+	split(janitor::make_clean_names(.$trial_type))
+```
+
+We defined a time windows of interest from 200 ms after target and distractor pictures onset until the end of the trial at 2,000 ms when  both pictures disappeared from screen. To avoid modelling fixations driven by processes other than auditory word recognition [@fernald1998rapid; @fernald2001half]. Missing eye-tracker samples were interpolated using the last-observation-carried-forward [see @zettersten2022peekbank for a similar approach], with a maximum of 20 maximum consecutive missing samples being interpolated (an equivalent of 166.67 ms).
+
+We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target or distractor looking in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`) [see @floccia2020translation for a similar approach].
+
+After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the  *Unrelated* condition (*n* = `r n_exc_participants`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. From the trials included in the final dataset dataset, `r n_trials_condition$unrelated_2$n` were *Unrelated* trials (`r n_trials_condition$unrelated$n` previously excluded), were `r n_trials_condition$non_cognate_2$n` *Related/Non-cognate* trials(`r n_trials_condition$non_cognate$n` previously excluded), and `r n_trials_condition$cognate_2$n` were *Related/Cognate* trials (`r n_trials_condition$cognate$n` previously excluded).
+
+
+
 
 ## Results
 
@@ -943,24 +994,24 @@ In an exploratory analysis, we compared the model-estimated time points at which
 #| fig-width: 7
 #| fig-height: 3
 epreds_chance |> 
-	ggplot(aes(age_std, over_chance,
-			   colour = sort(condition),
-			   fill = sort(condition))) + 
-	geom_point(shape = 16, size = 4) +
-	geom_line(aes(group = condition),
-			  linewidth = 1) +
-	# geom_point(size = 3) +
-	labs(x = "Group",
-		 y = "Recognition time (ms)",
-		 colour = "Condition",
-		 fill = "Condition") +
-	scale_y_continuous(breaks = seq(0, 1e3L, 25)) +
-	theme(panel.grid.major.y = element_line(colour = "grey",
-											linetype = "dotted"),
-		  panel.grid.minor.y = element_line(colour = "grey",
-		  								  linetype = "dotted"),
-		  legend.position = "top",
-		  axis.title.x = element_blank())
+ggplot(aes(age_std, over_chance,
+colour = sort(condition),
+fill = sort(condition))) + 
+geom_point(shape = 16, size = 4) +
+geom_line(aes(group = condition),
+linewidth = 1) +
+# geom_point(size = 3) +
+labs(x = "Group",
+y = "Recognition time (ms)",
+colour = "Condition",
+fill = "Condition") +
+scale_y_continuous(breaks = seq(0, 1e3L, 25)) +
+theme(panel.grid.major.y = element_line(colour = "grey",
+linetype = "dotted"),
+panel.grid.minor.y = element_line(colour = "grey",
+linetype = "dotted"),
+legend.position = "top",
+axis.title.x = element_blank())
 ```
 
 ## Discussion
