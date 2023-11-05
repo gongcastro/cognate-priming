@@ -188,9 +188,11 @@ list(
 	
 	tar_target(attrition_participants,
 			   get_attrition_participants(attrition_trials,
+			   						   vocabulary,
 			   						   min_trials = c(cognate = 2,
 			   						   			   noncognate = 2,
-			   						   			   unrelated = 2))),
+			   						   			   unrelated = 2),
+			   						   min_l1_vocab = 0.1)),
 	
 	
 	# Prepare for modelling data -----------------------------------------------

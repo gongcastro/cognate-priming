@@ -133,6 +133,7 @@ validate_gaze <- function(data, min_looking) {
 }
 
 #' Apply vocabulary validity inclusion criteria
+#' 
 validate_vocabulary <- function(data,
 								vocab_contents,
 								vocabulary_by = c("prime", "target")) {
@@ -163,11 +164,18 @@ validate_vocabulary <- function(data,
 
 
 #' Apply participant-level inclusion criteria
+#' 
 get_attrition_participants <- function(attrition_trials,
+									   vocabulary,
 									   # minimum n trials in each condition
 									   min_trials = c(cognate = 2,
 									   			   noncognate = 2,
-									   			   unrelated = 2)) {
+									   			   unrelated = 2),
+									   min_l1_vocab = 0.1) {
+	d_v <- vocabulary |> 
+		mutate(is_valid_vocab_size = l1_prop >= min_l1_vocab) |> 
+		select(session_id, is_valid_vocab_size)
+	
 	# valid participants
 	attrition_participants <- attrition_trials |>
 		# get number of valid trials by participant, age, group, and trial type
@@ -181,18 +189,20 @@ get_attrition_participants <- function(attrition_trials,
 					names_repair = janitor::make_clean_names) |>
 		rename(noncognate = non_cognate) |>
 		relocate(noncognate, .after = cognate) |>
+		left_join(d_v, by = join_by(session_id)) |> 
 		mutate(is_valid_cognate = cognate >= min_trials["cognate"],
 			   is_valid_noncognate = noncognate >= min_trials["noncognate"],
 			   is_valid_unrelated = unrelated >= min_trials["unrelated"],
 			   is_valid_participant = rowSums(cbind(is_valid_cognate,
 			   									 is_valid_noncognate,
-			   									 is_valid_unrelated))==3) |>
+			   									 is_valid_unrelated,
+			   									 is_valid_vocab_size))==4) |>
 		rowwise() |> 
 		mutate(.ntrials = list(unlist(across(c(cognate, noncognate, unrelated))))) |> 
 		ungroup() |> 
-		select(session_id, .ntrials, is_valid_participant)
+		select(session_id, .ntrials, is_valid_participant, is_valid_vocab_size)
 	
-	test_attrition_participants(attrition_participants)
+	# test_attrition_participants(attrition_participants)
 	
 	return(attrition_participants)
 }

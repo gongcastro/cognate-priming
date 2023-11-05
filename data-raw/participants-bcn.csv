@@ -61,7 +61,7 @@ child_id,session_id,vocab_id,session,age_group,pilot,location,test_language,list
 56366,56366_1,,1,25,FALSE,Barcelona,Spanish,3,euro,19/11/2020,15/10/2018,25.53,55.57,f,77%,23%,0%,0%,Bilingual,2nd attempt (crying),CognatePriming_060_2020-11-19_1.csv,,TRUE,,FALSE,FALSE
 56224,56224_1,,1,25,FALSE,Barcelona,Spanish,2,euro,05/12/2020,26/09/2018,26.7,56.2,m,70%,30%,0%,0%,Bilingual,Recitados para dos semanas después,CognatePriming_061_2020-12-05.csv,,FALSE,,FALSE,FALSE
 56995,56995_1,,1,21,FALSE,Barcelona,Catalan,1,ll,21/11/2020,13/03/2019,20.63,50.6,m,0%,99%,1%,0%,Monolingual,,CognatePriming_062_2020-11-21.csv,,TRUE,,FALSE,FALSE
-56237,56237_1,1537,1,25,FALSE,Barcelona,Spanish,1,latin,21/11/2020,29/09/2018,26.13,56.1,f,1%,99%,0%,0%,Monolingual,"Bad calibration, wrong language",CognatePriming_064_2020-11-21.csv,,TRUE,,FALSE,FALSE
+56237,56237_1,1537,1,25,FALSE,Barcelona,Spanish,1,latin,21/11/2020,29/09/2018,26.13,56.1,f,99%,1%,0%,0%,Monolingual,"Bad calibration, wrong language",CognatePriming_064_2020-11-21.csv,,TRUE,,FALSE,FALSE
 56363,56363_1,1550,1,25,FALSE,Barcelona,Catalan,1,ll,25/11/2020,16/10/2018,25.7,55.53,f,0%,100%,0%,0%,Monolingual,Too far,CognatePriming_065_2020-11-25.csv,,FALSE,,FALSE,FALSE
 56465,56465_1,1551,1,25,FALSE,Barcelona,Spanish,1,euro,26/11/2020,10/11/2018,24.9,54.7,f,63%,37%,0%,0%,Bilingual,,CognatePriming_066_2020-11-26.csv,,TRUE,,FALSE,FALSE
 56374,56374_1,,1,25,FALSE,Barcelona,Catalan,1,ll,27/11/2020,21/10/2018,25.6,55.37,f,47%,53%,0%,0%,Bilingual,,CognatePriming_067_2020-11-27.csv,,TRUE,,FALSE,FALSE
