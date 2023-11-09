@@ -69,7 +69,7 @@ get_participants <- function(participants_file_bcn,
 			   doe_english, doe_catalan, doe_spanish, doe_others, version, date_birth,
 			   test_language, list, sex) 
 	
-	participants <- list(Barcelona = participants_bcn,
+	out <- list(Barcelona = participants_bcn,
 						 Oxford = participants_oxf) |> 
 		bind_rows(.id = "location") |> 
 		mutate(across(where(is.logical), 
@@ -88,9 +88,9 @@ get_participants <- function(participants_file_bcn,
 			   test_language, list, version,
 			   vocab_id, vocab_id_response, filename)
 	
-	test_participants(participants)
+	test_participants(out)
 	
-	return(participants)
+	return(out)
 	
 }
 

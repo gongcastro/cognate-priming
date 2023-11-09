@@ -81,7 +81,7 @@ get_childes_corpora <- function(token, languages = c("cat", "spa")) {
 	# if CHILDES exists, load
 	childes.path <- file.path("data-raw", "childes.csv")
 	if (file.exists(childes.path)){
-		childes <- readr::read_csv(childes.path)
+		childes <- readr::read_csv(childes.path, show_col_types = FALSE)
 		cli_alert_success("Previous versions of childes loaded")
 		return(childes)
 	} 
@@ -196,7 +196,7 @@ get_stimuli <- function(trials, # trials dataset
 	}
 	
 	# select and reorder relevant variables
-	stimuli <- stimuli_imputed |> 
+	out <- stimuli_imputed |> 
 		select(trial, test_language, version, list, trial_type,
 			   prime, target, distractor, audio, duration, target_location,
 			   prime_cdi, target_cdi, distractor_cdi,
@@ -210,9 +210,9 @@ get_stimuli <- function(trials, # trials dataset
 		mutate(across(c(trial, list), as.integer),
 			   across(starts_with("is_animate"), as.logical))
 	
-	test_stimuli(stimuli)
+	test_stimuli(out)
 	
-	return(stimuli)
+	return(out)
 }
 
 
