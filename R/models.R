@@ -150,7 +150,7 @@ fit_single_model <- function(name, formula, data, prior, ...) {
 				   chains = 4L,
 				   cores = 4L,
 				   init = 0.1,
-				   file_refit = "on_change",
+				   file_refit = "never",
 				   file = model_path,
 				   seed = 1234,
 				   control = model_opts,
