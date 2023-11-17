@@ -22,7 +22,7 @@ child_id,session_id,vocab_id,session,age_group,pilot,location,test_language,list
 54379,54379_1,,1,30,FALSE,Barcelona,Spanish,2,euro,30/11/2019,21/07/2017,28.73,70.6,f,40%,56%,4%,0%,Bilingual,Wrong language,CognatePriming_021_2019-11-30.csv,,TRUE,,FALSE,FALSE
 50010,50010_1,,1,30,FALSE,Barcelona,Catalan,3,i,30/11/2019,28/11/2016,36.57,78.43,f,76%,24%,0%,0%,Bilingual,"Wrong language, age",CognatePriming_022_2019-11-30.csv,,FALSE,,FALSE,FALSE
 54548,54548_1,,1,30,FALSE,Barcelona,Spanish,3,euro,30/11/2019,05/09/2017,27.2,69.07,m,98%,2%,0%,0%,Monolingual,,CognatePriming_023_2019-11-30.csv,,TRUE,,FALSE,FALSE
-55155,55155_1,,1,25,TRUE,Barcelona,Catalan,1,ll,12/12/2019,05/12/2017,24.57,66.03,m,20%,80%,0%,0%,Bilingual,Jan,CognatePriming_024_2019-12-12_2.csv,,TRUE,,FALSE,FALSE
+55155,55155_1,,1,25,TRUE,Barcelona,Catalan,1,ll,12/12/2019,05/12/2017,24.57,66.03,m,20%,80%,0%,0%,Monolingual,Jan,CognatePriming_024_2019-12-12_2.csv,,TRUE,,FALSE,FALSE
 54250,54250_1,,1,30,FALSE,Barcelona,Catalan,1,ll,14/12/2019,13/06/2017,30.47,71.87,m,18%,82%,0%,0%,Monolingual,CDI only on Catalan,CognatePriming_025_2019-12-14.csv,,FALSE,,FALSE,FALSE
 54487,54487_1,552,1,30,FALSE,Barcelona,Catalan,1,i,14/12/2019,28/08/2017,27.93,69.33,m,43%,57%,0%,0%,Bilingual,"Bad calibration, CDI only in Catalan",CognatePriming_026_2019-12-14.csv,,TRUE,,FALSE,FALSE
 54840,54840_1,553,1,30,FALSE,Barcelona,Catalan,2,ll,14/12/2019,04/08/2017,28.73,70.13,m,11%,88%,0%,0%,Monolingual,,CognatePriming_027_2019-12-14_1.csv,,TRUE,,FALSE,FALSE
@@ -125,7 +125,7 @@ child_id,session_id,vocab_id,session,age_group,pilot,location,test_language,list
 56374,56374_2,,2,30,FALSE,Barcelona,Catalan,1,ll,22/04/2021,21/10/2018,30.47,55.37,f,46%,54%,0%,0%,Bilingual,,CognatePriming_067_2021-04-22.csv,,TRUE,,FALSE,FALSE
 56363,56363_2,,2,30,FALSE,Barcelona,Catalan,1,ll,22/04/2021,16/10/2018,30.63,55.53,f,0%,100%,0%,0%,Monolingual,,CognatePriming_065_2021-04-22.csv,,TRUE,,FALSE,FALSE
 56366,56366_2,1684,2,30,FALSE,Barcelona,Spanish,3,euro,26/04/2021,15/10/2018,30.8,55.57,f,75%,25%,0%,0%,Bilingual,,CognatePriming_060_2021-04-26.csv,,TRUE,,FALSE,FALSE
-56232,56232_2,,2,30,FALSE,Barcelona,Catalan,3,ll,28/04/2021,26/09/2018,31.5,56.2,m,20%,80%,0%,0%,Bilingual,,CognatePriming_058_2021-04-28.csv,,TRUE,,FALSE,FALSE
+56232,56232_2,,2,30,FALSE,Barcelona,Catalan,3,ll,28/04/2021,26/09/2018,31.5,56.2,m,20%,80%,0%,0%,Monolingual,,CognatePriming_058_2021-04-28.csv,,TRUE,,FALSE,FALSE
 57059,57059_2,1686,2,25,FALSE,Barcelona,Spanish,3,euro,28/04/2021,27/03/2019,25.43,50.13,f,96%,4%,0%,0%,Monolingual,Slighly bad claibration,CognatePriming_070_2021-04-28.csv,,TRUE,,FALSE,FALSE
 57028,57028_2,,2,25,FALSE,Barcelona,Spanish,3,euro,29/04/2021,20/03/2019,25.7,50.37,m,84%,16%,0%,0%,Monolingual,,CognatePriming_072_2021-04-29_1.csv,,TRUE,,FALSE,FALSE
 57050,57050_2,1688,2,25,FALSE,Barcelona,Catalan,3,ll,29/04/2021,26/03/2019,25.5,50.17,f,0%,100%,0%,0%,Monolingual,,CognatePriming_078_2021-04-29.csv,,TRUE,,FALSE,FALSE
@@ -221,7 +221,7 @@ child_id,session_id,vocab_id,session,age_group,pilot,location,test_language,list
 57741,57741_1,1780,1,25,FALSE,Barcelona,Catalan,3,ll,11/12/2021,20/10/2019,26.1,43.23,f,0%,100%,0%,0%,Monolingual,no tiempo pasar cuestionatio lenguas fussi,CognatePriming_140_2021-12-11_2.csv,VisualPreference_140_2021-12-11.csv,TRUE,,TRUE,FALSE
 57823,57823_1,,1,25,FALSE,Barcelona,Catalan,2,ll,18/12/2021,17/11/2019,25.4,42.3,m,79%,21%,0%,0%,Bilingual,"CP first, fussy during CP. Wrong language",CognatePriming_141_2021-12-18.csv,VisualPreference_141_2021-12-18.csv,TRUE,,TRUE,FALSE
 58190,58190_1,1782,1,21,FALSE,Barcelona,Spanish,1,euro,21/12/2021,09/03/2020,21.73,38.53,m,43%,54%,3%,0%,Bilingual,"CP first, but ET, bad calibration at the end. Wrong language",CognatePriming_142_2021-12-21.csv,VisualPreference_142_2021-12-21.csv,TRUE,,TRUE,FALSE
-57902,57902_1,,1,25,FALSE,Barcelona,Spanish,2,euro,04/01/2022,17/12/2019,24.97,41.3,m,46%,54%,0%,0%,Bilingual,"CP first, stopped because of crying participant. Wrong language",CognatePriming_143_2022-01-04.csv,VisualPreference_143_2022-01-04.csv,TRUE,,TRUE,FALSE
+57902,57902_1,,1,25,FALSE,Barcelona,Spanish,2,euro,04/01/2022,17/12/2019,24.97,41.3,f,46%,54%,0%,0%,Bilingual,"CP first, stopped because of crying participant. Wrong language",CognatePriming_143_2022-01-04.csv,VisualPreference_143_2022-01-04.csv,TRUE,,TRUE,FALSE
 58372,58372_1,1784,1,25,FALSE,Barcelona,Catalan,3,ll,07/01/2022,23/12/2019,24.87,41.1,m,34%,64%,2%,0%,Bilingual,CP first,CognatePriming_144_2022-01-07.csv,VisualPreference_144_2022-01-07.csv,TRUE,,TRUE,FALSE
 58310,58310_1,,1,21,FALSE,Barcelona,Catalan,2,ll,12/01/2022,09/03/2020,22.47,38.53,m,26%,74%,0%,0%,Bilingual,CP first,CognatePriming_145_2022-01-12_2.csv,,TRUE,,TRUE,FALSE
 57480,57480_2,1786,2,30,FALSE,Barcelona,Catalan,2,ll,22/01/2022,17/07/2019,30.67,46.4,f,43%,57%,0%,0%,Bilingual,,CognatePriming_110_2022-01-22_1.csv,,TRUE,,TRUE,FALSE
@@ -244,7 +244,7 @@ child_id,session_id,vocab_id,session,age_group,pilot,location,test_language,list
 58088,58088_1,1804,1,25,FALSE,Barcelona,Catalan,1,ll,10/02/2022,11/02/2020,24.33,39.43,m,14%,86%,0%,0%,Monolingual,,CognatePriming_157_2022-02-10.csv,,TRUE,,TRUE,FALSE
 58530,58530_1,,1,21,FALSE,Barcelona,Catalan,2,ll,12/02/2022,29/04/2020,21.8,36.83,f,41%,59%,0%,0%,Bilingual,first + file name CognatePriming_158_2022-02-12_1.csv,CognatePriming_158_2022-02-12_1.csv,,TRUE,,TRUE,FALSE
 57709,57709_3,1806,3,30,FALSE,Barcelona,Spanish,2,euro,18/02/2022,09/10/2019,28.77,43.6,m,83%,17%,0%,0%,Monolingual,,CognatePriming_131_2022-02-18.csv,,TRUE,,TRUE,FALSE
-57707,57707_3,1807,3,30,FALSE,Barcelona,Spanish,2,latin,18/02/2022,09/10/2019,28.77,43.6,m,77%,23%,0%,0%,Bilingual,,CognatePriming_124_2022-02-18.csv,,TRUE,,FALSE,FALSE
+57707,57707_3,1807,3,30,FALSE,Barcelona,Spanish,2,latin,18/02/2022,09/10/2019,28.77,43.6,f,77%,23%,0%,0%,Bilingual,,CognatePriming_124_2022-02-18.csv,,TRUE,,FALSE,FALSE
 57537,57537_3,1808,3,30,FALSE,Barcelona,Catalan,2,ll,18/02/2022,02/08/2019,31.03,45.87,m,0%,100%,0%,0%,Monolingual,,CognatePriming_112_2022-02-18.csv,,TRUE,,TRUE,FALSE
 57592,57592_2,,2,30,FALSE,Barcelona,Spanish,1,euro,18/02/2022,05/09/2019,29.9,44.73,m,48%,52%,0%,0%,Bilingual,Wrong language,CognatePriming_134_2022-02-18.csv,,TRUE,,TRUE,FALSE
 57552,57552_3,,3,30,FALSE,Barcelona,Catalan,3,ll,19/02/2022,19/08/2019,30.5,45.3,m,0%,100%,0%,0%,Monolingual,,CognatePriming_118_2022-02-19_2.csv,,TRUE,,TRUE,FALSE

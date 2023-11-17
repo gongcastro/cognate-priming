@@ -225,38 +225,38 @@ list(
 	
 	tar_target(model_formulas_bcn,
 			   lst(
-			   	.elog ~ age_std + 
-			   		s(timebin_std, bs = "cr", k = 9) +
+			   	fit_0 =.elog ~ age_std + 
+			   		s(timebin_std, bs = "bs", k = 8) +
 			   		(1 + age_std | child_id) + 
 			   		(1 | child_id:session_id),
-			   	.elog ~ lp + age_std + 
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = lp, bs = "cr", k = 9) +
+			   	fit_1 =.elog ~ lp + age_std + 
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = lp, bs = "bs", k = 8) +
 			   		(1 + age_std | child_id) + 
 			   		(1 | child_id:session_id),
-			   	.elog ~ lp + condition + age_std +
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   	fit_2 =.elog ~ lp + condition + age_std +
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ condition * lp + age_std +
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   	fit_3 =.elog ~ condition * lp + age_std +
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ condition * lp * age_std +
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   	fit_4 =.elog ~ condition * lp * age_std +
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ condition * lp * voc_l1_std + 
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   	fit_5 =.elog ~ condition * lp * voc_l1_std + 
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + voc_l1_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ condition * lp * voc_total_std + 
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "cr", k = 9) +
+			   	fit_6 =	.elog ~ condition * lp * voc_total_std + 
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + voc_total_std | child_id) +
 			   		(1 + condition | child_id:session_id)
 			   )),
@@ -286,23 +286,23 @@ list(
 	
 	tar_target(model_formulas_oxf,
 			   lst(
-			   	.elog ~ age_std + 
-			   		s(timebin_std, bs = "cr", k = 9) +
+			   	fit_0 = .elog ~ age_std + 
+			   		s(timebin_std, bs = "bs", k = 8) +
 			   		(1 + age_std | child_id) + 
 			   		(1 | child_id:session_id),
-			   	.elog ~ condition + age_std +
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
+			   	fit_1 = .elog ~ condition + age_std +
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = condition, bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ condition * age_std +
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
+			   	fit_2 = .elog ~ condition * age_std +
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = condition, bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	.elog ~ condition * voc_l1_std + 
-			   		s(timebin_std, bs = "cr", k = 9) +
-			   		s(timebin_std, by = condition, bs = "cr", k = 9) +
+			   	fit_3 = .elog ~ condition * voc_l1_std + 
+			   		s(timebin_std, bs = "bs", k = 8) +
+			   		s(timebin_std, by = condition, bs = "bs", k = 8) +
 			   		(1 + condition + voc_l1_std | child_id) +
 			   		(1 + condition | child_id:session_id)
 			   )),

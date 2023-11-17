@@ -10,9 +10,9 @@ get_vocabulary <- function(participants,
 									participants,
 									cdi_file_oxf)
 	
-	vocabulary <- bind_rows(vocab_bcn, vocab_oxf)
+	out <- bind_rows(vocab_bcn, vocab_oxf)
 	
-	return(vocabulary)
+	return(out)
 }
 
 # vocabulary size
@@ -28,7 +28,7 @@ get_vocabulary_bcn <- function(participants, # participants dataset (get_partici
 	
 	vocab_supp <- get_vocabulary_supp_bcn(vocabulary_supp_bcn_file) 
 	
-	vocabulary <- bvq_data$vocabulary |>
+	out <- bvq_data$vocabulary |>
 		mutate(vocab_id = response_id) |> 
 		right_join(select(participants_tmp, session_id, child_id, vocab_id, age, lp),
 				   by = join_by(vocab_id)) |> 
@@ -57,16 +57,16 @@ get_vocabulary_bcn <- function(participants, # participants dataset (get_partici
 		select(-matches("supp"))
 	
 	
-	# test_vocabulary(vocabulary)
+	# test_vocabulary(out)
 	
-	return(vocabulary)
+	return(out)
 }
 
 #' Get vocabulary supplement
 #' 
 get_vocabulary_supp_bcn <- function(vocabulary_supp_bcn_file) {
 	
-	x <- vocabulary_supp_bcn_file |> 
+	out <- vocabulary_supp_bcn_file |> 
 		set_names(c("Catalan", "Spanish")) |> 
 		map_dfr(function(x) {
 			read_csv(file = x,
@@ -83,7 +83,7 @@ get_vocabulary_supp_bcn <- function(vocabulary_supp_bcn_file) {
 		summarise(contents_supp = list(item[response]),
 				  .by = session_id)
 	
-	return(x)
+	return(out)
 }
 
 #' Impute vocabulary size based on the whole BVQ database
@@ -205,7 +205,7 @@ get_vocabulary_oxf <- function(vocabulary_file,	participants,cdi_file_oxf) {
 		select(session_id, total_prop, contents) 
 	
 	
-	vocabulary <- lst(cdi_full, cdi_extended, cdi_supplementary) |> 
+	out <- lst(cdi_full, cdi_extended, cdi_supplementary) |> 
 		bind_rows(.id = "version") |> 
 		arrange(version) |> 
 		distinct(session_id, .keep_all = TRUE) |> 
@@ -219,7 +219,7 @@ get_vocabulary_oxf <- function(vocabulary_file,	participants,cdi_file_oxf) {
 		select(child_id, session_id, vocab_id, is_imputed, matches("prop"), contents) |> 
 		distinct(child_id, session_id, vocab_id, .keep_all = TRUE)
 	
-	return(vocabulary)
+	return(out)
 	
 }
 
@@ -250,7 +250,7 @@ get_cdi_full_oxf <- function(vocabulary_file) {
 						"prepositions_and_location_words",
 						"quantifiers")
 	
-	cdi_full <- readxl::read_xlsx(vocabulary_file, 
+	out <- readxl::read_xlsx(vocabulary_file, 
 								  sheet = "CDI_full",
 								  .name_repair = janitor::make_clean_names,
 								  na = c("N/A", "NA", "", "?", "none")) |> 
@@ -273,7 +273,7 @@ get_cdi_full_oxf <- function(vocabulary_file) {
 			   item = gsub(paste0(paste0(rev(category_names), "_"),
 			   				   collapse = "|"), "", item))
 	
-	return(cdi_full)
+	return(out)
 }
 
 #' Get CDI extended
@@ -309,7 +309,7 @@ get_cdi_extended_oxf <- function(vocabulary_file) {
 						  "prepositions",
 						  "quantifiers")
 	
-	cdi_ext <- readxl::read_xlsx(vocabulary_file, 
+	out <- readxl::read_xlsx(vocabulary_file, 
 								 sheet = "CDI_ext",
 								 .name_repair = janitor::make_clean_names,
 								 na = c("N/A", "NA", "", "?", "none")) |> 
@@ -331,13 +331,13 @@ get_cdi_extended_oxf <- function(vocabulary_file) {
 			   item = gsub(paste0(paste0(rev(category_names_2), "_"),
 			   				   collapse = "|"), "", item))
 	
-	return(cdi_ext)
+	return(out)
 }
 
 #' Get supplementary vocabulary
 get_supplementary_oxf <- function(vocabulary_file) {
 	
-	supplementary <- readxl::read_xlsx(vocabulary_file, 
+	out <- readxl::read_xlsx(vocabulary_file, 
 									   col_types = "text",
 									   sheet = "Supplementary",
 									   .name_repair = janitor::make_clean_names,
@@ -348,7 +348,7 @@ get_supplementary_oxf <- function(vocabulary_file) {
 					 names_to = "item",
 					 values_to = "response") |> 
 		rename(child_id = participant_id) 
-	return(supplementary)
+	return(out)
 }
 
 #' Recode CDI responses

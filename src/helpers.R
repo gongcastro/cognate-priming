@@ -1,16 +1,16 @@
-# project utils ----------------------------------------------------------------
-
-#' Run the targets pipeline
+#' Run the targets pipeline as a job in RStudio
 #' 
-make <- function() {
-	job::job(
-		{{ 
-			targets::tar_make()
-			job::export("none")  # return nothing
-		}},  
-		import = NULL,
-		title = "Cognate Priming"
-	)
+#' @details
+#' Running the targets workflow may take some time. To free the R console while targets runs, this functions calls [job::job] to move the execution to a different R session.
+#' 
+make <- function(target) {
+	job::job(targets =  {
+		targets::tar_make()
+		job::export("none")  # return nothing
+	},  
+	import = NULL,
+	title = "Cognate Priming",
+	packages = NULL)
 }
 
 #' Destroy targets products
@@ -60,6 +60,7 @@ welcome_message <- function() {
 }
 
 #' Delete unwanted files
+#' 
 clean_repo <- function() {
 	
 	file.paths <- file.path(c("manuscript/orcidlink.sty",
