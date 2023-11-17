@@ -60,7 +60,7 @@ get_participants <- function(participants_file_bcn,
 			   doe_spanish = 0,
 			   doe_others = 0,
 			   test_language = "English",
-			   version = "British",
+			   version = "british",
 			   lp = "Monolingual (English)") |>
 		filter(!is.na(list), !is.na(age)) |> 
 		mutate(session_n = 1:n(), .by = child_id) |> 

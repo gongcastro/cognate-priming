@@ -16,10 +16,7 @@ test_gaze <- function(x){
 			  "is_gaze_distractor",
 			  "is_valid_gaze",
 			  "is_imputed",
-			  "trial_type",
-			  "prime_cdi",
-			  "target_cdi",
-			  "distractor_cdi")
+			  "trial_type")
 		)
 	})
 	
@@ -49,9 +46,6 @@ test_gaze <- function(x){
 		expect_false(any(is.na(unique(x$timestamp))))
 		expect_false(any(is.na(x$is_valid_gaze)))
 		expect_false(any(is.na(x$trial_type)))
-		expect_false(any(is.na(x$prime_cdi)))
-		expect_false(any(is.na(x$target_cdi)))
-		expect_false(any(is.na(x$distractor_cdi)))
 		
 	})
 	

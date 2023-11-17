@@ -2,7 +2,7 @@
 get_audio_duration <- function(trials) {
 	
 	# get dir paths and validate paths
-	audio.dir <- paste0("stimuli/sounds/sounds_", c("cat", "spa")) 
+	audio.dir <- paste0("stimuli/sounds/sounds_", c("cat", "eng", "spa")) 
 	audio.dir.valid <- dir.exists(audio.dir)
 	
 	if (!all(audio.dir.valid))  {
@@ -17,13 +17,14 @@ get_audio_duration <- function(trials) {
 	durations <- tibble::tibble(audio_path = audio.paths, 
 								duration = durations.vctr)
 	durations$audio <- basename(audio.paths)
-	durations$test_language <- ifelse(grepl("sounds_cat", audio.paths),
-									  "Catalan",
-									  "Spanish")
+	durations$test_language <- case_when(grepl("_cat", audio.paths) ~ "Catalan",
+										 grepl("_spa", audio.paths) ~ "Spanish",
+										 grepl("_eng", audio.paths) ~ "English")
+	durations$duration <- ifelse(durations$test_language=="English",
+								 durations$duration-4, durations$duration)
 	
 	# merge with trials dataset
-	trials_tmp <- distinct(trials[trials$location=="Barcelona", ], 
-						   test_language, version, audio)
+	trials_tmp <- distinct(trials, test_language, version, audio)
 	trials_tmp$audio <- stringi::stri_trans_general(str = trials_tmp$audio, 
 													id = "Latin-ASCII")
 	duration <- inner_join(trials_tmp, durations,
@@ -76,7 +77,7 @@ get_familiarity <- function(
 }
 
 #' Get frequencies from CHILDES
-get_childes_corpora <- function(token, languages = c("cat", "spa")) {
+get_childes_corpora <- function(token, languages = c("eng")) {
 	
 	# if CHILDES exists, load
 	childes.path <- file.path("data-raw", "childes.csv")
@@ -108,7 +109,7 @@ get_childes_corpora <- function(token, languages = c("cat", "spa")) {
 # WARNING: especial characters are not being handled very well
 get_frequency_childes <- function(childes,
 								  token, # word(s) form to look up, e.g. c("table", "mesa")
-								  languages = c("cat", "spa"), # languages in which to look up the word form 
+								  languages = c("eng"), # languages in which to look up the word form 
 								  ... # passed to childesr::get_speaker_statistics)
 ){
 	
@@ -122,95 +123,68 @@ get_frequency_childes <- function(childes,
 			summarise(n = sum(num_tokens, na.rm = TRUE), .by = language)
 		
 		# relative frequency (counts per million)
-		lang_dict <- c(eng = "English", spa = "Spanish", cat = "Catalan")
-		
 		frequencies <- childes |>
 			left_join(total_counts, by = "language") |>
 			mutate(freq_per_million = freq_counts/n*1e6,
-				   freq_zipf = log10(freq_per_million)+3,
-				   language = str_replace_all(language, lang_dict)) |>
-			rename(word = gloss,
-				   test_language = language,
+				   freq_zipf = log10(freq_per_million)+3) |>
+			rename(childes_lemma = gloss,
 				   freq = freq_zipf) |>
-			select(word, test_language, freq)
+			select(childes_lemma, freq)
 	})
 	
 	return(frequencies)
 }
 
-#' Get animacy data
-get_animacy <- function(animacy_file) {
-	
-	animacy <- readr::read_csv(animacy_file, 
-							   show_col_types = FALSE, 
-							   progress = FALSE) 
-	animacy$is_animate <- as.logical(animacy$is_animate)
-	animacy <- animacy[animacy$test_language %in% c("Catalan", "Spanish"), ]
-	
-	return(animacy)
-}
-
-
 #' Get stimuli data (join everything)
-get_stimuli <- function(trials, # trials dataset
-						familiarity,
-						frequencies,
-						animacy,
-						semantic_category,
-						duration,
-						impute = TRUE){
+get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE){
 	
-	# join all datasets (not very elegant, but does the trick)
-	# prime and target data are joined separately to avoid duplicates
-	stimuli_raw <- trials |> 
+	d_w <- select(words, -role)
+	
+	stim <- trials |> 
 		mutate(audio = stringi::stri_trans_general(str = trials$audio, 
 												   id = "Latin-ASCII")) |> 
-		left_join(semantic_category, by = c("target_cdi" = "word", "test_language")) |> 
-		rename(semantic_category_prime = semantic_category) |> 
-		left_join(semantic_category, by = c("prime_cdi" = "word", "test_language")) |> 
-		rename(semantic_category_target = semantic_category) |> 
-		left_join(frequencies, by = c("prime" = "word", "test_language")) |> 
-		rename(freq_prime = freq) |>
-		left_join(frequencies, by = c("target" = "word", "test_language")) |> 
-		rename(freq_target = freq) |> 
-		left_join(animacy, by = c("prime" = "object", "test_language")) |> 
-		rename(is_animate_prime = is_animate) |> 
-		left_join(animacy, by = c("target" = "object", "test_language")) |> 
-		rename(is_animate_target = is_animate) |> 
-		left_join(familiarity, c("prime_cdi" = "word", "test_language")) |> 
-		rename_at(vars(starts_with("familiarity")), function(x) paste0(x, "_prime")) |> 
-		left_join(familiarity, c("target_cdi" = "word", "test_language")) |> 
-		left_join(duration, by = join_by(test_language, version, audio)) |> 
-		rename_with(\(x) paste0(x, "_target"), 
-					c(starts_with("familiarity") & 
-					  	!ends_with("_prime"))) |> 
-		rename_with(\(x) gsub("prime_target", "prime", x), everything()) |> 
-		filter(location=="Barcelona")
+		pivot_longer(c(prime, target, distractor),
+					 names_to = "role",
+					 values_to = "stimulus") |> 
+		left_join(d_w, by = join_by(test_language, stimulus))  |> 
+		left_join(frequencies, by = join_by(childes_lemma)) |> 
+		select(-c(childes_lemma, wordbank_lemma)) |> 
+		mutate(nphon = map_int(strsplit(xsampa, ""), length)) |> 
+		rename(vocab_item = item, vocab_item_supp = item_supp) |> 
+		pivot_wider(id_cols = c(trial, location, test_language, version, list,
+								audio, target_location, trial_type),
+					names_from = role,
+					values_from = c(xsampa, xsampa_t, freq, stimulus, nphon,
+									vocab_item, vocab_item_supp)) |> 
+		left_join(durations, by = join_by(test_language, version, audio)) 
 	
-	# impute data
-	if (impute){ # defined in arguments
-		stimuli_imputed <- stimuli_raw |> 
+	if (impute){ 
+		stim <- stim |> 
 			mice::mice(printFlag = FALSE) |> # predictive mean matching
 			mice::complete() |> # get complete dataset
 			as_tibble()
 	}
 	
 	# select and reorder relevant variables
-	out <- stimuli_imputed |> 
+	out <- stim |>
+		rename_with(\(x) gsub("stimulus_", "", x)) |> 
+		mutate(lv_pp = stringdist::stringsim(xsampa_prime, xsampa_t_prime),
+			   lv_pt = stringdist::stringsim(xsampa_prime, xsampa_target)) |> 
+		rowwise() |> 
+		mutate(xsampa = list(unlist(across(matches("xsampa")))),
+			   nphon = list(unlist(across(matches("nphon")))),
+			   freq = list(unlist(across(matches("freq")))),
+			   vocab_item = list(unlist(across(c(vocab_item_prime,
+			   								  vocab_item_target,
+			   								  vocab_item_distractor)))),
+			   vocab_item_supp = list(unlist(across(matches("vocab_item_supp"))))) |>
+		ungroup() |> 
 		select(trial, test_language, version, list, trial_type,
-			   prime, target, distractor, audio, duration, target_location,
-			   prime_cdi, target_cdi, distractor_cdi,
-			   valid_trial, 
-			   familiarity_prime, familiarity_target,
-			   familiarity_se_prime, familiarity_se_target,
-			   freq_prime, freq_target,
-			   semantic_category_prime, semantic_category_target,
-			   is_animate_prime, is_animate_target,
-			   is_animate_prime, is_animate_target) |> 
-		mutate(across(c(trial, list), as.integer),
-			   across(starts_with("is_animate"), as.logical))
+			   prime, target, distractor, audio, target_location,
+			   duration, nphon, freq, xsampa, lv_pp, lv_pt, vocab_item, vocab_item_supp) |> 
+		mutate(across(c(trial, list), as.integer))
 	
-	test_stimuli(out)
+	# test_stimuli(out)
 	
 	return(out)
 }

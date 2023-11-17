@@ -373,32 +373,52 @@ Each word was depicted by a realistic phonographic representation of a typical e
 #| label: tbl-stimuli
 #| tbl-cap: "Summary of stimuli properties by trial type."
 stimuli |> 
-	summarise(across(c(matches("familiarity_|freq_|animate_"), duration),
-					 tibble::lst(mean, sd, min, max)),
-			  .by = c(test_language, trial_type)) |> 
-	select(-matches("familiarity_se"), -matches("prime"),
-		   -c(is_animate_target_sd,
-		      is_animate_target_min,
-		      is_animate_target_max),
-		   -matches("min"), -matches("max")) |> 
-	gt(groupname_col = "test_language",
-	   rowname_col = "list") |> 
-	fmt_number(is.numeric,
-			   decimals = 1) |> 
-	fmt_number(matches("familiarity|animate"),
-			   scale_by = 100,
-			   decimals = 1) |> 
-	cols_merge(c(freq_target_mean, freq_target_sd),
+	unnest_wider(c(freq, nphon)) |> 
+	filter(test_language != "English") |> 
+	summarise(across(c(matches("n_phon|freq_|lv_|nphon"), duration),
+					 list(mean = \(x) mean(x, na.rm = TRUE),
+					 	 sd = \(x) sd(x, na.rm = TRUE))),
+			  .by = c(trial_type)) |> 
+	select(-matches("distractor")) |> 
+	gt(rowname_col = "trial_type",
+	   groupname_col = "test_language") |> 
+	# summary_rows(groups = c("Unrelated", "Non-cognate", "Cognate"),
+	# 			 columns = is.numeric,
+	# 			 fns = list(Total ~ mean(.)),
+	# 			 fmt = ~ fmt_number(., decimals = 2)) |> 
+	grand_summary_rows(columns = is.numeric,
+					   fns = list(Total ~ mean(.)),
+					   fmt = ~ fmt_number(., decimals = 2)) |> 
+	tab_spanner("Phonemes", matches("nphon")) |> 
+	tab_spanner("Frequency (Zipf)", matches("freq")) |> 
+	tab_spanner("Phon. similarity [0-1]", matches("lv")) |>
+	fmt_number(is.numeric, decimals = 1) |> 
+	cols_merge(c(freq_prime_mean, freq_prime_sd),
 			   pattern = "{1} ({2})") |> 
-	cols_merge(c(familiarity_target_mean, familiarity_target_sd),
+	cols_merge(c(freq_target_mean, freq_target_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(nphon_prime_mean, nphon_prime_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(nphon_target_mean, nphon_target_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(lv_pp_mean, lv_pp_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(lv_pt_mean, lv_pt_sd),
 			   pattern = "{1} ({2})") |> 
 	cols_merge(c(duration_mean, duration_sd),
 			   pattern = "{1} ({2})") |> 
 	cols_label(trial_type = "",
-			   familiarity_target_mean = "Prevalence (%)",
-			   freq_target_mean = "Frequency",
-			   is_animate_target_mean = "Animacy (%)",
-			   duration_mean = "Duration (s)") 
+			   freq_prime_mean = "Prime",
+			   freq_target_mean = "Target",
+			   lv_pp_mean = "Prime-Prime",
+			   lv_pt_mean = "Prime-Target",
+			   duration_mean = "Audio duration (s)",
+			   nphon_prime_mean = "Prime",
+			   nphon_target_mean = "Target") |> 
+	tab_style(cell_text(style = "italic"),
+			  list(cells_column_labels(),
+			    cells_column_spanners(),
+			    cells_grand_summary()))
 ```
 
 
@@ -1015,7 +1035,61 @@ vocabulary_oxf |>
 
 ### Stimuli
 
-New stimuli lists were generated to adapt the experimental procedure to English-learning infants. Stimuli lists were created following the same constraints as in Study 1. Auditory stimuli were recorded following the same procedure as in Study 1, produced by Southern British English native female speaker in a toddler-directed manner. Audio and picture processing were performed following the same workflow as in Study 1.
+New stimuli lists were generated to adapt the experimental procedure to English-learning infants. Stimuli lists were created following the same constraints as in Study 1. Auditory stimuli were recorded following the same procedure as in Study 1, produced by Southern British English native female speaker in a toddler-directed manner. Audio and picture processing were performed following the same workflow as in Study 1. @tbl-stimuli-oxf shows a detailed summary of the properties of the English stimuli in Study 2.
+
+```{r tbl-stimuli-oxf}
+#| label: tbl-stimuli-oxf
+#| tbl-cap: "Summary of stimuli properties by trial type."
+stimuli |> 
+	unnest_wider(c(freq, nphon)) |> 
+	filter(test_language == "English") |> 
+	summarise(across(c(matches("n_phon|freq_|lv_|nphon"), duration),
+					 list(mean = \(x) mean(x, na.rm = TRUE),
+					 	 sd = \(x) sd(x, na.rm = TRUE))),
+			  .by = c(trial_type)) |> 
+	select(-matches("distractor")) |> 
+	gt(rowname_col = "trial_type",
+	   groupname_col = "test_language") |> 
+	# summary_rows(groups = c("Unrelated", "Non-cognate", "Cognate"),
+	# 			 columns = is.numeric,
+	# 			 fns = list(Total ~ mean(.)),
+	# 			 fmt = ~ fmt_number(., decimals = 2)) |> 
+	grand_summary_rows(columns = is.numeric,
+					   fns = list(Total ~ mean(.)),
+					   fmt = ~ fmt_number(., decimals = 2)) |> 
+	tab_spanner("Phonemes", matches("nphon")) |> 
+	tab_spanner("Lexical frequency (Zipf)", matches("freq")) |> 
+	tab_spanner("Phonological similarity [0-1]", matches("lv")) |>
+	fmt_number(is.numeric, decimals = 1) |> 
+	cols_merge(c(freq_prime_mean, freq_prime_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(freq_target_mean, freq_target_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(nphon_prime_mean, nphon_prime_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(nphon_target_mean, nphon_target_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(lv_pp_mean, lv_pp_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(lv_pt_mean, lv_pt_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_merge(c(duration_mean, duration_sd),
+			   pattern = "{1} ({2})") |> 
+	cols_label(trial_type = "",
+			   freq_prime_mean = "Prime",
+			   freq_target_mean = "Target",
+			   lv_pp_mean = "Prime-Prime",
+			   lv_pt_mean = "Prime-Target",
+			   duration_mean = "Audio duration (s)",
+			   nphon_prime_mean = "Prime",
+			   nphon_target_mean = "Target") |> 
+		tab_style(cell_text(style = "italic"),
+			  list(cells_column_labels(),
+			    cells_column_spanners(),
+			    cells_grand_summary()))
+```
+
+
 
 ### Procedure and apparatus
 

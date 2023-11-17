@@ -9,8 +9,9 @@
 #' - test_each: looking time to each target and distractor images, must be between 0 and 2
 #' - test_any: looking time to either target and distractor images, must be between 0 and 2
 #' 
-get_attrition_trials <- function(gaze, participants, vocabulary, aoi_coords,
-								 vocabulary_by = c("prime", "target"),
+get_attrition_trials <- function(gaze, participants, stimuli, vocabulary,
+								 aoi_coords,
+								 vocabulary_by = c("none"),
 								 # minimum looking time in seconds
 								 min_looking = c(prime = 0.00,
 								 				test = 0.00,
@@ -24,14 +25,20 @@ get_attrition_trials <- function(gaze, participants, vocabulary, aoi_coords,
 		return(x)
 	}
 	
+	d_p <- distinct(participants, child_id, session_id, vocab_id, filename, 
+					test_language, list, version)
+	
+	d_s <- select(stimuli, test_language, list, version, 
+				  trial, matches("vocab_item"))
+	
 	out <- gaze |> 
-		left_join(distinct(participants, child_id, session_id, vocab_id, filename),
-				  by = join_by(child_id, session_id)) |>  
+		left_join(d_p, by = join_by(child_id, session_id)) |>  
 		fix_sampling_rate(filename, date_onset = "2022-05-26") |>
 		summarise(prime_samples = sum(is_gaze_prime[phase=="Prime"], na.rm = TRUE),
 				  target_samples = sum(is_gaze_target[phase=="Target-Distractor"], na.rm = TRUE),
 				  distractor_samples = sum(is_gaze_distractor[phase=="Target-Distractor"], na.rm = TRUE),
-				  .by = c(child_id, session_id, vocab_id, trial_type,
+				  .by = c(child_id, session_id, vocab_id, trial_type, 
+				  		test_language, list, version,
 				  		trial, sampling_rate, matches("_cdi"))) |>
 		mutate(across(matches("_samples"), \(x) x / sampling_rate, .names = "{.col}_looking"),
 			   test_time = target_samples + distractor_samples) |> 
@@ -40,7 +47,8 @@ get_attrition_trials <- function(gaze, participants, vocabulary, aoi_coords,
 		left_join(vocabulary, by = join_by(child_id, vocab_id, session_id)) |>   
 		validate_gaze(min_looking) |> 
 		mutate(across(starts_with("is_valid_"), \(x) if_else(is.na(x), FALSE, x))) |> 
-		validate_vocabulary(contents, vocabulary_by) |>
+		left_join(d_s, by = join_by(test_language, list, version, trial)) |> 
+		validate_vocabulary(contents, vocabulary_by) |> 
 		mutate(is_valid_trial = is_valid_gaze & is_valid_vocab) |>
 		rowwise() |> 
 		mutate(is_valid_vocab_all = list(unlist(across(matches("is_valid_vocab_")))),
@@ -146,23 +154,31 @@ validate_gaze <- function(data, min_looking) {
 validate_vocabulary <- function(data,
 								vocab_contents,
 								vocabulary_by = c("prime", "target")) {
-	cdi_names <- c("prime_cdi", "target_cdi", "distractor_cdi")
-	if (!all(cdi_names %in% colnames(data))) {
+	vocab_names <- c("vocab_item", "vocab_item_supp")
+	if (!all(vocab_names %in% colnames(data))) {
 		which.missing <- cdi_names[!(cdi_names %in% colnames(data))]
 		cli_abort("{which.missing} is not a variable in data")
 	}
 	
 	out <- data |>
+		unnest_wider(matches("vocab_item")) |> 
 		rowwise() |>
-		mutate(is_valid_vocab_prime = if_else("prime" %in% vocabulary_by,
-											 prime_cdi %in% {{ vocab_contents }},
-											 TRUE),
-			   is_valid_vocab_target = if_else("target" %in% vocabulary_by,
-			   							   target_cdi %in% {{ vocab_contents }},
-			   							   TRUE),
-			   is_valid_vocab_distractor = if_else("distractor" %in% vocabulary_by,
-			   								   distractor_cdi %in% {{ vocab_contents }},
-			   								   TRUE)) |>
+		mutate(
+			is_valid_vocab_prime = if_else(
+				"prime" %in% vocabulary_by,
+				vocab_item_prime %in% {{ vocab_contents }} ||
+					vocab_item_supp_prime %in% {{ vocab_contents }},
+				TRUE),
+			is_valid_vocab_target = if_else(
+				"target" %in% vocabulary_by,
+				vocab_item_target %in% {{ vocab_contents }} ||
+					vocab_item_supp_target %in% {{ vocab_contents }},
+				TRUE),
+			is_valid_vocab_distractor = if_else(
+				"distractor" %in% vocabulary_by,
+				vocab_item_distractor %in% {{ vocab_contents }} ||
+					vocab_item_supp_distractor %in% {{ vocab_contents }},
+				TRUE)) |>
 		ungroup() |>
 		mutate(is_valid_vocab = rowSums(across(matches("valid_vocab")))==3)
 	

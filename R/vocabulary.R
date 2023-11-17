@@ -1,14 +1,11 @@
 #' Get vocabulary data
-get_vocabulary <- function(participants, 
-						   bvq_data, 
+get_vocabulary <- function(participants, bvq_data, 
 						   vocabulary_supp_bcn_file,
 						   vocabulary_file_oxf,
-						   cdi_file_oxf) {
+						   words) {
 	
 	vocab_bcn <- get_vocabulary_bcn(participants, bvq_data, vocabulary_supp_bcn_file)
-	vocab_oxf <- get_vocabulary_oxf(vocabulary_file_oxf,
-									participants,
-									cdi_file_oxf)
+	vocab_oxf <- get_vocabulary_oxf(vocabulary_file_oxf, participants, words)
 	
 	out <- bind_rows(vocab_bcn, vocab_oxf)
 	
@@ -155,16 +152,16 @@ impute_vocabulary <- function(x,
 # Oxford functions -------------------------------------------------------------
 
 #' Import and process vocabulary data
-get_vocabulary_oxf <- function(vocabulary_file,	participants,cdi_file_oxf) {
+get_vocabulary_oxf <- function(vocabulary_file,	participants, words) {
 	
 	participants_tmp <- participants |> 
 		filter(location=="Oxford") |> 
 		select(matches("_id"))
 	
-	stimuli_cdi_oxf <- read_csv(cdi_file_oxf,
-								show_col_types = FALSE,
-								na = c("", NA)) |> 
-		pivot_longer(matches("item"),
+	stimuli_cdi_oxf <- words |> 
+		rename(vocab_item = item,
+			   vocab_item_supp = item_supp) |> 
+		pivot_longer(matches("vocab_item"),
 					 names_to = "version",
 					 values_to = "item_cdi") |> 
 		group_split(version) |> 
@@ -203,7 +200,6 @@ get_vocabulary_oxf <- function(vocabulary_file,	participants,cdi_file_oxf) {
 				  contents = list(item[response]),
 				  .by = c(session_id)) |> 
 		select(session_id, total_prop, contents) 
-	
 	
 	out <- lst(cdi_full, cdi_extended, cdi_supplementary) |> 
 		bind_rows(.id = "version") |> 
@@ -251,9 +247,9 @@ get_cdi_full_oxf <- function(vocabulary_file) {
 						"quantifiers")
 	
 	out <- readxl::read_xlsx(vocabulary_file, 
-								  sheet = "CDI_full",
-								  .name_repair = janitor::make_clean_names,
-								  na = c("N/A", "NA", "", "?", "none")) |> 
+							 sheet = "CDI_full",
+							 .name_repair = janitor::make_clean_names,
+							 na = c("N/A", "NA", "", "?", "none")) |> 
 		relocate(unique_id, premature_birth, hearing_problems, comments) |>  
 		mutate(across(sounds_baa_baa_sheep:quantifiers_some,
 					  recode_responses),
@@ -310,9 +306,9 @@ get_cdi_extended_oxf <- function(vocabulary_file) {
 						  "quantifiers")
 	
 	out <- readxl::read_xlsx(vocabulary_file, 
-								 sheet = "CDI_ext",
-								 .name_repair = janitor::make_clean_names,
-								 na = c("N/A", "NA", "", "?", "none")) |> 
+							 sheet = "CDI_ext",
+							 .name_repair = janitor::make_clean_names,
+							 na = c("N/A", "NA", "", "?", "none")) |> 
 		relocate(premature_birth, hearing_problems, comments) |>  
 		mutate(across(animal_sounds_baa_baa:online_youtube,
 					  recode_responses),
@@ -338,10 +334,10 @@ get_cdi_extended_oxf <- function(vocabulary_file) {
 get_supplementary_oxf <- function(vocabulary_file) {
 	
 	out <- readxl::read_xlsx(vocabulary_file, 
-									   col_types = "text",
-									   sheet = "Supplementary",
-									   .name_repair = janitor::make_clean_names,
-									   na = c("N/A", "NA", "", "?", "none")) |> 
+							 col_types = "text",
+							 sheet = "Supplementary",
+							 .name_repair = janitor::make_clean_names,
+							 na = c("N/A", "NA", "", "?", "none")) |> 
 		drop_na(participant_id) |> 
 		mutate(across(-participant_id, recode_responses)) |> 
 		pivot_longer(-participant_id,

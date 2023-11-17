@@ -65,46 +65,15 @@ list(
 	
 	# stimuli ------------------------------------------------------------------
 	
-	# import data
-	tar_target(trials_file, file.path("stimuli", "stimuli.xlsx"), format = "file"),
+	tar_target(trials_file, file.path("data-raw", "trials.xlsx"), format = "file"),
 	tar_target(trials, readxl::read_xlsx(trials_file)),
-	tar_target(childes_tokens, unique(unlist(distinct(trials, prime, target)))),
-	tar_target(animacy_file, file.path("data-raw", "animacy.csv"), format = "file"),
-	tar_target(animacy, get_animacy(animacy_file)),
-	tar_target(familiarity, 
-			   get_familiarity(
-			   	tokens = unique(unlist(distinct(trials, prime_cdi, target_cdi))),
-			   	type = "understands",
-			   	bvq_data = bvq_data)),
-	tar_target(childes, 
-			   get_childes_corpora(
-			   	token = childes_tokens,
-			   	languages = c("cat", "spa"))),
-	tar_target(frequencies,
-			   get_frequency_childes(
-			   	childes,
-			   	token = childes_tokens)),
-	tar_target(semantic_category,
-			   bvq_data$pool |>
-			   	select(word = item, language, semantic_category) |>
-			   	rename(test_language = language)),
-	tar_target(duration, get_audio_duration(trials)),
-	# join all stimuli datasets
-	tar_target(
-		stimuli, 
-		get_stimuli(trials = trials,
-					familiarity = familiarity,
-					frequencies = frequencies,
-					semantic_category = semantic_category,
-					animacy = animacy,
-					duration = duration)), 
+	tar_target(words_file, file.path("data-raw", "words.xlsx"), format = "file"),
+	tar_target(words, readxl::read_xlsx(words_file)),
 	
-	# Oxford stimuli
-	tar_target(stimuli_cdi_file_oxf,
-			   file.path("data-raw", "stimuli-cdi-oxford.csv"),
-			   format = "file"),
-	tar_target(stimuli_cdi_oxf,
-			   read_csv(stimuli_cdi_file_oxf, show_col_types = FALSE)),
+	tar_target(childes, get_childes_corpora(words$childes_lemma, "eng")),
+	tar_target(frequencies, get_frequency_childes(childes, words$childes_lemma)),
+	tar_target(durations, get_audio_duration(trials)),
+	tar_target(stimuli, get_stimuli(trials, words, frequencies, durations)), 
 	
 	# participants -------------------------------------------------------------
 	
@@ -126,10 +95,6 @@ list(
 			   file.path("data-raw", "vocabulary-oxford.xlsx"),
 			   format = "file"),
 	
-	tar_target(cdi_file_oxf,
-			   file.path("data-raw", "stimuli-cdi-oxford.csv"),
-			   format = "file"),
-	
 	tar_target(vocabulary_supp_bcn_file,
 			   file.path(list.files("data-raw",
 			   					 pattern = "supp",
@@ -141,7 +106,7 @@ list(
 			   			   bvq_data = bvq_data,
 			   			   vocabulary_supp_bcn_file,
 			   			   vocabulary_file_oxf,
-			   			   cdi_file_oxf)),
+			   			   words)),
 	
 	# gaze data ----------------------------------------------------------------
 	
@@ -153,32 +118,28 @@ list(
 			   )),
 	
 	# Barcelona gaze data
-	tar_target(gaze_files_bcn, 
+	tar_target(files_bcn, 
 			   list.files(path = "data-raw/eyetracking-barcelona", 
 			   		   pattern = ".csv$",
 			   		   full.names = TRUE), 
 			   format = "file"),
 	
 	# Oxford gaze data
-	tar_target(gaze_files_oxf,
+	tar_target(files_oxf,
 			   list.files("data-raw/eyetracking-oxford/", 
-			   		   pattern = ".csv",
+			   		   pattern = ".csv$",
 			   		   full.names = TRUE),
 			   format = "file"),
 	
 	tar_target(gaze, 
-			   get_gaze(gaze_files_bcn,
-			   		 gaze_files_oxf,
-			   		 participants,
-			   		 stimuli,
-			   		 aoi_coords,
-			   		 non_aoi_as_na = TRUE)),
+			   get_gaze(files_bcn, files_oxf, participants,
+			   		 stimuli, aoi_coords, non_aoi_as_na = TRUE)),
 	
 	# attrition ----------------------------------------------------------------
 	
 	# Barcelona
 	tar_target(attrition_trials,
-			   get_attrition_trials(gaze, participants, vocabulary,
+			   get_attrition_trials(gaze, participants, stimuli, vocabulary,
 			   					 vocabulary_by = "none",
 			   					 aoi_coords = aoi_coords,
 			   					 min_looking = c(prime = 0.75,
@@ -199,16 +160,14 @@ list(
 	
 	tar_target(data_bcn,
 			   get_data(gaze = filter(gaze, location=="Barcelona"),
-			   		 participants = participants,
-			   		 vocabulary = vocabulary,
+			   		 participants, stimuli, vocabulary,
 			   		 attrition_trials = attrition_trials,
 			   		 attrition_participants = attrition_participants,
 			   		 time_subset = c(0.30, 2.00))),
 	
 	tar_target(data_oxf,
 			   get_data(gaze = filter(gaze, location=="Oxford"),
-			   		 participants = participants,
-			   		 vocabulary = vocabulary,
+			   		 participants, stimuli, vocabulary,
 			   		 attrition_trials = attrition_trials,
 			   		 attrition_participants = attrition_participants,
 			   		 time_subset = c(0.30, 2.00))),
@@ -225,31 +184,31 @@ list(
 	
 	tar_target(model_formulas_bcn,
 			   lst(
-			   	fit_0 =.elog ~ age_std + 
+			   	fit_0 = .elog ~ age_std + 
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		(1 + age_std | child_id) + 
 			   		(1 | child_id:session_id),
-			   	fit_1 =.elog ~ lp + age_std + 
+			   	fit_1 = .elog ~ lp + age_std + 
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = lp, bs = "bs", k = 8) +
 			   		(1 + age_std | child_id) + 
 			   		(1 | child_id:session_id),
-			   	fit_2 =.elog ~ lp + condition + age_std +
+			   	fit_2 = .elog ~ lp + condition + age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_3 =.elog ~ condition * lp + age_std +
+			   	fit_3 = .elog ~ condition * lp + age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_4 =.elog ~ condition * lp * age_std +
+			   	fit_4 = .elog ~ condition * lp * age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_5 =.elog ~ condition * lp * voc_l1_std + 
+			   	fit_5 = .elog ~ condition * lp * voc_l1_std + 
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + voc_l1_std | child_id) +
