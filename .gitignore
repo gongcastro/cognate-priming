@@ -27,6 +27,9 @@ data-raw/eyetracking/*.csv
 /.luarc.json
 nul
 docs/_targets.yaml
+docs/_freeze/
+
 manuscript/_targets.yaml
+manuscript/_freeze
 results/fits/*.rds
 *.zip
