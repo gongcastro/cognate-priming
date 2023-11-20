@@ -20,7 +20,7 @@ Phonological priming paradigm in Spanish-English and Spanish-Catalan bilingual t
 * Using your console, navigate to the folder you want to download the repository into, and run:
 
 ```console
-git clone https://github.com/bilingual-project/cognate-priming.git
+git clone https://github.com/gongcastro/cognate-priming.git
 ```
 If the repository is private at the time you try to clone it, you may have to enter your GitHub credentials)
 
@@ -32,7 +32,7 @@ If the repository is private at the time you try to clone it, you may have to en
 6) Install the [renv](https://rstudio.github.io/renv/articles/renv.html) R package running `install.packages("renv")`.
 7) Install the [targets](https://books.ropensci.org/targets/) package running  `install.packages("targets")`.
 8) Execute `renv::restore()` in your console. This will create an environment for the project that contains the necessary R packages (and package dependencies) you need, in version you need. 
-9) Execute `make()` in your console. This command will use the package [job](https://github.com/lindeloev/job) to run the scripts in the background in the appropriate order (as specified in the [_targets.R](https://github.com/bilingual-project/cognate-priming/blob/master/_targets.R) script) and create the objects, which will be stored in the [targets/](https://github.com/bilingual-project/cognate-priming/tree/master/_targets). The final output of this command will be the rendering of the [Rmd/report.Rmd](https://github.com/bilingual-project/cognate-priming/blob/master/Rmd/report.Rmd) file into and HTML file (Rmd/report.html) with the laboratory notes and all the information about the study.
+9) Execute `make()` in your console. This command will use the package [job](https://github.com/lindeloev/job) to run the scripts in the background in the appropriate order (as specified in the [_targets.R](https://github.com/gongcastro/cognate-priming/blob/master/_targets.R) script) and create the objects, which will be stored in the [targets/](https://github.com/gongcastro/cognate-priming/tree/master/_targets). The final output of this command will be the rendering of the [Rmd/report.Rmd](https://github.com/gongcastro/cognate-priming/blob/master/Rmd/report.Rmd) file into and HTML file (Rmd/report.html) with the laboratory notes and all the information about the study.
 
 If you want to inspect specific objects into the Global Environment of your R session, you can run `tar_load()`, specifying the object you want to import (e.g., `tar_load(model_fits)`). You can also visualise the dependencies across files and scripts running `tar_visnetwork()`.
 
@@ -49,7 +49,7 @@ Then, enter the password in the dialogue box that will pop up in you RStudio Ses
 
 # Troubleshooting
 
-When running `r renv::restore()` for the first time, you may encounter an error indicating that the package [multilex](https://github.com/gongcastro/multilex) is not available. To fix this:
+When running `r renv::restore()` for the first time, you may encounter an error indicating that the package [bvq](https://github.com/gongcastro/bvq) is not available. To fix this:
 
 1) If you are using Ubuntu (as opposed to Windows or Mac), you may have to run the following lines in your (bash) console first, in order to be able to install some R necessary R packages later (e.g., [openssl](https://github.com/jeroen/openssl), [Cairo](https://github.com/s-u/Cairo)).
 
@@ -62,10 +62,10 @@ sudo apt-get install libcairo2-dev
 sudo apt-get update
 ```
 
-Finally you may have to install the [childesr](https://github.com/langcog/childesr), [formr](https://github.com/rubenarslan/formr), and [multilex](https://github.com/gongcastro/multilex) packages manually from your R console. for some reason, renv assumes that these packages are available in CRAN (formr and multilex are not), and therefore `renv::restore()` may fail to install them.
+Finally you may have to install the [childesr](https://github.com/langcog/childesr), [formr](https://github.com/rubenarslan/formr), and [multilex](https://github.com/gongcastro/bvq) packages manually from your R console. for some reason, renv assumes that these packages are available in CRAN (formr and multilex are not), and therefore `renv::restore()` may fail to install them.
 
 ```r
-renv::install("lancog/childesr", "rubenarslan/formr", "gongcastro/multilex")
+renv::install("lancog/childesr", "rubenarslan/formr", "gongcastro/bvq")
 ```
 
 This may take a while, but hopefully will fix the issue. Please get in contact in case you need any help setting up this repository. We did our best facilitating others' use of our code, but our familiarity with the tools above mentioned is limited.
