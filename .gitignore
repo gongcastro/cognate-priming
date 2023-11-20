@@ -6,7 +6,6 @@
 
 _targets.yaml
 
-!_targets/.gitignore
 !.gitignore
 
 **/*.pptx
@@ -18,8 +17,6 @@ _targets.yaml
 
 data-raw/eyetracking-bcn/*.csv
 data-raw/eyetracking-oxf/*.csv
-data-raw/eyetracking-barcelona/*.csv
-data-raw/eyetracking-oxford/*.csv
 
 .luarc.json
 nul

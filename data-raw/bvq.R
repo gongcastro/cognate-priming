@@ -1,5 +1,5 @@
-
 library(bvq)
+library(dplyr)
 
 # get participants
 p <- bvq_participants()

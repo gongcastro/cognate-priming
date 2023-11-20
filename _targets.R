@@ -60,14 +60,19 @@ list(
 	# get BVQ data -------------------------------------------------------------
 	
 	# this returns a list with all necessary data
-	tar_target(bvq_data_file, file.path("data-raw", "bvq.rds"), format = "file"),
+	tar_target(bvq_data_file, 
+			   file.path("data-raw", "stimuli", "bvq.rds"),
+			   format = "file"),
 	tar_target(bvq_data, readRDS(bvq_data_file)),
 	
 	# stimuli ------------------------------------------------------------------
 	
-	tar_target(trials_file, file.path("data-raw", "trials.xlsx"), format = "file"),
+	tar_target(trials_file, file.path("data-raw", "stimuli", "trials.xlsx"),
+			   format = "file"),
 	tar_target(trials, readxl::read_xlsx(trials_file)),
-	tar_target(words_file, file.path("data-raw", "words.xlsx"), format = "file"),
+	tar_target(words_file, 
+			   file.path("data-raw", "stimuli", "words.xlsx"),
+			   format = "file"),
 	tar_target(words, readxl::read_xlsx(words_file)),
 	
 	tar_target(childes, get_childes_corpora(words$childes_lemma, "eng")),
@@ -78,27 +83,26 @@ list(
 	# participants -------------------------------------------------------------
 	
 	tar_target(participants_file_bcn, 
-			   file.path("data-raw", "participants-bcn.csv"),
+			   file.path("data-raw", "participants", "participants-bcn.csv"),
 			   format = "file"),
 	
 	tar_target(participants_file_oxf, 
-			   file.path("data-raw", "participants-oxf.csv"),
+			   file.path("data-raw", "participants", "participants-oxf.csv"),
 			   format = "file"),
 	
 	tar_target(participants, 
-			   get_participants(participants_file_bcn,
-			   				 participants_file_oxf)),
+			   get_participants(participants_file_bcn, participants_file_oxf)),
 	
 	# vocabulary ---------------------------------------------------------------
 	
-	tar_target(vocabulary_file_oxf,
-			   file.path("data-raw", "vocabulary-oxford.xlsx"),
+	tar_target(vocabulary_file_oxf, 
+			   file.path("data-raw", "vocabulary", "vocabulary-oxf.xlsx"),
 			   format = "file"),
 	
 	tar_target(vocabulary_supp_bcn_file,
-			   file.path(list.files("data-raw",
-			   					 pattern = "supp",
-			   					 full.names = TRUE)),
+			   list.files(file.path("data-raw", "vocabulary"),
+			   		   pattern = "supp",
+			   		   full.names = TRUE),
 			   format = "file"),
 	
 	tar_target(vocabulary,
@@ -119,16 +123,20 @@ list(
 	
 	# Barcelona gaze data
 	tar_target(files_bcn, 
-			   list.files(path = "data-raw/eyetracking-barcelona", 
-			   		   pattern = ".csv$",
-			   		   full.names = TRUE), 
+			   list.files(
+			   	path = file.path("data-raw", "eyetracking-bcn"), 
+			   	pattern = ".csv$",
+			   	full.names = TRUE
+			   ), 
 			   format = "file"),
 	
 	# Oxford gaze data
 	tar_target(files_oxf,
-			   list.files("data-raw/eyetracking-oxford/", 
-			   		   pattern = ".csv$",
-			   		   full.names = TRUE),
+			   list.files(
+			   	file.path("data-raw", "eyetracking-oxf"), 
+			   	pattern = ".csv$",
+			   	full.names = TRUE
+			   ),
 			   format = "file"),
 	
 	tar_target(gaze, 
