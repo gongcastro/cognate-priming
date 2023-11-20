@@ -27,10 +27,10 @@ docs/_freeze/
 manuscript/_targets.yaml
 manuscript/_freeze
 
-results/fits/*.rds
-results/predictions/*.rds
-results/predictions/*.parquet
-results/predictions/*.csv
+results/fits/
+results/predictions/
+results/posterior/
+
 
 stimuli/getters/
 stimuli/sounds/
