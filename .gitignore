@@ -5,6 +5,8 @@
 .Renviron
 
 _targets.yaml
+_targets/meta/
+_targets/progress/
 
 !.gitignore
 
