@@ -1,8 +1,8 @@
-#' Get audio durations
+#' Get audio duration
 get_audio_duration <- function(trials) {
 	
 	# get dir paths and validate paths
-	audio.dir <- paste0("stimuli/sounds/sounds_", c("cat", "spa")) 
+	audio.dir <- paste0("stimuli/sounds/sounds-", c("cat", "spa")) 
 	audio.dir.valid <- dir.exists(audio.dir)
 	
 	if (!all(audio.dir.valid))  {
@@ -63,13 +63,10 @@ get_familiarity <- function(
 			   familiarity_se = prop_adj_se(.sum, .n)) |> 
 		select(item, starts_with("familiarity")) |> 
 		rename(word = item) |> 
-		mutate(
-			test_language = case_when(
+		mutate(test_language = case_when(
 				grepl("eng_", word) ~ "English",
 				grepl("cat_", word) ~ "Catalan",
-				grepl("spa_", word) ~ "Spanish"
-			)
-		) |> 
+				grepl("spa_", word) ~ "Spanish")) |> 
 		relocate(test_language, .before = word)
 	
 	return(familiarity)
@@ -191,7 +188,7 @@ get_stimuli <- function(trials, # trials dataset
 	if (impute){ # defined in arguments
 		stimuli_imputed <- stimuli_raw |> 
 			mice::mice(printFlag = FALSE) |> # predictive mean matching
-			mice::complete() |> # get complete dataset
+			mice::complete() |> # get complete data set
 			as_tibble()
 	}
 	

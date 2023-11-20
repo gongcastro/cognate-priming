@@ -213,7 +213,7 @@ get_posterior_summary <- function(model, data, vars_dict,
 get_rope_overlap <- function(.lower, .upper, .rope = c(-0.1, 0.1), precision = 1e4) {
 	int <- data.frame(.lower, .upper)
 	fun <- \(x) approx(x, n = precision, method = "linear")
-	int.seq <- purrr::map(apply(int, fun, MARGIN = 1), "y")
-	overlap <- purrr::map_dbl(int.seq, \(x) mean((x >= .rope[1]) & x <= .rope[2]))
+	int.seq <- map(apply(int, fun, MARGIN = 1), "y")
+	overlap <- map_dbl(int.seq, \(x) mean((x >= .rope[1]) & x <= .rope[2]))
 	return(overlap)
 }
