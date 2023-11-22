@@ -34,6 +34,7 @@ manuscript/*.docx
 manuscript/*.doc
 manuscript/*.sty
 manuscript/_targets.yaml
+manuscript/.quarto/
 
 results/fits/
 results/predictions/
