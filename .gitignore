@@ -28,13 +28,12 @@ nul
 docs/_targets.yaml
 docs/_freeze/
 
-manuscript/_targets.yaml
-manuscript/_freeze
-manuscript/*.docx
-manuscript/*.doc
-manuscript/*.sty
-manuscript/_targets.yaml
-manuscript/.quarto/
+manuscript/
+!manuscript/_appendix/
+!manuscript/_extensions/
+!manuscript/_quarto.yaml
+!manuscript/manuscript.qmd
+!manuscript/manuscript.pdf
 
 results/fits/
 results/predictions/
