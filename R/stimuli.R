@@ -1,5 +1,6 @@
 #' Get audio duration
 get_audio_duration <- function(trials) {
+	
 	# get dir paths and validate paths
 	audio.dir <- paste0("stimuli/sounds/sounds-", c("cat", "eng", "spa"))
 	audio.dir.valid <- dir.exists(audio.dir)
@@ -19,9 +20,9 @@ get_audio_duration <- function(trials) {
 	)
 	durations$audio <- basename(audio.paths)
 	durations$test_language <- case_when(
-		grepl("_cat", audio.paths) ~ "Catalan",
-		grepl("_spa", audio.paths) ~ "Spanish",
-		grepl("_eng", audio.paths) ~ "English"
+		grepl("-cat", audio.paths) ~ "Catalan",
+		grepl("-spa", audio.paths) ~ "Spanish",
+		grepl("-eng", audio.paths) ~ "English"
 	)
 	durations$duration <- if_else(
 		durations$test_language=="English",

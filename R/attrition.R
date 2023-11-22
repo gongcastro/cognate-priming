@@ -206,7 +206,7 @@ get_attrition_participants <- function(attrition_trials,
 	}
 	
 	d_v <- vocabulary |> 
-		mutate(is_valid_vocab_size = l1_prop >= min_l1_vocab) |> 
+		mutate(is_valid_vocab_size = (l1_prop >= min_l1_vocab)) |> 
 		select(session_id, is_valid_vocab_size)
 	
 	out <- attrition_trials |>
@@ -221,7 +221,8 @@ get_attrition_participants <- function(attrition_trials,
 		rename(noncognate = non_cognate) |>
 		relocate(noncognate, .after = cognate) |>
 		left_join(d_v, by = join_by(session_id)) |> 
-		mutate(is_valid_cognate = cognate >= min_trials["cognate"],
+		mutate(is_valid_vocab_size = is_valid_vocab_size & !is.na(is_valid_vocab_size),
+			   is_valid_cognate = cognate >= min_trials["cognate"],
 			   is_valid_noncognate = noncognate >= min_trials["noncognate"],
 			   is_valid_unrelated = unrelated >= min_trials["unrelated"],
 			   is_valid_participant = rowSums(cbind(is_valid_cognate,
