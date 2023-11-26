@@ -19,6 +19,8 @@ _targets/.gitignore
 **/*.parquet
 *.zip
 
+img/**/*.png
+
 data-raw/eyetracking-bcn/*.csv
 data-raw/eyetracking-oxf/*.csv
 
@@ -38,7 +40,6 @@ manuscript/
 results/fits/
 results/predictions/
 results/posterior/
-
 
 stimuli/getters/
 stimuli/sounds/
