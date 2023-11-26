@@ -174,11 +174,19 @@ list(
 			   		 time_subset = c(0.30, 2.00))),
 	
 	tar_target(data_oxf,
-			   get_data(gaze = filter(gaze, location=="Oxford"),
+			   {
+			   	data_oxf <- get_data(gaze = filter(gaze, location=="Oxford"),
 			   		 participants, stimuli, vocabulary,
 			   		 attrition_trials = attrition_trials,
 			   		 attrition_participants = attrition_participants,
-			   		 time_subset = c(0.30, 2.00))),
+			   		 time_subset = c(0.30, 2.00)) |> 
+			   		mutate(condition = as.factor(if_else(condition != "Unrelated",
+			   								   "Related", condition)))
+			   	
+			   	contrasts(data_oxf$condition) <- c(0.5, -0.5)
+			   	
+			   	return(data_oxf)
+			   	}),
 	
 	# Bayesian GAMMs -----------------------------------------------------------
 	
@@ -192,39 +200,20 @@ list(
 	
 	tar_target(model_formulas_bcn,
 			   lst(
-			   	fit_0 = .elog ~ age_std + 
-			   		s(timebin_std, bs = "bs", k = 8) +
-			   		(1 + age_std | child_id) + 
-			   		(1 | child_id:session_id),
-			   	fit_1 = .elog ~ lp + age_std + 
-			   		s(timebin_std, bs = "bs", k = 8) +
-			   		s(timebin_std, by = lp, bs = "bs", k = 8) +
-			   		(1 + age_std | child_id) + 
-			   		(1 | child_id:session_id),
-			   	fit_2 = .elog ~ lp + condition + age_std +
+			   	fit_0 = .elog ~ condition * lp + age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_3 = .elog ~ condition * lp + age_std +
+			   	fit_1 = .elog ~ condition * lp * age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_4 = .elog ~ condition * lp * age_std +
-			   		s(timebin_std, bs = "bs", k = 8) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
-			   		(1 + condition + age_std | child_id) +
-			   		(1 + condition | child_id:session_id),
-			   	fit_5 = .elog ~ condition * lp * voc_l1_std + 
+			   	fit_2 = .elog ~ condition * lp * voc_l1_std + 
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
 			   		(1 + condition + voc_l1_std | child_id) +
-			   		(1 + condition | child_id:session_id),
-			   	fit_6 =	.elog ~ condition * lp * voc_total_std + 
-			   		s(timebin_std, bs = "bs", k = 8) +
-			   		s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
-			   		(1 + condition + voc_total_std | child_id) +
 			   		(1 + condition | child_id:session_id)
 			   )),
 	
@@ -247,27 +236,23 @@ list(
 			   prior(normal(0, 0.5), class = "Intercept") +
 			   	prior(normal(0, 0.5), class = "b") +
 			   	prior(exponential(6), class = "sd") +
-			   	# prior(lkj(6), class = "cor") +
+			   	prior(lkj(6), class = "cor") +
 			   	prior(exponential(6), class = "sigma") +
 			   	prior(exponential(6), class = "sds")),
 	
 	tar_target(model_formulas_oxf,
 			   lst(
-			   	fit_0 = .elog ~ age_std + 
-			   		s(timebin_std, bs = "bs", k = 8) +
-			   		(1 + age_std | child_id) + 
-			   		(1 | child_id:session_id),
-			   	fit_1 = .elog ~ condition + age_std +
+			   	fit_0 = .elog ~ condition + age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = condition, bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_2 = .elog ~ condition * age_std +
+			   	fit_1 = .elog ~ condition * age_std +
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = condition, bs = "bs", k = 8) +
 			   		(1 + condition + age_std | child_id) +
 			   		(1 + condition | child_id:session_id),
-			   	fit_3 = .elog ~ condition * voc_l1_std + 
+			   	fit_2 = .elog ~ condition * voc_l1_std + 
 			   		s(timebin_std, bs = "bs", k = 8) +
 			   		s(timebin_std, by = condition, bs = "bs", k = 8) +
 			   		(1 + condition + voc_l1_std | child_id) +
