@@ -1,10 +1,40 @@
-# functions
-make_plots_gaze <- function(gaze, 
-							aoi_coords,
-							participants,
-							stimuli,
-							attrition_trials,
-							attrition_participants){
+make_plots <- function() {
+	
+	dirs <- file.path("img", c("time", "heatmap", "aggregated"))
+	for (i in dirs) {
+		if (!dir.exists(i)) {
+			cli_alert_warning("Creating {i} directory")
+			dir.create(i)
+		}
+	}
+	
+	tar_load_globals()
+	
+	# load targets
+	gaze <- tar_read(gaze)
+	participants <- tar_read(participants)
+	stimuli <- tar_read(stimuli)
+	vocabulary <- tar_read(vocabulary)
+	aoi_coords <- tar_read(aoi_coords)
+	attrition_trials <- tar_read(attrition_trials)
+	attrition_participants <- tar_read(attrition_participants)
+	
+	# make plots
+	make_plots_time(gaze, participants, stimuli, aoi_coords,
+					attrition_trials, attrition_participants)
+	
+	make_plots_heatmap(gaze, participants, stimuli, aoi_coords,
+					   attrition_trials, attrition_participants)
+	
+	make_plots_aggregated(gaze, participants, stimuli, vocabulary,
+						  attrition_trials, attrition_participants,
+						  time_subset = c(0.3, 2.0))
+}
+
+# time plots -------------------------------------------------------------------
+
+make_plots_time <- function(gaze, participants, stimuli, aoi_coords,
+							attrition_trials, attrition_participants){
 	
 	files <- paste0("id_", unique(gaze$session_id[!is.na(gaze$session_id)]))
 	n_files <- length(files)
@@ -15,11 +45,8 @@ make_plots_gaze <- function(gaze,
 					 total = n_files, 
 					 format = pb_msg)
 	
-	plot_data <- get_plot_data(gaze,
-							   participants,
-							   stimuli,
-							   attrition_trials,
-							   attrition_participants,
+	plot_data <- get_plot_data(gaze, participants, stimuli,
+							   attrition_trials, attrition_participants,
 							   aoi_coords)
 	
 	plot_data_split <- plot_data |> 
@@ -33,7 +60,7 @@ make_plots_gaze <- function(gaze,
 		file_name <- paste0(first(plot_data_split[[i]]$session_id), ".png")
 		plot_height <- length(unique(plot_data_split[[i]]$trial))*0.75
 		
-		ggsave(file.path(paste0("img/01_raw/", file_name)),
+		ggsave(file.path(paste0("img/time/", file_name)),
 			   plot = plot, 
 			   height = plot_height,
 			   width = 6)
@@ -83,22 +110,23 @@ get_plot_data <- function(gaze,
 			   					labels = c("Observed", "Imputed")))
 	
 	plot_data <- gaze_tmp |> 
-		mutate(target_y = ifelse(target_location=="l", 
-								 mean(c(aoi_coords$left[["xmin"]],
-								 	   aoi_coords$left[["xmax"]])), 
-								 mean(c(aoi_coords$right[["xmin"]],
-								 	   aoi_coords$right[["xmax"]]))), 
-			   target_y = ifelse(phase=="Prime", NA, target_y),
+		mutate(target_y = if_else(target_location=="l", 
+								  mean(c(aoi_coords$l[["xmin"]],
+								  	   aoi_coords$l[["xmax"]])), 
+								  mean(c(aoi_coords$r[["xmin"]],
+								  	   aoi_coords$r[["xmax"]]))), 
+			   target_y = if_else(phase=="Prime", NA, target_y),
 			   id_age = paste0(session_id, " (", round(age, 2), ")"),
-			   is_phase_valid = ifelse(phase=="Prime", 
-			   						is_valid_gaze_all_prime,
-			   						is_valid_gaze_all_test & 
-			   							is_valid_gaze_all_test_each) |>  
+			   is_phase_valid = if_else(phase=="Prime", 
+			   						 is_valid_gaze_all_is_valid_gaze_prime,
+			   						 is_valid_gaze_all_is_valid_gaze_test & 
+			   						 	is_valid_gaze_all_is_valid_gaze_test_each,
+			   						 is_valid_gaze_all_is_valid_gaze_test_any) |>  
 			   	factor(levels = c(FALSE, TRUE), 
 			   		   labels = c("Invalid phase", "Valid phase"))) |> 
 		pivot_longer(c(x, y), names_to = "dim", values_to = "value") |> 
 		mutate(phase_dim = paste0(phase, " - ", dim),
-			   target_y = ifelse(dim=="y", NA, target_y))
+			   target_y = if_else(dim=="y", NA, target_y))
 	
 	return(plot_data)
 }
@@ -212,21 +240,21 @@ plot_gaze_data <- function(x, file) {
 # utils
 get_aois_viz <- function(aoi_coords) {
 	ymin_coords <- c(
-		aoi_coords$center["xmin"], 
-		aoi_coords$center["ymin"], 
-		aoi_coords$right["xmin"], 
-		aoi_coords$right["ymin"], 
-		aoi_coords$left["xmin"], 
-		aoi_coords$left["ymin"]
+		aoi_coords$c["xmin"], 
+		aoi_coords$c["ymin"], 
+		aoi_coords$r["xmin"], 
+		aoi_coords$r["ymin"], 
+		aoi_coords$l["xmin"], 
+		aoi_coords$l["ymin"]
 	)
 	
 	ymax_coords <- c(
-		aoi_coords$center["xmax"],
-		aoi_coords$center["ymax"],
-		aoi_coords$right["xmax"],
-		aoi_coords$right["ymax"],
-		aoi_coords$left["xmax"],
-		aoi_coords$left["ymax"]
+		aoi_coords$c["xmax"],
+		aoi_coords$c["ymax"],
+		aoi_coords$r["xmax"],
+		aoi_coords$r["ymax"],
+		aoi_coords$l["xmax"],
+		aoi_coords$l["ymax"]
 	)
 	
 	aois <- tibble(
@@ -245,14 +273,10 @@ get_aois_viz <- function(aoi_coords) {
 }
 
 
-# plot screen ------------------------------------------------------------------
+# plot heatmap -----------------------------------------------------------------
 
-make_plots_heatmap <- function(gaze_aoi,
-							   aoi_coords,
-							   participants,
-							   stimuli,
-							   attrition_trials,
-							   attrition_participants) {
+make_plots_heatmap <- function(gaze, participants, stimuli, aoi_coords,
+							   attrition_trials, attrition_participants) {
 	
 	files <- unique(gaze_aoi$filename[!is.na(gaze_aoi$filename)])
 	n_files <- length(files)
@@ -284,7 +308,7 @@ make_plots_heatmap <- function(gaze_aoi,
 		file_name <- gsub(".csv", ".png", files[i])
 		plot_height <- (length(unique(plot_data_split[[i]]$trial))/4)
 		
-		ggsave(paste0("img/02_heatmap/", file_name),
+		ggsave(paste0("img/01-heatmap/", file_name),
 			   plot = plot, 
 			   height = plot_height,
 			   width = 8,
@@ -389,10 +413,12 @@ plot_heatmap_data <- function(plot_data, file) {
 
 # plot processed data ----------------------------------------------------------
 
-make_plots_gaze_processed <- function(data_time, 
-									  attrition_trials,
-									  attrition_participants){
+make_plots_aggregated <- function(gaze, participants, stimuli, vocabulary,
+								  attrition_trials, attrition_participants,
+								  time_subset = c(0.0, 2.0)){
 	
+	data_time <- get_data(gaze, participants, stimuli, vocabulary,
+						  attrition_trials, attrition_participants)
 	plot_data <- data_time |> 
 		left_join(attrition_participants,
 				  by = join_by(id, age_group)) |> 
@@ -466,7 +492,7 @@ make_plots_gaze_processed <- function(data_time,
 			unique() |> 
 			length()
 		
-		ggsave(paste0("img/03_processed/", file_name), 
+		ggsave(paste0("img/02-processed/", file_name), 
 			   plot = plot, 
 			   height = 5,
 			   width = 5 * n_age_groups)
@@ -474,53 +500,3 @@ make_plots_gaze_processed <- function(data_time,
 		cli_progress_update()
 	}
 }
-
-# plot_data <- gaze_aoi |> 
-# 	left_join(attrition_trials,
-# 			  by = join_by(id, age_group, trial, trial_type)) |> 
-# 	left_join(attrition_participants,
-# 			  by = join_by(id, age_group)) |> 
-# 	left_join(select(participants, id, filename, test_language, list, version),
-# 			  by = join_by(id, filename)) |> 
-# 	mutate(target_y = ifelse(target_location=="l", 
-# 							 mean(c(aoi_coords$left[["xmin"]],
-# 							 	   aoi_coords$left[["xmax"]])), 
-# 							 mean(c(aoi_coords$right[["xmin"]],
-# 							 	   aoi_coords$right[["xmax"]]))), 
-# 		   target_y = ifelse(phase=="Prime", NA, target_y)) |> 
-# 	pivot_longer(c(x, y), names_to = "dim", values_to = "value") |> 
-# 	mutate(
-# 		target_y = ifelse(dim=="y", NA, target_y),
-# 		id_age_group = paste0(id, " (", age_group, ")"),
-# 		is_imputed = factor(is_imputed, 
-# 							levels = c(FALSE, TRUE),
-# 							labels = c("Observed", "Imputed")),
-# 		is_phase_valid = ifelse(phase=="Prime", 
-# 								is_valid_gaze_prime,
-# 								is_valid_gaze_test & is_valid_gaze_test_each),
-# 		phase = factor(phase,
-# 					   levels = c("Prime", "Target-Distractor"), 
-# 					   labels = c("Prime", "Target")),
-# 		phase_dim = paste0(phase, " - ", dim)
-# 	) |> 
-# 	arrange(id, age_group, trial, phase, timestamp)
-# 
-# saveRDS(plot_data, "docs/plot_data.rds")
-
-job::job(
-	title = "Gaze plots",
-	{
-		make_plots_gaze(gaze = gaze,
-						aoi_coords = aoi_coords,
-						participants = participants,
-						stimuli = stimuli,
-						attrition_trials = attrition_trials,
-						attrition_participants = attrition_participants)
-
-		# make_plots_heatmap(gaze_aoi,
-		# 				   aoi_coords,
-		# 				   participants,
-		# 				   stimuli,
-		# 				   attrition_trials,
-		# 				   attrition_participants)
-	})

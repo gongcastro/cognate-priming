@@ -39,6 +39,7 @@ results/fits/
 results/predictions/
 results/posterior/
 
+img/**/*.png
 
 stimuli/getters/
 stimuli/sounds/
