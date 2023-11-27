@@ -135,14 +135,10 @@ get_frequency_childes <- function(childes,
 		# relative frequency (counts per million)
 		frequencies <- childes |>
 			left_join(total_counts, by = "language") |>
-			mutate(
-				freq_per_million = freq_counts / n * 1e6,
-				freq_zipf = log10(freq_per_million) + 3
-			) |>
-			rename(
-				childes_lemma = gloss,
-				freq = freq_zipf
-			) |>
+			mutate(freq_per_million = freq_counts / n * 1e6,
+				   freq_zipf = log10(freq_per_million) + 3) |>
+			rename(childes_lemma = gloss,
+				   freq = freq_zipf) |>
 			select(childes_lemma, freq)
 	})
 	
@@ -154,30 +150,21 @@ get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
 	d_w <- select(words, -role)
 	
 	stim <- trials |>
-		mutate(audio = stringi::stri_trans_general(
-			str = trials$audio,
-			id = "Latin-ASCII"
-		)) |>
+		mutate(audio = stringi::stri_trans_general(str = trials$audio,
+												   id = "Latin-ASCII")) |>
 		pivot_longer(c(prime, target, distractor),
 					 names_to = "role",
-					 values_to = "stimulus"
-		) |>
+					 values_to = "stimulus") |>
 		left_join(d_w, by = join_by(test_language, stimulus)) |>
 		left_join(frequencies, by = join_by(childes_lemma)) |>
 		select(-c(childes_lemma, wordbank_lemma)) |>
 		mutate(nphon = map_int(strsplit(xsampa, ""), length)) |>
 		rename(vocab_item = item, vocab_item_supp = item_supp) |>
-		pivot_wider(
-			id_cols = c(
-				trial, location, test_language, version, list,
-				audio, target_location, trial_type
-			),
-			names_from = role,
-			values_from = c(
-				xsampa, xsampa_t, freq, stimulus, nphon,
-				vocab_item, vocab_item_supp
-			)
-		) |>
+		pivot_wider(id_cols = c(trial, location, test_language, version, list,
+								audio, target_location, trial_type),
+					names_from = role,
+					values_from = c(xsampa, xsampa_t, freq, stimulus, nphon,
+									vocab_item, vocab_item_supp)) |>
 		left_join(durations, by = join_by(test_language, version, audio))
 	
 	if (impute) {
@@ -190,28 +177,23 @@ get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
 	# select and reorder relevant variables
 	out <- stim |>
 		rename_with(\(x) gsub("stimulus_", "", x)) |>
-		mutate(
-			lv_pp = stringdist::stringsim(xsampa_prime, xsampa_t_prime),
-			lv_pt = stringdist::stringsim(xsampa_prime, xsampa_target)
-		) |>
+		mutate(lv_pp = stringdist::stringsim(xsampa_prime, xsampa_t_prime),
+			   lv_pt = stringdist::stringsim(xsampa_prime, xsampa_target)) |>
 		rowwise() |>
-		mutate(
-			xsampa = list(unlist(across(matches("xsampa")))),
-			nphon = list(unlist(across(matches("nphon")))),
-			freq = list(unlist(across(matches("freq")))),
-			vocab_item = list(unlist(across(c(
-				vocab_item_prime,
-				vocab_item_target,
-				vocab_item_distractor
-			)))),
-			vocab_item_supp = list(unlist(across(matches("vocab_item_supp"))))
-		) |>
+		mutate(xsampa = list(unlist(across(matches("xsampa")))),
+			   nphon = list(unlist(across(matches("nphon")))),
+			   freq = list(unlist(across(matches("freq")))),
+			   vocab_item = list(unlist(across(c(
+			   	vocab_item_prime,
+			   	vocab_item_target,
+			   	vocab_item_distractor
+			   )))),
+			   vocab_item_supp = list(unlist(across(matches("vocab_item_supp"))))) |>
 		ungroup() |>
-		select(
-			trial, test_language, version, list, trial_type,
-			prime, target, distractor, audio, target_location,
-			duration, nphon, freq, xsampa, lv_pp, lv_pt, vocab_item, vocab_item_supp
-		) |>
+		select(trial, test_language, version, list, trial_type,
+			   prime, target, distractor, audio, target_location,
+			   duration, nphon, freq, xsampa, lv_pp, lv_pt, 
+			   vocab_item, vocab_item_supp) |>
 		mutate(across(c(trial, list), as.integer))
 	
 	# test_stimuli(out)
