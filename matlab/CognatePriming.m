@@ -54,10 +54,10 @@ try         % and enable a possible "clean" exit
     cd(mainDirectory);
     
     %gettersImagePath = [mainDirectory '\getterImage.jpg']; % provisional
-    listsPath      = [mainDirectory '\Stimuli\Lists\'];
-    gettersPath    = [mainDirectory '\Stimuli\Getters\'];
-    allImagesPath  = [mainDirectory '\Stimuli\Images\'];
-    audiosPath     = [mainDirectory '\Stimuli\Sounds\'];
+    listsPath      = [mainDirectory '\stimuli\lists\'];
+    gettersPath    = [mainDirectory '\stimuli\getters\'];
+    allImagesPath  = [mainDirectory '\stimuli\images\'];
+    audiosPath     = [mainDirectory '\stimuli\sounds\'];
     
     % Global variables used acros funtions
     % % %%
@@ -346,7 +346,7 @@ try         % and enable a possible "clean" exit
         %% [INI] GETTERS
         disp(['[INI ' num2str(iTrial) '] GETTER']);       
        
-        mivideo   = [gettersPath 'attention_getter.mov'];
+        mivideo   = [gettersPath 'attention-getter.mov'];
         info      = mmfileinfo(mivideo);
         vid       = VideoReader(mivideo);
         duration  = vid.Duration;
