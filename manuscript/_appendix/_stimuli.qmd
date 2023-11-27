@@ -15,3 +15,59 @@ The speaker was presented with a list of words in Catalan. The order of the word
 
 To make the pronunciation of the words as familiar as possible to each infant, we generated additional pronunciation variants for some words in Catalan and Spanish. Catalan words involving the /\textipa{L}/ phoneme in their Central Catalan variant (e.g., /\textipa{'Lu.n@}) were also recorded with such phoneme replaced by /j/ (e.g., /\textipa{'ju.n@}), a phonological process common in the Metropolitan Area of Barcelona. Spanish words involving the /\textipa{T}/ phoneme were also generated replacing such phoneme with /\textipa{s}/ to better accommodate Latin variants of Spanish. Before every experimental session, caregivers were asked to utter three written words involving the /\textipa{L}/ phoneme (in the case of participants tested in Catalan) or the /\textipa{T}/ phoneme (in the case of participants tested in Spanish). Each token contained the critical phoneme at onset, inter-vocalic position, and coda. The experimenter assigned the participant to the Catalan or Spanish stimuli list involving the closest variant to that of caregivers'.
 
+```{r tbl-stimuli}
+#| label: tbl-stimuli
+#| tbl-cap: "Summary of stimuli properties by trial type."
+stimuli |>
+	unnest_wider(c(freq, nphon)) |>
+	summarise(across(c(matches("n_phon|freq_|lv_|nphon"), duration),
+					 list(	mean = \(x) mean(x, na.rm = TRUE),
+					 	  sd = \(x) sd(x, na.rm = TRUE))),
+			  .by = c(trial_type, test_language)) |>
+	select(-matches("distractor")) |>
+	mutate(test_language = if_else(test_language=="English",
+								   paste0("Study 1: ", test_language),
+								   paste0("Study 2: ", test_language))) |>
+	arrange(test_language) |> 
+	gt(rowname_col = "trial_type",
+	   groupname_col = "test_language") |>
+	# summary_rows(groups = c("Unrelated", "Non-cognate", "Cognate"),
+	# 			 columns = is.numeric,
+	# 			 fns = list(Total ~ mean(.)),
+	# 			 fmt = ~ fmt_number(., decimals = 2)) |>
+	grand_summary_rows(	columns = is.numeric,
+						fns = list(Total ~ mean(.)),
+						fmt = ~ fmt_number(., decimals = 2)) |>
+	tab_spanner("Phonemes", matches("nphon")) |>
+	tab_spanner("Frequency (Zipf)", matches("freq")) |>
+	tab_spanner("Phon. similarity [0-1]", matches("lv")) |>
+	fmt_number(is.numeric, decimals = 1) |>
+	cols_merge(c(freq_prime_mean, freq_prime_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(freq_target_mean, freq_target_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(nphon_prime_mean, nphon_prime_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(nphon_target_mean, nphon_target_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(lv_pp_mean, lv_pp_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(lv_pt_mean, lv_pt_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(duration_mean, duration_sd),
+			   pattern = "{1} ({2})") |>
+	cols_label(trial_type = "",
+			   freq_prime_mean = "Prime",
+			   freq_target_mean = "Target",
+			   lv_pp_mean = "Prime-Prime",
+			   lv_pt_mean = "Prime-Target",
+			   duration_mean = "Duration (s)",
+			   nphon_prime_mean = "Prime",
+			   nphon_target_mean = "Target") |>
+	tab_style(cell_text(style = "italic"),
+			  list(cells_column_labels(),
+			  	 cells_column_spanners(),
+			  	 cells_grand_summary()))
+```
+
+

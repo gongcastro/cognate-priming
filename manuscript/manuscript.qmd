@@ -4,76 +4,56 @@
 #| message: false
 #| warning: false
 # load objects
-targets::tar_config_set(
-	store = here::here("_targets"),
-	script = here::here("_targets.R")
-)
+targets::tar_config_set(store = here::here("_targets"),
+						script = here::here("_targets.R"))
 
 targets::tar_load_globals()
 
-targets::tar_load(
-	c(
-		participants,
-		stimuli,
-		vocabulary,
-		attrition_trials,
-		attrition_participants,
-		bvq_data,
-		gaze,
-		data_bcn,
-		data_oxf
-	)
-)
+targets::tar_load(c(participants,
+					stimuli,
+					vocabulary,
+					attrition_trials,
+					attrition_participants,
+					bvq_data,
+					gaze,
+					data_bcn,
+					data_oxf))
 
-targets::tar_load(
-	c(
-		model_fits_bcn,
-		model_loos_bcn,
-		model_fits_oxf,
-		model_loos_oxf
-	)
-)
+targets::tar_load(c(model_fits_bcn,
+					model_loos_bcn,
+					model_fits_oxf,
+					model_loos_oxf))
 
 # prepare data
-attrition <- lst(
-	participants,
-	attrition_participants,
-	attrition_trials
-) |>
+attrition <- lst(participants,
+				 attrition_participants,
+				 attrition_trials) |>
 	reduce(inner_join, by = join_by(session_id)) |>
 	unnest_wider(matches("all"), names_sep = "_") |>
 	rename_with(\(x) gsub("is_valid_gaze_all_|is_valid_vocab_all", "", x))
 
-library(knitr)
-library(kableExtra)
 library(ggplot2)
 library(gt)
-library(gtExtras)
 library(patchwork)
 library(english)
-library(gtExtras)
 
 # set ggplot theme and colour palette
 my_theme <- theme_minimal() +
-	theme(
-		panel.grid = element_blank(),
-		axis.line = element_line(colour = "black"),
-		text = element_text(size = 12, colour = "black"),
-		axis.text = element_text(colour = "black")
-	)
+	theme(panel.grid = element_blank(),
+		  axis.line = element_line(colour = "black"),
+		  text = element_text(size = 12, colour = "black"),
+		  axis.text = element_text(colour = "black"))
 
 theme_set(my_theme)
 
-clrs <- c("#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600")
+clrs <- c("#c8102e", "#1e90ff", "grey50")
 
-options(
-	ggplot2.ordinal.fill = clrs[c(1, 4, 5)],
-	ggplot2.ordinal.colour = clrs[c(1, 4, 5)],
-	ggplot2.discrete.fill = clrs[c(1, 4, 5)],
-	ggplot2.discrete.colour = clrs[c(1, 4, 5)],
-	ggplot2.continuous.fill = ggplot2::scale_color_gradient,
-	ggplot2.continuous.colour = ggplot2::scale_color_gradient
-)
+options(ggplot2.ordinal.fill = clrs,
+		ggplot2.ordinal.colour = clrs,
+		ggplot2.discrete.fill = clrs,
+		ggplot2.discrete.colour = clrs,
+		ggplot2.continuous.fill = ggplot2::scale_color_gradient,
+		ggplot2.continuous.colour = ggplot2::scale_color_gradient)
 
 set.seed(1234)
 ```
@@ -219,13 +199,13 @@ participants |>
 	tab_spanner("English", matches("english")) |>
 	tab_spanner("Spanish", matches("spanish")) |>
 	tab_spanner("Degree of Exposure (%)", matches("doe")) |>
-	cols_label(n = "Sessions",
-			   n_participants = "Participants",
-			   age_mean = "M (SD)",
-			   age_min = "Range",
-			   doe_catalan_mean = "M (SD)",
-			   doe_english_mean = "M (SD)",
-			   doe_spanish_mean = "M (SD)") |>
+	cols_label(n = md("*Sessions*"),
+			   n_participants = md("*Participants*"),
+			   age_mean = md("*M (SD)*"),
+			   age_min = md("*Range*"),
+			   doe_catalan_mean = md("*M (SD)*"),
+			   doe_english_mean = md("*M (SD)*"),
+			   doe_spanish_mean = md("*M (SD)*"),) |>
 	tab_style(cell_text(style = "italic"),
 			  cells_column_labels()) |>
 	tab_style(cell_text(style = "italic"),
@@ -245,8 +225,8 @@ We collected vocabulary data using parental responses to the Oxford Communicativ
 ```{r fig-vocabulary}
 #| label: fig-vocabulary-oxf
 #| fig-cap: "Participant receptive vocabulary sizes across ages and language profiles. Vocabulary size scores from the recurrent participants are shown linked. For visualisation purposes, testing sessions were aggregated at three age points: 21, 25, and 30 months. Points and intervals indicate mean and standard deviations, respectively."
-#| fig-width: 6
-#| fig-height: 4
+#| fig-width: 7
+#| fig-height: 5.5
 vocab_plot_data <- vocabulary |>
 	inner_join(filter(attrition_participants, is_valid_participant),
 			   by = join_by(session_id)) |>
@@ -263,16 +243,17 @@ vocab_plot_data <- vocabulary |>
 		   				 lp=="Bilingual" ~ "right"),
 		   type = if_else(type=="l1_prop", 
 		   			   "L1 vocabulary", "Total vocabulary"),
-		   study = if_else(location=="Oxford", 
-		   				"Study 1 (English)", "Study 2 (Catalan/Spanish)"))
+		   study = if_else(location=="Oxford", "Study 1", "Study 2"),
+		   age_group = gsub(" months", "", age_group))
 
 vocab_plot_means <- vocab_plot_data |> 
 	summarise(prop_sd = sd(prop, na.rm = TRUE),
 			  prop = mean(prop, na.rm = TRUE),
 			  n = n(),
-			  .by = c(age_group, type, side, lp, type, location)) |> 
+			  .by = c(age_group, type, side, lp, type, study)) |> 
 	mutate(.lower = prop - (prop_sd/sqrt(n)),
-		   .upper = prop + (prop_sd/sqrt(n)))
+		   .upper = prop + (prop_sd/sqrt(n)),
+		   age_group = gsub(" months", "", age_group))
 
 vocab_plot_data |> 
 	ggplot(aes(age_group, prop, 
@@ -281,10 +262,10 @@ vocab_plot_data |>
 			   side = side)) +
 	facet_grid(type~study) +
 	geom_line(aes(group = child_id),
-			  colour = "grey",
-			  alpha = 1 / 4, linewidth = 3 / 4) +
-	geom_dots(aes(side =),
-			  dotsize = 1.5,
+			  # colour = "grey",
+			  alpha = 1 / 4,
+			  linewidth = 1 / 2) +
+	geom_dots(dotsize = 1.5,
 			  scale = 0.25,
 			  binwidth = 0.025,
 			  alpha = 2 / 4) +
@@ -301,30 +282,15 @@ vocab_plot_data |>
 			   show.legend = FALSE,
 			   size = 1.25,
 			   position = position_dodge(width = 1)) +
-	# geom_label(data = vocab_plot_means,
-	# 		   aes(label = sprintf("%.1f%%\n[%.1f, %.1f]",
-	# 		   					prop*100, .lower*100, .upper*100),
-	# 		   	y = 0),
-	# 		   size = 2.5,
-	# 		   fill = "white",
-	# 		   vjust = 0,
-	# 		   show.legend = FALSE,
-	# 		   label.r = unit(0, "lines"),
-	# 		   label.size = 0,
-	# 		   label.padding = unit(0.1, "lines"),
-# 		   position = position_dodge(1),
-# 		   alpha = 1/4) +
-# geom_point(alpha = 1) +
-labs(x = "Age (months)",
-	 y = "Vocabulary size",
-	 colour = "Group",
-	 fill = "Group") +
+	labs(x = "Age (months)",
+		 y = "Vocabulary size",
+		 colour = "Group",
+		 fill = "Group") +
 	scale_y_continuous(labels = scales::percent,
 					   limits = c(0, 1)) +
 	theme(panel.grid.major.y = element_line(linetype = "dotted",
 											colour = "grey"),
 		  legend.position = "top",
-		  axis.title.x = element_blank(),
 		  legend.title = element_blank())
 ```
 
@@ -333,62 +299,8 @@ labs(x = "Age (months)",
 
 Participants were presented with 32 trials in random order, which belonged to three conditions: *Unrelated* (16 trials), *Related/Non-cognate* (8 trials), and *Related/Cognate* (8 trials). In *Unrelated* trials, target was phonologically unrelated with the English and Spanish labels of the prime picture (e.g., $\text{door}_{\text{ENG}}/\text{puerta}_{\text{SPA}}-\text{sock}_{\text{ENG}}$). In *Related/Non-cognate* trials, the target shared phonological onset with the English prime label, but not with the Spanish prime label (e.g., $\textbf{t}\text{ree}_{\text{ENG}}/\text{árbol}_{\text{SPA}}-\textbf{t}\text{ruck}_{\text{ENG}}$). In *Related/Cognate* trials, the target shared phonological overlap with both English and Spanish prime labels ($\textbf{b}\text{oot}_{\text{ENG}}/\textbf{b}\text{ota}_{\text{SPA}}-\textbf{b}\text{ird}_{\text{ENG}}$). Target-distractor pairs were phonologically unrelated, and held constant for all participants. Especial attention was paid to avoiding semantic or taxonomic relationships between prime and target words, and between prime and distractor words. Each target distractor pair was shown twice for each participant, switching roles. Distractors were always phonologically unrelated to the prime and target labels in the same trial.
 
-We created fours lists of trials, across which the same target-distractor pair appeared with a different prime, counterbalancing the condition to which it belonged. For instance, in list one the *ball*-*trousers* pair was preceded by *bike* (*Related/Cognate*), by *butterfly* (*Related/Non-cognate*) in list two, and by *star* and *nose* (*Unrelated*) in lists three and four. @tbl-stimuli shows a detailed summary of the stimuli properties, broken down by trial type and testing language. Lexical frequencies were extracted from the English corpora from the CHILDES database [@macwhinney2000childes; @sanchez2019childes] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@zipf1945meaning; @van2014subtlex].
+We created fours lists of trials, across which the same target-distractor pair appeared with a different prime, counterbalancing the condition to which it belonged. For instance, in list one the *ball*-*trousers* pair was preceded by *bike* (*Related/Cognate*), by *butterfly* (*Related/Non-cognate*) in list two, and by *star* and *nose* (*Unrelated*) in lists three and four (see Appendix A for a detailed description of the stimuli). Lexical frequencies were extracted from the English corpora from the CHILDES database [@macwhinney2000childes; @sanchez2019childes] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@zipf1945meaning; @van2014subtlex].
 
-```{r tbl-stimuli}
-#| label: tbl-stimuli
-#| tbl-cap: "Summary of stimuli properties by trial type."
-stimuli |>
-	unnest_wider(c(freq, nphon)) |>
-	summarise(across(c(matches("n_phon|freq_|lv_|nphon"), duration),
-					 list(	mean = \(x) mean(x, na.rm = TRUE),
-					 	  sd = \(x) sd(x, na.rm = TRUE))),
-			  .by = c(trial_type, test_language)) |>
-	select(-matches("distractor")) |>
-	mutate(test_language = if_else(test_language=="English",
-								   paste0("Study 1: ", test_language),
-								   paste0("Study 2: ", test_language))) |>
-	arrange(test_language) |> 
-	gt(rowname_col = "trial_type",
-	   groupname_col = "test_language") |>
-	# summary_rows(groups = c("Unrelated", "Non-cognate", "Cognate"),
-	# 			 columns = is.numeric,
-	# 			 fns = list(Total ~ mean(.)),
-	# 			 fmt = ~ fmt_number(., decimals = 2)) |>
-	grand_summary_rows(	columns = is.numeric,
-						fns = list(Total ~ mean(.)),
-						fmt = ~ fmt_number(., decimals = 2)) |>
-	tab_spanner("Phonemes", matches("nphon")) |>
-	tab_spanner("Frequency (Zipf)", matches("freq")) |>
-	tab_spanner("Phon. similarity [0-1]", matches("lv")) |>
-	fmt_number(is.numeric, decimals = 1) |>
-	cols_merge(c(freq_prime_mean, freq_prime_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(freq_target_mean, freq_target_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(nphon_prime_mean, nphon_prime_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(nphon_target_mean, nphon_target_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(lv_pp_mean, lv_pp_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(lv_pt_mean, lv_pt_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(duration_mean, duration_sd),
-			   pattern = "{1} ({2})") |>
-	cols_label(trial_type = "",
-			   freq_prime_mean = "Prime",
-			   freq_target_mean = "Target",
-			   lv_pp_mean = "Prime-Prime",
-			   lv_pt_mean = "Prime-Target",
-			   duration_mean = "Duration (s)",
-			   nphon_prime_mean = "Prime",
-			   nphon_target_mean = "Target") |>
-	tab_style(cell_text(style = "italic"),
-			  list(cells_column_labels(),
-			  	 cells_column_spanners(),
-			  	 cells_grand_summary()))
-```
 
 The auditory stimuli were natural exemplars of the selected target words, spoken by a Southern British English female speaker who was instructed to pronounce each word in a toddler-directed manner. We used the Audacity and Praat [@boersma2001speak] software packages to trim, denoised, and normalise their amplitude. The visual stimuli were realistic photographic representations of a typical exemplars of the prime, target, and distractor words. Image backgrounds were removed from the original pictures using the GNU Image Manipulation Program (GIMP), resized to a rectangle of a maximum of 400 pixels hight or wide, and finally placed in the centre of a 50% grey rectangle square of 500 $\times$ 500 pixels. The final stimuli had a resolution of 72 dpi. When presented in the eye-tracker screen, the areas of interest (AOI) occupied an area of 13.23 $\times$ 13.23 cm (11.613$^{\circ}$ visual angle from participants' perspective).
 
@@ -461,60 +373,8 @@ $$ {#eq-elogit}
 
 We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 5% of valid samples (equivalent to 100 ms) of target or distractor looking in the test phase (*n* = `r format(n_exc_test_each, big.mark = ",")`) [see @floccia2020translation; @mani2012activation for a similar approach].
 
-After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the *Unrelated* condition (*n* = `r n_exc_participants`), and participants with a L1 vocabulary size lower than 10% (*n* = `r n_exc_participants_vocab`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. From the trials included in the final dataset dataset, `r n_trials_condition$unrelated_2$n` were *Unrelated* trials (`r n_trials_condition$unrelated$n` previously excluded), were `r n_trials_condition$non_cognate_2$n` *Related/Non-cognate* trials(`r n_trials_condition$non_cognate$n` previously excluded), and `r n_trials_condition$cognate_2$n` were *Related/Cognate* trials (`r n_trials_condition$cognate$n` previously excluded).
+After trials that matched any of the aforementioned exclusion criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the *Unrelated* condition (*n* = `r n_exc_participants`), and participants with a L1 vocabulary size lower than 10% (*n* = `r n_exc_participants_vocab`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, and `r n_longitudinal[2, 2]` provided data from two experimental sessions. From the trials included in the final dataset dataset, `r n_trials_condition$unrelated_2$n` were *Unrelated* trials (`r n_trials_condition$unrelated$n` previously excluded), were `r n_trials_condition$non_cognate_2$n` *Related/Non-cognate* trials(`r n_trials_condition$non_cognate$n` previously excluded), and `r n_trials_condition$cognate_2$n` were *Related/Cognate* trials (`r n_trials_condition$cognate$n` previously excluded).
 
-```{r tbl-attrition}
-#| label: tbl-attrition
-#| tbl-cap: "Participant-level and trial-level sample size after applying inclusion criteria. The number of excluded participants and trials is indicated between parentheses."
-expanded <- expand(attrition, lp, trial_type, is_valid_trial)
-
-n_lp <- attrition |>
-distinct(is_valid_participant, lp, session_id) |>
-count(is_valid_participant, lp) |>
-pivot_wider(names_from = is_valid_participant,
-values_from = n,
-names_repair = janitor::make_clean_names) |>
-mutate(n_participants_true = true,
-n_participants_false = false) |>
-select(lp, true, false)
-
-attrition |>
-summarise(n_trials_true = sum(is_valid_trial),
-n_trials_false = sum(!is_valid_trial),
-.by = c(lp, trial_type, location)) |>
-arrange(desc(lp)) |>
-pivot_wider(id_cols = c(location, lp),
-names_from = c(trial_type),
-values_from = matches("trials"),
-names_repair = janitor::make_clean_names) |>
-mutate(study = if_else(location=="Oxford", 
-"Study 1: English (Oxford)",
-"Study 2: Catalan/Spanish (Barcelona)")) |> 
-left_join(n_lp, by = join_by(lp)) |>
-select(study, lp, true, false, matches("n_trials")) |>
-gt(rowname_col = "lp",
-groupname_col = "study") |>
-tab_spanner("Participants", matches("participant")) |>
-tab_spanner("Trials", matches("trial")) |>
-fmt_integer(everything()) |>
-cols_merge(c(true, false), pattern = "{1} ({2})") |>
-cols_merge(c(n_trials_true_cognate, n_trials_false_cognate),
-pattern = "{1} ({2})") |>
-cols_merge(c(n_trials_true_non_cognate, n_trials_false_non_cognate),
-pattern = "{1} ({2})") |>
-cols_merge(c(n_trials_true_unrelated, n_trials_false_unrelated),
-pattern = "{1} ({2})") |>
-cols_label(true = "Participants",
-n_trials_true_cognate = "Cognate",
-n_trials_true_non_cognate = "Non-cognate",
-n_trials_true_unrelated = "Unrelated") |>
-tab_style(cell_text(style = "italic"),
-cells_column_labels()) |>
-tab_style(cell_text(align = "left"),
-cells_stub()) |>
-grand_summary_rows(fns = list(label = md("*N*")) ~ sum(.),
-fmt = ~ fmt_integer(.))
-```
 
 #### Modelling approach
 
@@ -523,8 +383,8 @@ fmt = ~ fmt_integer(.))
 r_info <- sessionInfo()
 
 r_version <- glue::glue(r_info$R.version$major,
-r_info$R.version$minor,
-.sep = "."
+						r_info$R.version$minor,
+						.sep = "."
 )
 stan_version <- "2.33.0"
 
@@ -569,71 +429,24 @@ We tested the differences between the conditions of interest in two ways. First,
 
 
 ```{r coefs-oxf}
-var_labels <- c(
-"b_Intercept" = "Intercept",
-"b_age_std" = "Age (+1 SD)",
-"b_condition1" = "Condition (U vs. RN)",
-"b_condition2" = "Condition (RN vs. RC)"
-)
+var_labels <- c("b_Intercept" = "Intercept",
+				"b_age_std" = "Age (+1 SD)",
+				"b_condition1" = "Condition (U vs. RN)",
+				"b_condition2" = "Condition (RN vs. RC)")
 
 model_summary <- get_posterior_summary(model_fits_oxf$fit_oxf_1,
-data_bcn,
-vars_dict = var_labels,
-rope_interval = rope_interval
-)
+									   data_bcn,
+									   vars_dict = var_labels,
+									   rope_interval = rope_interval)
 
 coefs <- model_summary |>
-mutate(
-.value = sprintf("%.3f", .value),
-.ci = sprintf("[%.3f, %.3f]", .lower, .upper),
-.rope = scales::percent(.rope, accuracy = 0.01)
-) |>
-split(janitor::make_clean_names(model_summary$.variable))
+	mutate(.value = sprintf("%.3f", .value),
+		   .ci = sprintf("[%.3f, %.3f]", .lower, .upper),
+		   .rope = scales::percent(.rope, accuracy = 0.01)) |>
+	split(janitor::make_clean_names(model_summary$.variable))
 ```
 
 Overall, the average participant' target looking time exceeded chance levels, as indicated by the fact that the 95% HDI of the intercept term excluded zero ($\beta$ = `r coefs$b_intercept$.value`, 95% HDI = `r coefs$b_intercept$.ci`) and all of its posterior samples fell outside of the ROPE. The 95% HDI of the coefficient of *Age* had a positive sign, but did not exclude zero ($\beta$ = `r coefs$b_age_std$.value`, 95% HDI = `r coefs$b_age_std$.ci`), and overlapped completely with the ROPE, indicating that participants from all ages showed equivalent overall target word recognition. The 95% HDI of the first contrast of the *Condition* predictor---comparing *Unrelated* and *Related/Non-cognate* trials---included zero ($\beta$ = `r coefs$b_condition1$.value`, 95% HDI = `r coefs$b_condition1$.ci`), and `r coefs$b_condition1$.rope` of its posterior samples fell within the ROPE. The 95% HDI of the second contrast---comparing *Related/Non-cognate* and *Related/Cognate* trials---also included zero ($\beta$ = `r coefs$b_condition2$.value`, 95% HDI = `r coefs$b_condition2$.ci`), and `r coefs$b_condition2$.rope` of its posterior samples fell within the ROPE. The overall target preference was equivalent across both pairwise condition comparisons.
-
-```{r tbl-coefs-oxf}
-#| label: tbl-coefs-oxf
-#| fig-cap: "Margin posterior mean predictions. A) Posterior mean predictions of the time course of target fixation in the test phase. B) Posterior mean prediction of the time course of the differences in target looking time between conditions. Lines and intervals indicate the mean and 95% credible interval of the posterior predictions."
-#| echo: false
-#| eval: false
-#| message: false
-#| warning: false
-#| out-width: 80%
-
-# summarise posterior draws
-intercept_label <- paste0("Intercept (at ", round(mean(data_oxf$age), 2), " months)")
-
-tbl_data <- model_summary |>
-	select(.variable_name, .value, .lower, .upper, .rope, .type) |>
-	mutate(
-		.variable_name = gsub("×", "$\\\\times$", .variable_name),
-		.hdi = sprintf("[%.3f, %.3f]", .lower, .upper),
-		.rope = case_when(is.na(.rope) ~ "-",
-						  .rope > 0.9999 ~ "1",
-						  .rope < 0.00001 ~ "0",
-						  .default = sub("^(-?)0.", "\\1.", sprintf("%.3f", .rope))
-		)
-	) |>
-	select(.variable_name, .value, .lower, .upper, .hdi, .rope)
-
-col_names <- c("", "$\\beta$", "95\\% HDI", "$p(\\text{ROPE})$")
-
-tbl_data |>
-	select(-c(.lower, .upper)) |>
-	kable(
-		format = "latex",
-		escape = FALSE,
-		col.names = col_names,
-		digits = 3,
-		booktabs = TRUE,
-		align = "lclr",
-		linesep = ""
-	) |>
-	kable_styling() |>
-	add_footnote("$\\beta$: median of the posterior distribution in the probability scale. 95\\% HDI: 95\\% highest density interval of the distribution. $p(\\text{ROPE})$: overlap between the 95\\% HDI and the ROPE, indicating the posterior probability that the true value of the coefficient is equivalent to zero.", notation = "none", escape = FALSE)
-```
 
 Second, we examined the differences between the priming conditions across the time course of the trial, incorporating the smooth functions of the HGAMs to generate marginal posterior predictions for each condition across for each time point. @fig-epreds-oxf shows the posterior predictions of the model for each condition, and a summary of the difference between the *Unrelated* and *Related/Non-cognate* conditions, and between those for the *Related/Non-cognate* and *Related/Cognate* conditions, at each time point to test the practical relevance of these differences, were compared their 95% HDI against the [-0.1, +0.1] ROPE. This analysis revealed a similar pattern of results to the previously shown: predicted target looking for the three conditions overlaps across the full time course of the trial.
 
@@ -674,10 +487,6 @@ plot_epreds <- epreds |>
 			   shape = condition)) +
 	geom_hline(yintercept = 0,
 			   colour = "grey") +
-	# geom_line(aes(group = interaction(condition, .draw)),
-	# 		  alpha = 1/20,
-	# 		  linewidth = 3/4,
-	# 		  linetype = "solid") +
 	stat_summary(fun.data = mean_qi,
 				 geom = "ribbon",
 				 alpha = 1 / 4,
@@ -778,7 +587,7 @@ To test our hypotheses regarding the role of age, dominant-language vocabulary s
 
 ```{r tbl-loos-oxf}
 #| label: tbl-loos-oxf
-#| tbl-cap: "Leave-one-out cross validation outcomes, comparing the predictive performance of the models in Study 2."
+#| tbl-cap: "Leave-one-out cross validation outcomes, comparing the predictive performance of the models in Study 1."
 loo_compare(model_loos_oxf[2:4]) |>
 	as.data.frame() |>
 	rownames_to_column("model") |>
@@ -894,16 +703,16 @@ We collected data from `r n_participants_total` children living in the Metropoli
 
 ```{r vocab-values}
 vocabulary_bcn <- vocabulary |>
-inner_join(select(participants_bcn, session_id, lp, age_group),
-by = join_by(session_id))
+	inner_join(select(participants_bcn, session_id, lp, age_group),
+			   by = join_by(session_id))
 
 vocab_means <- vocabulary_bcn |>
-summarise(across(c(total_prop, l1_prop), lst(mean, sd)),
-n = n(),
-.by = c(age_group, lp)) %>%
-mutate(across(matches("prop"), scales::percent)) %>%
-split(paste0("age_", gsub(" months", "", .$age_group))) |>
-map(\(x) split(x, tolower(x$lp)))
+	summarise(across(c(total_prop, l1_prop), lst(mean, sd)),
+			  n = n(),
+			  .by = c(age_group, lp)) %>%
+	mutate(across(matches("prop"), scales::percent)) %>%
+	split(paste0("age_", gsub(" months", "", .$age_group))) |>
+	map(\(x) split(x, tolower(x$lp)))
 
 n_imputed <- table(vocabulary_bcn$is_imputed)[2]
 prop_imputed <- scales::percent(n_imputed / nrow(vocabulary_bcn))
@@ -941,16 +750,14 @@ n_sessions_valid <- sum(distinct(attrition_bcn,
 								 .keep_all = TRUE
 )$is_valid_participant)
 n_participants_valid <- n_distinct(
-	attrition_bcn[attrition_bcn$is_valid_participant, ]$child_id
-)
+	attrition_bcn[attrition_bcn$is_valid_participant, ]$child_id)
 
 n_exc_prime <- sum(!attrition_bcn$is_valid_gaze_prime)
 n_exc_test <- sum(!attrition_bcn$is_valid_gaze_test)
 n_exc_test_each <- sum(!attrition_bcn$is_valid_gaze_test_each)
 n_exc_participants <- sum(!distinct(attrition_bcn,
 									session_id,
-									.keep_all = TRUE
-)$is_valid_participant)
+									.keep_all = TRUE)$is_valid_participant)
 n_exc_participants_vocab <- sum(!distinct(attrition_bcn,
 										  session_id,
 										  .keep_all = TRUE
@@ -969,7 +776,7 @@ n_longitudinal <- attrition_bcn |>
 
 We gathered data from `r format(n_trials, big.mark = ",")` trials from `r n_sessions` testing sessions, generated from `r n_participants` distinct participants. We excluded trials in which participants failed to provide 50% valid eye-tracking samples (equivalent to 750 ms) during the prime phase (*n* = `r format(n_exc_prime, big.mark = ",")`) or 50% valid samples (equivalent to 1,000 ms) during the target-distractor phase (*n* = `r format(n_exc_test, big.mark = ",")`). We also excluded trials in which participants did not provide at least 10% of valid samples (equivalent to 100 ms) for both the target *and* the distractor (*n* = `r format(n_exc_test_each, big.mark = ",")`).
 
-After excluding trials that matched any of the aforementioned criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the *Unrelated* condition (*n* = `r n_exc_participants`), and participants with a L1 vocabulary size lower than 10% (*n* = `r n_exc_participants_vocab`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions. @tbl-attrition shows a detailed description of the trial attrition.
+After excluding trials that matched any of the aforementioned criteria from the dataset, we excluded participants who did not provide at least two valid trials in the *Cognate* condition, the *Non-cognate* condition, or the *Unrelated* condition (*n* = `r n_exc_participants`), and participants with a L1 vocabulary size lower than 10% (*n* = `r n_exc_participants_vocab`). The final dataset included `r format(n_trials_valid, big.mark = ",")` trials from `r n_sessions_valid` testing sessions, generated by `r format(n_participants_valid, big.mark = ",")` distinct participants. Of those participants, `r n_longitudinal[1, 2]` provided data from one experimental session, `r n_longitudinal[2, 2]` provided data from two experimental sessions, and `r n_longitudinal[3, 2]` provided data from three experimental sessions.
 
 We modelled the data following a similar approach as in Study 1, with the main difference that participants' language profile (*Group*) was now included as a predictor in the model. In Study 2, the base model $\mathcal{M}_0$ included the the main effects of *Age*, *Condition*, and *Group*, and the two-way interaction between the *Condition* and  *Group* predictors. Contrast coding of the *Condition* predictor was the same as in Study 1. We set one *a priori* contrasts for the *Group* predictor, comparing *Monolingual* with *Bilingual* participants (sum-coded as `-0.5` and `+0.5`, respectively).
 
@@ -1007,47 +814,6 @@ coefs <- model_summary |>
 Overall, the average participants' looking time exceeded chance levels, as indicated by the fact that the 95% HDI of the intercept term excluded zero ($\beta$ = `r coefs$b_intercept$.value`, 95% HDI = `r coefs$b_intercept$.ci`), and that all of its posterior samples fell outside of the ROPE. The coefficient of *Age* had a positive sign, but its 95% HDI overlapped completely with the ROPE ($\beta$ = `r coefs$b_age_std$.value`, 95% HDI = `r coefs$b_age_std$.ci`), indicating that participants from all ages showed equivalent overall target word recognition. The 95% HDI of the coefficient of *Group* also included zero ($\beta$ = `r coefs$b_lp1$.value`, 95% HDI = `r coefs$b_lp1$.ci`) and completely overlapped with the ROPE, indicating an equivalent overall target preference in monolinguals and bilinguals,
 
 The 95% HDI of the first contrast of the *Condition* predictor---comparing *Unrelated* and *Related/Non-cognate* trials---included zero ($\beta$ = `r coefs$b_condition1$.value`, 95% HDI = `r coefs$b_condition1$.ci`), and `r coefs$b_condition1$.rope` of its posterior samples overlapped with the ROPE. The 95% HDI of the second contrast, comparing *Related/Non-cognate* and *Related/Cognate* trials, also included zero ($\beta$ = `r coefs$b_condition2$.value`, 95% HDI = `r coefs$b_condition2$.ci`), and `r coefs$b_condition2$.rope` of its posterior samples overlapped with the ROPE. The overall target preference was equivalent across both pairwise condition comparisons. The interaction term between the first *Condition* contrast contained zero ($\beta$ = `r coefs$b_condition1_lp1$.value`, 95% HDI = `r coefs$b_condition1_lp1$.ci`), with `r coefs$b_condition1_lp1$.rope` of its posterior samples overlapping with the ROPE. The interaction term between the second *Condition* contrast also contained zero ($\beta$ = `r coefs$b_condition2_lp1$.value`, 95% HDI = `r coefs$b_condition2_lp1$.ci`), and `r coefs$b_condition1$.rope` of its posterior samples fell within the ROPE. The outcomes of this model provide strong evidence against differences between monolinguals and monolinguals, and inconclusive evidence for differences in overall target looking time across conditions.
-
-```{r tbl-coefs}
-#| label: tbl-coefs
-#| tbl-cap: "Posterior distribution of regression coefficients. Median: median of the posterior distribution in logit scale. 95\\% HDI: 95\\% highest density interval of the distribution. *p*(ROPE): overlap between the 95\\% HDI and the ROPE, indicating the posterior probability that the true value of the coefficient is equivalent to zero."
-#| echo: false
-#| message: false
-#| eval: false
-#| warning: false
-#| out-width: 80%
-# summarise posterior draws
-intercept_label <- paste0("Intercept (at ", round(mean(data_bcn$age), 2), " months)")
-
-tbl_data <- model_summary |>
-	select(.variable_name, .value, .lower, .upper, .rope, .type) |>
-	mutate(
-		.variable_name = gsub("×", "$\\\\times$", .variable_name),
-		.hdi = sprintf("[%.3f, %.3f]", .lower, .upper),
-		.rope = case_when(is.na(.rope) ~ "-",
-						  .rope > 0.9999 ~ "1",
-						  .rope < 0.00001 ~ "0",
-						  .default = sub("^(-?)0.", "\\1.", sprintf("%.3f", .rope))
-		)
-	) |>
-	select(.variable_name, .value, .lower, .upper, .hdi, .rope)
-
-col_names <- c("", "$\\beta$", "95\\% HDI", "$p(\\text{ROPE})$")
-
-tbl_data |>
-	select(-c(.lower, .upper)) |>
-	kable(
-		format = "latex",
-		escape = FALSE,
-		col.names = col_names,
-		digits = 3,
-		booktabs = TRUE,
-		align = "lclr",
-		linesep = ""
-	) |>
-	kable_styling() |>
-	add_footnote("$\\beta$: median of the posterior distribution in the logit scale. 95\\% HDI: 95\\% highest density interval of the distribution. $p(\\text{ROPE})$: overlap between the 95\\% HDI and the ROPE, indicating the posterior probability that the true value of the coefficient is equivalent to zero.", notation = "none", escape = FALSE)
-```
 
 ```{r timecourse}
 make_std <- function(x, mean, sd) (x - mean) / sd
@@ -1247,7 +1013,7 @@ A comparison between models including *Age* ($\mathcal{M}_{1}$), *L1 vocabulary*
 
 ```{r tbl-loos}
 #| label: tbl-loos
-#| tbl-cap: "Leave-one-out cross validation outcomes, comparing the predictive performance of models 0 to 3, and 3 to 6 in Study 1."
+#| tbl-cap: "Leave-one-out cross validation outcomes, comparing the predictive performance of the models in Study 1."
 get_loos <- function(x, y) {
 	out <- lst(m_0 = x, m_1 = y) |>
 		loo_compare() |>
@@ -1284,12 +1050,10 @@ loo_compare(model_loos_bcn[4:7]) |>
 	relocate(matches("diff"), .after = matches("loo")) |>
 	gt(rowname_col = "model") |>
 	fmt_number(is.numeric) |>
-	cols_label(
-		elpd_diff = "ELPD (diff.)",
-		se_diff = "SE ELPD (diff)",
-		elpd_loo = "ELPD",
-		se_elpd_loo = "SE ELPD"
-	) |>
+	cols_label(elpd_diff = "ELPD (diff.)",
+			   se_diff = "SE ELPD (diff)",
+			   elpd_loo = "ELPD",
+			   se_elpd_loo = "SE ELPD") |>
 	fmt_missing(missing_text = "---") |>
 	tab_footnote(footnote = md("*ELPD*: sum of expected log pointwise predictive density for a new dataset. *SE \\(ELPD\\)*: standard error of the *ELPD*, which indictes the uncertainty about the predictive performance for unknown future data. *ELPD (diff)*: pairwise difference in *ELPD* for two models. The difference is computed relative to the model with lowest *ELPD* (best fitting model). *SE ELPD (diff.)*: standard error of component-wise differences of *ELPD* between two models.")) |>
 	tab_style(cell_text(style = "italic"), cells_column_labels())
