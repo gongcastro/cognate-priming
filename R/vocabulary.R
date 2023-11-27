@@ -13,10 +13,7 @@ get_vocabulary <- function(participants, bvq_data,
 }
 
 # vocabulary size
-get_vocabulary_bcn <- function(participants, # participants dataset (get_participants output)
-							   bvq_data,
-							   vocabulary_supp_bcn_file
-){
+get_vocabulary_bcn <- function(participants, bvq_data, vocabulary_supp_bcn_file){
 	
 	# vocabulary sizes BVQ database and Cognate Priming
 	participants_tmp <- participants |> 
@@ -30,7 +27,7 @@ get_vocabulary_bcn <- function(participants, # participants dataset (get_partici
 		right_join(select(participants_tmp, session_id, child_id, vocab_id, age, lp),
 				   by = join_by(vocab_id)) |> 
 		rowwise() |> 
-		mutate(is_imputed = any(is.na(c_across(total_prop:te_prop)))) |> 
+		mutate(is_imputed = any(is.na(c_across(total_count:te_prop)))) |> 
 		ungroup() |> 
 		relocate(child_id, vocab_id, age, is_imputed) |> 
 		left_join(select(participants_tmp, child_id, session_id, vocab_id, age, lp),
@@ -40,23 +37,41 @@ get_vocabulary_bcn <- function(participants, # participants dataset (get_partici
 										  "l2_prop", "concept_prop",
 										  "te_prop"), 
 						  cols_predictor = c("age", "lp"), 
-						  bvq_data = bvq_data) |>
-		# merge both datasets
-		right_join(participants_tmp, imputed,
-				   by = join_by(child_id, vocab_id, session_id, lp, age)) |> 
-		mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual"))) |> 
-		select(child_id, session_id, vocab_id, is_imputed, matches("prop|count|contents")) |> 
-		distinct(child_id, session_id, vocab_id, .keep_all = TRUE) |> 
-		mutate(add_vocab_supp = map_int(contents, length) < 1) |> 
-		left_join(vocab_supp, by = join_by(session_id)) |> 
-		mutate(contents = if_else(add_vocab_supp & !is.na(contents_supp),
-								  contents_supp, contents)) |> 
-		select(-matches("supp"))
-	
-	
-	# test_vocabulary(out)
-	
-	return(out)
+						  bvq_data = bvq_data,
+						  constraints = c(0, 1)) |>
+		impute_vocabulary(cols_impute = c("l1_count", "l2_count"), 
+						  cols_predictor = c("age", "lp"), 
+						  bvq_data = bvq_data,
+						  constraints = c(0, 371)) |> 
+		impute_vocabulary(cols_impute = "concept_count",
+						  cols_predictor = c("age", "lp"), 
+						  bvq_data = bvq_data,
+						  constraints = c(0, 375)) |> 
+		impute_vocabulary(cols_impute = "te_count",
+						  cols_predictor = c("age", "lp"), 
+						  bvq_data = bvq_data,
+						  constraints = c(0, 340)) |> 
+		impute_vocabulary(cols_impute = "total_count",
+						  cols_predictor = c("age", "lp"), 
+						  bvq_data = bvq_data,
+						  constraints = c(0, 715)) |> 
+	# merge both datasets
+	right_join(participants_tmp, imputed,
+			   by = join_by(child_id, vocab_id, session_id, lp, age)) |> 
+	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual"))) |> 
+	select(child_id, session_id, vocab_id, is_imputed, 
+		   matches("prop|count|contents")) |> 
+	distinct(child_id, session_id, vocab_id, .keep_all = TRUE) |> 
+	mutate(add_vocab_supp = map_int(contents, length) < 1) |> 
+	left_join(vocab_supp, by = join_by(session_id)) |> 
+	mutate(contents = if_else(add_vocab_supp & !is.na(contents_supp),
+							  contents_supp, contents)) |> 
+	select(-matches("supp"))
+
+
+# test_vocabulary(out)
+
+return(out)
 }
 
 #' Get vocabulary supplement
@@ -84,11 +99,8 @@ get_vocabulary_supp_bcn <- function(vocabulary_supp_bcn_file) {
 }
 
 #' Impute vocabulary size based on the whole BVQ database
-impute_vocabulary <- function(x,
-							  cols_impute,
-							  cols_predictor, 
-							  bvq_data,
-							  ...) {
+impute_vocabulary <- function(x, cols_impute, cols_predictor,  bvq_data,
+							  constraints = NULL, ...) {
 	
 	# check args
 	key.cols <- c(cols_predictor, cols_impute)
@@ -121,9 +133,12 @@ impute_vocabulary <- function(x,
 	preds[,] <- 0
 	preds[, cols_predictor] <- 1
 	
-	# constrain proportions between 0 and 1
+	# constrain imputed observations
 	post <- init$post
-	post[cols_impute] <- "imp[[j]][,i] <- squeeze(imp[[j]][, i], c(0, 1))"
+	if (!is.null(constraints)) {
+		post[cols_impute] <- paste0("imp[[j]][,i] <- squeeze(imp[[j]][, i], c(",
+									constraints[1], ", ", constraints[2], "))")
+	}
 	
 	# impute missing data
 	suppressWarnings({
@@ -172,34 +187,37 @@ get_vocabulary_oxf <- function(vocabulary_file,	participants, words) {
 		mutate(item = if_else(!is.na(stimulus), stimulus, item)) |> 
 		rename(vocab_id = unique_id,
 			   vocab_id_response = response_id) |> 
-		summarise(total_prop = mean(response),
+		summarise(l1_count = sum(response, na.rm = TRUE),
+				  l1_prop = mean(response, na.rm = TRUE),
 				  contents = list(item[response]),
 				  .by = c(vocab_id, vocab_id_response)) |> 
 		left_join(select(participants_tmp, session_id, vocab_id),
 				  by = join_by(vocab_id)) |> 
 		drop_na(session_id) |> 
-		select(session_id, total_prop, contents)
+		select(session_id, l1_prop, l1_count, contents)
 	
 	cdi_extended <- get_cdi_extended_oxf(vocabulary_file) |> 
 		left_join(stimuli_cdi_oxf$full, by = c("item" = "item_cdi")) |> 
 		mutate(item = if_else(!is.na(stimulus), stimulus, item)) |>  
 		rename(vocab_id_response = response_id) |> 
-		summarise(total_prop = mean(response),
+		summarise(l1_count = sum(response, na.rm = TRUE),
+				  l1_prop = mean(response, na.rm = TRUE),
 				  contents = list(item[response]),
 				  .by = c(vocab_id_response)) |> 
 		left_join(select(participants_tmp, session_id, vocab_id_response),
 				  by = join_by(vocab_id_response)) |> 
 		drop_na(session_id) |> 
-		select(session_id, total_prop, contents)
+		select(session_id, l1_prop, l1_count, contents)
 	
 	cdi_supplementary <- get_supplementary_oxf(vocabulary_file) |> 
 		left_join(stimuli_cdi_oxf$supp, by = c("item" = "item_cdi")) |> 
 		mutate(item = if_else(!is.na(stimulus), stimulus, item)) |>  
 		rename(session_id = child_id) |> 
-		summarise(total_prop = mean(response, na.rm = TRUE),
+		summarise(l1_count = sum(response, na.rm = TRUE),
+				  l1_prop = mean(response, na.rm = TRUE),
 				  contents = list(item[response]),
 				  .by = c(session_id)) |> 
-		select(session_id, total_prop, contents) 
+		select(session_id, l1_prop, l1_count, contents) 
 	
 	out <- lst(cdi_full, cdi_extended, cdi_supplementary) |> 
 		bind_rows(.id = "version") |> 
@@ -208,11 +226,16 @@ get_vocabulary_oxf <- function(vocabulary_file,	participants, words) {
 		left_join(participants_tmp,
 				  by = join_by(session_id)) |> 
 		mutate(is_imputed = FALSE,
-			   l1_prop = total_prop,
+			   total_prop = l1_prop,
 			   l2_prop = 0,
-			   concept_prop = total_prop,
-			   te_prop = 0) |> 
-		select(child_id, session_id, vocab_id, is_imputed, matches("prop"), contents) |> 
+			   concept_prop = l1_prop,
+			   te_prop = 0,
+			   total_count = l1_count,
+			   l2_count = 0,
+			   concept_count = l1_count,
+			   te_count = 0) |> 
+		select(child_id, session_id, vocab_id, is_imputed, 
+			   matches("prop|count"), contents) |> 
 		distinct(child_id, session_id, vocab_id, .keep_all = TRUE)
 	
 	return(out)

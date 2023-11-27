@@ -62,53 +62,46 @@ get_familiarity <- function(bvq_data,
 								  bvq_data$responses,
 								  type = type,
 								  age = age,
-								  .width = .width
-	) |>
+								  .width = .width) |>
 		filter(item_dominance == "L1") |>
 		summarise(across(c(.sum, .n), sum), .by = "item")
 	
 	familiarity <- familiarity |>
-		mutate(
-			familiarity = prop_adj(.sum, .n),
-			familiarity_se = prop_adj_se(.sum, .n)
-		) |>
+		mutate(familiarity = prop_adj(.sum, .n),
+			   familiarity_se = prop_adj_se(.sum, .n)) |>
 		select(item, starts_with("familiarity")) |>
 		rename(word = item) |>
-		mutate(test_language = case_when(
-			grepl("eng_", word) ~ "English",
-			grepl("cat_", word) ~ "Catalan",
-			grepl("spa_", word) ~ "Spanish"
-		)) |>
+		mutate(test_language = case_when(grepl("eng_", word) ~ "English",
+										 grepl("cat_", word) ~ "Catalan",
+										 grepl("spa_", word) ~ "Spanish")) |>
 		relocate(test_language, .before = word)
 	
 	return(familiarity)
 }
 
 #' Get frequencies from CHILDES
-get_childes_corpora <- function(token, languages = c("eng")) {
+get_childes_corpora <- function(token, languages = c("eng"), load_previous = TRUE) {
 	# if CHILDES exists, load
 	childes.path <- file.path("data-raw", "stimuli", "childes.csv")
 	if (file.exists(childes.path)) {
-		childes <- readr::read_csv(childes.path, show_col_types = FALSE)
-		cli_alert_success("Previous versions of childes loaded")
-		return(childes)
+		if (load_previous) {
+			childes <- readr::read_csv(childes.path, show_col_types = FALSE)
+			cli_alert_success("Previous versions of childes loaded")
+			return(childes)
+		}
 	}
 	
 	# absolute frequency (raw counts)
-	childes <- childesr::get_tokens(
-		role = "target_child",
-		token = token,
-		language = languages
-	) |>
+	childes <- childesr::get_tokens(role = "target_child",
+									token = token,
+									language = languages) |>
 		mutate(gloss = tolower(gloss)) |>
 		filter(grepl(paste(languages, collapse = "|"), language)) |>
 		count(gloss, language) |>
 		mutate(language = strsplit(language, " ")) |>
 		unnest(language) |>
-		summarise(
-			freq_counts = sum(n),
-			.by = c(language, gloss)
-		) |>
+		summarise(freq_counts = sum(n),
+				  .by = c(language, gloss)) |>
 		filter(freq_counts > 0)
 	
 	arrow::write_csv_arrow(childes, childes.path)

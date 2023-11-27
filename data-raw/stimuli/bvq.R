@@ -16,6 +16,7 @@ edu_dict <- c("noeducation" = "No education",
 			  "university" = "University")
 
 l <- bvq_logs(p, r) |> 
+	filter(version %in% c("bvq-short", "bvq-lockdown")) |> 
 	# get maximum educational attainment of parents
 	mutate(edu_parent = apply(cbind(edu_parent1, edu_parent2), 1,
 							  function(x) max(x, na.rm = FALSE)) |>
@@ -29,11 +30,10 @@ l <- bvq_logs(p, r) |>
 v <- bvq_vocabulary(p, r, .scale = c("count", "prop")) |> 
 	dplyr::filter(type=="understands") |> 
 	inner_join(l, by = join_by(child_id, response_id)) |> 
-	filter(type=="understands") |> 
-	select(child_id, response_id, time, matches("prop"), contents) |> 
+	filter(type=="understands",
+		   !(child_id %in% c(54487, 54840))) |> 
 	inner_join(l, by = join_by(child_id, response_id, time)) |> 
-	select(response_id, matches("prop|count"), contents ) 
-
+	select(response_id, matches("prop|count"), contents)
 
 bvq_data <- list(participants = p, 
 				 responses = r, 
@@ -41,4 +41,4 @@ bvq_data <- list(participants = p,
 				 vocabulary = v,
 				 pool = pool)
 
-saveRDS(bvq_data, file.path("data-raw", "bvq.rds"))
+saveRDS(bvq_data, file.path("data-raw", "stimuli", "bvq.rds"))
