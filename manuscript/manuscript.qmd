@@ -113,14 +113,12 @@ n_participants_sessions <- participants_oxf |>
 	map("n")
 
 ages <- participants_oxf |>
-	summarise(
-		n = n(),
-		n_participants = n_distinct(child_id),
-		across(age, lst(mean, sd, min, max)),
-		across(matches("doe_"), lst(mean, sd)),
-		age_vctr = list(age),
-		.by = c(lp, test_language)
-	)
+	summarise(n = n(),
+			  n_participants = n_distinct(child_id),
+			  across(age, lst(mean, sd, min, max)),
+			  across(matches("doe_"), lst(mean, sd)),
+			  age_vctr = list(age),
+			  .by = c(lp, test_language))
 
 suppressWarnings({
 	time_diffs <- participants_oxf |>
@@ -128,12 +126,10 @@ suppressWarnings({
 		mutate(n_session = 1:n()) |>
 		select(child_id, session_id, session_n, age) |>
 		filter(child_id %in% participants_oxf$child_id[duplicated(participants_oxf$child_id)]) |>
-		pivot_wider(
-			id_cols = child_id,
-			names_from = session_n,
-			values_from = age,
-			names_repair = janitor::make_clean_names
-		) |>
+		pivot_wider(id_cols = child_id,
+					names_from = session_n,
+					values_from = age,
+					names_repair = janitor::make_clean_names) |>
 		rowwise() |>
 		mutate(diff_min = x2 - x1) |>
 		ungroup() |>
@@ -162,7 +158,7 @@ participants |>
 			   by = join_by(session_id)) |> 
 	summarise(n = n(),
 			  n_participants = length(unique(child_id)),
-			  across(age, lst(mean, sd, min, max)),
+			  across(age, lst(mean, sd)),
 			  across(matches("doe_"), lst(mean, sd)),
 			  # age_vctr = list(age),
 			  .by = c(lp, study, test_language, is_valid_participant)) |> 
@@ -176,19 +172,17 @@ participants |>
 	   groupname_col = c("study", "lp")) |>
 	grand_summary_rows(columns = matches("age"),
 					   fns = list(Total ~ mean(.)),
-					   fmt = ~ fmt_number(., decimals = 1)) |>
+					   fmt = ~ fmt_number(., decimals = 2)) |>
 	grand_summary_rows(columns = c(n, n_participants),
 					   fns = list(Total ~ sum(.)),
 					   fmt = ~ fmt_integer(.)) |>
 	# gt_plt_dist(age_vctr, type = "histogram") |>
-	fmt_number(is.numeric, decimals = 1) |>
+	fmt_number(is.numeric, decimals = 2) |>
 	fmt_integer(c(n, n_participants, n_FALSE, n_participants_FALSE)) |>
-	fmt_number(matches("doe"), decimals = 1, scale_by = 100) |>
+	fmt_number(matches("doe"), decimals = 2, scale_by = 100) |>
 	cols_merge(c(n, n_FALSE), pattern = "{1} ({2})") |>
 	cols_merge(c(n_participants, n_participants_FALSE),
 			   pattern = "{1} ({2})") |>
-	
-	cols_merge(c(age_min, age_max), pattern = "{1}-{2}") |>
 	cols_merge(c(age_mean, age_sd),
 			   pattern = "{1} ({2})") |>
 	cols_merge(c(doe_catalan_mean, doe_catalan_sd),
@@ -206,7 +200,6 @@ participants |>
 	cols_label(n = "Test sessions",
 			   n_participants = "Participants",
 			   age_mean = "M (SD)",
-			   age_min = "Range",
 			   doe_catalan_mean = "M (SD)",
 			   doe_english_mean = "M (SD)",
 			   doe_spanish_mean = "M (SD)") |>
@@ -262,15 +255,15 @@ vocab_plot_data |>
 	filter(study=="Study 1 (English)") |> 
 	ggplot(aes(age, l1_count, 
 			   side = side)) +
-		geom_point(size = 2,
+	geom_point(size = 2,
 			   shape = 1,
-			   colour = "black",
-			   alpha = 1/2,
+			   colour = "grey",
+			   alpha = 3/4,
 			   stroke = 1) +
 	geom_smooth(method = "lm", 
 				formula = "y ~ x",
 				colour = "black",
-				fill = "grey") +
+				fill = "black") +
 	labs(x = "Age (months)",
 		 y = "Vocabulary size",
 		 colour = "Group",
@@ -294,14 +287,23 @@ Participants were presented with 32 trials in random order, which belonged to th
 
 ### Stimuli
 
-We created four lists of trials, across which the same target-distractor pair appeared with a different prime, counterbalancing the condition to which it belonged. For instance, in list one the *ball*-*trousers* pair was preceded by *bike* (*Related/Cognate*), by *butterfly* (*Related/Non-cognate*) in list two, and by *star* and *nose* (*Unrelated*) in lists three and four (see Appendix A for a detailed description of the stimuli). @tbl-stimuli shows a detailed summary of the stimuli properties, broken down by trial type and testing language. Trials included in each condition had equivalent length (number of phonemes) and lexical frequency. Lexical frequencies were extracted from the English corpora from the CHILDES database [@macwhinney2000childes; @sanchez2019childes] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@zipf1945meaning; @van2014subtlex]. In addition to sharing phonological onset, prime and target shared higher overall phonological similarity---as measured using the Levenshtein distance---between their phonological transcriptions---in the *Related/Cognate* and the *Related/Non-cognate* conditions, compared to the *Unrelated* condition. In *Related/Cognate* trials, the prime label in the language of test shared a higher overall phonological similarity with its translation, compared to *Related/Non-cognate* trials. Since the number of cognate and non-cognate primes was balanced in *Unrelated* trials, overall phonological similarity between prime labels prime labels in the *Unrelated* condition had an intermediate overall phonological similarity. Audio durations were also equivalent across conditions.
+```{r stim-stats}
+durations <- stimuli |>
+	summarise(across(duration, 
+					 lst(mean, sd, min, max)), 
+			  .by = c(test_language)) %>%
+	mutate(across(is.numeric, \(x) format(round(x*1e3, 2), big.mark = ","))) %>%
+	split(janitor::make_clean_names(.$test_language))
+```
+
+We created four lists of trials, across which the same target-distractor pair appeared with a different prime, counterbalancing the condition to which it belonged. For instance, in list one the *ball*-*trousers* pair was preceded by *bike* (*Related/Cognate*), by *butterfly* (*Related/Non-cognate*) in list two, and by *star* and *nose* (*Unrelated*) in lists three and four (see Appendix A for a detailed description of the stimuli). @tbl-stimuli shows a detailed summary of the stimuli properties, broken down by trial type and testing language. Trials included in each condition had equivalent length (number of phonemes) and lexical frequency. Lexical frequencies were extracted from the English corpora from the CHILDES database [@macwhinney2000childes; @sanchez2019childes] as counts per million words, and transformed into Zipf scores for easier cross-language comparison [@zipf1945meaning; @van2014subtlex]. Audios had an average duration of `r durations$english$duration_mean` ms (*SD* = `r durations$english$duration_sd`, *Range* = `r durations$english$duration_min`--`r durations$english$duration_max`).
 
 ```{r tbl-stimuli}
 #| label: tbl-stimuli
-#| tbl-cap: "Summary of stimuli properties by trial type."
+#| tbl-cap: "Summary of stimuli properties by trial type. Values are summarised using the mean and the standard deviation (between parentheses)."
 stimuli |>
-	unnest_wider(c(freq, nphon)) |>
-	summarise(across(c(matches("n_phon|freq_|lv_|nphon"), duration),
+	unnest_wider(c(freq, nphon, familiarity)) |>
+	summarise(across(c(matches("n_phon|freq_|nphon|familiarity")),
 					 list(	mean = \(x) mean(x, na.rm = TRUE),
 					 	  sd = \(x) sd(x, na.rm = TRUE))),
 			  .by = c(trial_type, test_language)) |>
@@ -311,41 +313,42 @@ stimuli |>
 								   paste0("Study 2: ", test_language))) |>
 	arrange(test_language) |> 
 	gt(rowname_col = "trial_type",
-	   groupname_col = "test_language") |>
+	   groupname_col = "test_language") |> 
 	# summary_rows(groups = c("Unrelated", "Non-cognate", "Cognate"),
 	# 			 columns = is.numeric,
 	# 			 fns = list(Total ~ mean(.)),
 	# 			 fmt = ~ fmt_number(., decimals = 2)) |>
-	grand_summary_rows(	columns = is.numeric,
-						fns = list(Total ~ mean(.)),
-						fmt = ~ fmt_number(., decimals = 2)) |>
+	grand_summary_rows(columns = matches("phon|freq"),
+					   fns = list(Total ~ mean(.)),
+					   fmt = ~ fmt_number(., decimals = 2)) |>
+		grand_summary_rows(columns = matches("familiarity"),
+					   fns = list(Total ~ mean(.)),
+					   fmt = ~ fmt_number(., decimals = 2, scale_by = 100)) |>
 	tab_spanner("# Phonemes", matches("nphon")) |>
 	tab_spanner("Frequency (Zipf)", matches("freq")) |>
-	tab_spanner("Phon. similarity [0-1]", matches("lv")) |>
-	fmt_number(is.numeric, decimals = 1) |>
+	tab_spanner("Familiarity (%)", matches("familiarity")) |>
+	fmt_number(is.numeric, decimals = 2) |>
+	fmt_number(matches("familiarity"), decimals = 2, scale_by = 100) |> 
 	cols_merge(c(freq_prime_mean, freq_prime_sd),
 			   pattern = "{1} ({2})") |>
 	cols_merge(c(freq_target_mean, freq_target_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(familiarity_prime_mean, familiarity_prime_sd),
+			   pattern = "{1} ({2})") |>
+	cols_merge(c(familiarity_target_mean, familiarity_target_sd),
 			   pattern = "{1} ({2})") |>
 	cols_merge(c(nphon_prime_mean, nphon_prime_sd),
 			   pattern = "{1} ({2})") |>
 	cols_merge(c(nphon_target_mean, nphon_target_sd),
 			   pattern = "{1} ({2})") |>
-	cols_merge(c(lv_pp_mean, lv_pp_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(lv_pt_mean, lv_pt_sd),
-			   pattern = "{1} ({2})") |>
-	cols_merge(c(duration_mean, duration_sd),
-			   pattern = "{1} ({2})") |>
 	cols_label(trial_type = "",
+			   familiarity_prime_mean = "Prime",
+			   familiarity_target_mean = "Target",
 			   freq_prime_mean = "Prime",
 			   freq_target_mean = "Target",
-			   lv_pp_mean = "Prime-Prime",
-			   lv_pt_mean = "Prime-Target",
-			   duration_mean = "Duration (s)",
 			   nphon_prime_mean = "Prime",
 			   nphon_target_mean = "Target") |>
-	tab_style(cell_text(style = "italic"),
+	tab_style(list(cell_text(style = "italic")), 
 			  list(cells_column_labels(),
 			  	 cells_column_spanners(),
 			  	 cells_grand_summary()))
@@ -496,7 +499,7 @@ We implemented this model using `brms` [@burkner2017brms], an R interface to the
 $$
 \begin{aligned}
 &\textbf{Target looking by participant } i \textbf{ in session } j \\
-y_{ij} &\sim \mathcal{N}(\mu_{ij}, \sigma_{ij}) \\ \\
+y_{ij} &\sim \mathcal{N}(\mu_{ij}, \sigma_{ij}) \\\\
 &\textbf{Distributional parameters:} \\
 \eta'(\mu_{ij}) &= (\beta_0 + u _{0_{ij}}) +
 (\beta_1 + u _{1_{ij}}) \text{Condition} + \beta_{2} Age + \\
@@ -818,13 +821,13 @@ vocab_plot_data |>
 	facet_wrap(~lp) +
 	geom_point(size = 2,
 			   shape = 1,
-			   colour = "black",
-			   alpha = 1/2,
+			   colour = "grey",
+			   alpha = 3/4,
 			   stroke = 1) +
 	geom_smooth(method = "lm", 
 				formula = "y ~ x",
 				colour = "black",
-				fill = "grey") +
+				fill = "black") +
 	labs(x = "Age (months)",
 		 y = "Vocabulary size",
 		 colour = "Group",
@@ -832,7 +835,6 @@ vocab_plot_data |>
 	scale_x_continuous(breaks = seq(0, 40, 2)) +
 	scale_y_continuous(limits = c(0, 575),
 					   breaks = seq(0, 1e3, 100)) +
-	scale_x_continuous(breaks = seq(0, 50, 2)) +
 	theme(panel.grid.major.y = element_line(linetype = "dotted",
 											colour = "grey"),
 		  legend.position = "none",
@@ -846,7 +848,7 @@ vocab_plot_data |>
 n_words <- length(unique(with(stimuli, unlist(prime, target, distractor))))
 ```
 
-We created six stimuli lists: three in Catalan, and three in Spanish. Lists were created following the same constraints as in Study 1,  but now considering the cross-linguistic phonological relationship between Catalan and Spanish. Extracting lexical frequencies from the Catalan and Spanish corpora in the CHILDES database was not possible, given the low number of participants and tokens included. We mapped the English lexical frequencies onto their Catalan and Spanish translation equivalents [see @fourtassi2020growth and @garcia2023cognate for similar approaches]. The auditory stimuli were natural exemplars of the selected target words, spoken by a proficient female bilingual speaker of Catalan (Central variety) and Castilian Spanish, who was instructed to pronounce each word in a toddler-directed manner. New visual stimuli were created to accommodate the words included in the new stimuli lists, and possible cultural differences in the typicality of the exemplars shown in the pictures (see Appendix A for a detailed description of the stimuli).
+We created six stimuli lists: three in Catalan, and three in Spanish. Lists were created following the same constraints as in Study 1,  but now considering the cross-linguistic phonological relationship between Catalan and Spanish. Extracting lexical frequencies from the Catalan and Spanish corpora in the CHILDES database was not possible, given the low number of participants and tokens included. We mapped the English lexical frequencies onto their Catalan and Spanish translation equivalents [see @fourtassi2020growth and @garcia2023cognate for similar approaches]. The auditory stimuli were natural exemplars of the selected target words, spoken by a proficient female bilingual speaker of Catalan (Central variety) and Castilian Spanish, who was instructed to pronounce each word in a toddler-directed manner. Catalan audios had an average duration of `r durations$catalan$duration_mean` ms (*SD* = `r durations$catalan$duration_sd`, *Range* = `r durations$catalan$duration_min`--`r durations$catalan$duration_max`), and Spanish audios had an average duration of  `r durations$spanish$duration_mean` ms (*SD* = `r durations$spanish$duration_sd`, *Range* = `r durations$spanish$duration_min`--`r durations$spanish$duration_max`). New visual stimuli were created to accommodate the words included in the new stimuli lists, and possible cultural differences in the typicality of the exemplars shown in the pictures (see Appendix A for a detailed description of the stimuli).
 
 ### Procedure
 
@@ -1148,7 +1150,7 @@ mp <- read_csv(file.path("manuscript", "_assets", "data", "mp-stimuli.csv"),
 mp_means <- mp |> 
 	filter(role!="distractor") |> 
 	mutate(condition = if_else(role=="target", 
-							   "", condition)) |> 
+							   "related/unrelated", condition)) |> 
 	summarise(aoa_sd = sd(aoa, na.rm = TRUE),
 			  aoa = mean(aoa, na.rm = TRUE),
 			  freq_sd = sd(freq),
@@ -1157,7 +1159,7 @@ mp_means <- mp |>
 mp |> 
 	filter(role!="distractor") |> 
 	mutate(condition = if_else(role=="target", 
-							   "", condition)) |> 
+							   "related/unrelated", condition)) |> 
 	ggplot(aes(condition, freq, colour = study, fill = study)) +
 	facet_wrap(~role, scales = "free_x") +
 	geom_dots(side = "both",
@@ -1165,7 +1167,7 @@ mp |>
 			  fill = "white",
 			  stroke = 1,
 			  position = position_dodge(width = 1),
-			  alpha = 1/5) +
+			  alpha = 1/3) +
 	stat_summary(geom = "errorbar",
 				 fun.data = mean_se,
 				 width = 0.1,
@@ -1178,13 +1180,12 @@ mp |>
 	labs(x = "Role", 
 		 y = "Lexical frequency (Zipf)",
 		 colour = "Study",
-		 fill = "Study",
 		 fill = "Study") +
 	
 	mp |> 
 	filter(role!="distractor") |> 
 	mutate(condition = if_else(role=="target", 
-							   "", condition)) |> 
+							   "related/unrelated", condition)) |> 
 	ggplot(aes(condition, aoa, colour = study, fill = study)) +
 	facet_wrap(~role, scales = "free_x") +
 	geom_dots(side = "both",
@@ -1209,7 +1210,6 @@ mp |>
 	labs(x = "Role", 
 		 y = "Familiarity at 18 months",
 		 colour = "Study",
-		 fill = "Study",
 		 fill = "Study") +
 	scale_y_continuous(labels = scales::percent,
 					   limits = c(0, 1)) +
@@ -1239,7 +1239,7 @@ oxf_vocab <- vocabulary |>
 	arrange(age_group)
 ```
 
-Another possibility is that participants in the present study had smaller vocabulary sizes than those of participants in the original studies. This hypothesis is not easy to investigate, as quantitative vocabulary sizes were not reported in original studies. A more recent study by @avila2021longitudinal, in which phonological priming effects were found associated to participants vocabulary size, did provide summary statistics for participants vocabulary size scores. This study tested a cohort of monolingual German infants in a word recognition task, in which participants in which participants were presented with auditory primes and targets, which were phonologically related or unrelated.   The authors estimated participants' receptive vocabulary sizes using the *Fragebogen zur frühkindlichen Sprachentwicklung* [szagun2009fragebogen], an adaptation of the CDI to German. Their cohort of participants showed receptive vocabulary sizes larger than those of participants in the present study. Participants in @avila2021longitudinal knew an average of 405.24 (*SD* = 96.29) at 21 months and 501.97	(*SD* = 73.41) at 24 months, which contrast with receptive vocabulary sizes of participants in Study 1: `r round(oxf_vocab$l1_count[1], 2)` at 21 months (*SD* = `r round(oxf_vocab$l1_count_sd[1], 2)`), and `r round(oxf_vocab$l1_count[2], 2)` (*SD* = `r round(oxf_vocab$l1_count_sd[2], 2)`) at 25 months. Estimates from both questionnaires should be compared with caution---if at all---given their different lengths. It possible that the apparent smaller vocabulary size of English participants in Study 1 is a measurement artefact, resulting from a lower upper bound in the possible number of words that can be marked acquired by caregivers.
+Another possibility is that participants in the present study had smaller vocabulary sizes than those of participants in the original studies. This hypothesis is not easy to investigate, as quantitative vocabulary sizes were not reported in original studies. A more recent study by @avila2021longitudinal, in which phonological priming effects were found associated to participants vocabulary size, did provide summary statistics for participants vocabulary size scores. This study tested a cohort of monolingual German infants in a word recognition task, in which participants in which participants were presented with auditory primes and targets, which were phonologically related or unrelated.   The authors estimated participants' receptive vocabulary sizes using the *Fragebogen zur frühkindlichen Sprachentwicklung* [@szagun2009fragebogen], an adaptation of the CDI to German. Their cohort of participants showed receptive vocabulary sizes larger than those of participants in the present study. Participants in @avila2021longitudinal knew an average of 405.24 (*SD* = 96.29) at 21 months and 501.97	(*SD* = 73.41) at 24 months, which contrast with receptive vocabulary sizes of participants in Study 1: `r round(oxf_vocab$l1_count[1], 2)` at 21 months (*SD* = `r round(oxf_vocab$l1_count_sd[1], 2)`), and `r round(oxf_vocab$l1_count[2], 2)` (*SD* = `r round(oxf_vocab$l1_count_sd[2], 2)`) at 25 months. Estimates from both questionnaires should be compared with caution---if at all---given their different lengths. It possible that the apparent smaller vocabulary size of English participants in Study 1 is a measurement artefact, resulting from a lower upper bound in the possible number of words that can be marked acquired by caregivers.
 
 Despite the unsuccessful adaptation of the original procedure, the present study introduces several methodological contributions. First the longitudinal design of the data collection provided a more suitable design for drawing conclusions about developmental change in word recognition trajectories, compared to studies that tested participants from a single age group [@floccia2020translation], or studies that with an exclusively cross-sectional design [@von2012language]. Second, the modelling approach in the present study incorporates the double source of repeated measures simultaneously into the random effects structure of the multilevel model. The models in Studies 1 and 2 accounts for the time course of target looking across the trials and its associated autocorrelation using Hierarchical General Additive Models [@barr2008analyzing; @pedersen2019hierarchical]. The models also incorporate the observations from the same testing session as a nested grouping variable inside participants, so that the test session-level parameters in each model are estimated taking into account the estimations of other testing sessions from the same participants. Overall, this approach allowed us to simultaneously model the participant-level variability, the testing session-level variability, and the time series consisting of participants' gaze behaviour during the task. Finally, the adoption of a Bayesian approach to implement and estimate the model allowed the incorporation of prior knowledge about the distribution of the parameters to generate stable estimates, despite the complexity of the model.
 

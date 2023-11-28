@@ -75,11 +75,13 @@ list(
 			   format = "file"),
 	tar_target(words, readxl::read_xlsx(words_file)),
 	
+	tar_target(stim_stats_file_oxf, file.path("data-raw", "stimuli", "stim-stats-oxf.xlsx")),
+	tar_target(familiarity, get_familiarity(words, bvq_data, stim_stats_file_oxf)),
 	tar_target(childes, get_childes_corpora(words$childes_lemma, "eng")),
 	tar_target(frequencies, get_frequency_childes(childes, words$childes_lemma)),
 	tar_target(durations, get_audio_duration(trials)),
-	tar_target(stimuli, get_stimuli(trials, words, frequencies, durations)), 
-	
+	tar_target(stimuli, get_stimuli(trials, words, frequencies, durations, familiarity)),
+
 	# participants -------------------------------------------------------------
 	
 	tar_target(participants_file_bcn, 

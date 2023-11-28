@@ -13,35 +13,33 @@ get_audio_duration <- function(trials) {
 	
 	# get audio paths
 	audio.paths <- list.files(audio.dir, full.names = TRUE, pattern = ".wav$")
+	
 	durations.vctr <- purrr::map_dbl(audio.paths, get_duration)
-	durations <- tibble::tibble(
-		audio_path = audio.paths,
-		duration = durations.vctr
-	)
+	
+	durations <- tibble::tibble(audio_path = audio.paths,
+								duration = durations.vctr)
+	
 	durations$audio <- basename(audio.paths)
-	durations$test_language <- case_when(
-		grepl("-cat", audio.paths) ~ "Catalan",
-		grepl("-spa", audio.paths) ~ "Spanish",
-		grepl("-eng", audio.paths) ~ "English"
-	)
-	durations$duration <- if_else(
-		durations$test_language=="English",
-		durations$duration - 4, 
-		durations$duration
-	)
+	
+	durations$test_language <- case_when(grepl("-cat", audio.paths) ~ "Catalan",
+										 grepl("-spa", audio.paths) ~ "Spanish",
+										 grepl("-eng", audio.paths) ~ "English")
+	
+	durations$duration <- if_else(durations$test_language=="English",
+								  durations$duration - 4, 
+								  durations$duration)
 	
 	# merge with trials dataset
 	trials_tmp <- distinct(trials, test_language, version, audio)
-	trials_tmp$audio <- stringi::stri_trans_general(
-		str = trials_tmp$audio,
-		id = "Latin-ASCII"
-	)
+	trials_tmp$audio <- stringi::stri_trans_general(str = trials_tmp$audio,
+													id = "Latin-ASCII")
+	
 	duration <- inner_join(trials_tmp, durations,
 						   relationship = "many-to-many",
-						   by = join_by(test_language, audio)
-	)
+						   by = join_by(test_language, audio))
 	
 	return(duration)
+	
 }
 
 #' Get duration of a WAV file
@@ -52,35 +50,43 @@ get_duration <- function(audio_path) {
 }
 
 #' Get familiarity data
-get_familiarity <- function(bvq_data,
-							tokens, # words to retrieve familiarity for
-							type = "understands", # understands or produces
-							age = c(17, 19), # age range for familiarity norms (min-max)
-							.width = 0.95 # confidence level of the estimates
-) {
-	familiarity <- bvq::bvq_norms(bvq_data$participants,
-								  bvq_data$responses,
-								  type = type,
-								  age = age,
-								  .width = .width) |>
-		filter(item_dominance == "L1") |>
-		summarise(across(c(.sum, .n), sum), .by = "item")
+#' 
+get_familiarity <- function(words, bvq_data, stim_stats_file_oxf,
+							type = "understands", age = c(17, 19),
+							.width = 0.95) {
 	
-	familiarity <- familiarity |>
-		mutate(familiarity = prop_adj(.sum, .n),
-			   familiarity_se = prop_adj_se(.sum, .n)) |>
-		select(item, starts_with("familiarity")) |>
-		rename(word = item) |>
-		mutate(test_language = case_when(grepl("eng_", word) ~ "English",
-										 grepl("cat_", word) ~ "Catalan",
-										 grepl("spa_", word) ~ "Spanish")) |>
-		relocate(test_language, .before = word)
+	fam_oxf <- readxl::read_xlsx(stim_stats_file_oxf) |> 
+		select(stimulus = item, familiarity = ocdi18_comp) |> 
+		distinct(stimulus, .keep_all = TRUE) |> 
+		mutate(test_language = "English")
+	
+	items <- unique(words$item[words$test_language!="English"])
+	fam_bcn <- bvq::bvq_norms(item = items,
+							  bvq_data$participants,
+							  bvq_data$responses,
+							  age = age,
+							  .width = .width,
+							  lp, language) |> 
+		filter(item_dominance=="L1", 
+			   type=="understands",
+			   lp=="Monolingual") |> 
+		summarise(across(c(.sum, .n), sum), 
+				  .by = c(item, language)) |> 
+		mutate(familiarity = .sum/.n) |> 
+		rename(test_language = language) |> 
+		right_join(select(words, stimulus, item), 
+				   by = join_by(item)) |> 
+		select(stimulus, test_language, familiarity)
+	
+	familiarity <- bind_rows(fam_oxf, fam_bcn) |> 
+		arrange(test_language, stimulus)
 	
 	return(familiarity)
 }
 
 #' Get frequencies from CHILDES
 get_childes_corpora <- function(token, languages = c("eng"), load_previous = TRUE) {
+	
 	# if CHILDES exists, load
 	childes.path <- file.path("data-raw", "stimuli", "childes.csv")
 	if (file.exists(childes.path)) {
@@ -139,7 +145,9 @@ get_frequency_childes <- function(childes,
 }
 
 #' Get stimuli data (join everything)
-get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
+#' 
+get_stimuli <- function(trials, words, frequencies, durations, familiarity,
+						impute = FALSE) {
 	d_w <- select(words, -role)
 	
 	stim <- trials |>
@@ -148,6 +156,7 @@ get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
 		pivot_longer(c(prime, target, distractor),
 					 names_to = "role",
 					 values_to = "stimulus") |>
+		left_join(familiarity, by = join_by(test_language, stimulus)) |> 
 		left_join(d_w, by = join_by(test_language, stimulus)) |>
 		left_join(frequencies, by = join_by(childes_lemma)) |>
 		select(-c(childes_lemma, wordbank_lemma)) |>
@@ -156,7 +165,8 @@ get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
 		pivot_wider(id_cols = c(trial, location, test_language, version, list,
 								audio, target_location, trial_type),
 					names_from = role,
-					values_from = c(xsampa, xsampa_t, freq, stimulus, nphon,
+					values_from = c(xsampa, xsampa_t, freq, familiarity, 
+									stimulus, nphon,
 									vocab_item, vocab_item_supp)) |>
 		left_join(durations, by = join_by(test_language, version, audio))
 	
@@ -176,6 +186,7 @@ get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
 		mutate(xsampa = list(unlist(across(matches("xsampa")))),
 			   nphon = list(unlist(across(matches("nphon")))),
 			   freq = list(unlist(across(matches("freq")))),
+			   familiarity = list(unlist(across(matches("familiarity")))),
 			   vocab_item = list(unlist(across(c(
 			   	vocab_item_prime,
 			   	vocab_item_target,
@@ -185,7 +196,7 @@ get_stimuli <- function(trials, words, frequencies, durations, impute = FALSE) {
 		ungroup() |>
 		select(trial, test_language, version, list, trial_type,
 			   prime, target, distractor, audio, target_location,
-			   duration, nphon, freq, xsampa, lv_pp, lv_pt, 
+			   duration, nphon, freq, familiarity, xsampa, lv_pp, lv_pt, 
 			   vocab_item, vocab_item_supp) |>
 		mutate(across(c(trial, list), as.integer))
 	
