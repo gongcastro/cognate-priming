@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|359db8ac044c7954|||||||||||||||
+.Random.seed|object|ac2ccd76f92c4fb9|||||||||||||||
 add_missing_cols|function|707b9e97fc55eb75|||||||||||||||
 aoi_coords|stem|5c28f701358c90a5|df71d138c12f777a|ef46db3751d8e999|1589381262||t19688.3760715526s|5f22883ff0bcf597|153|rds|local|vector|||0||
 attrition_participants|stem|48f12f539dba0d5b|f820b6b931636e8e|cc5738aaa7d59c0b|-1970575389||t19688.3858826397s|e0a9b23a4e839fdc|2798|rds|local|vector|||0.62||
@@ -56,7 +56,7 @@ get_vocabulary_oxf|function|9a5e5559364246fd|||||||||||||||
 get_vocabulary_supp_bcn|function|1217252db2390aef|||||||||||||||
 impute_vocabulary|function|ece57b0c23f25926|||||||||||||||
 make_non_aoi_as_false|function|59a02f1af84c6ff3|||||||||||||||
-manuscript|stem|127ecd6416b0f592|a76b4b42816ddd2e|49070e7802aa42cb|594221669|manuscript/manuscript.docx*manuscript/manuscript.pdf*manuscript/manuscript.qmd|t19689.564995133s|1b9c831b4edc1c24|2070888|file|local|vector|||106.14||
+manuscript|stem|acecfcb638143f5a|15f79cc8a5fc40b6|49070e7802aa42cb|594221669|manuscript/manuscript.pdf*manuscript/manuscript.qmd|t19691.4499679721s|aecc9ca683324827|799304|file|local|vector|||45.48||
 model_fits_bcn|stem|5c3f13b043ecb732|1fe108caf5a907d4|fa97cc378501e64c|980089224||t19688.3895347178s|ed21cde4678ea0e8|63130892|rds|local|vector|||4.91||
 model_fits_oxf|stem|a54757cf678e222f|3bcd003ba40d31e8|52fe6537fa321487|-818200632||t19688.3966949651s|ffe63194e82e1299|20081702|rds|local|vector|||617.48||
 model_formulas_bcn|stem|529d62c343f60b7f|5d3ced8b21abe8d2|ef46db3751d8e999|1572194020||t19688.3761688829s|2c7be58fff91f2d1|921|rds|local|vector|||0||
