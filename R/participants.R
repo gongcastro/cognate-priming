@@ -89,6 +89,7 @@ get_participants <- function(participants_file_bcn,
 			   vocab_id, vocab_id_response, filename)
 	
 	test_participants(out)
+	save_files(out, "data", file_name = "participants", formats = "csv")
 	
 	return(out)
 	

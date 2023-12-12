@@ -1,6 +1,17 @@
 ## Appendix D: vocabulary checklist validity
 
+```{r setup}
+library(patchwork)
+library(dplyr)
+library(tidyr)
+```
+
+To test the validity of caregivers' estimates of word comprehension in the vocabulary questionnaires, we compared participants' target looking for target words reported as acquired, compared to those reported as not acquired. If parents' responses are accurate, target looking preference should be stronger in for acquired words. We conducted this analysis by computing the logit of the probability of target looking at during the presentation of the target and the distractor pictures for each participant across conditions, and then across participants. In @fig-validity-target, we report the target looking trends in the three groups tested in Chapter 3: English monolinguals in Study 1, Catalan and Spanish monolinguals in Study 2, and Catalan-Spanish bilinguals in Study 3. Overall,
+
+
 ```{r fig-validity-target}
+
+time_subset <- c(0.3, 2)
 gaze_tmp <- gaze |> 
 	filter(phase=="Target-Distractor",
 		   between(timestamp, time_subset[1], time_subset[2])) |> 
@@ -20,6 +31,7 @@ attrition_trials_tmp <- get_attrition_trials(
 	vocabulary = vocabulary,
 	vocabulary_by = c("target"),
 	aoi_coords = aoi_coords,
+	stimuli = stimuli,
 	gaze = gaze,
 	min_looking = c(prime = 0.75,
 					test = 1.00,
@@ -38,14 +50,14 @@ data <- gaze_tmp |>
 	inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
 	mutate(condition = recode_condition(trial_type)) |> 
 	select(session_id, trial, condition, is_gaze_target, is_gaze_distractor,
-		   is_valid_vocab_all) |> 
+		   prime, target, distractor) |> 
 	# aggregated across trials by participant, time bin and condition
 	# see Chow et al. (2018)
 	summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
 			  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
 			  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
 			  .ntrials = length(unique(trial)),
-			  .by = c(session_id, condition, is_valid_vocab_all)) |> 
+			  .by = c(session_id, condition, prime, target, distractor)) |> 
 	# empirical logit with adjustment
 	# see Barr et al. (2008)
 	mutate(.nsamples = sum_target + sum_distractor,
@@ -62,7 +74,7 @@ data <- gaze_tmp |>
 		   	   .names = "{.col}_std")) |> 
 	select(child_id, session_id, age_group, age, voc_l1, voc_total, lp,
 		   condition,  .sum, .prop, .elog, .nsamples,
-		   matches("std"), is_valid_vocab_all) 
+		   matches("std"), prime, target, distractor) 
 
 # set a priori contrasts
 contrasts(data$condition) <- cbind(c(-0.5, 0.5, 0),
@@ -72,9 +84,7 @@ contrasts(data$lp) <- cbind(c(-0.5, 0.25, 0.25),
 contrasts(data$age_group) <- cbind(c(-0.5, 0.5, 0),
 								   c(0, -0.5, 0.5))
 
-data |> 
-	unnest_wider(is_valid_vocab_all) |>
-	rename_with(\(x) gsub("is_valid_vocab_", "", x)) |> 
+plot_summary <- data |> 
 	select(session_id, lp, .elog, target) |> 
 	arrange(session_id, target) |> 
 	summarise(.elog_mean = mean(.elog),
@@ -84,8 +94,7 @@ data |>
 	mutate(target = ifelse(target, "Yes", "No"),
 		   .elog_se = .elog_sd/sqrt(n),
 		   .elog_lower = .elog_mean - .elog_se*1.96,
-		   .elog_upper = .elog_mean + .elog_se*1.96,
-	) |> 
+		   .elog_upper = .elog_mean + .elog_se*1.96) |> 
 	ggplot(aes(lp, .elog_mean, 
 			   ymin = .elog_lower,
 			   ymax = .elog_upper,
@@ -100,38 +109,61 @@ data |>
 	labs(x = "Condition",
 		 y = "P(Target looking)", 
 		 colour = "Knows the target word") +
-	theme(legend.position = "none",
-		  panel.grid.major.y = element_line(colour = "grey",
-		  								  linetype = "dotted")) 
+	theme(panel.grid.major.y = element_line(colour = "grey",
+											linetype = "dotted")) 
 
-get_data(gaze = gaze,
-		 participants = participants,
-		 stimuli = stimuli,
-		 vocabulary = vocabulary,
-		 attrition_trials = attrition_trials,
-		 attrition_participants = attrition_participants,
-		 time_subset = c(0, 2),
-		 contrast = "related",
-		 is_valid_vocab_all,
-		 clean = FALSE) |> 
-	unnest_wider(is_valid_vocab_all) |>
-	select(session_id, age, lp, timebin, .elog, target) |> 
+data_time <- gaze_tmp |>
+	inner_join(attrition_trials_tmp, by = join_by(session_id, trial)) |> 
+	inner_join(attrition_participants_tmp, by = join_by(session_id)) |> 
+	mutate(condition = recode_condition(trial_type),
+		   timebin = cut(timestamp,
+		   			  breaks = seq(0.00, 7.00, 0.1),
+		   			  labels = FALSE,
+		   			  include.lowest = TRUE)) |> 
+	select(session_id, trial, timebin, condition, is_gaze_target, is_gaze_distractor,
+		   prime, target, distractor) |> 
+	# aggregated across trials by participant, time bin and condition
+	# see Chow et al. (2018)
+	summarise(sum_target = sum(is_gaze_target, na.rm = TRUE),
+			  sum_distractor = sum(is_gaze_distractor, na.rm = TRUE),
+			  .nsamples = sum(is_gaze_target | is_gaze_distractor, na.rm = TRUE),
+			  .ntrials = length(unique(trial)),
+			  .by = c(session_id, timebin, condition, prime, target, distractor)) |> 
+	# empirical logit with adjustment
+	# see Barr et al. (2008)
+	mutate(.nsamples = sum_target + sum_distractor,
+		   .prop = ifelse(.nsamples==0, 0, sum_target / .nsamples),
+		   .elog = log((sum_target + .5)/(sum_distractor + .5))) |> 
+	rename(.sum = sum_target) |> 
+	arrange(desc(session_id), condition) |> 
+	inner_join(participants_tmp, by = join_by(session_id)) |> 
+	inner_join(vocabulary_tmp, by = join_by(child_id, session_id)) |> 
+	mutate(across(c(.nsamples), as.integer),
+		   across(c(child_id, session_id, lp, condition, age_group), as.factor),
+		   across(c(age, voc_l1),
+		   	   \(x) scale(x, scale = TRUE)[, 1],
+		   	   .names = "{.col}_std")) |> 
+	select(child_id, session_id, age_group, age, timebin, voc_l1, voc_total, lp,
+		   condition,  .sum, .prop, .elog, .nsamples,
+		   matches("std"), prime, target, distractor)
+
+plot_time <- data_time |> 
+	select(session_id, lp, timebin, .elog, target) |> 
 	arrange(session_id, target) |> 
 	summarise(.elog_mean = mean(.elog),
 			  .elog_sd = sd(.elog),
 			  n = n(),
-			  .by = c(timebin, lp, target)) |> 
+			  .by = c(lp, target, timebin)) |> 
 	mutate(target = ifelse(target, "Yes", "No"),
 		   .elog_se = .elog_sd/sqrt(n),
 		   .elog_lower = .elog_mean - .elog_se*1.96,
-		   .elog_upper = .elog_mean + .elog_se*1.96,
-	) |> 
+		   .elog_upper = .elog_mean + .elog_se*1.96) |> 
 	ggplot(aes(timebin, .elog_mean,
 			   ymin = .elog_lower,
 			   ymax = .elog_upper,
 			   colour = target,
 			   fill = target)) +
-	facet_wrap(~lp, ncol = 1, scales = "free_x") +
+	facet_wrap(~lp, scales = "free_x") +
 	geom_line(linewidth = 1/2) +
 	geom_ribbon(alpha = 1/2,
 				colour = NA) +
@@ -146,10 +178,11 @@ get_data(gaze = gaze,
 		  panel.grid.major.y = element_line(colour = "grey",
 		  								  linetype = "dotted"),
 		  axis.title.y = element_blank(),
-		  axis.line.x = element_line()) +
-	
-	plot_layout(ncol = 2,
-				widths = c(0.2, 0.8)) &
+		  axis.line.x = element_line()) 
+
+plot_summary | plot_time + 
+plot_layout(ncol = 2,
+			widths = c(0.2, 0.8)) &
 	scale_y_continuous(limits = c(-0.5, 1.25))
 ```
 

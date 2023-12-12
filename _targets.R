@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
 		library(targets)
 		library(tarchetypes)
 		library(cli)
+		library(glue)
 		# data handling, cleaning, and testing
 		library(tidyverse)
 		library(testthat)
@@ -28,7 +29,7 @@ suppressPackageStartupMessages({
 invisible({ 
 	lapply(list.files(path = c("R", "tests/testthat"),
 					  full.names = TRUE, 
-					  pattern = "\\.R"), source) 
+					  pattern = "\\.R$"), source) 
 })
 
 # set params -------------------------------------------------------------------
@@ -81,7 +82,7 @@ list(
 	tar_target(frequencies, get_frequency_childes(childes, words$childes_lemma)),
 	tar_target(durations, get_audio_duration(trials)),
 	tar_target(stimuli, get_stimuli(trials, words, frequencies, durations, familiarity)),
-
+	
 	# participants -------------------------------------------------------------
 	
 	tar_target(participants_file_bcn, 
@@ -169,26 +170,33 @@ list(
 	# Prepare for modelling data -----------------------------------------------
 	
 	tar_target(data_bcn,
-			   get_data(gaze = filter(gaze, location=="Barcelona"),
-			   		 participants, stimuli, vocabulary,
-			   		 attrition_trials = attrition_trials,
-			   		 attrition_participants = attrition_participants,
-			   		 time_subset = c(0.30, 2.00))),
+			   {
+			   	data_bcn <- get_data(gaze = filter(gaze, location=="Barcelona"),
+			   						 participants, stimuli, vocabulary,
+			   						 attrition_trials = attrition_trials,
+			   						 attrition_participants = attrition_participants,
+			   						 time_subset = c(0.30, 2.00))
+			   	
+			   	save_files(data_bcn, "data", file_name = "data_bcn", formats = "csv")
+			   	
+			   	return(data_bcn)
+			   }),
 	
 	tar_target(data_oxf,
 			   {
 			   	data_oxf <- get_data(gaze = filter(gaze, location=="Oxford"),
-			   		 participants, stimuli, vocabulary,
-			   		 attrition_trials = attrition_trials,
-			   		 attrition_participants = attrition_participants,
-			   		 time_subset = c(0.30, 2.00)) |> 
-			   		mutate(condition = as.factor(if_else(condition != "Unrelated",
-			   								   "Related", condition)))
+			   						 participants, stimuli, vocabulary,
+			   						 attrition_trials = attrition_trials,
+			   						 attrition_participants = attrition_participants,
+			   						 time_subset = c(0.30, 2.00)) |> 
+			   		mutate(condition = as.factor(if_else(condition!="Unrelated",
+			   											 "Related", condition)))
 			   	
 			   	contrasts(data_oxf$condition) <- c(0.5, -0.5)
+			   	save_files(data_oxf, "data", file_name = "data_oxf", formats = "csv")
 			   	
 			   	return(data_oxf)
-			   	}),
+			   }),
 	
 	# Bayesian GAMMs -----------------------------------------------------------
 	
@@ -225,12 +233,23 @@ list(
 			   	\(x) paste0(x[1], x[2])
 			   )),
 	
-	tar_target(model_fits_bcn, get_model_fit(model_names_bcn,
-											 model_formulas_bcn,
-											 data_bcn,
-											 model_prior_bcn)),
+	tar_target(model_fits_bcn,
+			   {
+			   	fits <- get_model_fit(model_names_bcn,
+			   						  model_formulas_bcn,
+			   						  data_bcn,
+			   						  model_prior_bcn)
+			   	
+			   	saveRDS(fits, "results/fits/fit_list_bcn.rds")
+			   	return(fits)
+			   }),
 	
-	tar_target(model_loos_bcn, get_model_loos(model_fits_bcn)),
+	tar_target(model_loos_bcn,
+			   {
+			   	loos <- get_model_loos(model_fits_bcn)
+			   	save_files(loos, "results", file_name = "loos_bcn", formats = "rds")
+			   	return(loos)
+			   }),
 	
 	# Oxford models ------------------------------------------------------------
 	
@@ -267,12 +286,23 @@ list(
 			   	\(x) paste0(x[1], x[2])
 			   )),
 	
-	tar_target(model_fits_oxf, get_model_fit(model_names_oxf,
-											 model_formulas_oxf,
-											 data_oxf,
-											 model_prior_oxf)),
+	tar_target(model_fits_oxf,
+			   {
+			   	fits <- get_model_fit(model_names_oxf,
+			   						  model_formulas_oxf,
+			   						  data_oxf,
+			   						  model_prior_oxf)
+			   	
+			   	saveRDS(fits, "results/fits/fit_list_oxf.rds")
+			   	return(fits)
+			   }),
 	
-	tar_target(model_loos_oxf, get_model_loos(model_fits_oxf)),
+	tar_target(model_loos_oxf, 
+			   {
+			   	loos <- get_model_loos(model_fits_oxf)
+			   	save_files(loos, "results", file_name = "loos_oxf", formats = "rds")
+			   	return(loos)
+			   }),
 	
 	
 	

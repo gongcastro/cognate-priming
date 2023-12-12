@@ -16,7 +16,7 @@ format:
     linenumbers: true
     doublespacing: false
     linestretch: 1
-    runninghead: "Developmental trajectories of bilingual word recognition"
+    runninghead: "Developmental trajectories language non-selectivity in the bilingual lexicon"
     include-in-header:
       text: |
         \usepackage{tipa}

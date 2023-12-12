@@ -9,6 +9,8 @@ get_vocabulary <- function(participants, bvq_data,
 	
 	out <- bind_rows(vocab_bcn, vocab_oxf)
 	
+	save_files(out, "data", file_name = "vocabulary", formats = "csv")
+	
 	return(out)
 }
 
@@ -55,23 +57,22 @@ get_vocabulary_bcn <- function(participants, bvq_data, vocabulary_supp_bcn_file)
 						  cols_predictor = c("age", "lp"), 
 						  bvq_data = bvq_data,
 						  constraints = c(0, 715)) |> 
-	# merge both datasets
-	right_join(participants_tmp, imputed,
-			   by = join_by(child_id, vocab_id, session_id, lp, age)) |> 
-	mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual"))) |> 
-	select(child_id, session_id, vocab_id, is_imputed, 
-		   matches("prop|count|contents")) |> 
-	distinct(child_id, session_id, vocab_id, .keep_all = TRUE) |> 
-	mutate(add_vocab_supp = map_int(contents, length) < 1) |> 
-	left_join(vocab_supp, by = join_by(session_id)) |> 
-	mutate(contents = if_else(add_vocab_supp & !is.na(contents_supp),
-							  contents_supp, contents)) |> 
-	select(-matches("supp"))
-
-
-# test_vocabulary(out)
-
-return(out)
+		# merge both datasets
+		right_join(participants_tmp, imputed,
+				   by = join_by(child_id, vocab_id, session_id, lp, age)) |> 
+		mutate(lp = factor(lp, levels = c("Monolingual", "Bilingual"))) |> 
+		select(child_id, session_id, vocab_id, is_imputed, 
+			   matches("prop|count|contents")) |> 
+		distinct(child_id, session_id, vocab_id, .keep_all = TRUE) |> 
+		mutate(add_vocab_supp = map_int(contents, length) < 1) |> 
+		left_join(vocab_supp, by = join_by(session_id)) |> 
+		mutate(contents = if_else(add_vocab_supp & !is.na(contents_supp),
+								  contents_supp, contents)) |> 
+		select(-matches("supp"))
+	
+	# test_vocabulary(out)
+	
+	return(out)
 }
 
 #' Get vocabulary supplement

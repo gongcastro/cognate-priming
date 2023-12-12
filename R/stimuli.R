@@ -201,6 +201,7 @@ get_stimuli <- function(trials, words, frequencies, durations, familiarity,
 		mutate(across(c(trial, list), as.integer))
 	
 	# test_stimuli(out)
+	save_files(out, "data", file_name = "stimuli", formats = "csv")
 	
 	return(out)
 }

@@ -214,6 +214,9 @@ get_model_loos <- function(models, ...) {
 	out <- purrr::map(.x = models,
 					  .f = \(x) brms::loo(x, ...),
 					  .progress = TRUE)
+	
+	saveRDS(out, "results/loos.rds")
+	
 	return(out)
 }
 
@@ -248,6 +251,8 @@ get_posterior_summary <- function(model, data, vars_dict,
 		arrange(type, .variable_name) |>
 		select(.variable, .variable_name, .type = type, .value, .lower, .upper, .rope) |>
 		ungroup()
+	
+	save_files(out, "data", file_name = "model_summary", formats = "csv")
 	
 	return(out)
 }

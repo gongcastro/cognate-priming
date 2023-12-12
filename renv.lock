@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.3.2",
+    "Version": "4.2.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -508,7 +508,6 @@
       "RemoteSha": "d3312bcd4c26b96ab925459cd0143e7a65fb4702",
       "RemoteHost": "api.github.com",
       "Remotes": "github::rubenarslan/formr",
-      "Remotes": "github::rubenarslan/formr",
       "Requirements": [
         "R",
         "cli",
@@ -524,7 +523,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "9146e625bd2e2b3dd7e58e6e04d50221"
+      "Hash": "320cf86ceaf94377dda300f5bfd0d39d"
     },
     "cachem": {
       "Package": "cachem",
@@ -1188,6 +1187,22 @@
         "withr"
       ],
       "Hash": "85846544c596e71f8f46483ab165da33"
+    },
+    "ggrepel": {
+      "Package": "ggrepel",
+      "Version": "0.9.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "ggplot2",
+        "grid",
+        "rlang",
+        "scales",
+        "withr"
+      ],
+      "Hash": "e9839af82cc43fda486a638b68b439b2"
     },
     "ggridges": {
       "Package": "ggridges",

@@ -68,6 +68,8 @@ get_attrition_trials <- function(gaze, participants, stimuli, vocabulary,
 	
 	# test_attrition_trials(attrition_trials)
 	
+	save_files(out, "data", file_name = "attrition_trials", formats = "csv")
+	
 	return(out)
 }
 
@@ -235,6 +237,8 @@ get_attrition_participants <- function(attrition_trials,
 		select(session_id, .ntrials, is_valid_participant, is_valid_vocab_size)
 	
 	# test_attrition_participants(out)
+	
+	save_files(out, "data", file_name = "attrition_participants", formats = "csv")
 	
 	return(out)
 }
