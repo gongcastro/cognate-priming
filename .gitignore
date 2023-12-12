@@ -23,7 +23,7 @@ img/**/*.png
 
 data-raw/eyetracking-bcn/*.csv
 data-raw/eyetracking-oxf/*.csv
-
+data/
 .luarc.json
 nul
 
@@ -41,11 +41,8 @@ results/fits/
 results/predictions/
 results/posterior/
 
-<<<<<<< HEAD
 img/**/*.png
 
-=======
->>>>>>> 37edc53c6a334cb35b781e81cfa49ff9c6508e52
 stimuli/getters/
 stimuli/sounds/
 stimuli/images/
