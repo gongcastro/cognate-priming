@@ -8,144 +8,144 @@
 #' @param time_subset Numeric vector of length 2 indicating the time window of interest to subset for time course analyses.
 #'
 get_data <- function(gaze, participants, stimuli, vocabulary,
-					 attrition_trials, attrition_participants,
-					 time_subset = c(0.00, 2.00)) {
-	if (length(time_subset) != 2 || min(time_subset) < 0 || class(time_subset) != "numeric") {
-		cli_abort("time_subset must be a positive numeric vector of length 2")
-	}
-	
-	d_g <- filter(
-		gaze, phase == "Target-Distractor",
-		timestamp >= time_subset[1],
-		timestamp < time_subset[2]
-	) |>
-		select(
-			session_id, trial, phase, timestamp,
-			is_gaze_target, is_gaze_distractor, trial_type
-		) |>
-		mutate(
-			condition = recode_condition(trial_type),
-			timebin = findInterval(timestamp, seq(
-				time_subset[1],
-				time_subset[2], 0.1
-			)) - 1
-		)
-	
-	d_p <- select(participants, child_id, session_id, age_group, age, lp)
-	
-	d_s <- stimuli |>
-		unnest_wider(freq) |>
-		select(trial, test_language, version, list,
-			   trial_type, target,
-			   freq = freq_target
-		)
-	
-	d_v <- rename_with(
-		vocabulary,
-		\(x) gsub("_prop", "", paste0("voc_", x)),
-		matches("_prop")
-	)
-	
-	
-	d_at <- filter(attrition_trials, is_valid_trial) |>
-		select(session_id, trial, samples, is_valid_trial)
-	
-	d_ap <- filter(attrition_participants, is_valid_participant) |>
-		select(session_id)
-	
-	out <- d_g |>
-		inner_join(d_at, by = join_by(session_id, trial)) |>
-		inner_join(d_ap, by = join_by(session_id)) |>
-		mutate(condition = recode_condition(trial_type)) |>
-		select(
-			session_id, trial, timebin, timestamp,
-			condition, is_gaze_target, is_gaze_distractor
-		) |>
-		# aggregate across trials by participant, time bin and condition
-		# see Chow et al. (2018)
-		summarise(
-			.sum_t = sum(is_gaze_target, na.rm = TRUE),
-			.sum_d = sum(is_gaze_distractor, na.rm = TRUE),
-			.ntrials = length(unique(trial)),
-			.by = c(session_id, timebin, condition)
-		) |>
-		# empirical logit with adjustment
-		# see Barr et al. (2008)
-		mutate(
-			.nsamples = .sum_t + .sum_d,
-			.prop = if_else(.nsamples == 0, NA_real_,
-							.sum_t / .nsamples
-			),
-			.elog = if_else(.nsamples == 0, NA_real_,
-							log((.sum_t + .5) / (.sum_d + .5))
-			),
-			across(c(.elog, .prop), \(x) zoo::na.locf(x, na.rm = TRUE))
-		) |>
-		arrange(desc(session_id), condition, timebin) |>
-		inner_join(d_p, by = join_by(session_id)) |>
-		inner_join(d_v, by = join_by(child_id, session_id)) |>
-		mutate(
-			across(c(.nsamples, timebin), as.integer),
-			across(c(child_id, session_id, condition), as.factor),
-			across(c(age, matches("voc_"), timebin),
-				   \(x) scale(x, scale = TRUE)[, 1],
-				   .names = "{.col}_std"
-			)
-		) |>
-		select(
-			child_id, session_id, age_group, age, lp, voc_l1, voc_total,
-			condition, timebin, .sum_t, .sum_d, .prop, .elog, .nsamples,
-			matches("_std")
-		)
-	
-	if (length(unique(out$condition)) > 1) {
-		out$condition <- factor(out$condition,
-								levels = c(
-									"Unrelated",
-									"Related/Non-cognate",
-									"Related/Cognate"
-								)
-		)
-		contrasts(out$condition) <- cbind(
-			c(-0.5, 0.5, 0),
-			c(0, -0.5, 0.5)
-		)
-	}
-	if (length(unique(out$lp)) > 1) {
-		out$lp <- factor(out$lp,
-						 levels = c(
-						 	"Monolingual",
-						 	"Bilingual"
-						 )
-		)
-		contrasts(out$lp) <- c(-0.5, 0.5)
-	}
-	
-	if (length(levels(out$age_group)) > 1) {
-		out$age_group <- factor(out$age_group,
-								levels = c("21 months", "25 months", "30 months")
-		)
-		contrasts(out$age_group) <- cbind(
-			c(-0.5, 0.25, 0.25),
-			c(0, -0.5, 0.5)
-		)
-	}
-	
-	# test_data_time(data_time)
-	
-	return(out)
+                     attrition_trials, attrition_participants,
+                     time_subset = c(0.00, 2.00)) {
+  if (length(time_subset) != 2 || min(time_subset) < 0 || class(time_subset) != "numeric") {
+    cli::cli_abort("time_subset must be a positive numeric vector of length 2")
+  }
+
+  d_g <- filter(
+    gaze, phase == "Target-Distractor",
+    timestamp >= time_subset[1],
+    timestamp < time_subset[2]
+  ) |>
+    select(
+      session_id, trial, phase, timestamp,
+      is_gaze_target, is_gaze_distractor, trial_type
+    ) |>
+    mutate(
+      condition = recode_condition(trial_type),
+      timebin = findInterval(timestamp, seq(
+        time_subset[1],
+        time_subset[2], 0.1
+      )) - 1
+    )
+
+  d_p <- select(participants, child_id, session_id, age_group, age, lp)
+
+  d_s <- stimuli |>
+    unnest_wider(freq) |>
+    select(trial, test_language, version, list,
+      trial_type, target,
+      freq = freq_target
+    )
+
+  d_v <- rename_with(
+    vocabulary,
+    \(x) gsub("_prop", "", paste0("voc_", x)),
+    matches("_prop")
+  )
+
+
+  d_at <- filter(attrition_trials, is_valid_trial) |>
+    select(session_id, trial, samples, is_valid_trial)
+
+  d_ap <- filter(attrition_participants, is_valid_participant) |>
+    select(session_id)
+
+  out <- d_g |>
+    inner_join(d_at, by = join_by(session_id, trial)) |>
+    inner_join(d_ap, by = join_by(session_id)) |>
+    mutate(condition = recode_condition(trial_type)) |>
+    select(
+      session_id, trial, timebin, timestamp,
+      condition, is_gaze_target, is_gaze_distractor
+    ) |>
+    # aggregate across trials by participant, time bin and condition
+    # see Chow et al. (2018)
+    summarise(
+      .sum_t = sum(is_gaze_target, na.rm = TRUE),
+      .sum_d = sum(is_gaze_distractor, na.rm = TRUE),
+      .ntrials = length(unique(trial)),
+      .by = c(session_id, timebin, condition)
+    ) |>
+    # empirical logit with adjustment
+    # see Barr et al. (2008)
+    mutate(
+      .nsamples = .sum_t + .sum_d,
+      .prop = if_else(.nsamples == 0, NA_real_,
+        .sum_t / .nsamples
+      ),
+      .elog = if_else(.nsamples == 0, NA_real_,
+        log((.sum_t + .5) / (.sum_d + .5))
+      ),
+      across(c(.elog, .prop), \(x) zoo::na.locf(x, na.rm = TRUE))
+    ) |>
+    arrange(desc(session_id), condition, timebin) |>
+    inner_join(d_p, by = join_by(session_id)) |>
+    inner_join(d_v, by = join_by(child_id, session_id)) |>
+    mutate(
+      across(c(.nsamples, timebin), as.integer),
+      across(c(child_id, session_id, condition), as.factor),
+      across(c(age, matches("voc_"), timebin),
+        \(x) scale(x, scale = TRUE)[, 1],
+        .names = "{.col}_std"
+      )
+    ) |>
+    select(
+      child_id, session_id, age_group, age, lp, voc_l1, voc_total,
+      condition, timebin, .sum_t, .sum_d, .prop, .elog, .nsamples,
+      matches("_std")
+    )
+
+  if (length(unique(out$condition)) > 1) {
+    out$condition <- factor(out$condition,
+      levels = c(
+        "Unrelated",
+        "Related/Non-cognate",
+        "Related/Cognate"
+      )
+    )
+    contrasts(out$condition) <- cbind(
+      c(-0.5, 0.5, 0),
+      c(0, -0.5, 0.5)
+    )
+  }
+  if (length(unique(out$lp)) > 1) {
+    out$lp <- factor(out$lp,
+      levels = c(
+        "Monolingual",
+        "Bilingual"
+      )
+    )
+    contrasts(out$lp) <- c(-0.5, 0.5)
+  }
+
+  if (length(levels(out$age_group)) > 1) {
+    out$age_group <- factor(out$age_group,
+      levels = c("21 months", "25 months", "30 months")
+    )
+    contrasts(out$age_group) <- cbind(
+      c(-0.5, 0.25, 0.25),
+      c(0, -0.5, 0.5)
+    )
+  }
+
+  # test_data_time(data_time)
+
+  return(out)
 }
 
 #' Recode condition levels
 #'
 recode_condition <- function(x) {
-	fct_levels <- list(
-		"Unrelated" = "Unrelated",
-		"Non-cognate" = "Related/Non-cognate",
-		"Cognate" = "Related/Cognate"
-	)
-	x <- factor(x, levels = names(fct_levels), labels = fct_levels)
-	return(x)
+  fct_levels <- list(
+    "Unrelated" = "Unrelated",
+    "Non-cognate" = "Related/Non-cognate",
+    "Cognate" = "Related/Cognate"
+  )
+  x <- factor(x, levels = names(fct_levels), labels = fct_levels)
+  return(x)
 }
 
 #' Fit multiple models given a list of formulas
@@ -154,23 +154,23 @@ recode_condition <- function(x) {
 #' @inheritParams brms::brm
 #'
 get_model_fit <- function(names, formulas, data, prior, ...) {
-	if (!is.list(formulas)) {
-		cli_abort("formula must be a named list")
-	}
-	if (!is.data.frame(data)) {
-		cli_abort("data must be a data frame")
-	}
-	
-	fit_lst <- map2(
-		.x = names,
-		.y = formulas,
-		.f = \(names, formulas) {
-			fit_single_model(names, formulas, data, prior, ...)
-		}
-	) |>
-		set_names(gsub("cognate_|related_", "", names))
-	
-	return(fit_lst)
+  if (!is.list(formulas)) {
+    cli::cli_abort("formula must be a named list")
+  }
+  if (!is.data.frame(data)) {
+    cli::cli_abort("data must be a data frame")
+  }
+
+  fit_lst <- map2(
+    .x = names,
+    .y = formulas,
+    .f = \(names, formulas) {
+      fit_single_model(names, formulas, data, prior, ...)
+    }
+  ) |>
+    set_names(gsub("cognate_|related_", "", names))
+
+  return(fit_lst)
 }
 
 #' Estimate model using Hamiltonian Monte Carlo via Stan
@@ -179,45 +179,47 @@ get_model_fit <- function(names, formulas, data, prior, ...) {
 #' @inheritParams brms::brm
 #'
 fit_single_model <- function(name, formula, data, prior, ...) {
-	model_path <- file.path("results", "fits", paste0(name, ".rds"))
-	model_opts <- list(adapt_delta = 0.9, max_treedepth = 15)
-	
-	cli_inform("Sampling model {.field {name}} [{Sys.time()}]")
-	
-	suppressMessages({
-		fit <- brm(
-			formula = formula,
-			data = data,
-			prior = prior,
-			iter = 2e3L,
-			chains = 2L,
-			cores = 4L,
-			init = 0.1,
-			file_refit = "on_change",
-			file = model_path,
-			seed = 1234,
-			control = model_opts,
-			silent = 2,
-			...
-		)
-	})
-	cli_inform("{symbol$tick} Model {.field {name}} fit [{Sys.time()}]")
-	
-	return(fit)
+  model_path <- file.path("results", "fits", paste0(name, ".rds"))
+  model_opts <- list(adapt_delta = 0.9, max_treedepth = 15)
+
+  cli::cli_inform("Sampling model {.field {name}} [{Sys.time()}]")
+
+  suppressMessages({
+    fit <- brm(
+      formula = formula,
+      data = data,
+      prior = prior,
+      iter = 2e3L,
+      chains = 2L,
+      cores = 4L,
+      init = 0.1,
+      file_refit = "on_change",
+      file = model_path,
+      seed = 1234,
+      control = model_opts,
+      silent = 2,
+      ...
+    )
+  })
+  cli::cli_inform("{symbol$tick} Model {.field {name}} fit [{Sys.time()}]")
+
+  return(fit)
 }
 
 #' Leave-one-out cross-validation (LOO-CV)
 #' @param model List of models, as generated by [get_model_fit()]
 #' @inheritParams LOO::loo
-#' 
+#'
 get_model_loos <- function(models, ...) {
-	out <- purrr::map(.x = models,
-					  .f = \(x) brms::loo(x, ...),
-					  .progress = TRUE)
-	
-	saveRDS(out, "results/loos.rds")
-	
-	return(out)
+  out <- purrr::map(
+    .x = models,
+    .f = \(x) brms::loo(x, ...),
+    .progress = TRUE
+  )
+
+  saveRDS(out, "results/loos.rds")
+
+  return(out)
 }
 
 #' Extract posterior draws of fixed effect coefficients from brmsfit model via [bayestesteR::describe_posterior()].
@@ -228,33 +230,33 @@ get_model_loos <- function(models, ...) {
 #' @param ... Arguments to be passed to [bayestesteR::describe_posterior()].
 #'
 get_posterior_summary <- function(model, data, vars_dict,
-								  rope_interval = c(lower = -0.1, upper = +0.1),
-								  ...) {
-	out <- tidybayes::gather_draws(model, `b_.*`, regex = TRUE, ...) |>
-		tidybayes::median_hdci() |>
-		mutate(
-			.variable_name = factor(.variable,
-									levels = names(vars_dict),
-									labels = vars_dict,
-									ordered = TRUE
-			),
-			type = if_else(grepl("Intercept", .variable),
-						   paste0("Intercepts (at ", round(mean(data$age, 2)), " months)"),
-						   "Slopes"
-			),
-			parameter = if_else(grepl("Intercept", .variable),
-								gsub("Intercept \\(|\\)", "", .variable),
-								.variable
-			),
-			.rope = get_rope_overlap(.lower, .upper, .rope = rope_interval)
-		) |>
-		arrange(type, .variable_name) |>
-		select(.variable, .variable_name, .type = type, .value, .lower, .upper, .rope) |>
-		ungroup()
-	
-	save_files(out, "data", file_name = "model_summary", formats = "csv")
-	
-	return(out)
+                                  rope_interval = c(lower = -0.1, upper = +0.1),
+                                  ...) {
+  out <- tidybayes::gather_draws(model, `b_.*`, regex = TRUE, ...) |>
+    tidybayes::median_hdci() |>
+    mutate(
+      .variable_name = factor(.variable,
+        levels = names(vars_dict),
+        labels = vars_dict,
+        ordered = TRUE
+      ),
+      type = if_else(grepl("Intercept", .variable),
+        paste0("Intercepts (at ", round(mean(data$age, 2)), " months)"),
+        "Slopes"
+      ),
+      parameter = if_else(grepl("Intercept", .variable),
+        gsub("Intercept \\(|\\)", "", .variable),
+        .variable
+      ),
+      .rope = get_rope_overlap(.lower, .upper, .rope = rope_interval)
+    ) |>
+    arrange(type, .variable_name) |>
+    select(.variable, .variable_name, .type = type, .value, .lower, .upper, .rope) |>
+    ungroup()
+
+  save_files(out, "data", file_name = "model_summary", formats = "csv")
+
+  return(out)
 }
 
 
@@ -267,9 +269,60 @@ get_posterior_summary <- function(model, data, vars_dict,
 #' @returns A numeric vector of length `length(.lower)` indicating the proportion of overlap between the interval and the ROPE
 #'
 get_rope_overlap <- function(.lower, .upper, .rope = c(-0.1, 0.1), precision = 1e4) {
-	int <- data.frame(.lower, .upper)
-	fun <- \(x) approx(x, n = precision, method = "linear")
-	int.seq <- map(apply(int, fun, MARGIN = 1), "y")
-	overlap <- map_dbl(int.seq, \(x) mean((x >= .rope[1]) & x <= .rope[2]))
-	return(overlap)
+  int <- data.frame(.lower, .upper)
+  fun <- \(x) approx(x, n = precision, method = "linear")
+  int.seq <- map(apply(int, fun, MARGIN = 1), "y")
+  overlap <- map_dbl(int.seq, \(x) mean((x >= .rope[1]) & x <= .rope[2]))
+  return(overlap)
+}
+
+#' @impor dplyr
+get_exp_data <- function(gaze,
+                         participants,
+                         stimuli,
+                         attrition_participants,
+                         attrition_trials,
+                         location = "Barcelona") {
+  if (!(location) %in% c("Barcelona", "Oxford")) {
+    cli::cli_abort("{.field location} must be one of 'Barcelona' or 'Oxford'")
+  }
+
+  stim_tmp <- stimuli |>
+    unnest_wider(c(xsampa, familiarity, freq, nphon)) |>
+    mutate(lv = stringdist::stringsim(xsampa_target, xsampa_t_target)) |>
+    rename(
+      fam = familiarity_target,
+      nphon = nphon_target,
+      freq = freq_target
+    ) |>
+    distinct(trial, test_language, version, list, target, distractor, xsampa_target, lv, xsampa_t_target, nphon, fam)
+
+  gaze_tmp <- gaze |>
+    filter(location == .env$location) |>
+    select(child_id, session_id, trial, timestamp, is_gaze_target, is_gaze_distractor) |>
+    mutate(timebin = findInterval(timestamp, sep = seq(0, 2, 0.1))) |>
+    summarise(target = mean(is_gaze_distractor,
+      na.rm = TRUE,
+      distractor = mean(is_gaze_distractor, na.rm = TRUE),
+      .by = c(child_id, session_id, trial, timebin)
+    )) |>
+    mutate(logit = log((target + 0.5) / (distractor + 0.5)))
+
+  dataset <- gaze_tmp |>
+    left_join(attrition_participants) |>
+    left_join(attrition_trials) |>
+    filter(
+      is_valid_participant,
+      is_valid_trial
+    ) |>
+    left_join(participants) |>
+    select(child_id, session_id, timebin, trial, logit, lp, age, list, version) |>
+    left_join(stimuli_tmp) |>
+    filter(between(timebin, 3, 18)) |>
+    mutate(across(
+      c(timebing, age, fam, freq, nphon),
+      \(x) scale(x)[, 1]
+    ))
+
+  return(dataset)
 }
