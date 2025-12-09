@@ -27,11 +27,14 @@ suppressPackageStartupMessages({
 # load functions ---------------------------------------------------------------
 
 invisible({
-  lapply(list.files(
-    path = c("R", "tests/testthat"),
-    full.names = TRUE,
-    pattern = "\\.R$"
-  ), source)
+  lapply(
+    list.files(
+      path = c("R", "tests/testthat"),
+      full.names = TRUE,
+      pattern = "\\.R$"
+    ),
+    source
+  )
 })
 
 # set params -------------------------------------------------------------------
@@ -61,11 +64,11 @@ tar_option_set(
 # it will take shorter after the first time, as it only runs the outdated targets
 
 list(
-
   # get BVQ data -------------------------------------------------------------
 
   # this returns a list with all necessary data
-  tar_target(bvq_data_file,
+  tar_target(
+    bvq_data_file,
     file.path("data-raw", "stimuli", "bvq.rds"),
     format = "file"
   ),
@@ -73,29 +76,40 @@ list(
 
   # stimuli ------------------------------------------------------------------
 
-  tar_target(trials_file, file.path("data-raw", "stimuli", "trials.xlsx"),
+  tar_target(
+    trials_file,
+    file.path("data-raw", "stimuli", "trials.xlsx"),
     format = "file"
   ),
   tar_target(trials, readxl::read_xlsx(trials_file)),
-  tar_target(words_file,
+  tar_target(
+    words_file,
     file.path("data-raw", "stimuli", "words.xlsx"),
     format = "file"
   ),
   tar_target(words, readxl::read_xlsx(words_file)),
-  tar_target(stim_stats_file_oxf, file.path("data-raw", "stimuli", "stim-stats-oxf.xlsx")),
-  tar_target(familiarity, get_familiarity(words, bvq_data, stim_stats_file_oxf)),
+  tar_target(
+    stim_stats_file_oxf,
+    file.path("data-raw", "stimuli", "stim-stats-oxf.xlsx")
+  ),
+  tar_target(
+    familiarity,
+    get_familiarity(words, bvq_data, stim_stats_file_oxf)
+  ),
   tar_target(childes, get_childes_corpora(words$childes_lemma, "eng")),
   tar_target(frequencies, get_frequency_childes(childes, words$childes_lemma)),
-  # tar_target(durations, get_audio_duration(trials)),
+  tar_target(durations, get_audio_duration(trials)),
   tar_target(stimuli, get_stimuli(trials, words, frequencies, familiarity)),
 
   # participants -------------------------------------------------------------
 
-  tar_target(participants_file_bcn,
+  tar_target(
+    participants_file_bcn,
     file.path("data-raw", "participants", "participants-bcn.csv"),
     format = "file"
   ),
-  tar_target(participants_file_oxf,
+  tar_target(
+    participants_file_oxf,
     file.path("data-raw", "participants", "participants-oxf.csv"),
     format = "file"
   ),
@@ -106,12 +120,15 @@ list(
 
   # vocabulary ---------------------------------------------------------------
 
-  tar_target(vocabulary_file_oxf,
+  tar_target(
+    vocabulary_file_oxf,
     file.path("data-raw", "vocabulary", "vocabulary-oxf.xlsx"),
     format = "file"
   ),
-  tar_target(vocabulary_supp_bcn_file,
-    list.files(file.path("data-raw", "vocabulary"),
+  tar_target(
+    vocabulary_supp_bcn_file,
+    list.files(
+      file.path("data-raw", "vocabulary"),
       pattern = "supp",
       full.names = TRUE
     ),
@@ -140,7 +157,8 @@ list(
   ),
 
   # Barcelona gaze data
-  tar_target(files_bcn,
+  tar_target(
+    files_bcn,
     list.files(
       path = "data-raw/eyetracking-bcn",
       pattern = ".csv$",
@@ -150,7 +168,8 @@ list(
   ),
 
   # Oxford gaze data
-  tar_target(files_oxf,
+  tar_target(
+    files_oxf,
     list.files(
       "data-raw/eyetracking-oxf",
       pattern = ".csv$",
@@ -160,8 +179,12 @@ list(
   ),
   tar_target(
     gaze,
-    get_gaze(files_bcn, files_oxf, participants,
-      stimuli, aoi_coords,
+    get_gaze(
+      files_bcn,
+      files_oxf,
+      participants,
+      stimuli,
+      aoi_coords,
       non_aoi_as_na = TRUE
     )
   ),
@@ -171,7 +194,11 @@ list(
   # Barcelona
   tar_target(
     attrition_trials,
-    get_attrition_trials(gaze, participants, stimuli, vocabulary,
+    get_attrition_trials(
+      gaze,
+      participants,
+      stimuli,
+      vocabulary,
       vocabulary_by = "none",
       aoi_coords = aoi_coords,
       min_looking = c(
@@ -184,7 +211,8 @@ list(
   ),
   tar_target(
     attrition_participants,
-    get_attrition_participants(attrition_trials,
+    get_attrition_participants(
+      attrition_trials,
       vocabulary,
       min_trials = c(
         cognate = 2,
@@ -195,13 +223,14 @@ list(
     )
   ),
 
-
   # Prepare for modelling data -----------------------------------------------
 
   tar_target(data_bcn, {
     data_bcn <- get_data(
       gaze = filter(gaze, location == "Barcelona"),
-      participants, stimuli, vocabulary,
+      participants,
+      stimuli,
+      vocabulary,
       attrition_trials = attrition_trials,
       attrition_participants = attrition_participants,
       time_subset = c(0.30, 2.00)
@@ -214,14 +243,20 @@ list(
   tar_target(data_oxf, {
     data_oxf <- get_data(
       gaze = filter(gaze, location == "Oxford"),
-      participants, stimuli, vocabulary,
+      participants,
+      stimuli,
+      vocabulary,
       attrition_trials = attrition_trials,
       attrition_participants = attrition_participants,
       time_subset = c(0.30, 2.00)
     ) |>
-      mutate(condition = as.factor(if_else(condition != "Unrelated",
-        "Related", condition
-      )))
+      mutate(
+        condition = as.factor(if_else(
+          condition != "Unrelated",
+          "Related",
+          condition
+        ))
+      )
 
     contrasts(data_oxf$condition) <- c(0.5, -0.5)
     save_files(data_oxf, "data", file_name = "data_oxf", formats = "csv")
@@ -243,17 +278,23 @@ list(
   tar_target(
     model_formulas_bcn,
     lst(
-      fit_0 = .elog ~ condition * lp + age_std +
+      fit_0 = .elog ~ condition *
+        lp +
+        age_std +
         s(timebin_std, bs = "bs", k = 8) +
         s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
         (1 + condition + age_std | child_id) +
         (1 + condition | child_id:session_id),
-      fit_1 = .elog ~ condition * lp * age_std +
+      fit_1 = .elog ~ condition *
+        lp *
+        age_std +
         s(timebin_std, bs = "bs", k = 8) +
         s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
         (1 + condition + age_std | child_id) +
         (1 + condition | child_id:session_id),
-      fit_2 = .elog ~ condition * lp * voc_l1_std +
+      fit_2 = .elog ~ condition *
+        lp *
+        voc_l1_std +
         s(timebin_std, bs = "bs", k = 8) +
         s(timebin_std, by = interaction(condition, lp), bs = "bs", k = 8) +
         (1 + condition + voc_l1_std | child_id) +
@@ -263,7 +304,8 @@ list(
   tar_target(
     model_names_bcn,
     apply(
-      expand.grid("fit_", seq(1, length(model_formulas_bcn)) - 1), 1,
+      expand.grid("fit_", seq(1, length(model_formulas_bcn)) - 1),
+      1,
       \(x) paste0(x[1], x[2])
     )
   ),
@@ -298,17 +340,20 @@ list(
   tar_target(
     model_formulas_oxf,
     lst(
-      fit_0 = .elog ~ condition + age_std +
+      fit_0 = .elog ~ condition +
+        age_std +
         s(timebin_std, bs = "bs", k = 8) +
         s(timebin_std, by = condition, bs = "bs", k = 8) +
         (1 + condition + age_std | child_id) +
         (1 + condition | child_id:session_id),
-      fit_1 = .elog ~ condition * age_std +
+      fit_1 = .elog ~ condition *
+        age_std +
         s(timebin_std, bs = "bs", k = 8) +
         s(timebin_std, by = condition, bs = "bs", k = 8) +
         (1 + condition + age_std | child_id) +
         (1 + condition | child_id:session_id),
-      fit_2 = .elog ~ condition * voc_l1_std +
+      fit_2 = .elog ~ condition *
+        voc_l1_std +
         s(timebin_std, bs = "bs", k = 8) +
         s(timebin_std, by = condition, bs = "bs", k = 8) +
         (1 + condition + voc_l1_std | child_id) +
@@ -318,7 +363,8 @@ list(
   tar_target(
     model_names_oxf,
     apply(
-      expand.grid("fit_oxf_", seq(1, length(model_formulas_oxf)) - 1), 1,
+      expand.grid("fit_oxf_", seq(1, length(model_formulas_oxf)) - 1),
+      1,
       \(x) paste0(x[1], x[2])
     )
   ),
@@ -342,7 +388,8 @@ list(
   # exploratory analyses
   tar_target(
     exp_data_bcn,
-    get_exp_data(gaze_bcn,
+    get_exp_data(
+      gaze,
       participants,
       stimuli,
       attrition_participants,
@@ -352,22 +399,17 @@ list(
   ),
   tar_target(
     exp_data_oxf,
-    get_exp_data(gaze_oxf,
+    get_exp_data(
+      gaze,
       participants,
       stimuli,
       attrition_participants,
       attrition_trials,
       location = "Oxford"
     )
-  ),
+  )
 
   # render report ------------------------------------------------------------
 
   # tar_quarto(name = index, path = "docs/index.qmd")
-
-  tar_quarto(manuscript,
-    file.path("manuscript", "manuscript.qmd"),
-    execute = TRUE,
-    quiet = FALSE
-  )
 )

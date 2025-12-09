@@ -28,7 +28,8 @@ get_audio_duration <- function(trials) {
     grepl("-eng", audio.paths) ~ "English"
   )
 
-  durations$duration <- if_else(durations$test_language == "English",
+  durations$duration <- if_else(
+    durations$test_language == "English",
     durations$duration - 4,
     durations$duration
   )
@@ -40,7 +41,9 @@ get_audio_duration <- function(trials) {
     id = "Latin-ASCII"
   )
 
-  duration <- inner_join(trials_tmp, durations,
+  duration <- inner_join(
+    trials_tmp,
+    durations,
     relationship = "many-to-many",
     by = join_by(test_language, audio)
   )
@@ -50,16 +53,23 @@ get_audio_duration <- function(trials) {
 
 #' Get duration of a WAV file
 get_duration <- function(audio_path) {
-  if (!file.exists(audio_path)) cli::cli_abort("{audio_path} does not exist")
+  if (!file.exists(audio_path)) {
+    cli::cli_abort("{audio_path} does not exist")
+  }
   sound <- tuneR::readWave(audio_path) # extract wave
   sound.length <- round(length(sound@left) / sound@samp.rate, 2) # duration
 }
 
 #' Get familiarity data
 #'
-get_familiarity <- function(words, bvq_data, stim_stats_file_oxf,
-                            type = "understands", age = c(17, 19),
-                            .width = 0.95) {
+get_familiarity <- function(
+  words,
+  bvq_data,
+  stim_stats_file_oxf,
+  type = "understands",
+  age = c(17, 19),
+  .width = 0.95
+) {
   fam_oxf <- readxl::read_xlsx(stim_stats_file_oxf) |>
     select(stimulus = item, familiarity = ocdi18_comp) |>
     distinct(stimulus, .keep_all = TRUE) |>
@@ -72,21 +82,18 @@ get_familiarity <- function(words, bvq_data, stim_stats_file_oxf,
     bvq_data$responses,
     age = age,
     .width = .width,
-    lp, language
+    lp,
+    language
   ) |>
     filter(
       item_dominance == "L1",
       type == "understands",
       lp == "Monolingual"
     ) |>
-    summarise(across(c(.sum, .n), sum),
-      .by = c(item, language)
-    ) |>
+    summarise(across(c(.sum, .n), sum), .by = c(item, language)) |>
     mutate(familiarity = .sum / .n) |>
     rename(test_language = language) |>
-    right_join(select(words, stimulus, item),
-      by = join_by(item)
-    ) |>
+    right_join(select(words, stimulus, item), by = join_by(item)) |>
     select(stimulus, test_language, familiarity)
 
   familiarity <- bind_rows(fam_oxf, fam_bcn) |>
@@ -96,7 +103,11 @@ get_familiarity <- function(words, bvq_data, stim_stats_file_oxf,
 }
 
 #' Get frequencies from CHILDES
-get_childes_corpora <- function(token, languages = c("eng"), load_previous = TRUE) {
+get_childes_corpora <- function(
+  token,
+  languages = c("eng"),
+  load_previous = TRUE
+) {
   # if CHILDES exists, load
   childes.path <- file.path("data-raw", "stimuli", "childes.csv")
   if (file.exists(childes.path)) {
@@ -131,10 +142,11 @@ get_childes_corpora <- function(token, languages = c("eng"), load_previous = TRU
 
 #' Compute lexical frequencies from CHILDES corpora
 # WARNING: especial characters are not being handled very well
-get_frequency_childes <- function(childes,
-                                  token, # word(s) form to look up, e.g. c("table", "mesa")
-                                  languages = c("eng"), # languages in which to look up the word form
-                                  ... # passed to childesr::get_speaker_statistics)
+get_frequency_childes <- function(
+  childes,
+  token, # word(s) form to look up, e.g. c("table", "mesa")
+  languages = c("eng"), # languages in which to look up the word form
+  ... # passed to childesr::get_speaker_statistics)
 ) {
   suppressMessages({
     # get total number of tokens in each language
@@ -164,16 +176,24 @@ get_frequency_childes <- function(childes,
 
 #' Get stimuli data (join everything)
 #'
-get_stimuli <- function(trials, words, frequencies, familiarity,
-                        impute = FALSE) {
+get_stimuli <- function(
+  trials,
+  words,
+  frequencies,
+  familiarity,
+  impute = FALSE
+) {
   d_w <- select(words, -role)
 
   stim <- trials |>
-    mutate(audio = stringi::stri_trans_general(
-      str = trials$audio,
-      id = "Latin-ASCII"
-    )) |>
-    pivot_longer(c(prime, target, distractor),
+    mutate(
+      audio = stringi::stri_trans_general(
+        str = trials$audio,
+        id = "Latin-ASCII"
+      )
+    ) |>
+    pivot_longer(
+      c(prime, target, distractor),
       names_to = "role",
       values_to = "stimulus"
     ) |>
@@ -185,14 +205,25 @@ get_stimuli <- function(trials, words, frequencies, familiarity,
     rename(vocab_item = item, vocab_item_supp = item_supp) |>
     pivot_wider(
       id_cols = c(
-        trial, location, test_language, version, list,
-        audio, target_location, trial_type
+        trial,
+        location,
+        test_language,
+        version,
+        list,
+        audio,
+        target_location,
+        trial_type
       ),
       names_from = role,
       values_from = c(
-        xsampa, xsampa_t, freq, familiarity,
-        stimulus, nphon,
-        vocab_item, vocab_item_supp
+        xsampa,
+        xsampa_t,
+        freq,
+        familiarity,
+        stimulus,
+        nphon,
+        vocab_item,
+        vocab_item_supp
       )
     )
 
@@ -225,10 +256,24 @@ get_stimuli <- function(trials, words, frequencies, familiarity,
     ) |>
     ungroup() |>
     select(
-      trial, test_language, version, list, trial_type,
-      prime, target, distractor, audio, target_location,
-      nphon, freq, familiarity, xsampa, lv_pp, lv_pt,
-      vocab_item, vocab_item_supp
+      trial,
+      test_language,
+      version,
+      list,
+      trial_type,
+      prime,
+      target,
+      distractor,
+      audio,
+      target_location,
+      nphon,
+      freq,
+      familiarity,
+      xsampa,
+      lv_pp,
+      lv_pt,
+      vocab_item,
+      vocab_item_supp
     ) |>
     mutate(across(c(trial, list), as.integer))
 
