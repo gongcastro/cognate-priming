@@ -69,7 +69,7 @@ list(
   # this returns a list with all necessary data
   tar_target(
     bvq_data_file,
-    file.path("data-raw", "stimuli", "bvq.rds"),
+    file.path("data", "stimuli", "bvq.rds"),
     format = "file"
   ),
   tar_target(bvq_data, readRDS(bvq_data_file)),
@@ -78,19 +78,19 @@ list(
 
   tar_target(
     trials_file,
-    file.path("data-raw", "stimuli", "trials.xlsx"),
+    file.path("data", "stimuli", "trials.xlsx"),
     format = "file"
   ),
   tar_target(trials, readxl::read_xlsx(trials_file)),
   tar_target(
     words_file,
-    file.path("data-raw", "stimuli", "words.xlsx"),
+    file.path("data", "stimuli", "words.xlsx"),
     format = "file"
   ),
   tar_target(words, readxl::read_xlsx(words_file)),
   tar_target(
     stim_stats_file_oxf,
-    file.path("data-raw", "stimuli", "stim-stats-oxf.xlsx")
+    file.path("data", "stimuli", "stim-stats-oxf.xlsx")
   ),
   tar_target(
     familiarity,
@@ -99,18 +99,21 @@ list(
   tar_target(childes, get_childes_corpora(words$childes_lemma, "eng")),
   tar_target(frequencies, get_frequency_childes(childes, words$childes_lemma)),
   tar_target(durations, get_audio_duration(trials)),
-  tar_target(stimuli, get_stimuli(trials, words, frequencies, familiarity)),
+  tar_target(
+    stimuli,
+    get_stimuli(trials, words, frequencies, familiarity, durations)
+  ),
 
   # participants -------------------------------------------------------------
 
   tar_target(
     participants_file_bcn,
-    file.path("data-raw", "participants", "participants-bcn.csv"),
+    file.path("data", "participants", "participants-bcn.csv"),
     format = "file"
   ),
   tar_target(
     participants_file_oxf,
-    file.path("data-raw", "participants", "participants-oxf.csv"),
+    file.path("data", "participants", "participants-oxf.csv"),
     format = "file"
   ),
   tar_target(
@@ -122,13 +125,13 @@ list(
 
   tar_target(
     vocabulary_file_oxf,
-    file.path("data-raw", "vocabulary", "vocabulary-oxf.xlsx"),
+    file.path("data", "vocabulary", "vocabulary-oxf.xlsx"),
     format = "file"
   ),
   tar_target(
     vocabulary_supp_bcn_file,
     list.files(
-      file.path("data-raw", "vocabulary"),
+      file.path("data", "vocabulary"),
       pattern = "supp",
       full.names = TRUE
     ),
@@ -160,7 +163,7 @@ list(
   tar_target(
     files_bcn,
     list.files(
-      path = "data-raw/eyetracking-bcn",
+      path = "data/eyetracking-bcn",
       pattern = ".csv$",
       full.names = TRUE
     ),
@@ -171,7 +174,7 @@ list(
   tar_target(
     files_oxf,
     list.files(
-      "data-raw/eyetracking-oxf",
+      "data/eyetracking-oxf",
       pattern = ".csv$",
       full.names = TRUE
     ),
@@ -236,7 +239,7 @@ list(
       time_subset = c(0.30, 2.00)
     )
 
-    save_files(data_bcn, "data", file_name = "data_bcn", formats = "csv")
+    save_files(data_bcn, "out", file_name = "data_bcn", formats = "csv")
 
     return(data_bcn)
   }),
@@ -259,9 +262,25 @@ list(
       )
 
     contrasts(data_oxf$condition) <- c(0.5, -0.5)
-    save_files(data_oxf, "data", file_name = "data_oxf", formats = "csv")
+    save_files(data_oxf, "out", file_name = "data_oxf", formats = "csv")
 
     return(data_oxf)
+  }),
+
+  tar_target(data_target, {
+    data_target <- get_data_target(
+      gaze = gaze,
+      participants,
+      stimuli,
+      vocabulary,
+      attrition_trials = attrition_trials,
+      attrition_participants = attrition_participants,
+      time_subset = c(0.30, 2.00)
+    )
+
+    save_files(data_target, "out", file_name = "data_target", formats = "csv")
+
+    return(data_target)
   }),
 
   # Bayesian GAMMs -----------------------------------------------------------
@@ -317,12 +336,12 @@ list(
       model_prior_bcn
     )
 
-    saveRDS(fits, "results/fits/fit_list_bcn.rds")
+    saveRDS(fits, "model/fits/fit_list_bcn.rds")
     return(fits)
   }),
   tar_target(model_loos_bcn, {
     loos <- get_model_loos(model_fits_bcn)
-    save_files(loos, "results", file_name = "loos_bcn", formats = "rds")
+    save_files(loos, "model", file_name = "loos_bcn", formats = "rds")
     return(loos)
   }),
 
@@ -376,16 +395,67 @@ list(
       model_prior_oxf
     )
 
-    saveRDS(fits, "results/fits/fit_list_oxf.rds")
+    saveRDS(fits, "model/fits/fit_list_oxf.rds")
     return(fits)
   }),
   tar_target(model_loos_oxf, {
     loos <- get_model_loos(model_fits_oxf)
-    save_files(loos, "results", file_name = "loos_oxf", formats = "rds")
+    save_files(loos, "model", file_name = "loos_oxf", formats = "rds")
     return(loos)
   }),
 
-  # exploratory analyses
+  # target analyses ---------------------
+  tar_target(
+    model_prior_target,
+    prior(normal(0, 0.5), class = "Intercept") +
+      prior(normal(0, 0.5), class = "b") +
+      prior(exponential(6), class = "sd") +
+      prior(lkj(6), class = "cor") +
+      prior(exponential(6), class = "sigma")
+  ),
+  tar_target(
+    model_formulas_target,
+    lst(
+      fit_0 = .elog ~ target_lv_std +
+        age_std +
+        (1 + target_lv_std + age_std | child_id) +
+        (1 + target_lv_std | child_id:session_id),
+      fit_1 = .elog ~ target_lv_std *
+        age_std +
+        (1 + target_lv_std + age_std | child_id) +
+        (1 + target_lv_std | child_id:session_id),
+      fit_2 = .elog ~ target_lv_std *
+        voc_l1_std +
+        (1 + target_lv_std + voc_l1_std | child_id) +
+        (1 + target_lv_std | child_id:session_id)
+    )
+  ),
+  tar_target(
+    model_names_target,
+    apply(
+      expand.grid("fit_target_", seq(1, length(model_formulas_target)) - 1),
+      1,
+      \(x) paste0(x[1], x[2])
+    )
+  ),
+  tar_target(model_fits_target, {
+    fits <- get_model_fit(
+      model_names_target,
+      model_formulas_target,
+      data_target,
+      model_prior_target
+    )
+
+    saveRDS(fits, "model/fits/fit_list_target.rds")
+    return(fits)
+  }),
+  tar_target(model_loos_target, {
+    loos <- get_model_loos(model_fits_target)
+    save_files(loos, "model", file_name = "loos_target", formats = "rds")
+    return(loos)
+  }),
+
+  # exploratory analyses ----------------
   tar_target(
     exp_data_bcn,
     get_exp_data(
@@ -408,8 +478,4 @@ list(
       location = "Oxford"
     )
   )
-
-  # render report ------------------------------------------------------------
-
-  # tar_quarto(name = index, path = "docs/index.qmd")
 )

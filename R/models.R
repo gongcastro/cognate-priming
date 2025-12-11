@@ -182,6 +182,153 @@ get_data <- function(
   return(out)
 }
 
+get_data_target <- function(
+  gaze,
+  participants,
+  stimuli,
+  vocabulary,
+  attrition_trials,
+  attrition_participants,
+  time_subset = c(0.00, 2.00)
+) {
+  d_g <- filter(
+    gaze,
+    phase == "Target-Distractor",
+    timestamp >= time_subset[1],
+    timestamp < time_subset[2]
+  ) |>
+    select(
+      session_id,
+      trial,
+      phase,
+      timestamp,
+      is_gaze_target,
+      is_gaze_distractor,
+      trial_type
+    )
+
+  d_p <- select(
+    participants,
+    child_id,
+    list,
+    location,
+    test_language,
+    version,
+    session_id,
+    age_group,
+    age,
+    lp
+  )
+
+  d_s <- stimuli |>
+    unnest_wider(freq) |>
+    unnest_wider(xsampa) |>
+    mutate(target_lv = stringdist::stringsim(xsampa_target, xsampa_t_target)) |>
+    select(
+      trial,
+      test_language,
+      version,
+      trial,
+      list,
+      target,
+      xsampa_target,
+      xsampa_t_target,
+      distractor,
+      target_lv,
+      freq = freq_target
+    )
+
+  d_v <- rename_with(
+    vocabulary,
+    \(x) gsub("_prop", "", paste0("voc_", x)),
+    matches("_prop")
+  )
+
+  d_at <- filter(attrition_trials, is_valid_trial) |>
+    select(session_id, trial, samples, is_valid_trial)
+
+  d_ap <- filter(attrition_participants, is_valid_participant) |>
+    select(session_id)
+
+  out <- d_g |>
+    inner_join(d_at, by = join_by(session_id, trial)) |>
+    inner_join(d_ap, by = join_by(session_id)) |>
+    # aggregate across trials by participant, time bin and condition
+    # see Chow et al. (2018)
+    summarise(
+      .sum_t = sum(is_gaze_target, na.rm = TRUE),
+      .sum_d = sum(is_gaze_distractor, na.rm = TRUE),
+      .ntrials = length(unique(trial)),
+      .by = c(session_id, trial)
+    ) |>
+    inner_join(d_p, by = join_by(session_id)) |>
+    inner_join(d_v, by = join_by(child_id, session_id)) |>
+    inner_join(d_s, by = join_by(trial, list, test_language, version)) |>
+    # empirical logit with adjustment
+    # see Barr et al. (2008)
+    mutate(
+      .nsamples = .sum_t + .sum_d,
+      .prop = if_else(.nsamples == 0, NA_real_, .sum_t / .nsamples),
+      .elog = if_else(
+        .nsamples == 0,
+        NA_real_,
+        log((.sum_t + .5) / (.sum_d + .5))
+      )
+    ) |>
+    filter(.nsamples > 0) |>
+    mutate(across(c(.elog, .prop), \(x) zoo::na.locf(x, na.rm = TRUE))) |>
+    arrange(desc(session_id)) |>
+    mutate(
+      across(c(.nsamples), as.integer),
+      across(c(child_id, session_id), as.factor),
+      across(
+        c(age, matches("voc_"), matches("target_lv")),
+        \(x) scale(x, scale = TRUE)[, 1],
+        .names = "{.col}_std"
+      )
+    ) |>
+    select(
+      child_id,
+      session_id,
+      age_group,
+      age,
+      lp,
+      voc_l1,
+      voc_total,
+      .sum_t,
+      .sum_d,
+      .prop,
+      .elog,
+      .nsamples,
+      any_of(c("target_lv")),
+      matches("_std")
+    )
+
+  if (length(levels(out$age_group)) > 1) {
+    out$lp <- factor(
+      out$lp,
+      levels = c("Monolingual (English)", "Monolingual", "Bilingual")
+    )
+    contrasts(out$lp) <- cbind(
+      c(-5, 0.25, 0.25),
+      c(0, -0.5, 0.5)
+    )
+  }
+
+  if (length(levels(out$age_group)) > 1) {
+    out$age_group <- factor(
+      out$age_group,
+      levels = c("21 months", "25 months", "30 months")
+    )
+    contrasts(out$age_group) <- cbind(
+      c(-0.5, 0.25, 0.25),
+      c(0, -0.5, 0.5)
+    )
+  }
+
+  return(out)
+}
+
 #' Recode condition levels
 #'
 recode_condition <- function(x) {
@@ -225,7 +372,7 @@ get_model_fit <- function(names, formulas, data, prior, ...) {
 #' @inheritParams brms::brm
 #'
 fit_single_model <- function(name, formula, data, prior, ...) {
-  model_path <- file.path("results", "fits", paste0(name, ".rds"))
+  model_path <- file.path("model", "fits", paste0(name, ".rds"))
   model_opts <- list(adapt_delta = 0.9, max_treedepth = 15)
 
   cli::cli_inform("Sampling model {.field {name}} [{Sys.time()}]")
@@ -263,7 +410,7 @@ get_model_loos <- function(models, ...) {
     .progress = TRUE
   )
 
-  saveRDS(out, "results/loos.rds")
+  saveRDS(out, "model/loos.rds")
 
   return(out)
 }
@@ -315,7 +462,7 @@ get_posterior_summary <- function(
     ) |>
     ungroup()
 
-  save_files(out, "data", file_name = "model_summary", formats = "csv")
+  save_files(out, "out", file_name = "model_summary", formats = "csv")
 
   return(out)
 }

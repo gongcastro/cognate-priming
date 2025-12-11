@@ -27,23 +27,23 @@ data/
 .luarc.json
 nul
 
+assets/**/**.png
+
 docs/_targets.yaml
-docs/_freeze/
+docs/_freeze
+docs/.quarto
 
-manuscript/
-!manuscript/_appendix/
-!manuscript/_extensions/
-!manuscript/_quarto.yaml
-!manuscript/manuscript.qmd
-!manuscript/manuscript.pdf
-
-results/fits/
-results/predictions/
-results/posterior/
+model/fits/
+model/predictions/
+model/posterior/
 
 img/**/*.png
 
 stimuli/getters/
 stimuli/sounds/
-stimuli/images/
+stimuli/img/
 
+out/**/*.csv
+out/**/*.rds
+
+/.quarto/

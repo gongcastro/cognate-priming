@@ -1,7 +1,7 @@
 #' Get audio duration
 get_audio_duration <- function(trials) {
   # get dir paths and validate paths
-  audio.dir <- paste0("stimuli/sounds/sounds-", c("cat", "eng", "spa"))
+  audio.dir <- paste0("stimuli/sounds/", c("cat", "eng", "spa"))
   audio.dir.valid <- dir.exists(audio.dir)
 
   if (!all(audio.dir.valid)) {
@@ -23,9 +23,9 @@ get_audio_duration <- function(trials) {
   durations$audio <- basename(audio.paths)
 
   durations$test_language <- case_when(
-    grepl("-cat", audio.paths) ~ "Catalan",
-    grepl("-spa", audio.paths) ~ "Spanish",
-    grepl("-eng", audio.paths) ~ "English"
+    grepl("cat", audio.paths) ~ "Catalan",
+    grepl("spa", audio.paths) ~ "Spanish",
+    grepl("eng", audio.paths) ~ "English"
   )
 
   durations$duration <- if_else(
@@ -181,6 +181,7 @@ get_stimuli <- function(
   words,
   frequencies,
   familiarity,
+  durations,
   impute = FALSE
 ) {
   d_w <- select(words, -role)
@@ -255,6 +256,10 @@ get_stimuli <- function(
       vocab_item_supp = list(unlist(across(matches("vocab_item_supp"))))
     ) |>
     ungroup() |>
+    left_join(
+      select(durations, test_language, version, audio, duration),
+      by = join_by(test_language, version, audio)
+    ) |>
     select(
       trial,
       test_language,
@@ -265,6 +270,7 @@ get_stimuli <- function(
       target,
       distractor,
       audio,
+      duration,
       target_location,
       nphon,
       freq,
@@ -278,7 +284,7 @@ get_stimuli <- function(
     mutate(across(c(trial, list), as.integer))
 
   # test_stimuli(out)
-  save_files(out, "data", file_name = "stimuli", formats = "csv")
+  save_files(out, "out", file_name = "stimuli", formats = "csv")
 
   return(out)
 }

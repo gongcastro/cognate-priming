@@ -26,7 +26,7 @@ get_gaze <- function(
   out <- bind_rows(list("Barcelona" = bcn, "Oxford" = oxf), .id = "location")
   test_gaze(out)
 
-  save_files(out, "data", file_name = "gaze", formats = "csv")
+  save_files(out, "out", file_name = "gaze", formats = "csv")
 
   return(out)
 }
