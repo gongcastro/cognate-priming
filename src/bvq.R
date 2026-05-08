@@ -15,19 +15,32 @@ get_bvq <- function() {
   l <- bvq::bvq_logs(p, r) |>
     dplyr::filter(version %in% c("bvq-short", "bvq-lockdown")) |>
     # get maximum educational attainment of parents
-    dplyr::mutate(edu_parent = apply(
-      cbind(edu_parent1, edu_parent2), 1,
-      \(x) max(x, na.rm = FALSE)
+    dplyr::mutate(
+      edu_parent = apply(
+        cbind(edu_parent1, edu_parent2),
+        1,
+        \(x) max(x, na.rm = FALSE)
+      ) |>
+        factor(
+          levels = names(edu_dict),
+          labels = edu_dict
+        )
     ) |>
-      factor(
-        levels = names(edu_dict),
-        labels = edu_dict
-      )) |>
-    dplyr::left_join(select(p, child_id, response_id, time),
+    dplyr::left_join(
+      select(p, child_id, response_id, time),
       by = dplyr::join_by(child_id, response_id, time)
     ) |>
     dplyr::distinct(response_id, .keep_all = TRUE) |>
-    dplyr::select(child_id, response_id, time, age, lp, version, dominance, edu_parent)
+    dplyr::select(
+      child_id,
+      response_id,
+      time,
+      age,
+      lp,
+      version,
+      dominance,
+      edu_parent
+    )
 
   v <- bvq::bvq_vocabulary(p, r, .scale = c("count", "prop")) |>
     dplyr::filter(type == "understands") |>
@@ -47,5 +60,5 @@ get_bvq <- function() {
     pool = pool
   )
 
-  saveRDS(bvq_data, file.path("data-raw", "stimuli", "bvq.rds"))
+  saveRDS(bvq_data, file.path("data", "stimuli", "bvq.rds"))
 }

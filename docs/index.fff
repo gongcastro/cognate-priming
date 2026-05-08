@@ -1,0 +1,141 @@
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-hypotheses}Predicted priming effects (or their
+absence) in the \emph{Related/Cognate}, \emph{Related/Non-cognate}, and
+\emph{Unrelated} conditions, with examples for a participant tested in
+Catalan. Words represent lexical representations. Lexical
+representations of the task-relevant language (Catalan) are depicted
+inside grey boxes. Solid arrows indicate within-language priming
+effects, and dashed lines indicate cross-language priming effects. In
+\emph{Related/Cognate} (A) and \emph{Related/Non-cognate} (B) trials,
+the recognition of the Catalan target word /kuˈʎe.ɾə/ {[}spoon{]} is
+predicted to be modulated by the prior activation of the prime label in
+Catalan. In \emph{Related/Cognate} trials, the parallel activation of
+the prime label in Spanish is predicted to increase the strength of the
+priming effect.}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{img/hypotheses.png}}
+
+}
+
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-vocabulary-oxf}Participant receptive vocabulary
+sizes across ages and language profiles.}
+
+\centering{
+
+\includegraphics[width=0.7\linewidth,height=\textheight,keepaspectratio]{index_files/figure-pdf/fig-vocabulary-oxf-1.pdf}
+
+}
+
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-task}Experimental task design with examples in
+Catalan. In each trial, the prime image is presented in silence for
+1,500 ms. Then the auditory target label is presented, and finally the
+target and distractor pictures are presented side-by-side for 2,000 ms.
+In cognate trials (\emph{n} = 8), Catalan \emph{and} Spanish prime
+labels shared phonological onset with the target label. In non-cognate
+trials (\emph{n} = 8), only the Catalan prime label shared phonological
+onset with the target label. In unrelated trials (\emph{n} = 16), none
+of the prime labels shared phonological onset with the target label.}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{img/design.png}}
+
+}
+
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-epreds-oxf}A) Posterior mean predictions of the time
+course of target fixation in the test phase. B) Posterior mean
+prediction of the time course of the differences in target looking time
+between conditions. Intervals represent the 95\% CrI of the posterior
+predictions. Lines indicate the mean of the posterior predictions.}
+
+\centering{
+
+\includegraphics[width=0.8\linewidth,height=\textheight,keepaspectratio]{index_files/figure-pdf/fig-epreds-oxf-1.pdf}
+
+}
+
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-vocabulary-bcn}Participant receptive vocabulary
+sizes across ages and language profiles.}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/fig-vocabulary-bcn-1.pdf}}
+
+}
+
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-epreds}A) Posterior mean predictions of the time
+course of target fixation in the test phase. B) Posterior mean
+prediction of the time course of the differences in target looking time
+between conditions. Intervals represent the 95\% CrI of the posterior
+predictions. Lines indicate the mean of the posterior predictions.}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/fig-epreds-1.pdf}}
+
+}
+
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{fig-mp}Distribution of lexical frequencies and word
+familiarity at 18 months for the stimuli in Mani and Plunkett (2010,
+2011), and in Study 1. A) Lexical frequencies (expressed as Zipf scores)
+for prime and target words. Lexical frequences are shown for related and
+unrelated primes separately. B) Word familiarity scores for prime and
+target words, calculated as the proportion of participants in the OCDI
+norms that were reported by their caregivers to understand the word.
+Word familiarity scores are shown for related and unrelated primes
+separately.}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/fig-mp-1.pdf}}
+
+}
+
+\end{figure*}

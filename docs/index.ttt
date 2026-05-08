@@ -1,0 +1,289 @@
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Demographic and linguistic profile of testing sessions. The
+number of excluded testing sessions and participants is indicated
+between parentheses.}{\label{tbl-participants}}}
+\vspace{-20pt}}
+
+\fontsize{12.0pt}{14.0pt}\selectfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rrrrrr}
+\toprule
+ &  &  &  & \multicolumn{3}{c}{{\itshape Degree of Exposure (\%)}} \\
+\cmidrule(lr){5-7}
+ & \multicolumn{2}{c}{{\itshape Sample size}} & \multicolumn{1}{c}{{\itshape Age (months)}} & \multicolumn{1}{c}{{\itshape Spanish}} & \multicolumn{1}{c}{{\itshape Catalan}} & \multicolumn{1}{c}{{\itshape English}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
+ & {\itshape Test sessions} & {\itshape Participants} & {\itshape M (SD)} & {\itshape M (SD)} & {\itshape M (SD)} & {\itshape M (SD)} \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{7}{l}{Study 1 - Monolingual} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+English dominant & 89 (21) & 79 (21) & 26.47 (4.05) & 0.00 (0.00) & 0.00 (0.00) & 100.00 (0.00) \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{7}{l}{Study 2 - Monolingual} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+Catalan dominant & 87 (8) & 50 (7) & 25.78 (3.91) & 4.54 (5.98) & 95.11 (6.17) & 0.37 (2.20) \\
+Spanish dominant & 46 (7) & 28 (6) & 25.18 (3.80) & 90.80 (6.38) & 8.74 (6.40) & 0.24 (0.85) \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{7}{l}{Study 2 - Bilingual} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+Catalan dominant & 65 (7) & 46 (6) & 25.19 (3.81) & 37.65 (10.47) & 61.98 (10.31) & 0.18 (0.79) \\
+Spanish dominant & 42 (7) & 31 (7) & 25.58 (3.41) & 61.12 (11.00) & 38.55 (10.42) & 0.38 (1.56) \\
+\midrule
+\midrule
+Total & 329 & 234 & 25.64 & — & — & — \\
+\bottomrule
+\end{tabular*}
+
+\end{table*}
+\efloatseparator
+ 
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Summary of stimuli properties by trial type. Values are
+summarised using the mean and the standard deviation (between
+parentheses).}{\label{tbl-stimuli}}}
+\vspace{-20pt}}
+
+\fontsize{12.0pt}{14.0pt}\selectfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rrrrrr}
+\toprule
+ & \multicolumn{2}{c}{{\itshape \# Phonemes}} & \multicolumn{2}{c}{{\itshape Frequency (Zipf)}} & \multicolumn{2}{c}{{\itshape Familiarity (\%)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+ & {\itshape Prime} & {\itshape Target} & {\itshape Prime} & {\itshape Target} & {\itshape Prime} & {\itshape Target} \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{7}{l}{Study 1: English} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+Cognate & 5.00 (1.24) & 4.50 (1.34) & 4.63 (0.53) & 4.75 (0.39) & 61.79 (10.04) & 70.28 (15.28) \\
+Non-cognate & 5.75 (2.72) & 4.50 (1.34) & 4.75 (0.18) & 4.75 (0.39) & 61.43 (12.89) & 70.68 (15.10) \\
+Unrelated & 5.24 (2.27) & 4.33 (1.47) & 4.68 (0.38) & 4.73 (0.38) & 67.04 (18.36) & 73.35 (16.77) \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{7}{l}{Study 2: Catalan} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+Cognate & 4.50 (1.34) & 4.88 (1.28) & 5.07 (0.33) & 4.83 (0.26) & 85.00 (8.75) & 69.17 (22.67) \\
+Non-cognate & 4.88 (1.47) & 5.17 (1.33) & 5.01 (0.37) & 4.76 (0.25) & 83.33 (10.65) & 70.00 (21.57) \\
+Unrelated & 5.00 (1.51) & 4.98 (1.31) & 4.91 (0.31) & 4.89 (0.25) & 76.00 (15.25) & 68.33 (22.12) \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{7}{l}{Study 2: Spanish} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+Cognate & 4.50 (0.88) & 6.12 (1.55) & 5.10 (0.31) & 4.77 (0.29) & 64.77 (24.06) & 47.35 (24.45) \\
+Non-cognate & 5.25 (1.21) & 5.92 (1.54) & 4.94 (0.42) & 4.71 (0.26) & 68.18 (21.05) & 50.00 (26.25) \\
+Unrelated & 4.62 (1.06) & 5.73 (1.53) & 4.94 (0.28) & 4.69 (0.23) & 64.20 (22.95) & 45.64 (27.38) \\
+\midrule
+\midrule
+Total & {\itshape 4.97} & {\itshape 5.12} & {\itshape 4.89} & {\itshape 4.76} & {\itshape 70.20} & {\itshape 62.75} \\
+\bottomrule
+\end{tabular*}
+
+\end{table*}
+\efloatseparator
+ 
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Participant-level and trial-level sample size after applying
+inclusion criteria. The number of excluded participants and trials is
+indicated between parentheses.}{\label{tbl-attrition}}}
+\vspace{-20pt}}
+
+\fontsize{12.0pt}{14.0pt}\selectfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rrrr}
+\toprule
+ &  & \multicolumn{3}{c}{{Trials}} \\
+\cmidrule(lr){3-5}
+ & {\itshape Participants} & {\itshape Unrelated} & {\itshape Non-cognate} & {\itshape Cognate} \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{5}{l}{Study 1: English (Oxford)} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+\multicolumn{1}{l}{{Monolingual (English)}} & 89 (21) & 1,011 (733) & 511 (360) & 510 (359) \\
+\midrule\addlinespace[2.5pt]
+\multicolumn{5}{l}{Study 2: Catalan/Spanish (Barcelona)} \\[2.5pt]
+\midrule\addlinespace[2.5pt]
+\multicolumn{1}{l}{{Bilingual}} & 107 (14) & 1,140 (796) & 555 (413) & 596 (372) \\
+\multicolumn{1}{l}{{Monolingual}} & 133 (15) & 1,506 (862) & 747 (437) & 741 (443) \\
+\midrule
+\midrule
+\emph{N} & 329 & 3,657 & 1,813 & 1,847 \\
+\bottomrule
+\end{tabular*}
+
+\end{table*}
+\efloatseparator
+ 
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Leave-one-out cross validation outcomes, comparing the
+predictive performance of the models in Study 1.}{\label{tbl-loos-oxf}}}
+\vspace{-20pt}}
+
+\fontsize{12.0pt}{14.0pt}\selectfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rrrr}
+\toprule
+ & {\itshape ELPD} & {\itshape SE ELPD} & {\itshape ELPD (diff.)} & {\itshape SE ELPD (diff)} \\
+\midrule\addlinespace[2.5pt]
+Model 2 (Vocabulary by-condition) & -8,468.55 & 73.06 & — & — \\
+Model 0 (Age as main effect) & -8,468.61 & 73.04 & -0.06 & 2.03 \\
+Model 1 (Age-by-condition) & -8,469.04 & 72.97 & -0.50 & 1.52 \\
+\bottomrule
+\end{tabular*}
+\begin{minipage}{\linewidth}
+\vspace{.05em}
+\emph{ELPD}: sum of expected log pointwise predictive density for a new data set. \emph{SE (ELPD)}: standard error of the \emph{ELPD}, which indictes the uncertainty about the predictive performance for unknown future data. \emph{ELPD (diff)}: pairwise difference in \emph{ELPD} for two models. The difference is computed relative to the model with lowest \emph{ELPD} (best fitting model). \emph{SE ELPD (diff.)}: standard error of component-wise differences of \emph{ELPD} between two models.\\
+\end{minipage}
+
+\end{table*}
+\efloatseparator
+ 
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Leave-one-out cross validation outcomes, comparing the
+predictive performance of the models in Study 1.}{\label{tbl-loos}}}
+\vspace{-20pt}}
+
+\fontsize{12.0pt}{14.0pt}\selectfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rrrr}
+\toprule
+ & {\itshape ELPD} & {\itshape SE ELPD} & {\itshape ELPD (diff.)} & {\itshape SE ELPD (diff)} \\
+\midrule\addlinespace[2.5pt]
+Model 1 (Age-by-condition) & -20,865.97 & 136.67 & — & — \\
+Model 0 & -20,867.70 & 136.82 & -1.73 & 1.94 \\
+Model 0 (Age as main effect) & -20,869.06 & 136.74 & -3.09 & 1.84 \\
+\bottomrule
+\end{tabular*}
+\begin{minipage}{\linewidth}
+\vspace{.05em}
+\emph{ELPD}: sum of expected log pointwise predictive density for a new data set. \emph{SE (ELPD)}: standard error of the \emph{ELPD}, which indictes the uncertainty about the predictive performance for unknown future data. \emph{ELPD (diff)}: pairwise difference in \emph{ELPD} for two models. The difference is computed relative to the model with lowest \emph{ELPD} (best fitting model). \emph{SE ELPD (diff.)}: standard error of component-wise differences of \emph{ELPD} between two models.\\
+\end{minipage}
+
+\end{table*}
+\efloatseparator
+ 
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Stimuli lists for each language. The condition to which the
+prime belonged is indicated between parentheses. \emph{R/C}:
+Related/Cognate, \emph{R/N}: Related/Non-cognate, \emph{U}:
+Unrelated.}{\label{tbl-stimuli-list}}}
+\vspace{-20pt}}
+
+\begin{longtable*}{llcccc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{4}{c}{Prime} \\
+\cmidrule(l{3pt}r{3pt}){3-6}
+  & Target-Distractor & List 1 & List 2 & List 3 & List 4\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{English}}\\
+\hspace{1em}1 & ball-trousers & nose (U) & star (U) & bike (R/C) & butterfly (R/N)\\
+\hspace{1em}1 & trousers-ball & train (R/C) & tree (R/N) & monkey (U) & penguin (U)\\
+\hspace{1em}2 & balloon-snail & phone (U) & helicopter (U) & boot (R/C) & brush (R/N)\\
+\hspace{1em}2 & snail-balloon & potato (U) & door (U) & sofa (R/C) & slide (R/N)\\
+\hspace{1em}3 & bird-milk & boot (R/C) & brush (R/N) & phone (U) & helicopter (U)\\
+\hspace{1em}3 & milk-bird & moon (R/N) & jacket (U) & jacket (U) & mask (R/C)\\
+\hspace{1em}4 & biscuit-pencil & bike (R/C) & butterfly (R/N) & nose (U) & star (U)\\
+\hspace{1em}4 & pencil-biscuit & plate (R/C) & pig (R/N) & hat (U) & sun (U)\\
+\hspace{1em}5 & box-pen & butterfly (R/N) & nose (U) & star (U) & bike (R/C)\\
+\hspace{1em}5 & pen-box & hat (U) & sun (U) & plate (R/C) & pig (R/N)\\
+\hspace{1em}6 & bread-fish & brush (R/N) & phone (U) & helicopter (U) & boot (R/C)\\
+\hspace{1em}6 & fish-bread & flower (R/C) & fireengine (R/N) & bottle (U) & book (U)\\
+\hspace{1em}7 & bucket-mouse & helicopter (U) & boot (R/C) & brush (R/N) & phone (U)\\
+\hspace{1em}7 & mouse-bucket & jacket (U) & mask (R/C) & mask (R/C) & moon (R/N)\\
+\hspace{1em}8 & bunny-nappy & star (U) & bike (R/C) & butterfly (R/N) & nose (U)\\
+\hspace{1em}8 & nappy-bunny & tomato (U) & tomato (U) & tomato (U) & tomato (U)\\
+\hspace{1em}9 & chair-fork & tiger (U) & chocolate (R/C) & chocolate (R/C) & chicken (R/N)\\
+\hspace{1em}9 & fork-chair & book (U) & flower (R/C) & fireengine (R/N) & bottle (U)\\
+\hspace{1em}10 & cheese-sock & chocolate (R/C) & chicken (R/N) & chicken (R/N) & tiger (U)\\
+\hspace{1em}10 & sock-cheese & door (U) & sofa (R/C) & slide (R/N) & potato (U)\\
+\hspace{1em}11 & chips-peas & chicken (R/N) & tiger (U) & tiger (U) & chocolate (R/C)\\
+\hspace{1em}11 & peas-chips & pig (R/N) & hat (U) & sun (U) & plate (R/C)\\
+\hspace{1em}12 & foot-teddy & fireengine (R/N) & bottle (U) & book (U) & flower (R/C)\\
+\hspace{1em}12 & teddy-foot & monkey (U) & penguin (U) & train (R/C) & tree (R/N)\\
+\hspace{1em}13 & frog-spoon & bottle (U) & book (U) & flower (R/C) & fireengine (R/N)\\
+\hspace{1em}13 & spoon-frog & sofa (R/C) & slide (R/N) & potato (U) & door (U)\\
+\hspace{1em}14 & mouth-plane & mask (R/C) & moon (R/N) & moon (R/N) & jacket (U)\\
+\hspace{1em}14 & plane-mouth & sun (U) & plate (R/C) & pig (R/N) & hat (U)\\
+\hspace{1em}15 & sandwich-truck & slide (R/N) & potato (U) & door (U) & sofa (R/C)\\
+\hspace{1em}15 & truck-sandwich & tree (R/N) & monkey (U) & penguin (U) & train (R/C)\\
+\hspace{1em}16 & shoe-table & boat (U) & boat (U) & boat (U) & boat (U)\\
+\hspace{1em}16 & table-shoe & penguin (U) & train (R/C) & tree (R/N) & monkey (U)\\
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Catalan}}\\
+\hspace{1em}1 & abella-papallona & finestra (U) & ànec (R/N) & arbre (R/C) & NA\\
+\hspace{1em}1 & papallona-abella & pilota (R/C) & guitarra (U) & poma (R/N) & NA\\
+\hspace{1em}2 & aigua-bolet & arbre (R/C) & camió (U) & ànec (R/N) & NA\\
+\hspace{1em}2 & bolet-aigua & claus (U) & barret (R/N) & vaca (R/C) & NA\\
+\hspace{1em}3 & aixeta-ungla & camió (U) & arbre (R/C) & finestra (U) & NA\\
+\hspace{1em}3 & ungla-aixeta & peix (U) & peix (U) & ocell (R/N) & NA\\
+\hspace{1em}4 & amanida-berenar & ànec (R/N) & finestra (U) & camió (U) & NA\\
+\hspace{1em}4 & berenar-amanida & vaca (R/C) & osset (U) & barret (R/N) & NA\\
+\hspace{1em}5 & bici-porta & barret (R/N) & claus (U) & osset (U) & NA\\
+\hspace{1em}5 & porta-bici & guitarra (U) & pilota (R/C) & maduixa (U) & NA\\
+\hspace{1em}6 & boca-orella & osset (U) & vaca (R/C) & claus (U) & NA\\
+\hspace{1em}6 & orella-boca & plàtan (U) & plàtan (U) & peix (U) & NA\\
+\hspace{1em}7 & caixa-porc & ampolla (U) & cadira (R/N) & cotxe (R/C) & NA\\
+\hspace{1em}7 & porc-caixa & maduixa (U) & poma (R/N) & pilota (R/C) & NA\\
+\hspace{1em}8 & casa-moneda & cotxe (R/C) & vaixell (U) & cadira (R/N) & NA\\
+\hspace{1em}8 & moneda-casa & mitjó (R/N) & granota (U) & avió (U) & NA\\
+\hspace{1em}9 & colom-mussol & cadira (R/N) & ampolla (U) & vaixell (U) & NA\\
+\hspace{1em}9 & mussol-colom & moto (R/C) & avió (U) & mitjó (R/N) & NA\\
+\hspace{1em}10 & cuc-formiga & vaixell (U) & cotxe (R/C) & ampolla (U) & NA\\
+\hspace{1em}10 & formiga-cuc & formatge (R/N) & ulleres (U) & botó (U) & NA\\
+\hspace{1em}11 & forquilla-got & ulleres (U) & formatge (R/N) & flor (R/C) & NA\\
+\hspace{1em}11 & got-forquilla & gos (R/N) & pa (U) & mico (U) & NA\\
+\hspace{1em}12 & fulla-galleda & botó (U) & flor (R/C) & ulleres (U) & NA\\
+\hspace{1em}12 & galleda-fulla & mico (U) & gat (R/C) & pa (U) & NA\\
+\hspace{1em}13 & galeta-pernil & gat (R/C) & mico (U) & gos (R/N) & NA\\
+\hspace{1em}13 & pernil-galeta & flor (R/C) & botó (U) & formatge (R/N) & NA\\
+\hspace{1em}14 & globus-onada & pa (U) & gos (R/N) & gat (R/C) & NA\\
+\hspace{1em}14 & onada-globus & ovella (R/C) & ovella (R/C) & plàtan (U) & NA\\
+\hspace{1em}15 & mà-ull & avió (U) & moto (R/C) & granota (U) & NA\\
+\hspace{1em}15 & ull-mà & ocell (R/N) & ocell (R/N) & ovella (R/C) & NA\\
+\hspace{1em}16 & mirall-planta & granota (U) & mitjó (R/N) & moto (R/C) & NA\\
+\hspace{1em}16 & planta-mirall & poma (R/N) & maduixa (U) & guitarra (U) & NA\\
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Spanish}}\\
+\hspace{1em}1 & bici-cepillo & botella (R/N) & globo (U) & mono (U) & NA\\
+\hspace{1em}1 & cepillo-bici & cebra (R/C) & cerdo (R/N) & oreja (U) & NA\\
+\hspace{1em}2 & boca-caja & vaca (R/C) & botella (R/N) & globo (U) & NA\\
+\hspace{1em}2 & caja-boca & coche (R/C) & cama (R/N) & zumo (U) & NA\\
+\hspace{1em}3 & botón-tobogán & globo (U) & mono (U) & vaca (R/C) & NA\\
+\hspace{1em}3 & tobogán-botón & gato (U) & tren (R/C) & tenedor (R/N) & NA\\
+\hspace{1em}4 & calcetín-plátano & pato (U) & coche (R/C) & cama (R/N) & NA\\
+\hspace{1em}4 & plátano-calcetín & barco (U) & hoja (U) & pez (R/C) & NA\\
+\hspace{1em}5 & cesta-tijeras & cerdo (R/N) & oreja (U) & mesa (U) & NA\\
+\hspace{1em}5 & tijeras-cesta & tren (R/C) & tenedor (R/N) & casa (U) & NA\\
+\hspace{1em}6 & cielo-pie & mesa (U) & cebra (R/C) & cerdo (R/N) & NA\\
+\hspace{1em}6 & pie-cielo & perro (R/N) & barco (U) & hoja (U) & NA\\
+\hspace{1em}7 & cubo-tambor & zumo (U) & pato (U) & coche (R/C) & NA\\
+\hspace{1em}7 & tambor-cubo & casa (U) & gato (U) & tren (R/C) & NA\\
+\hspace{1em}8 & cuchara-osito & cama (R/N) & zumo (U) & pato (U) & NA\\
+\hspace{1em}8 & osito-cuchara & oveja (R/C) & ojo (R/N) & pelota (U) & NA\\
+\hspace{1em}9 & gorrión-muñeca & gafas (R/N) & tomate (U) & zapato (U) & NA\\
+\hspace{1em}9 & muñeca-gorrión & manzana (R/N) & vaso (U) & queso (U) & NA\\
+\hspace{1em}10 & grifo-mariposa & galleta (R/C) & gafas (R/N) & tomate (U) & NA\\
+\hspace{1em}10 & mariposa-grifo & moto (R/C) & manzana (R/N) & vaso (U) & NA\\
+\hspace{1em}11 & guitarra-puerta & zapato (U) & galleta (R/C) & gafas (R/N) & NA\\
+\hspace{1em}11 & puerta-guitarra & hoja (U) & pez (R/C) & perro (R/N) & NA\\
+\hspace{1em}12 & gusano-martillo & tomate (U) & zapato (U) & galleta (R/C) & NA\\
+\hspace{1em}12 & martillo-gusano & queso (U) & moto (R/C) & manzana (R/N) & NA\\
+\hspace{1em}13 & hormiga-zanahoria & ojo (R/N) & pelota (U) & tele (U) & NA\\
+\hspace{1em}13 & zanahoria-hormiga & oreja (U) & mesa (U) & cebra (R/C) & NA\\
+\hspace{1em}14 & moneda-pierna & vaso (U) & queso (U) & moto (R/C) & NA\\
+\hspace{1em}14 & pierna-moneda & pez (R/C) & perro (R/N) & barco (U) & NA\\
+\hspace{1em}15 & ola-toro & pelota (U) & tele (U) & oveja (R/C) & NA\\
+\hspace{1em}15 & toro-ola & tenedor (R/N) & casa (U) & gato (U) & NA\\
+\hspace{1em}16 & ombligo-ventana & tele (U) & oveja (R/C) & ojo (R/N) & NA\\
+\hspace{1em}16 & ventana-ombligo & mono (U) & vaca (R/C) & botella (R/N) & NA\\
+\bottomrule
+\end{longtable*}
+
+\end{table*}

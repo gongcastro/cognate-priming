@@ -1,13 +1,10 @@
 project:
   render:
-    - manuscript.qmd
+    - docs/index.qmd
 
 format:
-  apaquarto-typst: default
-
-mainfont: Times New Roman
-fontfamily: DejaVu Sans Mono
-
+  apaquarto-pdf: default
+  apaquarto-docx: default
 
 title: "Developmental trajectories of bilingual word recognition"
 short-title: "Developmental trajectories of bilingual word recognition"
@@ -61,7 +58,7 @@ keywords:
 extensions:
   - _extensions/wjschne/apaquarto
 
-bibliography: "references.bib"
+bibliography: references.bib
 floatsinttext: true
 link-citations: true
 editor: source

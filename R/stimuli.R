@@ -109,7 +109,7 @@ get_childes_corpora <- function(
   load_previous = TRUE
 ) {
   # if CHILDES exists, load
-  childes.path <- file.path("data-raw", "stimuli", "childes.csv")
+  childes.path <- file.path("data", "stimuli", "childes.csv")
   if (file.exists(childes.path)) {
     if (load_previous) {
       childes <- readr::read_csv(childes.path, show_col_types = FALSE)

@@ -205,6 +205,17 @@ get_data_target <- function(
       is_gaze_target,
       is_gaze_distractor,
       trial_type
+    ) |>
+    mutate(
+      timebin = findInterval(
+        timestamp,
+        seq(
+          time_subset[1],
+          time_subset[2],
+          0.1
+        )
+      ) -
+        1
     )
 
   d_p <- select(
@@ -259,7 +270,7 @@ get_data_target <- function(
       .sum_t = sum(is_gaze_target, na.rm = TRUE),
       .sum_d = sum(is_gaze_distractor, na.rm = TRUE),
       .ntrials = length(unique(trial)),
-      .by = c(session_id, trial)
+      .by = c(session_id, trial, timebin)
     ) |>
     inner_join(d_p, by = join_by(session_id)) |>
     inner_join(d_v, by = join_by(child_id, session_id)) |>
@@ -282,7 +293,7 @@ get_data_target <- function(
       across(c(.nsamples), as.integer),
       across(c(child_id, session_id), as.factor),
       across(
-        c(age, matches("voc_"), matches("target_lv")),
+        c(age, timebin, matches("voc_"), matches("target_lv")),
         \(x) scale(x, scale = TRUE)[, 1],
         .names = "{.col}_std"
       )
@@ -295,6 +306,7 @@ get_data_target <- function(
       lp,
       voc_l1,
       voc_total,
+      timebin,
       .sum_t,
       .sum_d,
       .prop,
@@ -304,13 +316,13 @@ get_data_target <- function(
       matches("_std")
     )
 
-  if (length(levels(out$age_group)) > 1) {
+  if (length(levels(out$lp)) > 1) {
     out$lp <- factor(
       out$lp,
       levels = c("Monolingual (English)", "Monolingual", "Bilingual")
     )
     contrasts(out$lp) <- cbind(
-      c(-5, 0.25, 0.25),
+      c(-0.5, 0.25, 0.25),
       c(0, -0.5, 0.5)
     )
   }
@@ -539,11 +551,11 @@ get_exp_data <- function(
     ) |>
     mutate(timebin = findInterval(timestamp, vec = seq(0, 2, 0.1))) |>
     summarise(
-      target_prop = mean(is_gaze_distractor, na.rm = TRUE),
+      target_prop = mean(is_gaze_target, na.rm = TRUE),
       distractor_prop = mean(is_gaze_distractor, na.rm = TRUE),
       .by = c(child_id, session_id, trial, timebin)
     ) |>
-    mutate(logit = log((target_prop + 0.5) / (distractor_prop + 0.5)))
+    mutate(.elog = log((target_prop + 0.5) / (distractor_prop + 0.5)))
 
   dataset <- gaze_tmp |>
     left_join(attrition_participants) |>
@@ -559,7 +571,7 @@ get_exp_data <- function(
       session_id,
       timebin,
       trial,
-      logit,
+      .elog,
       lp,
       age,
       list,

@@ -5,14 +5,18 @@ tar_load(vocabulary)
 tar_load(aoi_coords)
 
 files <- list.files(
-  "data-raw/eyetracking-oxf",
+  "data/eyetracking-oxf",
   pattern = ".csv$",
   full.names = TRUE
 )
 
 gaze <- get_gaze_oxf(files_oxf, participants, stimuli)
 
-attrition_trials <- get_attrition_trials(gaze, participants, stimuli, vocabulary,
+attrition_trials <- get_attrition_trials(
+  gaze,
+  participants,
+  stimuli,
+  vocabulary,
   vocabulary_by = "none",
   aoi_coords = aoi_coords,
   min_looking = c(
@@ -23,7 +27,8 @@ attrition_trials <- get_attrition_trials(gaze, participants, stimuli, vocabulary
   )
 )
 
-attrition_participants <- get_attrition_participants(attrition_trials,
+attrition_participants <- get_attrition_participants(
+  attrition_trials,
   vocabulary,
   min_trials = c(
     cognate = 2,

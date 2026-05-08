@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
     # data handling, cleaning, and testing
     library(tidyverse)
     library(testthat)
+    library(readxl)
     # modelling
     library(brms)
     library(cmdstanr)
@@ -46,9 +47,7 @@ options(
   cli.progress_bar_style = "dot"
 )
 
-tar_option_set(
-  seed = 1234
-)
+tar_option_set(seed = 1234)
 
 # define targets (see https://books.ropensci.org/targets/)
 # in each target, the value returned by a function (second argument) is assigned to
@@ -81,13 +80,13 @@ list(
     file.path("data", "stimuli", "trials.xlsx"),
     format = "file"
   ),
-  tar_target(trials, readxl::read_xlsx(trials_file)),
+  tar_target(trials, read_xlsx(trials_file)),
   tar_target(
     words_file,
     file.path("data", "stimuli", "words.xlsx"),
     format = "file"
   ),
-  tar_target(words, readxl::read_xlsx(words_file)),
+  tar_target(words, read_xlsx(words_file)),
   tar_target(
     stim_stats_file_oxf,
     file.path("data", "stimuli", "stim-stats-oxf.xlsx")
@@ -418,16 +417,20 @@ list(
     lst(
       fit_0 = .elog ~ target_lv_std +
         age_std +
+        s(timebin_std, bs = "bs", k = 8) +
         (1 + target_lv_std + age_std | child_id) +
         (1 + target_lv_std | child_id:session_id),
       fit_1 = .elog ~ target_lv_std *
         age_std +
+        s(timebin_std, bs = "bs", k = 8) +
         (1 + target_lv_std + age_std | child_id) +
         (1 + target_lv_std | child_id:session_id),
       fit_2 = .elog ~ target_lv_std *
+        lp *
         voc_l1_std +
+        s(timebin_std, bs = "bs", k = 8) +
         (1 + target_lv_std + voc_l1_std | child_id) +
-        (1 + target_lv_std | child_id:session_id)
+        (1 + target_lv_std | child_id:session_id),
     )
   ),
   tar_target(

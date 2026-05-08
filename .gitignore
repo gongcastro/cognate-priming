@@ -33,7 +33,8 @@ docs/_targets.yaml
 docs/_freeze
 docs/.quarto
 
-model/fits/
+model/*.rds
+model/fits/*.rds
 model/predictions/
 model/posterior/
 
@@ -47,3 +48,8 @@ out/**/*.csv
 out/**/*.rds
 
 /.quarto/
+
+assets/**/*.png
+**/*.quarto_ipynb
+
+docs/index_files/
